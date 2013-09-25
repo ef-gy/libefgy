@@ -30,23 +30,88 @@
 
 #include <ef.gy/fractions.h>
 #include <ef.gy/continued-fractions.h>
+#include <cstdlib>
 
 using namespace efgy::math;
-using namespace std;
+
+numeric::continuedFractional<number> apply
+    (const numeric::continuedFractional<number> &cf,
+     const char &op,
+     const number &n)
+{
+    switch (op)
+    {
+        case 0:
+            return n;
+        case '+':
+            return cf+n;
+        case '-':
+            return cf-n;
+        case '*':
+            return cf*n;
+        case '/':
+            return cf/n;
+        case ',':
+            return (cf,n);
+        default:
+            throw std::exception();
+    }
+}
 
 int main (int argc, char* argv[])
 {
     try
     {
-        numeric::continuedFractional<number> cfa, cfb, cfc;
-        numeric::fractional<number> af, bf(54,92), cf(76,131);
-        cfb = bf;
-        cfc = cf;
-        cfa = cfc - cfb;
-        af = cfa;
-        std::cerr << string(cfa) << " = " << string(af) << "\n"
-                  << string(cfb) << " = " << string(bf) << "\n"
-                  << string(cfc) << " = " << string(cf) << "\n";
+        for (int i = 1; i < argc; i++)
+        {
+            numeric::continuedFractional<number> res;
+            std::string arg;
+            number n;
+            char op = 0;
+
+            for (int j = 0; argv[i][j]; j++)
+            {
+                switch (argv[i][j])
+                {
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        arg += std::string(1, argv[i][j]);
+                        break;
+                    case '-':
+                    case '+':
+                        if (arg.size() == 0)
+                        {
+                            arg += std::string(1, argv[i][j]);
+                            break;
+                        }
+                    case '*':
+                    case '/':
+                    case ',':
+                        op = argv[i][j];
+                        n = std::atoi(arg.c_str());
+                        arg = std::string();
+                        res = apply (res, op, n);
+                        break;
+                }
+            }
+
+            if (arg.size() > 0)
+            {
+                n = std::atoi(arg.c_str());
+                arg = std::string();
+                res = apply (res, op, n);
+            }
+
+            std::cerr << std::string(res) << " = " << std::string(numeric::fractional<number>(res)) << "\n";
+        }
     }
     catch (std::exception &e)
     {
