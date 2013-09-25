@@ -1,9 +1,3 @@
-root:=http://colouri.se/
-name:=Magnus Achim Deininger
-
-# programmes
-ZIP:=zip
-
 # don't delete intermediary files
 .SECONDARY:
 
