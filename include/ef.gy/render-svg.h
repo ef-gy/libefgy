@@ -33,6 +33,7 @@
 #include <ef.gy/projection.h>
 #include <string>
 #include <stdio.h>
+#include <cstring>
 
 namespace efgy
 {
@@ -157,7 +158,7 @@ namespace efgy
             {
                 snprintf(s,1024,"M%g,%g",a0,a1);
                 snprintf(sr,1024,"m%g,%g",a0r,a1r);
-                if (strlen(sr) >= strlen(s))
+                if (std::strlen(sr) >= std::strlen(s))
                 {
                     output += s;
                 }
@@ -182,7 +183,7 @@ namespace efgy
                     snprintf(sr,1024,"l%g,%g",b0r,b1r);
                 }
             }
-            if (strlen(sr) >= strlen(s))
+            if (std::strlen(sr) >= std::strlen(s))
             {
                 output += s;
             }
@@ -237,7 +238,7 @@ namespace efgy
                         snprintf(sr,1024,"l%g,%g",a0r,a1r);
                     }
                 }
-                if (strlen(sr) >= strlen(s))
+                if (std::strlen(sr) >= std::strlen(s))
                 {
                     output += s;
                 }
