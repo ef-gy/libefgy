@@ -54,6 +54,21 @@ namespace efgy
                             explicit vector (const typename math::coordinateSpace<F,n>::vector &t) : math::coordinateSpace<F,n>::vector(t) {}
 
                             using math::coordinateSpace<F,n>::vector::data;
+
+                            template<unsigned int nd>
+                            typename space<F,nd>::vector expand (void) const
+                            {
+                                typename space<F,nd>::vector rv;
+                                for (unsigned int i = 0; (i < n) && (i < nd); i++)
+                                {
+                                    rv.data[i] = data[i];
+                                }
+                                for (unsigned int i = n; (i < nd); i++)
+                                {
+                                    rv.data[i] = typename space<F,nd>::scalar();
+                                }
+                                return rv;
+                            }
                     };
             };
 
