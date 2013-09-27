@@ -74,10 +74,10 @@ namespace efgy
         class simplex : public polytope<Q,d,3,render>
         {
             public:
-                simplex (const render &pRenderer)
+                simplex (const render &pRenderer, const Q &pRadius = 0.8, const Q &pPrecision = 1)
                     : polytope<Q,d,3,render>(pRenderer)
                     {
-                        calculateObject(0.8);
+                        calculateObject(pRadius);
                     }
 
                 using polytope<Q,d,3,render>::renderWireframe;
@@ -193,10 +193,10 @@ namespace efgy
         class cube : public polytope<Q,d,4,render>
         {
             public:
-                cube (const render &pRenderer)
+                cube (const render &pRenderer, const Q &pRadius = 0.5, const Q &pPrecision = 1)
                     : polytope<Q,d,4,render>(pRenderer)
                     {
-                        calculateObject(0.5);
+                        calculateObject(pRadius);
                     }
 
                 using polytope<Q,d,4,render>::renderWireframe;
@@ -300,7 +300,7 @@ namespace efgy
         class axeGraph
         {
             public:
-                axeGraph (const render &pRenderer)
+                axeGraph (const render &pRenderer, const Q &pRadius = 1, const Q &pPrecision = 1)
                     : renderer(pRenderer)
                     {}
             
