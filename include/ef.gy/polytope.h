@@ -37,12 +37,20 @@ namespace efgy
 {
     namespace geometry
     {
+        template <typename Q>
+        class parameters
+        {
+            public:
+                Q polarRadius;
+                Q polarPrecision;
+        };
+
         template <typename Q, unsigned int d, unsigned int f, typename render>
         class polytope
         {
             public:
-                polytope (const render &pRenderer)
-                    : renderer(pRenderer)
+                polytope (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier)
+                    : renderer(pRenderer), parameter(pParameter), precisionMultiplier(pMultiplier)
                     {}
 
                 void renderWireframe () const
@@ -65,6 +73,8 @@ namespace efgy
 
             protected:
                 const render &renderer;
+                const parameters<Q> &parameter;
+                const Q &precisionMultiplier;
 
                 std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> > lines;
                 std::vector<math::tuple<f,typename euclidian::space<Q,d>::vector> > faces;
@@ -74,12 +84,13 @@ namespace efgy
         class simplex : public polytope<Q,d,3,render>
         {
             public:
-                simplex (const render &pRenderer, const Q &pRadius = 0.8, const Q &pPrecision = 1)
-                    : polytope<Q,d,3,render>(pRenderer)
+                simplex (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : polytope<Q,d,3,render>(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(pRadius);
+                        calculateObject(parameter.polarRadius);
                     }
 
+                using polytope<Q,d,3,render>::parameter;
                 using polytope<Q,d,3,render>::renderWireframe;
                 using polytope<Q,d,3,render>::renderSolid;
                 using polytope<Q,d,3,render>::renderer;
@@ -193,12 +204,13 @@ namespace efgy
         class cube : public polytope<Q,d,4,render>
         {
             public:
-                cube (const render &pRenderer, const Q &pRadius = 0.5, const Q &pPrecision = 1)
-                    : polytope<Q,d,4,render>(pRenderer)
+                cube (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : polytope<Q,d,4,render>(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(pRadius);
+                        calculateObject(parameter.polarRadius);
                     }
 
+                using polytope<Q,d,4,render>::parameter;
                 using polytope<Q,d,4,render>::renderWireframe;
                 using polytope<Q,d,4,render>::renderSolid;
                 using polytope<Q,d,4,render>::renderer;
@@ -300,7 +312,7 @@ namespace efgy
         class axeGraph
         {
             public:
-                axeGraph (const render &pRenderer, const Q &pRadius = 1, const Q &pPrecision = 1)
+                axeGraph (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : renderer(pRenderer)
                     {}
             
@@ -329,6 +341,10 @@ namespace efgy
                         renderer.drawLine(A, B);
                     }
                 }
+
+                void renderSolid ()
+                {
+                }
             
             protected:
                 const render &renderer;
@@ -338,12 +354,15 @@ namespace efgy
         class sphere : public polytope<Q,d,3,render>
         {
             public:
-                sphere (const render &pRenderer, const Q &pRadius = 2, const Q pStep = 5)
-                    : polytope<Q,d,3,render>(pRenderer), step(Q(M_PI) / pStep)
+                sphere (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : polytope<Q,d,3,render>(pRenderer, pParameter, pMultiplier),
+                      step(Q(M_PI) / (parameter.polarPrecision * precisionMultiplier))
                     {
-                        calculateObject(pRadius);
+                        calculateObject(parameter.polarRadius);
                     }
 
+                using polytope<Q,d,3,render>::precisionMultiplier;
+                using polytope<Q,d,3,render>::parameter;
                 using polytope<Q,d,3,render>::renderWireframe;
                 using polytope<Q,d,3,render>::renderSolid;
                 using polytope<Q,d,3,render>::renderer;

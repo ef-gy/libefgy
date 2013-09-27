@@ -39,10 +39,12 @@ namespace efgy
         class parametric : public polytope<Q,d,f,render>
         {
             public:
-                parametric (const render &pRenderer)
-                    : polytope<Q,d,f,render>(pRenderer)
+                parametric (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : polytope<Q,d,f,render>(pRenderer, pParameter, pMultiplier)
                     {}
 
+                using polytope<Q,d,f,render>::precisionMultiplier;
+                using polytope<Q,d,f,render>::parameter;
                 using polytope<Q,d,f,render>::renderWireframe;
                 using polytope<Q,d,f,render>::renderSolid;
                 using polytope<Q,d,f,render>::renderer;
@@ -54,12 +56,14 @@ namespace efgy
         class moebiusStrip : public parametric<Q,d,4,render>
         {
             public:
-                moebiusStrip (const render &pRenderer, const Q &pRadius, const Q &pPrecision)
-                    : parametric<Q,d,4,render>(pRenderer)
+                moebiusStrip (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : parametric<Q,d,4,render>(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(pRadius, pPrecision);
+                        calculateObject(parameter.polarRadius, parameter.polarPrecision);
                     }
 
+                using parametric<Q,d,4,render>::precisionMultiplier;
+                using parametric<Q,d,4,render>::parameter;
                 using parametric<Q,d,4,render>::renderWireframe;
                 using parametric<Q,d,4,render>::renderSolid;
                 using parametric<Q,d,4,render>::renderer;
@@ -155,12 +159,14 @@ namespace efgy
         class kleinBagel : public parametric<Q,d,4,render>
         {
             public:
-                kleinBagel (const render &pRenderer, const Q &pRadius, const Q &pPrecision)
-                    : parametric<Q,d,4,render>(pRenderer)
+                kleinBagel (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : parametric<Q,d,4,render>(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(pRadius, pPrecision);
+                        calculateObject(parameter.polarRadius, parameter.polarPrecision);
                     }
 
+                using parametric<Q,d,4,render>::precisionMultiplier;
+                using parametric<Q,d,4,render>::parameter;
                 using parametric<Q,d,4,render>::renderWireframe;
                 using parametric<Q,d,4,render>::renderSolid;
                 using parametric<Q,d,4,render>::renderer;
