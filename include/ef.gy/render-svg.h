@@ -134,30 +134,30 @@ namespace efgy
             const double b0r = b0 - a0;
             const double b1r = b1 - a1;
 
-            char s[1024];
-            char sr[1024];
+            char s[128];
+            char sr[128];
             if ((a0 == previousX) && (a1 == previousY))
             {
                 if (B.data[1] == A.data[1])
                 {
-                    std::snprintf(s,1024,"H%g",b0);
-                    std::snprintf(sr,1024,"h%g",b0r);
+                    std::snprintf(s,128,"H%g",b0);
+                    std::snprintf(sr,128,"h%g",b0r);
                 }
                 else if (B.data[0] == A.data[0])
                 {
-                    std::snprintf(s,1024,"V%g",b1);
-                    std::snprintf(sr,1024,"v%g",b1r);
+                    std::snprintf(s,128,"V%g",b1);
+                    std::snprintf(sr,128,"v%g",b1r);
                 }
                 else
                 {
-                    std::snprintf(s,1024,"L%g,%g",b0,b1);
-                    std::snprintf(sr,1024,"l%g,%g",b0r,b1r);
+                    std::snprintf(s,128,"L%g,%g",b0,b1);
+                    std::snprintf(sr,128,"l%g,%g",b0r,b1r);
                 }
             }
             else
             {
-                std::snprintf(s,1024,"M%g,%g",a0,a1);
-                std::snprintf(sr,1024,"m%g,%g",a0r,a1r);
+                std::snprintf(s,128,"M%g,%g",a0,a1);
+                std::snprintf(sr,128,"m%g,%g",a0r,a1r);
                 if (std::strlen(sr) >= std::strlen(s))
                 {
                     output += s;
@@ -169,18 +169,18 @@ namespace efgy
 
                 if (B.data[1] == A.data[1])
                 {
-                    std::snprintf(s,1024,"H%g",b0);
-                    std::snprintf(sr,1024,"h%g",b0r);
+                    std::snprintf(s,128,"H%g",b0);
+                    std::snprintf(sr,128,"h%g",b0r);
                 }
                 else if (B.data[0] == A.data[0])
                 {
-                    std::snprintf(s,1024,"V%g",b1);
-                    std::snprintf(sr,1024,"v%g",b1r);
+                    std::snprintf(s,128,"V%g",b1);
+                    std::snprintf(sr,128,"v%g",b1r);
                 }
                 else
                 {
-                    std::snprintf(s,1024,"L%g,%g",b0,b1);
-                    std::snprintf(sr,1024,"l%g,%g",b0r,b1r);
+                    std::snprintf(s,128,"L%g,%g",b0,b1);
+                    std::snprintf(sr,128,"l%g,%g",b0r,b1r);
                 }
             }
             if (std::strlen(sr) >= std::strlen(s))
@@ -208,12 +208,12 @@ namespace efgy
                 const double a0 = -Q(V.data[0]);
                 const double a1 = -Q(V.data[1]);
 
-                char s[1024];
-                char sr[1024];
+                char s[128];
+                char sr[128];
                 if (i == 0)
                 {
-                    std::snprintf(s,1024,"M%g,%g",a0,a1);
-                    std::snprintf(sr,1024,"M%g,%g",a0,a1);
+                    std::snprintf(s,128,"M%g,%g",a0,a1);
+                    std::snprintf(sr,128,"M%g,%g",a0,a1);
                 }
                 else
                 {
@@ -224,18 +224,18 @@ namespace efgy
 
                     if (pV.data[i].data[1] == V1.data[1])
                     {
-                        std::snprintf(s,1024,"H%g",a0);
-                        std::snprintf(sr,1024,"h%g",a0r);
+                        std::snprintf(s,128,"H%g",a0);
+                        std::snprintf(sr,128,"h%g",a0r);
                     }
                     else if (pV.data[i].data[0] == V1.data[0])
                     {
-                        std::snprintf(s,1024,"V%g",a1);
-                        std::snprintf(sr,1024,"v%g",a1r);
+                        std::snprintf(s,128,"V%g",a1);
+                        std::snprintf(sr,128,"v%g",a1r);
                     }
                     else
                     {
-                        std::snprintf(s,1024,"L%g,%g",a0,a1);
-                        std::snprintf(sr,1024,"l%g,%g",a0r,a1r);
+                        std::snprintf(s,128,"L%g,%g",a0,a1);
+                        std::snprintf(sr,128,"l%g,%g",a0r,a1r);
                     }
                 }
                 if (std::strlen(sr) >= std::strlen(s))
