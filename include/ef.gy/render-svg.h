@@ -34,6 +34,7 @@
 #include <string>
 #include <stdio.h>
 #include <cstring>
+#include <sstream>
 
 namespace efgy
 {
@@ -81,7 +82,7 @@ namespace efgy
                 void drawFace
                     (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV);
 
-                std::string output;
+                std::stringstream output;
             protected:
                 const geometry::transformation<Q,2> &transformation;
                 Q previousX, previousY;
@@ -140,56 +141,56 @@ namespace efgy
             {
                 if (B.data[1] == A.data[1])
                 {
-                    snprintf(s,1024,"H%g",b0);
-                    snprintf(sr,1024,"h%g",b0r);
+                    std::snprintf(s,1024,"H%g",b0);
+                    std::snprintf(sr,1024,"h%g",b0r);
                 }
                 else if (B.data[0] == A.data[0])
                 {
-                    snprintf(s,1024,"V%g",b1);
-                    snprintf(sr,1024,"v%g",b1r);
+                    std::snprintf(s,1024,"V%g",b1);
+                    std::snprintf(sr,1024,"v%g",b1r);
                 }
                 else
                 {
-                    snprintf(s,1024,"L%g,%g",b0,b1);
-                    snprintf(sr,1024,"l%g,%g",b0r,b1r);
+                    std::snprintf(s,1024,"L%g,%g",b0,b1);
+                    std::snprintf(sr,1024,"l%g,%g",b0r,b1r);
                 }
             }
             else
             {
-                snprintf(s,1024,"M%g,%g",a0,a1);
-                snprintf(sr,1024,"m%g,%g",a0r,a1r);
+                std::snprintf(s,1024,"M%g,%g",a0,a1);
+                std::snprintf(sr,1024,"m%g,%g",a0r,a1r);
                 if (std::strlen(sr) >= std::strlen(s))
                 {
-                    output += s;
+                    output << s;
                 }
                 else
                 {
-                    output += sr;
+                    output << sr;
                 }
 
                 if (B.data[1] == A.data[1])
                 {
-                    snprintf(s,1024,"H%g",b0);
-                    snprintf(sr,1024,"h%g",b0r);
+                    std::snprintf(s,1024,"H%g",b0);
+                    std::snprintf(sr,1024,"h%g",b0r);
                 }
                 else if (B.data[0] == A.data[0])
                 {
-                    snprintf(s,1024,"V%g",b1);
-                    snprintf(sr,1024,"v%g",b1r);
+                    std::snprintf(s,1024,"V%g",b1);
+                    std::snprintf(sr,1024,"v%g",b1r);
                 }
                 else
                 {
-                    snprintf(s,1024,"L%g,%g",b0,b1);
-                    snprintf(sr,1024,"l%g,%g",b0r,b1r);
+                    std::snprintf(s,1024,"L%g,%g",b0,b1);
+                    std::snprintf(sr,1024,"l%g,%g",b0r,b1r);
                 }
             }
             if (std::strlen(sr) >= std::strlen(s))
             {
-                output += s;
+                output << s;
             }
             else
             {
-                output += sr;
+                output << sr;
             }
             previousX = b0;
             previousY = b1;
@@ -200,7 +201,7 @@ namespace efgy
         void svg<Q,2>::drawFace
             (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV)
         {
-            output += "<path d='";
+            output << "<path d='";
             for (unsigned int i = 0; i < q; i++)
             {
                 const typename geometry::euclidian::space<Q,2>::vector V = transformation * pV.data[i];
@@ -212,8 +213,8 @@ namespace efgy
                 char sr[1024];
                 if (i == 0)
                 {
-                    snprintf(s,1024,"M%g,%g",a0,a1);
-                    snprintf(sr,1024,"M%g,%g",a0,a1);
+                    std::snprintf(s,1024,"M%g,%g",a0,a1);
+                    std::snprintf(sr,1024,"M%g,%g",a0,a1);
                 }
                 else
                 {
@@ -224,30 +225,30 @@ namespace efgy
 
                     if (pV.data[i].data[1] == V1.data[1])
                     {
-                        snprintf(s,1024,"H%g",a0);
-                        snprintf(sr,1024,"h%g",a0r);
+                        std::snprintf(s,1024,"H%g",a0);
+                        std::snprintf(sr,1024,"h%g",a0r);
                     }
                     else if (pV.data[i].data[0] == V1.data[0])
                     {
-                        snprintf(s,1024,"V%g",a1);
-                        snprintf(sr,1024,"v%g",a1r);
+                        std::snprintf(s,1024,"V%g",a1);
+                        std::snprintf(sr,1024,"v%g",a1r);
                     }
                     else
                     {
-                        snprintf(s,1024,"L%g,%g",a0,a1);
-                        snprintf(sr,1024,"l%g,%g",a0r,a1r);
+                        std::snprintf(s,1024,"L%g,%g",a0,a1);
+                        std::snprintf(sr,1024,"l%g,%g",a0r,a1r);
                     }
                 }
                 if (std::strlen(sr) >= std::strlen(s))
                 {
-                    output += s;
+                    output << s;
                 }
                 else
                 {
-                    output += sr;
+                    output << sr;
                 }
             }
-            output += "Z'/>";
+            output << "Z'/>";
         }
     };
 };
