@@ -32,7 +32,7 @@
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 
 namespace efgy
