@@ -34,6 +34,7 @@
 #include <string>
 #include <cstdio>
 #include <cstring>
+#include <sstream>
 
 namespace efgy
 {
@@ -81,7 +82,7 @@ namespace efgy
                 void drawFace
                     (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV);
 
-                std::string output;
+                std::stringstream output;
             protected:
                 const geometry::transformation<Q,2> &transformation;
                 Q previousX, previousY;
@@ -160,11 +161,11 @@ namespace efgy
                 std::snprintf(sr,128,"m%g,%g",a0r,a1r);
                 if (std::strlen(sr) >= std::strlen(s))
                 {
-                    output += s;
+                    output << s;
                 }
                 else
                 {
-                    output += sr;
+                    output << sr;
                 }
 
                 if (B.data[1] == A.data[1])
@@ -185,11 +186,11 @@ namespace efgy
             }
             if (std::strlen(sr) >= std::strlen(s))
             {
-                output += s;
+                output << s;
             }
             else
             {
-                output += sr;
+                output << sr;
             }
             previousX = b0;
             previousY = b1;
@@ -200,7 +201,7 @@ namespace efgy
         void svg<Q,2>::drawFace
             (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV)
         {
-            output += "<path d='";
+            output << "<path d='";
             for (unsigned int i = 0; i < q; i++)
             {
                 const typename geometry::euclidian::space<Q,2>::vector V = transformation * pV.data[i];
@@ -240,14 +241,14 @@ namespace efgy
                 }
                 if (std::strlen(sr) >= std::strlen(s))
                 {
-                    output += s;
+                    output << s;
                 }
                 else
                 {
-                    output += sr;
+                    output << sr;
                 }
             }
-            output += "Z'/>";
+            output << "Z'/>";
         }
     };
 };

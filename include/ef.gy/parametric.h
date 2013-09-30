@@ -39,36 +39,44 @@ namespace efgy
         class parametric : public polytope<Q,d,f,render>
         {
             public:
+                typedef polytope<Q,d,f,render> parent;
+
                 parametric (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : polytope<Q,d,f,render>(pRenderer, pParameter, pMultiplier)
+                    : parent(pRenderer, pParameter, pMultiplier)
                     {}
 
-                using polytope<Q,d,f,render>::precisionMultiplier;
-                using polytope<Q,d,f,render>::parameter;
-                using polytope<Q,d,f,render>::renderWireframe;
-                using polytope<Q,d,f,render>::renderSolid;
-                using polytope<Q,d,f,render>::renderer;
-                using polytope<Q,d,f,render>::lines;
-                using polytope<Q,d,f,render>::faces;
+                using parent::precisionMultiplier;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = 3>
         class moebiusStrip : public parametric<Q,d,4,render>
         {
             public:
+                typedef parametric<Q,d,4,render> parent;
+
                 moebiusStrip (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parametric<Q,d,4,render>(pRenderer, pParameter, pMultiplier)
+                    : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject(parameter.polarRadius, parameter.polarPrecision);
                     }
 
-                using parametric<Q,d,4,render>::precisionMultiplier;
-                using parametric<Q,d,4,render>::parameter;
-                using parametric<Q,d,4,render>::renderWireframe;
-                using parametric<Q,d,4,render>::renderSolid;
-                using parametric<Q,d,4,render>::renderer;
-                using parametric<Q,d,4,render>::lines;
-                using parametric<Q,d,4,render>::faces;
+                using parent::precisionMultiplier;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
+
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "moebius-strip"; }
 
                 void calculateObject(Q radius, Q precision)
                 {
@@ -159,19 +167,25 @@ namespace efgy
         class kleinBagel : public parametric<Q,d,4,render>
         {
             public:
+                typedef parametric<Q,d,4,render> parent;
+
                 kleinBagel (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parametric<Q,d,4,render>(pRenderer, pParameter, pMultiplier)
+                    : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject(parameter.polarRadius, parameter.polarPrecision);
                     }
 
-                using parametric<Q,d,4,render>::precisionMultiplier;
-                using parametric<Q,d,4,render>::parameter;
-                using parametric<Q,d,4,render>::renderWireframe;
-                using parametric<Q,d,4,render>::renderSolid;
-                using parametric<Q,d,4,render>::renderer;
-                using parametric<Q,d,4,render>::lines;
-                using parametric<Q,d,4,render>::faces;
+                using parent::precisionMultiplier;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
+
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "klein-bagel"; }
 
                 void calculateObject(Q radius, Q precision)
                 {

@@ -84,18 +84,24 @@ namespace efgy
         class simplex : public polytope<Q,d,3,render>
         {
             public:
+                typedef polytope<Q,d,3,render> parent;
+
                 simplex (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : polytope<Q,d,3,render>(pRenderer, pParameter, pMultiplier)
+                    : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject(parameter.polarRadius);
                     }
 
-                using polytope<Q,d,3,render>::parameter;
-                using polytope<Q,d,3,render>::renderWireframe;
-                using polytope<Q,d,3,render>::renderSolid;
-                using polytope<Q,d,3,render>::renderer;
-                using polytope<Q,d,3,render>::lines;
-                using polytope<Q,d,3,render>::faces;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
+
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "simplex"; }
 
                 void recurse (const int r, typename polar::space<Q,d>::vector v, std::vector<typename euclidian::space<Q,d>::vector> &points)
                 {
@@ -204,18 +210,24 @@ namespace efgy
         class cube : public polytope<Q,d,4,render>
         {
             public:
+                typedef polytope<Q,d,4,render> parent;
+
                 cube (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : polytope<Q,d,4,render>(pRenderer, pParameter, pMultiplier)
+                    : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject(parameter.polarRadius);
                     }
 
-                using polytope<Q,d,4,render>::parameter;
-                using polytope<Q,d,4,render>::renderWireframe;
-                using polytope<Q,d,4,render>::renderSolid;
-                using polytope<Q,d,4,render>::renderer;
-                using polytope<Q,d,4,render>::lines;
-                using polytope<Q,d,4,render>::faces;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
+
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "cube"; }
 
                 void calculateObject (Q diameter)
                 {
@@ -315,6 +327,10 @@ namespace efgy
                 axeGraph (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : renderer(pRenderer)
                     {}
+
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "axe-graph"; }
             
                 void renderWireframe ()
                 {
@@ -354,20 +370,26 @@ namespace efgy
         class sphere : public polytope<Q,d,3,render>
         {
             public:
+                typedef polytope<Q,d,3,render> parent;
+
                 sphere (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : polytope<Q,d,3,render>(pRenderer, pParameter, pMultiplier),
+                    : parent(pRenderer, pParameter, pMultiplier),
                       step(Q(M_PI) / (parameter.polarPrecision * precisionMultiplier))
                     {
                         calculateObject(parameter.polarRadius);
                     }
 
-                using polytope<Q,d,3,render>::precisionMultiplier;
-                using polytope<Q,d,3,render>::parameter;
-                using polytope<Q,d,3,render>::renderWireframe;
-                using polytope<Q,d,3,render>::renderSolid;
-                using polytope<Q,d,3,render>::renderer;
-                using polytope<Q,d,3,render>::lines;
-                using polytope<Q,d,3,render>::faces;
+                using parent::precisionMultiplier;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
+
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "sphere"; }
 
                 void recurse (const int r, typename polar::space<Q,d>::vector v)
                 {
