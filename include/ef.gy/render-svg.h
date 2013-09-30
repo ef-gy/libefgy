@@ -159,7 +159,7 @@ namespace efgy
             {
                 sbuf1 << "M" << a0 << "," << a1;
                 sbuf2 << "m" << a0r << "," << a1r;
-                if (sbuf1.tellg() >= sbuf2.tellg())
+                if (sbuf1.str().size() >= sbuf2.str().size())
                 {
                     output << sbuf2.str();
                 }
@@ -186,7 +186,7 @@ namespace efgy
                     sbuf2 << "l" << b0r << "," << b1r;
                 }
             }
-            if (sbuf1.tellg() >= sbuf2.tellg())
+            if (sbuf1.str().size() >= sbuf2.str().size())
             {
                 output << sbuf2.str();
             }
@@ -242,7 +242,7 @@ namespace efgy
                         sbuf2 << "l" << a0r << "," << a1r;
                     }
                 }
-                if (sbuf1.tellg() >= sbuf2.tellg())
+                if (sbuf1.str().size() >= sbuf2.str().size())
                 {
                     output << sbuf2.str();
                 }
