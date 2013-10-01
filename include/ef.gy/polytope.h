@@ -215,7 +215,7 @@ namespace efgy
                 cube (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(parameter.polarRadius);
+                        calculateObject(parameter.polarRadius * Q(0.5));
                     }
 
                 using parent::parameter;
