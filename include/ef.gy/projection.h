@@ -248,10 +248,13 @@ namespace efgy
         class perspectiveProjection
         {
             public:
-                perspectiveProjection(typename euclidian::space<Q,d>::vector pFrom, typename euclidian::space<Q,d>::vector pTo, Q pEyeAngle = M_PI_4)
+                perspectiveProjection(typename euclidian::space<Q,d>::vector pFrom, typename euclidian::space<Q,d>::vector pTo, Q pEyeAngle = M_PI_4, const bool &initialiseMatrix = true)
                     : from(pFrom), to(pTo), eyeAngle(pEyeAngle)
                     {
-                        updateMatrix();
+                        if (initialiseMatrix)
+                        {
+                            updateMatrix();
+                        }
                     }
 
                 void updateMatrix()
