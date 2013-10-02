@@ -63,7 +63,7 @@ namespace efgy
                 moebiusStrip (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(parameter.polarRadius, parameter.polarPrecision);
+                        calculateObject();
                     }
 
                 using parent::precisionMultiplier;
@@ -78,8 +78,11 @@ namespace efgy
                 static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "moebius-strip"; }
 
-                void calculateObject(Q radius, Q precision)
+                void calculateObject(void)
                 {
+                    Q radius = parameter.polarRadius;
+                    Q precision = parameter.polarPrecision * precisionMultiplier;
+
                     usedRadius = radius;
                     usedPrecision = precision;
 
@@ -172,7 +175,7 @@ namespace efgy
                 kleinBagel (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(parameter.polarRadius, parameter.polarPrecision);
+                        calculateObject();
                     }
 
                 using parent::precisionMultiplier;
@@ -187,8 +190,11 @@ namespace efgy
                 static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "klein-bagel"; }
 
-                void calculateObject(Q radius, Q precision)
+                void calculateObject(void)
                 {
+                    Q radius = parameter.polarRadius;
+                    Q precision = parameter.polarPrecision * precisionMultiplier;
+
                     usedRadius = radius;
                     usedPrecision = precision;
 

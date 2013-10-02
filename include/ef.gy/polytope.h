@@ -89,7 +89,7 @@ namespace efgy
                 simplex (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(parameter.polarRadius);
+                        calculateObject();
                     }
 
                 using parent::parameter;
@@ -121,8 +121,10 @@ namespace efgy
                     }
                 }
 
-                void calculateObject (Q radius)
+                void calculateObject (void)
                 {
+                    Q radius = parameter.polarRadius;
+
                     lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
                     faces = std::vector<math::tuple<3,typename euclidian::space<Q,d>::vector> >();
 
@@ -215,7 +217,7 @@ namespace efgy
                 cube (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(parameter.polarRadius * Q(0.5));
+                        calculateObject();
                     }
 
                 using parent::parameter;
@@ -229,8 +231,10 @@ namespace efgy
                 static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "cube"; }
 
-                void calculateObject (Q diameter)
+                void calculateObject (void)
                 {
+                    Q diameter = parameter.polarRadius * Q(0.5);
+
                     lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
                     faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
 
@@ -376,7 +380,7 @@ namespace efgy
                     : parent(pRenderer, pParameter, pMultiplier),
                       step(Q(M_PI) / (parameter.polarPrecision * precisionMultiplier))
                     {
-                        calculateObject(parameter.polarRadius);
+                        calculateObject();
                     }
 
                 using parent::precisionMultiplier;
@@ -444,16 +448,11 @@ namespace efgy
                     }
                 }
 
-                void calculateObject (Q radius, Q pStep)
+                void calculateObject (void)
                 {
-                    Q usedPrecision = pStep;
+                    Q radius = parameter.polarRadius;
+                    step = (Q(M_PI) / (parameter.polarPrecision * precisionMultiplier));
 
-                    step = Q(M_PI) / pStep;
-                    calculateObject(radius);
-                }
-
-                void calculateObject (Q radius)
-                {
                     Q usedRadius = radius;
 
                     lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
@@ -473,7 +472,6 @@ namespace efgy
                 }
 
                 Q usedRadius;
-                Q usedPrecision;
 
             protected:
                 Q step;
