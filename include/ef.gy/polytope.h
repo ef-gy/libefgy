@@ -37,12 +37,20 @@ namespace efgy
 {
     namespace geometry
     {
+        template <typename Q>
+        class parameters
+        {
+            public:
+                Q polarRadius;
+                Q polarPrecision;
+        };
+
         template <typename Q, unsigned int d, unsigned int f, typename render>
         class polytope
         {
             public:
-                polytope (const render &pRenderer)
-                    : renderer(pRenderer)
+                polytope (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier)
+                    : renderer(pRenderer), parameter(pParameter), precisionMultiplier(pMultiplier)
                     {}
 
                 void renderWireframe () const
@@ -59,32 +67,41 @@ namespace efgy
                     for (typename std::vector<math::tuple<f,typename euclidian::space<Q,d>::vector> >::const_iterator it = faces.begin();
                          it != faces.end(); it++)
                     {
-                        renderer.drawFace (*it);
+                        renderer.render::template drawFace<f> (*it);
                     }
                 }
 
             protected:
                 const render &renderer;
+                const parameters<Q> &parameter;
+                const Q &precisionMultiplier;
 
                 std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> > lines;
                 std::vector<math::tuple<f,typename euclidian::space<Q,d>::vector> > faces;
         };
 
-        template <typename Q, unsigned int d, typename render>
+        template <typename Q, unsigned int od, typename render, unsigned int d = od>
         class simplex : public polytope<Q,d,3,render>
         {
             public:
-                simplex (const render &pRenderer)
-                    : polytope<Q,d,3,render>(pRenderer)
+                typedef polytope<Q,d,3,render> parent;
+
+                simplex (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : parent(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(0.8);
+                        calculateObject();
                     }
 
-                using polytope<Q,d,3,render>::renderWireframe;
-                using polytope<Q,d,3,render>::renderSolid;
-                using polytope<Q,d,3,render>::renderer;
-                using polytope<Q,d,3,render>::lines;
-                using polytope<Q,d,3,render>::faces;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
+
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "simplex"; }
 
                 void recurse (const int r, typename polar::space<Q,d>::vector v, std::vector<typename euclidian::space<Q,d>::vector> &points)
                 {
@@ -104,8 +121,10 @@ namespace efgy
                     }
                 }
 
-                void calculateObject (Q radius)
+                void calculateObject (void)
                 {
+                    Q radius = parameter.polarRadius;
+
                     lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
                     faces = std::vector<math::tuple<3,typename euclidian::space<Q,d>::vector> >();
 
@@ -114,7 +133,7 @@ namespace efgy
                     typename polar::space<Q,d>::vector v;
                     v.data[0] = radius;
                     
-                    const int r = d-1;
+                    const int r = od-1;
                     const int q = r-1;
 
                     v.data[r] = -M_PI/1.5;
@@ -189,34 +208,43 @@ namespace efgy
                 }
         };
 
-        template <typename Q, unsigned int d, typename render>
+        template <typename Q, unsigned int od, typename render, unsigned int d = od>
         class cube : public polytope<Q,d,4,render>
         {
             public:
-                cube (const render &pRenderer)
-                    : polytope<Q,d,4,render>(pRenderer)
+                typedef polytope<Q,d,4,render> parent;
+
+                cube (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : parent(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(0.5);
+                        calculateObject();
                     }
 
-                using polytope<Q,d,4,render>::renderWireframe;
-                using polytope<Q,d,4,render>::renderSolid;
-                using polytope<Q,d,4,render>::renderer;
-                using polytope<Q,d,4,render>::lines;
-                using polytope<Q,d,4,render>::faces;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
 
-                void calculateObject (Q diameter)
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "cube"; }
+
+                void calculateObject (void)
                 {
+                    Q diameter = parameter.polarRadius * Q(0.5);
+
                     lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
                     faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
 
                     std::vector<typename euclidian::space<Q,d>::vector> points;
 
                     typename euclidian::space<Q,d>::vector A;
-                    
+
                     points.push_back (A);
                     
-                    for (unsigned int i = 0; i < d; i++)
+                    for (unsigned int i = 0; i < od; i++)
                     {
                         std::vector<typename euclidian::space<Q,d>::vector> newPoints;
                         std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> > newLines;
@@ -296,13 +324,17 @@ namespace efgy
                 }
         };
 
-        template <typename Q, unsigned int d, typename render>
+        template <typename Q, unsigned int od, typename render, unsigned int d = od>
         class axeGraph
         {
             public:
-                axeGraph (const render &pRenderer)
+                axeGraph (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : renderer(pRenderer)
                     {}
+
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "axe-graph"; }
             
                 void renderWireframe ()
                 {
@@ -312,7 +344,7 @@ namespace efgy
                     std::vector<typename euclidian::space<Q,d>::vector> points;
                     std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> > lines;
 
-                    for (unsigned int i = 0; i < d; i++)
+                    for (unsigned int i = 0; i < od; i++)
                     {
                         for (unsigned int j = 0; j < d; j++)
                         {
@@ -329,49 +361,62 @@ namespace efgy
                         renderer.drawLine(A, B);
                     }
                 }
+
+                void renderSolid ()
+                {
+                }
             
             protected:
                 const render &renderer;
         };
 
-        template <typename Q, unsigned int d, typename render>
-        class sphere : public polytope<Q,(d+1),3,render>
+        template <typename Q, unsigned int od, typename render, unsigned int d = od>
+        class sphere : public polytope<Q,d,3,render>
         {
             public:
-                sphere (const render &pRenderer, const Q &pRadius, const Q pStep = 5)
-                    : polytope<Q,(d+1),3,render>(pRenderer), step(Q(M_PI) / pStep)
+                typedef polytope<Q,d,3,render> parent;
+
+                sphere (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : parent(pRenderer, pParameter, pMultiplier),
+                      step(Q(M_PI) / (parameter.polarPrecision * precisionMultiplier))
                     {
-                        calculateObject(pRadius);
+                        calculateObject();
                     }
 
-                using polytope<Q,(d+1),3,render>::renderWireframe;
-                using polytope<Q,(d+1),3,render>::renderSolid;
-                using polytope<Q,(d+1),3,render>::renderer;
-                using polytope<Q,(d+1),3,render>::lines;
-                using polytope<Q,(d+1),3,render>::faces;
+                using parent::precisionMultiplier;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
 
-                void recurse (const int r, typename polar::space<Q,(d+1)>::vector v)
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "sphere"; }
+
+                void recurse (const int r, typename polar::space<Q,d>::vector v)
                 {
                     if (r == 0)
                     {
-                        const typename euclidian::space<Q,(d+1)>::vector A = v;
+                        const typename euclidian::space<Q,d>::vector A = v;
 
                         for (unsigned int i = 1; i <= d; i++)
                         {
-                            typename polar::space<Q,(d+1)>::vector v1 = v;
+                            typename polar::space<Q,d>::vector v1 = v;
 
                             v1.data[i] += step;
 
-                            const typename euclidian::space<Q,(d+1)>::vector B = v1;
+                            const typename euclidian::space<Q,d>::vector B = v1;
 
-                            math::tuple<2,typename euclidian::space<Q,(d+1)>::vector> newLine;
+                            math::tuple<2,typename euclidian::space<Q,d>::vector> newLine;
 
                             newLine.data[0] = A;
                             newLine.data[1] = B;
 
                             lines.push_back(newLine);
 
-                            math::tuple<3,typename euclidian::space<Q,(d+1)>::vector> newFace;
+                            math::tuple<3,typename euclidian::space<Q,d>::vector> newFace;
 
                             newFace.data[0] = A;
                             newFace.data[1] = B;
@@ -383,7 +428,7 @@ namespace efgy
                                     v1 = v;
                                     v1.data[j] -= step;
 
-                                    const typename euclidian::space<Q,(d+1)>::vector C = v1;
+                                    const typename euclidian::space<Q,d>::vector C = v1;
                                     newFace.data[2] = C;
 
                                     faces.push_back(newFace);
@@ -403,25 +448,20 @@ namespace efgy
                     }
                 }
 
-                void calculateObject (Q radius, Q pStep)
+                void calculateObject (void)
                 {
-                    Q usedPrecision = pStep;
+                    Q radius = parameter.polarRadius;
+                    step = (Q(M_PI) / (parameter.polarPrecision * precisionMultiplier));
 
-                    step = Q(M_PI) / pStep;
-                    calculateObject(radius);
-                }
-
-                void calculateObject (Q radius)
-                {
                     Q usedRadius = radius;
 
-                    lines = std::vector<math::tuple<2,typename euclidian::space<Q,(d+1)>::vector> >();
-                    faces = std::vector<math::tuple<3,typename euclidian::space<Q,(d+1)>::vector> >();
+                    lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
+                    faces = std::vector<math::tuple<3,typename euclidian::space<Q,d>::vector> >();
 
-                    typename polar::space<Q,(d+1)>::vector v;
+                    typename polar::space<Q,d>::vector v;
                     v.data[0] = radius;
 
-                    const int r = d;
+                    const int r = od;
                     const int q = r-1;
 
                     for (Q i = -M_PI; i < M_PI; i+= step)
@@ -432,7 +472,6 @@ namespace efgy
                 }
 
                 Q usedRadius;
-                Q usedPrecision;
 
             protected:
                 Q step;

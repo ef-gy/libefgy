@@ -35,39 +35,54 @@ namespace efgy
 {
     namespace geometry
     {
-        template <typename Q, unsigned int pD, unsigned int d, unsigned int f, typename render>
+        template <typename Q, unsigned int d, unsigned int f, typename render>
         class parametric : public polytope<Q,d,f,render>
         {
             public:
-                parametric (const render &pRenderer)
-                    : polytope<Q,d,f,render>(pRenderer)
+                typedef polytope<Q,d,f,render> parent;
+
+                parametric (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : parent(pRenderer, pParameter, pMultiplier)
                     {}
 
-                using polytope<Q,d,f,render>::renderWireframe;
-                using polytope<Q,d,f,render>::renderSolid;
-                using polytope<Q,d,f,render>::renderer;
-                using polytope<Q,d,f,render>::lines;
-                using polytope<Q,d,f,render>::faces;
+                using parent::precisionMultiplier;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
         };
 
-        template <typename Q, typename render>
-        class moebiusStrip : public parametric<Q,2,3,4,render>
+        template <typename Q, unsigned int od, typename render, unsigned int d = 3>
+        class moebiusStrip : public parametric<Q,d,4,render>
         {
             public:
-                moebiusStrip (const render &pRenderer, const Q &pRadius, const Q &pPrecision)
-                    : parametric<Q,2,3,4,render>(pRenderer)
+                typedef parametric<Q,d,4,render> parent;
+
+                moebiusStrip (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : parent(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(pRadius, pPrecision);
+                        calculateObject();
                     }
 
-                using parametric<Q,2,3,4,render>::renderWireframe;
-                using parametric<Q,2,3,4,render>::renderSolid;
-                using parametric<Q,2,3,4,render>::renderer;
-                using parametric<Q,2,3,4,render>::lines;
-                using parametric<Q,2,3,4,render>::faces;
+                using parent::precisionMultiplier;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
 
-                void calculateObject(Q radius, Q precision)
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "moebius-strip"; }
+
+                void calculateObject(void)
                 {
+                    Q radius = parameter.polarRadius;
+                    Q precision = parameter.polarPrecision * precisionMultiplier;
+
                     usedRadius = radius;
                     usedPrecision = precision;
 
@@ -75,8 +90,8 @@ namespace efgy
                     const Q stepU = Q(M_PI/(precision*Q(2)));
                     const Q stepV = Q((2*radius)/precision);
 
-                    lines = std::vector<math::tuple<2,typename euclidian::space<Q,3>::vector> >();
-                    faces = std::vector<math::tuple<4,typename euclidian::space<Q,3>::vector> >();
+                    lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
+                    faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
 
                     for (Q u = 0; u < Q(2*M_PI); u += stepU)
                     {
@@ -85,24 +100,24 @@ namespace efgy
                             Q un = (u + stepU) <= Q(2*M_PI) ? (u + stepU) : Q(2*M_PI);
                             Q vn = (v + stepV) <= Q(radius) ? (v + stepV) : radius;
 
-                            const typename euclidian::space<Q,3>::vector A = getCoordinates(radius, u, v);
-                            const typename euclidian::space<Q,3>::vector B = getCoordinates(radius, un, v);
+                            const typename euclidian::space<Q,d>::vector A = getCoordinates(radius, u, v);
+                            const typename euclidian::space<Q,d>::vector B = getCoordinates(radius, un, v);
 
-                            math::tuple<2,typename euclidian::space<Q,3>::vector> newLine;
+                            math::tuple<2,typename euclidian::space<Q,d>::vector> newLine;
 
                             newLine.data[0] = A;
                             newLine.data[1] = B;
 
                             lines.push_back(newLine);
 
-                            const typename euclidian::space<Q,3>::vector C = getCoordinates(radius, u, vn);
+                            const typename euclidian::space<Q,d>::vector C = getCoordinates(radius, u, vn);
                                 newLine.data[1] = C;
 
                             lines.push_back(newLine);
 
-                            const typename euclidian::space<Q,3>::vector D = getCoordinates(radius, un, vn);
+                            const typename euclidian::space<Q,d>::vector D = getCoordinates(radius, un, vn);
 
-                            math::tuple<4,typename euclidian::space<Q,3>::vector> newFace;
+                            math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
 
                             newFace.data[0] = A;
                             newFace.data[1] = B;
@@ -136,9 +151,9 @@ namespace efgy
                     return Q(0);
                 }
 
-                typename euclidian::space<Q,3>::vector getCoordinates (Q r, Q u, Q v) const
+                typename euclidian::space<Q,d>::vector getCoordinates (Q r, Q u, Q v) const
                 {
-                    typename euclidian::space<Q,3>::vector res;
+                    typename euclidian::space<Q,d>::vector res;
 
                     res.data[0] = getCoordinate(0, r, u, v);
                     res.data[1] = getCoordinate(1, r, u, v);
@@ -151,24 +166,35 @@ namespace efgy
                 Q usedPrecision;
         };
 
-        template <typename Q, typename render, int DQ = 3>
-        class kleinBagel : public parametric<Q,2,DQ,4,render>
+        template <typename Q, unsigned int od, typename render, unsigned int d = 3>
+        class kleinBagel : public parametric<Q,d,4,render>
         {
             public:
-                kleinBagel (const render &pRenderer, const Q &pRadius, const Q &pPrecision)
-                    : parametric<Q,2,DQ,4,render>(pRenderer)
+                typedef parametric<Q,d,4,render> parent;
+
+                kleinBagel (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : parent(pRenderer, pParameter, pMultiplier)
                     {
-                        calculateObject(pRadius, pPrecision);
+                        calculateObject();
                     }
 
-                using parametric<Q,2,DQ,4,render>::renderWireframe;
-                using parametric<Q,2,DQ,4,render>::renderSolid;
-                using parametric<Q,2,DQ,4,render>::renderer;
-                using parametric<Q,2,DQ,4,render>::lines;
-                using parametric<Q,2,DQ,4,render>::faces;
+                using parent::precisionMultiplier;
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
 
-                void calculateObject(Q radius, Q precision)
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "klein-bagel"; }
+
+                void calculateObject(void)
                 {
+                    Q radius = parameter.polarRadius;
+                    Q precision = parameter.polarPrecision * precisionMultiplier;
+
                     usedRadius = radius;
                     usedPrecision = precision;
 
@@ -176,8 +202,8 @@ namespace efgy
                     const Q stepU = Q(M_PI/(precision));
                     const Q stepV = stepU;
 
-                    lines = std::vector<math::tuple<2,typename euclidian::space<Q,DQ>::vector> >();
-                    faces = std::vector<math::tuple<4,typename euclidian::space<Q,DQ>::vector> >();
+                    lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
+                    faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
 
                     for (Q u = 0; u < Q(2*M_PI); u += stepU)
                     {
@@ -186,24 +212,24 @@ namespace efgy
                             Q un = (u + stepU) <= Q(2*M_PI) ? (u + stepU) : Q(2*M_PI);
                             Q vn = (v + stepV) <= Q(2*M_PI) ? (v + stepV) : Q(2*M_PI);
 
-                            const typename euclidian::space<Q,DQ>::vector A = getCoordinates(radius, u, v);
-                            const typename euclidian::space<Q,DQ>::vector B = getCoordinates(radius, un, v);
+                            const typename euclidian::space<Q,d>::vector A = getCoordinates(radius, u, v);
+                            const typename euclidian::space<Q,d>::vector B = getCoordinates(radius, un, v);
 
-                            math::tuple<2,typename euclidian::space<Q,DQ>::vector> newLine;
+                            math::tuple<2,typename euclidian::space<Q,d>::vector> newLine;
 
                             newLine.data[0] = A;
                             newLine.data[1] = B;
 
                             lines.push_back(newLine);
 
-                            const typename euclidian::space<Q,DQ>::vector C = getCoordinates(radius, u, vn);
+                            const typename euclidian::space<Q,d>::vector C = getCoordinates(radius, u, vn);
                             newLine.data[1] = C;
 
                             lines.push_back(newLine);
 
-                            const typename euclidian::space<Q,DQ>::vector D = getCoordinates(radius, un, vn);
+                            const typename euclidian::space<Q,d>::vector D = getCoordinates(radius, un, vn);
 
-                            math::tuple<4,typename euclidian::space<Q,DQ>::vector> newFace;
+                            math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
 
                             newFace.data[0] = A;
                             newFace.data[1] = B;
@@ -237,9 +263,9 @@ namespace efgy
                     return Q(0);
                 }
 
-                typename euclidian::space<Q,DQ>::vector getCoordinates (Q r, Q u, Q v) const
+                typename euclidian::space<Q,d>::vector getCoordinates (Q r, Q u, Q v) const
                 {
-                    typename euclidian::space<Q,DQ>::vector res;
+                    typename euclidian::space<Q,d>::vector res;
 
                     res.data[0] = getCoordinate(0, r, u, v);
                     res.data[1] = getCoordinate(1, r, u, v);

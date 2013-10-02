@@ -31,9 +31,7 @@
 
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
-#include <string>
-#include <stdio.h>
-#include <cstring>
+#include <sstream>
 
 namespace efgy
 {
@@ -81,7 +79,7 @@ namespace efgy
                 void drawFace
                     (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV);
 
-                std::string output;
+                std::stringstream output;
             protected:
                 const geometry::transformation<Q,2> &transformation;
                 Q previousX, previousY;
@@ -121,6 +119,9 @@ namespace efgy
             (const typename geometry::euclidian::space<Q,2>::vector &pA,
              const typename geometry::euclidian::space<Q,2>::vector &pB)
         {
+            std::stringstream sbuf1;
+            std::stringstream sbuf2;
+
             const typename geometry::euclidian::space<Q,2>::vector &A = transformation * pA;
             const typename geometry::euclidian::space<Q,2>::vector &B = transformation * pB;
 
@@ -134,62 +135,64 @@ namespace efgy
             const double b0r = b0 - a0;
             const double b1r = b1 - a1;
 
-            char s[1024];
-            char sr[1024];
+            char s[128];
+            char sr[128];
             if ((a0 == previousX) && (a1 == previousY))
             {
                 if (B.data[1] == A.data[1])
                 {
-                    snprintf(s,1024,"H%g",b0);
-                    snprintf(sr,1024,"h%g",b0r);
+                    sbuf1 << "H" << b0;
+                    sbuf2 << "h" << b0r;
                 }
                 else if (B.data[0] == A.data[0])
                 {
-                    snprintf(s,1024,"V%g",b1);
-                    snprintf(sr,1024,"v%g",b1r);
+                    sbuf1 << "V" << b1;
+                    sbuf2 << "v" << b1r;
                 }
                 else
                 {
-                    snprintf(s,1024,"L%g,%g",b0,b1);
-                    snprintf(sr,1024,"l%g,%g",b0r,b1r);
+                    sbuf1 << "L" << b0 << "," << b1;
+                    sbuf2 << "l" << b0r << "," << b1r;
                 }
             }
             else
             {
-                snprintf(s,1024,"M%g,%g",a0,a1);
-                snprintf(sr,1024,"m%g,%g",a0r,a1r);
-                if (std::strlen(sr) >= std::strlen(s))
+                sbuf1 << "M" << a0 << "," << a1;
+                sbuf2 << "m" << a0r << "," << a1r;
+                if (sbuf1.str().size() >= sbuf2.str().size())
                 {
-                    output += s;
+                    output << sbuf2.str();
                 }
                 else
                 {
-                    output += sr;
+                    output << sbuf1.str();
                 }
+                sbuf1.str("");
+                sbuf2.str("");
 
                 if (B.data[1] == A.data[1])
                 {
-                    snprintf(s,1024,"H%g",b0);
-                    snprintf(sr,1024,"h%g",b0r);
+                    sbuf1 << "H" << b0;
+                    sbuf2 << "h" << b0r;
                 }
                 else if (B.data[0] == A.data[0])
                 {
-                    snprintf(s,1024,"V%g",b1);
-                    snprintf(sr,1024,"v%g",b1r);
+                    sbuf1 << "V" << b1;
+                    sbuf2 << "v" << b1r;
                 }
                 else
                 {
-                    snprintf(s,1024,"L%g,%g",b0,b1);
-                    snprintf(sr,1024,"l%g,%g",b0r,b1r);
+                    sbuf1 << "L" << b0 << "," << b1;
+                    sbuf2 << "l" << b0r << "," << b1r;
                 }
             }
-            if (std::strlen(sr) >= std::strlen(s))
+            if (sbuf1.str().size() >= sbuf2.str().size())
             {
-                output += s;
+                output << sbuf2.str();
             }
             else
             {
-                output += sr;
+                output << sbuf1.str();
             }
             previousX = b0;
             previousY = b1;
@@ -200,20 +203,21 @@ namespace efgy
         void svg<Q,2>::drawFace
             (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV)
         {
-            output += "<path d='";
+            output << "<path d='";
             for (unsigned int i = 0; i < q; i++)
             {
+                std::stringstream sbuf1;
+                std::stringstream sbuf2;
+
                 const typename geometry::euclidian::space<Q,2>::vector V = transformation * pV.data[i];
 
                 const double a0 = -Q(V.data[0]);
                 const double a1 = -Q(V.data[1]);
 
-                char s[1024];
-                char sr[1024];
                 if (i == 0)
                 {
-                    snprintf(s,1024,"M%g,%g",a0,a1);
-                    snprintf(sr,1024,"M%g,%g",a0,a1);
+                    sbuf1 << "M" << a0 << "," << a1;
+                    sbuf2 << "M" << a0 << "," << a1;
                 }
                 else
                 {
@@ -224,30 +228,30 @@ namespace efgy
 
                     if (pV.data[i].data[1] == V1.data[1])
                     {
-                        snprintf(s,1024,"H%g",a0);
-                        snprintf(sr,1024,"h%g",a0r);
+                        sbuf1 << "H" << a0;
+                        sbuf2 << "h" << a0r;
                     }
                     else if (pV.data[i].data[0] == V1.data[0])
                     {
-                        snprintf(s,1024,"V%g",a1);
-                        snprintf(sr,1024,"v%g",a1r);
+                        sbuf1 << "V" << a1;
+                        sbuf2 << "v" << a1r;
                     }
                     else
                     {
-                        snprintf(s,1024,"L%g,%g",a0,a1);
-                        snprintf(sr,1024,"l%g,%g",a0r,a1r);
+                        sbuf1 << "L" << a0 << "," << a1;
+                        sbuf2 << "l" << a0r << "," << a1r;
                     }
                 }
-                if (std::strlen(sr) >= std::strlen(s))
+                if (sbuf1.str().size() >= sbuf2.str().size())
                 {
-                    output += s;
+                    output << sbuf2.str();
                 }
                 else
                 {
-                    output += sr;
+                    output << sbuf1.str();
                 }
             }
-            output += "Z'/>";
+            output << "Z'/>";
         }
     };
 };
