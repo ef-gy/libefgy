@@ -28,96 +28,74 @@
 
 #include <ef.gy/fractions.h>
 #include <ef.gy/continued-fractions.h>
-#include <cstdlib>
 
 using namespace efgy::math;
+using namespace std;
 
-numeric::continuedFractional<number> apply
-    (const numeric::continuedFractional<number> &cf,
-     const char &op,
-     const number &n)
-{
-    switch (op)
-    {
-        case 0:
-            return n;
-        case '+':
-            return cf+n;
-        case '-':
-            return cf-n;
-        case '*':
-            return cf*n;
-        case '/':
-            return cf/n;
-        case ',':
-            return (cf,n);
-        default:
-            throw std::exception();
-    }
-}
-
-int main (int argc, char* argv[])
+int main (int argc, char **argv)
 {
     try
     {
-        for (int i = 1; i < argc; i++)
+        numeric::fractional<number> af(6,11), bf(4,5), rf;
+        numeric::continuedFractional<number> a(af), b(bf), r;
+
+        rf = af + bf;
+        cerr << string(af) << " + " << string(bf) << " = " << string(rf) << "\n";
+
+        r = a + b;
+        rf = r;
+        cerr << string(a)  << " + " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
+
+        if (rf != r)
         {
-            numeric::continuedFractional<number> res;
-            std::string arg;
-            number n;
-            char op = 0;
+            return 1;
+        }
 
-            for (int j = 0; argv[i][j]; j++)
-            {
-                switch (argv[i][j])
-                {
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                    case '9':
-                        arg += std::string(1, argv[i][j]);
-                        break;
-                    case '-':
-                    case '+':
-                        if (arg.size() == 0)
-                        {
-                            arg += std::string(1, argv[i][j]);
-                            break;
-                        }
-                    case '*':
-                    case '/':
-                    case ',':
-                        op = argv[i][j];
-                        n = std::atoi(arg.c_str());
-                        arg = std::string();
-                        res = apply (res, op, n);
-                        break;
-                }
-            }
+        rf = af - bf;
+        cerr << string(af) << " - " << string(bf) << " = " << string(rf) << "\n";
 
-            if (arg.size() > 0)
-            {
-                n = std::atoi(arg.c_str());
-                arg = std::string();
-                res = apply (res, op, n);
-            }
+        r = a - b;
+        rf = r;
+        cerr << string(a)  << " - " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
 
-            std::cerr << std::string(res) << " = " << std::string(numeric::fractional<number>(res)) << "\n";
+        if (rf != r)
+        {
+            return 2;
+        }
+
+        rf = af * bf;
+        cerr << string(af) << " * " << string(bf) << " = " << string(rf) << "\n";
+
+        r = a * b;
+        rf = r;
+        cerr << string(a)  << " * " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
+
+        if (rf != r)
+        {
+            return 3;
+        }
+
+        rf = af / bf;
+        cerr << string(af) << " / " << string(bf) << " = " << string(rf) << "\n";
+
+        r = a + b;
+        rf = r;
+        cerr << string(a)  << " / " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
+
+        if (rf != r)
+        {
+            return 4;
         }
     }
-    catch (std::exception &e)
+    catch (exception &e)
     {
-        std::cerr << "Exception: " << e.what() << "\n";
+        cerr << "Exception: " << e.what() << "\n";
+        return -1;
     }
     catch (...)
     {
-        std::cerr << "Unknown Exception\n";
+        cerr << "Unknown Exception\n";
+        return -1;
     }
 
     return 0;
