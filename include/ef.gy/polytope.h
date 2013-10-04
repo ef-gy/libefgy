@@ -401,7 +401,7 @@ namespace efgy
                     {
                         const typename euclidian::space<Q,d>::vector A = v;
 
-                        for (unsigned int i = 1; i <= d; i++)
+                        for (unsigned int i = 1; i <= od; i++)
                         {
                             typename polar::space<Q,d>::vector v1 = v;
 
@@ -421,7 +421,7 @@ namespace efgy
                             newFace.data[0] = A;
                             newFace.data[1] = B;
 
-                            for (unsigned int j = 1; j <= d; j++)
+                            for (unsigned int j = 1; j <= od; j++)
                             {
                                 if (i != j)
                                 {
