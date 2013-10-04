@@ -42,34 +42,57 @@ namespace efgy
         {
             public:
                 json
-                    (const geometry::perspectiveProjection<Q,d> &pProjection,
-                     const json<Q,d-1> &pLowerRenderer)
-                    : projection(pProjection), lowerRenderer(pLowerRenderer)
+                    (const geometry::transformation<Q,d> &pTransformation,
+                     const geometry::perspectiveProjection<Q,d> &pProjection,
+                     json<Q,d-1> &pLowerRenderer)
+                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
                     {}
 
                 void drawLine
                     (const typename geometry::euclidian::space<Q,d>::vector &pA,
                      const typename geometry::euclidian::space<Q,d>::vector &pB) const;
 
+                template<unsigned int q>
+                void drawFace
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const
+                {}
+
             protected:
+                const geometry::transformation<Q,d> &transformation;
                 const geometry::perspectiveProjection<Q,d> &projection;
-                const json<Q,d-1> &lowerRenderer;
+                json<Q,d-1> &lowerRenderer;
         };
 
         template<typename Q>
         class json<Q,2>
         {
             public:
-                json(std::stringstream &pOutput)
-                    : output(pOutput)
+                json
+                    (const typename geometry::transformation<Q,2> &pTransformation)
+                    : transformation(pTransformation)
                     {}
 
                 void drawLine
                     (const typename geometry::euclidian::space<Q,2>::vector &pA,
-                     const typename geometry::euclidian::space<Q,2>::vector &pB) const;
+                     const typename geometry::euclidian::space<Q,2>::vector &pB);
+
+                template<unsigned int q>
+                void drawFace
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV) const
+                {}
+
+                void reset()
+                {
+                    output.str("");
+                    previousX = Q();
+                    previousY = Q();
+                }
+
+                std::stringstream output;
 
             protected:
-                std::stringstream &output;
+                const geometry::transformation<Q,2> &transformation;
+                Q previousX, previousY;
         };
 
         template<typename Q, unsigned int d>
@@ -80,8 +103,8 @@ namespace efgy
             typename geometry::euclidian::space<Q,d-1>::vector A;
             typename geometry::euclidian::space<Q,d-1>::vector B;
 
-            A = projection.project(pA);
-            B = projection.project(pB);
+            A = projection.project(transformation * pA);
+            B = projection.project(transformation * pB);
 
             lowerRenderer.drawLine(A, B);
         }
@@ -89,14 +112,85 @@ namespace efgy
         template<typename Q>
         void json<Q,2>::drawLine
             (const typename geometry::euclidian::space<Q,2>::vector &pA,
-             const typename geometry::euclidian::space<Q,2>::vector &pB) const
+             const typename geometry::euclidian::space<Q,2>::vector &pB)
         {
-            const double a0 = Q(pA.data[0]);
-            const double a1 = Q(pA.data[1]);
-            const double b0 = Q(pB.data[0]);
-            const double b1 = Q(pB.data[1]);
-            
-            output << ", { 'type': 'line', 'x1' : " << a0 << ", 'x2' : " << b0 << ", 'y1' : " << a1 << ", 'y2' : " << b1 << " }";
+            std::stringstream sbuf1;
+            std::stringstream sbuf2;
+
+            const typename geometry::euclidian::space<Q,2>::vector &A = transformation * pA;
+            const typename geometry::euclidian::space<Q,2>::vector &B = transformation * pB;
+
+            const double a0 = -Q(A.data[0]);
+            const double a1 = -Q(A.data[1]);
+            const double b0 = -Q(B.data[0]);
+            const double b1 = -Q(B.data[1]);
+
+            const double a0r = a0 - previousX;
+            const double a1r = a1 - previousY;
+            const double b0r = b0 - a0;
+            const double b1r = b1 - a1;
+
+            char s[128];
+            char sr[128];
+            if ((a0 == previousX) && (a1 == previousY))
+            {
+                if (B.data[1] == A.data[1])
+                {
+                    sbuf1 << "H" << b0;
+                    sbuf2 << "h" << b0r;
+                }
+                else if (B.data[0] == A.data[0])
+                {
+                    sbuf1 << "V" << b1;
+                    sbuf2 << "v" << b1r;
+                }
+                else
+                {
+                    sbuf1 << "L" << b0 << "," << b1;
+                    sbuf2 << "l" << b0r << "," << b1r;
+                }
+            }
+            else
+            {
+                sbuf1 << "M" << a0 << "," << a1;
+                sbuf2 << "m" << a0r << "," << a1r;
+                if (sbuf1.str().size() >= sbuf2.str().size())
+                {
+                    output << sbuf2.str();
+                }
+                else
+                {
+                    output << sbuf1.str();
+                }
+                sbuf1.str("");
+                sbuf2.str("");
+
+                if (B.data[1] == A.data[1])
+                {
+                    sbuf1 << "H" << b0;
+                    sbuf2 << "h" << b0r;
+                }
+                else if (B.data[0] == A.data[0])
+                {
+                    sbuf1 << "V" << b1;
+                    sbuf2 << "v" << b1r;
+                }
+                else
+                {
+                    sbuf1 << "L" << b0 << "," << b1;
+                    sbuf2 << "l" << b0r << "," << b1r;
+                }
+            }
+            if (sbuf1.str().size() >= sbuf2.str().size())
+            {
+                output << sbuf2.str();
+            }
+            else
+            {
+                output << sbuf1.str();
+            }
+            previousX = b0;
+            previousY = b1;
         }
     };
 };

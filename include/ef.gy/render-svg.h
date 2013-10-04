@@ -44,8 +44,8 @@ namespace efgy
                 svg
                     (const geometry::transformation<Q,d> &pTransformation,
                      const geometry::perspectiveProjection<Q,d> &pProjection,
-                     svg<Q,d-1> &pLoweRenderer)
-                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLoweRenderer)
+                     svg<Q,d-1> &pLowerRenderer)
+                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
                     {}
 
                 void drawLine
@@ -80,6 +80,14 @@ namespace efgy
                     (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV);
 
                 std::stringstream output;
+
+                void reset()
+                {
+                    output.str("");
+                    previousX = Q();
+                    previousY = Q();
+                }
+
             protected:
                 const geometry::transformation<Q,2> &transformation;
                 Q previousX, previousY;
