@@ -48,8 +48,8 @@ namespace efgy
                 opengl
                     (const geometry::transformation<Q,d> &pTransformation,
                      const geometry::perspectiveProjection<Q,d> &pProjection,
-                     const opengl<Q,d-1> &pLoweRenderer)
-                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLoweRenderer)
+                     const opengl<Q,d-1> &pLowerRenderer)
+                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
                     {}
 
                 void drawLine
@@ -72,7 +72,9 @@ namespace efgy
         {
             public:
                 opengl
-                    (const geometry::transformation<Q,3> &pTransformation)
+                    (const geometry::transformation<Q,3> &pTransformation,
+                     const geometry::perspectiveProjection<Q,3> &,
+                     const opengl<Q,2> &)
                     : transformation(pTransformation)
                     {}
 
