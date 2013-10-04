@@ -54,8 +54,7 @@ namespace efgy
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const
-                {}
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const;
 
             protected:
                 const geometry::transformation<Q,d> &transformation;
@@ -78,8 +77,7 @@ namespace efgy
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV) const
-                {}
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV);
 
                 void reset()
                 {
@@ -107,6 +105,21 @@ namespace efgy
             B = projection.project(transformation * pB);
 
             lowerRenderer.drawLine(A, B);
+        }
+
+        template<typename Q, unsigned int d>
+        template<unsigned int q>
+        void json<Q,d>::drawFace
+            (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const
+        {
+            math::tuple<q, typename geometry::euclidian::space<Q,d-1>::vector> V;
+
+            for (unsigned int i = 0; i < q; i++)
+            {
+                V.data[i] = projection.project(transformation * pV.data[i]);
+            }
+
+            lowerRenderer.drawFace(V);
         }
 
         template<typename Q>
@@ -191,6 +204,62 @@ namespace efgy
             }
             previousX = b0;
             previousY = b1;
+        }
+
+        template<typename Q>
+        template<unsigned int q>
+        void json<Q,2>::drawFace
+            (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV)
+        {
+            output << ",'";
+            for (unsigned int i = 0; i < q; i++)
+            {
+                std::stringstream sbuf1;
+                std::stringstream sbuf2;
+
+                const typename geometry::euclidian::space<Q,2>::vector V = transformation * pV.data[i];
+
+                const double a0 = -Q(V.data[0]);
+                const double a1 = -Q(V.data[1]);
+
+                if (i == 0)
+                {
+                    sbuf1 << "M" << a0 << "," << a1;
+                    sbuf2 << "M" << a0 << "," << a1;
+                }
+                else
+                {
+                    const typename geometry::euclidian::space<Q,2>::vector V1 = transformation * pV.data[(i-1)];
+
+                    const double a0r = a0 + Q(V1.data[0]);
+                    const double a1r = a1 + Q(V1.data[1]);
+
+                    if (pV.data[i].data[1] == V1.data[1])
+                    {
+                        sbuf1 << "H" << a0;
+                        sbuf2 << "h" << a0r;
+                    }
+                    else if (pV.data[i].data[0] == V1.data[0])
+                    {
+                        sbuf1 << "V" << a1;
+                        sbuf2 << "v" << a1r;
+                    }
+                    else
+                    {
+                        sbuf1 << "L" << a0 << "," << a1;
+                        sbuf2 << "l" << a0r << "," << a1r;
+                    }
+                }
+                if (sbuf1.str().size() >= sbuf2.str().size())
+                {
+                    output << sbuf2.str();
+                }
+                else
+                {
+                    output << sbuf1.str();
+                }
+            }
+            output << "Z'";
         }
     };
 };
