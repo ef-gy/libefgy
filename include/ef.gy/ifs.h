@@ -186,6 +186,27 @@ namespace efgy
                                 translation.data[7].data[0] = Q(0);
                                 translation.data[7].data[1] = Q(1)/Q(3);
                             }
+                            if (od > 2)
+                            {
+                                for (int i = 0; i < 8; i++)
+                                {
+                                    translation.data[(i+8)] = translation.data[i];
+                                    translation.data[i].data[2] = Q(-1)/Q(3);
+                                    translation.data[(i+8)].data[2] = Q(1)/Q(3);
+                                }
+
+                                translation.data[16].data[0] = Q(1)/Q(3);
+                                translation.data[16].data[1] = Q(1)/Q(3);
+
+                                translation.data[17].data[0] = Q(-1)/Q(3);
+                                translation.data[17].data[1] = Q(1)/Q(3);
+
+                                translation.data[18].data[0] = Q(1)/Q(3);
+                                translation.data[18].data[1] = Q(-1)/Q(3);
+
+                                translation.data[19].data[0] = Q(-1)/Q(3);
+                                translation.data[19].data[1] = Q(-1)/Q(3);
+                            }
 
                             calculateObject();
                         }
@@ -201,7 +222,7 @@ namespace efgy
                     static unsigned int renderDepth (void) { return d; }
                     static const char *id (void) { return "sierpinski-carpet"; }
 
-                    static const unsigned int functions = 8;
+                    static const unsigned int functions = od == 2 ? 8 : 20;
                     math::tuple<functions, typename euclidian::space<Q,d>::vector> translation;
 
                     void calculateObject (void)
