@@ -53,107 +53,218 @@ namespace efgy
                 using parent::faces;
         };
 
-        template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class sierpinski : public ifs<Q,od,render,d>
+        namespace sierpinski
         {
-            public:
-                typedef ifs<Q,od,render,d> parent;
+            template <typename Q, unsigned int od, typename render, unsigned int d = od>
+            class gasket : public ifs<Q,od,render,d>
+            {
+                public:
+                    typedef ifs<Q,od,render,d> parent;
 
-                sierpinski (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parent(pRenderer, pParameter, pMultiplier)
-                    {
-                        translation.data[0].data[0] = Q(0.25);
-
-                        for (unsigned int i = 1; i < functions; i++)
+                    gasket(const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                        : parent(pRenderer, pParameter, pMultiplier)
                         {
-                            translation.data[i].data[0] = Q(-0.25);
-                            for (unsigned int j = 1; j < od; j++)
+                            translation.data[0].data[0] = Q(0.25);
+
+                            for (unsigned int i = 1; i < functions; i++)
                             {
-                                const unsigned int k = i-1;
-                                const unsigned int l = j-1;
-                                const unsigned int b = 1 << l;
-                                const bool s = k & b;
-                                translation.data[i].data[j] = Q(s ? -0.25 : 0.25);
+                                translation.data[i].data[0] = Q(-0.25);
+                                for (unsigned int j = 1; j < od; j++)
+                                {
+                                    const unsigned int k = i-1;
+                                    const unsigned int l = j-1;
+                                    const unsigned int b = 1 << l;
+                                    const bool s = k & b;
+                                    translation.data[i].data[j] = Q(s ? -0.25 : 0.25);
+                                }
                             }
+
+                            calculateObject();
                         }
 
-                        calculateObject();
+                    using parent::parameter;
+                    using parent::renderWireframe;
+                    using parent::renderSolid;
+                    using parent::renderer;
+                    using parent::lines;
+                    using parent::faces;
+
+                    static unsigned int depth (void) { return od; }
+                    static unsigned int renderDepth (void) { return d; }
+                    static const char *id (void) { return "sierpinski-gasket"; }
+
+                    static const unsigned int functions = (1<<(od-1))+1;
+                    math::tuple<functions, typename euclidian::space<Q,d>::vector> translation;
+
+                    void calculateObject (void)
+                    {
+                        cube<Q,od,render,d> source(parent::renderer, parameter, parent::precisionMultiplier);
+
+                        lines = source.lines;
+                        faces = source.faces;
+
+                        for (unsigned int i = 0; i < parameter.iterations; i++)
+                        {
+                            decltype(lines) rlines;
+                            decltype(faces) rfaces;
+
+                            while (lines.size() > 0)
+                            {
+                                for (unsigned int j = 0; j < functions; j++)
+                                {
+                                    rlines.push_back(apply(j,lines.back()));
+                                }
+                                lines.pop_back();
+                            }
+
+                            while (faces.size() > 0)
+                            {
+                                for (unsigned int j = 0; j < functions; j++)
+                                {
+                                    rfaces.push_back(apply(j,faces.back()));
+                                }
+                                faces.pop_back();
+                            }
+
+                            lines = rlines;
+                            faces = rfaces;
+                        }
                     }
 
-                using parent::parameter;
-                using parent::renderWireframe;
-                using parent::renderSolid;
-                using parent::renderer;
-                using parent::lines;
-                using parent::faces;
-
-                static unsigned int depth (void) { return od; }
-                static unsigned int renderDepth (void) { return d; }
-                static const char *id (void) { return "sierpinski"; }
-
-                static const unsigned int functions = (1<<(od-1))+1;
-                math::tuple<functions, typename euclidian::space<Q,d>::vector> translation;
-
-                void calculateObject (void)
-                {
-                    cube<Q,od,render,d> source(parent::renderer, parameter, parent::precisionMultiplier);
-
-                    lines = source.lines;
-                    faces = source.faces;
-
-                    for (unsigned int i = 0; i < parameter.iterations; i++)
+                    typename euclidian::space<Q,d>::vector apply
+                        (const unsigned int &f,
+                         const typename euclidian::space<Q,d>::vector &v)
                     {
-                        decltype(lines) rlines;
-                        decltype(faces) rfaces;
+                        typename euclidian::space<Q,d>::vector r = v * Q(0.5);
 
-                        while (lines.size() > 0)
+                        r = r + translation.data[f];
+
+                        return r;
+                    }
+
+                    template<unsigned int fdim>
+                    math::tuple<fdim,typename euclidian::space<Q,d>::vector> apply
+                        (const unsigned int &f,
+                         const math::tuple<fdim,typename euclidian::space<Q,d>::vector> &l)
+                    {
+                        math::tuple<fdim,typename euclidian::space<Q,d>::vector> r;
+
+                        for (int i = 0; i < fdim; i++)
                         {
-                            for (unsigned int j = 0; j < functions; j++)
-                            {
-                                rlines.push_back(apply(j,lines.back()));
-                            }
-                            lines.pop_back();
+                            r.data[i] = apply (f, l.data[i]);
                         }
 
-                        while (faces.size() > 0)
+                        return r;
+                    }
+            };
+
+            template <typename Q, unsigned int od, typename render, unsigned int d = od>
+            class carpet : public ifs<Q,od,render,d>
+            {
+                public:
+                    typedef ifs<Q,od,render,d> parent;
+
+                    carpet(const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                        : parent(pRenderer, pParameter, pMultiplier)
                         {
-                            for (unsigned int j = 0; j < functions; j++)
+                            if (od > 1)
                             {
-                                rfaces.push_back(apply(j,faces.back()));
+                                translation.data[0].data[0] = Q(-1)/Q(3);
+                                translation.data[0].data[1] = Q(-1)/Q(3);
+                                translation.data[1].data[0] = Q(-1)/Q(3);
+                                translation.data[1].data[1] = Q(0);
+                                translation.data[2].data[0] = Q(-1)/Q(3);
+                                translation.data[2].data[1] = Q(1)/Q(3);
+                                translation.data[3].data[0] = Q(1)/Q(3);
+                                translation.data[3].data[1] = Q(-1)/Q(3);
+                                translation.data[4].data[0] = Q(1)/Q(3);
+                                translation.data[4].data[1] = Q(0);
+                                translation.data[5].data[0] = Q(1)/Q(3);
+                                translation.data[5].data[1] = Q(1)/Q(3);
+                                translation.data[6].data[0] = Q(0);
+                                translation.data[6].data[1] = Q(-1)/Q(3);
+                                translation.data[7].data[0] = Q(0);
+                                translation.data[7].data[1] = Q(1)/Q(3);
                             }
-                            faces.pop_back();
+
+                            calculateObject();
                         }
 
-                        lines = rlines;
-                        faces = rfaces;
-                    }
-                }
+                    using parent::parameter;
+                    using parent::renderWireframe;
+                    using parent::renderSolid;
+                    using parent::renderer;
+                    using parent::lines;
+                    using parent::faces;
 
-                typename euclidian::space<Q,d>::vector apply
-                    (const unsigned int &f,
-                     const typename euclidian::space<Q,d>::vector &v)
-                {
-                    typename euclidian::space<Q,d>::vector r = v * Q(0.5);
+                    static unsigned int depth (void) { return od; }
+                    static unsigned int renderDepth (void) { return d; }
+                    static const char *id (void) { return "sierpinski-carpet"; }
 
-                    r = r + translation.data[f];
+                    static const unsigned int functions = 8;
+                    math::tuple<functions, typename euclidian::space<Q,d>::vector> translation;
 
-                    return r;
-                }
-
-                template<unsigned int fdim>
-                math::tuple<fdim,typename euclidian::space<Q,d>::vector> apply
-                    (const unsigned int &f,
-                     const math::tuple<fdim,typename euclidian::space<Q,d>::vector> &l)
-                {
-                    math::tuple<fdim,typename euclidian::space<Q,d>::vector> r;
-
-                    for (int i = 0; i < fdim; i++)
+                    void calculateObject (void)
                     {
-                        r.data[i] = apply (f, l.data[i]);
+                        cube<Q,od,render,d> source(parent::renderer, parameter, parent::precisionMultiplier);
+
+                        lines = source.lines;
+                        faces = source.faces;
+
+                        for (unsigned int i = 0; i < parameter.iterations; i++)
+                        {
+                            decltype(lines) rlines;
+                            decltype(faces) rfaces;
+
+                            while (lines.size() > 0)
+                            {
+                                for (unsigned int j = 0; j < functions; j++)
+                                {
+                                    rlines.push_back(apply(j,lines.back()));
+                                }
+                                lines.pop_back();
+                            }
+
+                            while (faces.size() > 0)
+                            {
+                                for (unsigned int j = 0; j < functions; j++)
+                                {
+                                    rfaces.push_back(apply(j,faces.back()));
+                                }
+                                faces.pop_back();
+                            }
+
+                            lines = rlines;
+                            faces = rfaces;
+                        }
                     }
 
-                    return r;
-                }
+                    typename euclidian::space<Q,d>::vector apply
+                        (const unsigned int &f,
+                         const typename euclidian::space<Q,d>::vector &v)
+                    {
+                        typename euclidian::space<Q,d>::vector r = v / Q(3);
+
+                        r = r + translation.data[f];
+
+                        return r;
+                    }
+
+                    template<unsigned int fdim>
+                    math::tuple<fdim,typename euclidian::space<Q,d>::vector> apply
+                        (const unsigned int &f,
+                         const math::tuple<fdim,typename euclidian::space<Q,d>::vector> &l)
+                    {
+                        math::tuple<fdim,typename euclidian::space<Q,d>::vector> r;
+
+                        for (int i = 0; i < fdim; i++)
+                        {
+                            r.data[i] = apply (f, l.data[i]);
+                        }
+
+                        return r;
+                    }
+            };
         };
     };
 };
