@@ -43,6 +43,7 @@ namespace efgy
             public:
                 Q polarRadius;
                 Q polarPrecision;
+                unsigned int iterations;
         };
 
         template <typename Q, unsigned int d, unsigned int f, typename render>
