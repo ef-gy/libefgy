@@ -117,7 +117,7 @@ namespace efgy
 
                         v.data[r] = 0;
                         recurse (q, v, points);
-                        v.data[r] = M_PI/1.5;
+                        v.data[r] = Q(M_PI)/Q(1.5);
                         recurse (q, v, points);
                     }
                 }
@@ -137,11 +137,11 @@ namespace efgy
                     const int r = od-1;
                     const int q = r-1;
 
-                    v.data[r] = -M_PI/1.5;
+                    v.data[r] = Q(-M_PI)/Q(1.5);
                     recurse (q, v, points);
                     v.data[r] = 0;
                     recurse (q, v, points);
-                    v.data[r] = M_PI/1.5;
+                    v.data[r] = Q(M_PI)/Q(1.5);
                     recurse (q, v, points);
 
                     std::vector<typename euclidian::space<Q,d>::vector> points2;
@@ -441,7 +441,7 @@ namespace efgy
                     {
                         const int q = r-1;
 
-                        for (Q i = -M_PI; i < M_PI; i+= step)
+                        for (Q i = Q(-M_PI); i < Q(M_PI); i+= step)
                         {
                             v.data[r] = i;
                             recurse (q, v);
@@ -465,7 +465,7 @@ namespace efgy
                     const int r = od;
                     const int q = r-1;
 
-                    for (Q i = -M_PI; i < M_PI; i+= step)
+                    for (Q i = Q(-M_PI); i < Q(M_PI); i+= step)
                     {
                         v.data[r] = i;
                         recurse (q, v);
