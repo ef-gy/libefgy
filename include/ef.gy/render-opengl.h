@@ -149,12 +149,10 @@ namespace efgy
             const typename geometry::euclidian::space<Q,3>::vector B = transformation * pB;
 
             const GLfloat vertices[6] =
-                { A.data[0],
-                  A.data[1],
-                  A.data[2],
-                  B.data[0],
-                  B.data[1],
-                  B.data[2] };
+                { A.data[0], A.data[1], A.data[2],
+                  B.data[0], B.data[1], B.data[2] };
+
+            glEnableClientState(GL_VERTEX_ARRAY);
             glVertexPointer(2, GL_FLOAT, 0, vertices);
             glDrawArrays(GL_LINES, 0, 2);
         }
