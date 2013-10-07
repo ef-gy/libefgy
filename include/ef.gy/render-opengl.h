@@ -162,18 +162,18 @@ namespace efgy
         void opengl<Q,3>::drawFace
             (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV) const
         {
-            glBegin(GL_POLYGON);
+            GLfloat vertices[(q*3)];
             for (unsigned int i = 0; i < q; i++)
             {
                 const typename geometry::euclidian::space<Q,3>::vector V = transformation * pV.data[i];
 
-                const GLfloat a0 = Q(V.data[0]);
-                const GLfloat a1 = Q(V.data[1]);
-                const GLfloat a2 = Q(V.data[2]);
-                glNormal3f(a0, a1, a2);
-                glVertex3f(a0, a1, a2);
+                vertices[(i*3)+0] = V.data[0];
+                vertices[(i*3)+1] = V.data[1];
+                vertices[(i*3)+2] = V.data[2];
             }
-            glEnd();
+            glNormalPointer(GL_FLOAT, 0, vertices);
+            glVertexPointer(3, GL_FLOAT, 0, vertices);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, q);
         }
 #endif
 
