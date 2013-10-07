@@ -149,8 +149,8 @@ namespace efgy
             const typename geometry::euclidian::space<Q,3>::vector B = transformation * pB;
 
             const GLfloat vertices[6] =
-                { A.data[0], A.data[1], A.data[2],
-                  B.data[0], B.data[1], B.data[2] };
+                { GLfloat(A.data[0]), GLfloat(A.data[1]), GLfloat(A.data[2]),
+                  GLfloat(B.data[0]), GLfloat(B.data[1]), GLfloat(B.data[2]) };
 
             glNormalPointer(GL_FLOAT, 0, vertices);
             glVertexPointer(3, GL_FLOAT, 0, vertices);
@@ -186,8 +186,8 @@ namespace efgy
             const typename geometry::euclidian::space<Q,3>::vector B = transformation * pB;
 
             const GLfloat vertices[6] =
-                { A.data[0], A.data[1], 0,
-                  B.data[0], B.data[1], 0 };
+                { GLfloat(A.data[0]), GLfloat(A.data[1]), 0,
+                  GLfloat(B.data[0]), GLfloat(B.data[1]), 0 };
 
             glNormalPointer(GL_FLOAT, 0, vertices);
             glVertexPointer(3, GL_FLOAT, 0, vertices);
