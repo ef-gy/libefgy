@@ -31,8 +31,6 @@
 
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
-#include <OpenGL/OpenGL.h>
-#include <GLUT/GLUT.h>
 
 #undef GL3D
 #define GL3D
@@ -150,18 +148,18 @@ namespace efgy
             const typename geometry::euclidian::space<Q,3>::vector A = transformation * pA;
             const typename geometry::euclidian::space<Q,3>::vector B = transformation * pB;
 
-            const GLdouble a0 = Q(A.data[0]);
-            const GLdouble a1 = Q(A.data[1]);
-            const GLdouble a2 = Q(A.data[2]);
-            const GLdouble b0 = Q(B.data[0]);
-            const GLdouble b1 = Q(B.data[1]);
-            const GLdouble b2 = Q(B.data[2]);
+            const GLfloat a0 = Q(A.data[0]);
+            const GLfloat a1 = Q(A.data[1]);
+            const GLfloat a2 = Q(A.data[2]);
+            const GLfloat b0 = Q(B.data[0]);
+            const GLfloat b1 = Q(B.data[1]);
+            const GLfloat b2 = Q(B.data[2]);
 
             glBegin(GL_LINES);
             glNormal3f(a0, a1, a2);
-            glVertex3d(a0, a1, a2);
+            glVertex3f(a0, a1, a2);
             glNormal3f(b0, b1, b2);
-            glVertex3d(b0, b1, b2);
+            glVertex3f(b0, b1, b2);
             glEnd();
         }
 
@@ -175,11 +173,11 @@ namespace efgy
             {
                 const typename geometry::euclidian::space<Q,3>::vector V = transformation * pV.data[i];
 
-                const GLdouble a0 = Q(V.data[0]);
-                const GLdouble a1 = Q(V.data[1]);
-                const GLdouble a2 = Q(V.data[2]);
+                const GLfloat a0 = Q(V.data[0]);
+                const GLfloat a1 = Q(V.data[1]);
+                const GLfloat a2 = Q(V.data[2]);
                 glNormal3f(a0, a1, a2);
-                glVertex3d(a0, a1, a2);
+                glVertex3f(a0, a1, a2);
             }
             glEnd();
         }
@@ -193,14 +191,14 @@ namespace efgy
             const typename geometry::euclidian::space<Q,2>::vector A = transformation * pA;
             const typename geometry::euclidian::space<Q,2>::vector B = transformation * pB;
 
-            const GLdouble a0 = Q(A.data[0]);
-            const GLdouble a1 = Q(A.data[1]);
-            const GLdouble b0 = Q(B.data[0]);
-            const GLdouble b1 = Q(B.data[1]);
+            const GLfloat a0 = Q(A.data[0]);
+            const GLfloat a1 = Q(A.data[1]);
+            const GLfloat b0 = Q(B.data[0]);
+            const GLfloat b1 = Q(B.data[1]);
 
             glBegin(GL_LINES);
-            glVertex2d(a0, a1);
-            glVertex2d(b0, b1);
+            glVertex2f(a0, a1);
+            glVertex2f(b0, b1);
             glEnd();
         }
 
@@ -214,9 +212,9 @@ namespace efgy
             {
                 const typename geometry::euclidian::space<Q,2>::vector V = transformation * pV.data[i];
 
-                const GLdouble a0 = Q(V.data[0]);
-                const GLdouble a1 = Q(V.data[1]);
-                glVertex2d(a0, a1);
+                const GLfloat a0 = Q(V.data[0]);
+                const GLfloat a1 = Q(V.data[1]);
+                glVertex2f(a0, a1);
             }
             glEnd();
         }
