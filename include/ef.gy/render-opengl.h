@@ -148,19 +148,15 @@ namespace efgy
             const typename geometry::euclidian::space<Q,3>::vector A = transformation * pA;
             const typename geometry::euclidian::space<Q,3>::vector B = transformation * pB;
 
-            const GLfloat a0 = Q(A.data[0]);
-            const GLfloat a1 = Q(A.data[1]);
-            const GLfloat a2 = Q(A.data[2]);
-            const GLfloat b0 = Q(B.data[0]);
-            const GLfloat b1 = Q(B.data[1]);
-            const GLfloat b2 = Q(B.data[2]);
-
-            glBegin(GL_LINES);
-            glNormal3f(a0, a1, a2);
-            glVertex3f(a0, a1, a2);
-            glNormal3f(b0, b1, b2);
-            glVertex3f(b0, b1, b2);
-            glEnd();
+            const GLfloat vertices[6] =
+                { A.data[0],
+                  A.data[1],
+                  A.data[2],
+                  B.data[0],
+                  B.data[1],
+                  B.data[2] };
+            glVertexPointer(2, GL_FLOAT, 0, vertices);
+            glDrawArrays(GL_LINES, 0, 2);
         }
 
         template<typename Q>
