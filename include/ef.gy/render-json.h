@@ -143,8 +143,6 @@ namespace efgy
             const double b0r = b0 - a0;
             const double b1r = b1 - a1;
 
-            char s[128];
-            char sr[128];
             if ((a0 == previousX) && (a1 == previousY))
             {
                 if (B.data[1] == A.data[1])
