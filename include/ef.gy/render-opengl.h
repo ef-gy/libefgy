@@ -152,6 +152,7 @@ namespace efgy
                 { A.data[0], A.data[1], A.data[2],
                   B.data[0], B.data[1], B.data[2] };
 
+            glNormalPointer(GL_FLOAT, 0, vertices);
             glVertexPointer(3, GL_FLOAT, 0, vertices);
             glDrawArrays(GL_LINES, 0, 2);
         }
