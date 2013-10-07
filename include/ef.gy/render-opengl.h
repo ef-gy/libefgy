@@ -182,18 +182,16 @@ namespace efgy
             (const typename geometry::euclidian::space<Q,2>::vector &pA,
              const typename geometry::euclidian::space<Q,2>::vector &pB) const
         {
-            const typename geometry::euclidian::space<Q,2>::vector A = transformation * pA;
-            const typename geometry::euclidian::space<Q,2>::vector B = transformation * pB;
+            const typename geometry::euclidian::space<Q,3>::vector A = transformation * pA;
+            const typename geometry::euclidian::space<Q,3>::vector B = transformation * pB;
 
-            const GLfloat a0 = Q(A.data[0]);
-            const GLfloat a1 = Q(A.data[1]);
-            const GLfloat b0 = Q(B.data[0]);
-            const GLfloat b1 = Q(B.data[1]);
+            const GLfloat vertices[6] =
+                { A.data[0], A.data[1], 0,
+                  B.data[0], B.data[1], 0 };
 
-            glBegin(GL_LINES);
-            glVertex2f(a0, a1);
-            glVertex2f(b0, b1);
-            glEnd();
+            glNormalPointer(GL_FLOAT, 0, vertices);
+            glVertexPointer(3, GL_FLOAT, 0, vertices);
+            glDrawArrays(GL_LINES, 0, 2);
         }
 
         template<typename Q>
@@ -201,16 +199,18 @@ namespace efgy
         void opengl<Q,2>::drawFace
             (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV) const
         {
-            glBegin(GL_POLYGON);
+            GLfloat vertices[(q*3)];
             for (unsigned int i = 0; i < q; i++)
             {
-                const typename geometry::euclidian::space<Q,2>::vector V = transformation * pV.data[i];
+                const typename geometry::euclidian::space<Q,3>::vector V = transformation * pV.data[i];
 
-                const GLfloat a0 = Q(V.data[0]);
-                const GLfloat a1 = Q(V.data[1]);
-                glVertex2f(a0, a1);
+                vertices[(i*3)+0] = V.data[0];
+                vertices[(i*3)+1] = V.data[1];
+                vertices[(i*3)+2] = 0;
             }
-            glEnd();
+            glNormalPointer(GL_FLOAT, 0, vertices);
+            glVertexPointer(3, GL_FLOAT, 0, vertices);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, q);
         }
     };
 };
