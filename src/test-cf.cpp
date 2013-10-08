@@ -78,7 +78,7 @@ int main (int argc, char **argv)
         rf = af / bf;
         cerr << string(af) << " / " << string(bf) << " = " << string(rf) << "\n";
 
-        r = a + b;
+        r = a / b;
         rf = r;
         cerr << string(a)  << " / " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
 
