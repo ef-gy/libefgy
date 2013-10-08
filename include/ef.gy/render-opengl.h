@@ -45,12 +45,16 @@ namespace efgy
             public:
                 opengl
                     (const geometry::transformation<Q,d> &pTransformation,
-                     const geometry::perspectiveProjection<Q,d> &pProjection,
-                     const opengl<Q,d-1> &pLowerRenderer)
+                     const geometry::projection<Q,d> &pProjection,
+                     opengl<Q,d-1> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
                     {}
 
-                void frameStart (void) const {};
+                void frameStart (void)
+                {
+                    combined = transformation * projection;
+                    lowerRenderer.frameStart();
+                };
                 void frameEnd (void) const {};
 
                 void drawLine
@@ -63,8 +67,9 @@ namespace efgy
 
             protected:
                 const geometry::transformation<Q,d> &transformation;
-                const geometry::perspectiveProjection<Q,d> &projection;
-                const opengl<Q,d-1> &lowerRenderer;
+                const geometry::projection<Q,d> &projection;
+                geometry::transformation<Q,d> combined;
+                opengl<Q,d-1> &lowerRenderer;
         };
 
 #if defined(GL3D)
@@ -74,12 +79,14 @@ namespace efgy
             public:
                 opengl
                     (const geometry::transformation<Q,3> &pTransformation,
-                     const geometry::perspectiveProjection<Q,3> &,
+                     const geometry::projection<Q,3> &,
                      const opengl<Q,2> &)
                     : transformation(pTransformation)
                     {}
 
-                void frameStart (void) const {};
+                void frameStart (void) const
+                {
+                };
                 void frameEnd (void) const {};
 
                 void drawLine
@@ -124,11 +131,8 @@ namespace efgy
             (const typename geometry::euclidian::space<Q,d>::vector &pA,
              const typename geometry::euclidian::space<Q,d>::vector &pB) const
         {
-            typename geometry::euclidian::space<Q,d-1>::vector A;
-            typename geometry::euclidian::space<Q,d-1>::vector B;
-
-            A = projection.project(transformation * pA);
-            B = projection.project(transformation * pB);
+            typename geometry::euclidian::space<Q,d-1>::vector A = combined.project(pA);
+            typename geometry::euclidian::space<Q,d-1>::vector B = combined.project(pB);
 
             lowerRenderer.drawLine(A, B);
         }
@@ -142,7 +146,7 @@ namespace efgy
 
             for (unsigned int i = 0; i < q; i++)
             {
-                V.data[i] = projection.project(transformation * pV.data[i]);
+                V.data[i] = combined.project(pV.data[i]);
             }
 
             lowerRenderer.drawFace(V);
