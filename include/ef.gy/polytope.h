@@ -43,6 +43,7 @@ namespace efgy
             public:
                 Q polarRadius;
                 Q polarPrecision;
+                unsigned int iterations;
         };
 
         template <typename Q, unsigned int d, unsigned int f, typename render>
@@ -116,7 +117,7 @@ namespace efgy
 
                         v.data[r] = 0;
                         recurse (q, v, points);
-                        v.data[r] = M_PI/1.5;
+                        v.data[r] = Q(M_PI)/Q(1.5);
                         recurse (q, v, points);
                     }
                 }
@@ -136,11 +137,11 @@ namespace efgy
                     const int r = od-1;
                     const int q = r-1;
 
-                    v.data[r] = -M_PI/1.5;
+                    v.data[r] = Q(-M_PI)/Q(1.5);
                     recurse (q, v, points);
                     v.data[r] = 0;
                     recurse (q, v, points);
-                    v.data[r] = M_PI/1.5;
+                    v.data[r] = Q(M_PI)/Q(1.5);
                     recurse (q, v, points);
 
                     std::vector<typename euclidian::space<Q,d>::vector> points2;
@@ -401,7 +402,7 @@ namespace efgy
                     {
                         const typename euclidian::space<Q,d>::vector A = v;
 
-                        for (unsigned int i = 1; i <= d; i++)
+                        for (unsigned int i = 1; i <= od; i++)
                         {
                             typename polar::space<Q,d>::vector v1 = v;
 
@@ -421,7 +422,7 @@ namespace efgy
                             newFace.data[0] = A;
                             newFace.data[1] = B;
 
-                            for (unsigned int j = 1; j <= d; j++)
+                            for (unsigned int j = 1; j <= od; j++)
                             {
                                 if (i != j)
                                 {
@@ -440,7 +441,7 @@ namespace efgy
                     {
                         const int q = r-1;
 
-                        for (Q i = -M_PI; i < M_PI; i+= step)
+                        for (Q i = Q(-M_PI); i < Q(M_PI); i+= step)
                         {
                             v.data[r] = i;
                             recurse (q, v);
@@ -464,7 +465,7 @@ namespace efgy
                     const int r = od;
                     const int q = r-1;
 
-                    for (Q i = -M_PI; i < M_PI; i+= step)
+                    for (Q i = Q(-M_PI); i < Q(M_PI); i+= step)
                     {
                         v.data[r] = i;
                         recurse (q, v);

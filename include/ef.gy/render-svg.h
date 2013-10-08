@@ -44,9 +44,12 @@ namespace efgy
                 svg
                     (const geometry::transformation<Q,d> &pTransformation,
                      const geometry::perspectiveProjection<Q,d> &pProjection,
-                     svg<Q,d-1> &pLoweRenderer)
-                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLoweRenderer)
+                     svg<Q,d-1> &pLowerRenderer)
+                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
                     {}
+
+                void frameStart (void) const {};
+                void frameEnd (void) const {};
 
                 void drawLine
                     (const typename geometry::euclidian::space<Q,d>::vector &pA,
@@ -55,6 +58,11 @@ namespace efgy
                 template<unsigned int q>
                 void drawFace
                     (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const;
+
+                void reset (void) const
+                {
+                    lowerRenderer.reset();
+                }
 
             protected:
                 const geometry::transformation<Q,d> &transformation;
@@ -71,6 +79,9 @@ namespace efgy
                     : transformation(pTransformation)
                     {}
 
+                void frameStart (void) const {};
+                void frameEnd (void) const {};
+
                 void drawLine
                     (const typename geometry::euclidian::space<Q,2>::vector &pA,
                      const typename geometry::euclidian::space<Q,2>::vector &pB);
@@ -80,6 +91,14 @@ namespace efgy
                     (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV);
 
                 std::stringstream output;
+
+                void reset()
+                {
+                    output.str("");
+                    previousX = Q();
+                    previousY = Q();
+                }
+
             protected:
                 const geometry::transformation<Q,2> &transformation;
                 Q previousX, previousY;
@@ -135,8 +154,6 @@ namespace efgy
             const double b0r = b0 - a0;
             const double b1r = b1 - a1;
 
-            char s[128];
-            char sr[128];
             if ((a0 == previousX) && (a1 == previousY))
             {
                 if (B.data[1] == A.data[1])

@@ -32,7 +32,6 @@
 #include <ef.gy/geometry.h>
 #include <ef.gy/set.h>
 
-#include <stdio.h>
 #include <set>
 
 namespace efgy
@@ -182,18 +181,6 @@ namespace efgy
                             }
                             else
                             {
-                                if (nearestPoly && nearest)
-                                {
-                                    fprintf (stderr, "eh?\n");
-                                }
-
-                                if (nearestPoly && v)
-                                {
-                                    fprintf (stderr, "ooh?\n");
-                                }
-
-                                fprintf (stderr, "bar!\n");
-
                                 r.cells = r.cells + cell(v, rB, colour);
                                 return r;
                             }
@@ -249,10 +236,6 @@ namespace efgy
                                                 r.cells.data[k].area.colour = r.cells.data[k].colour;
                                                 newCell = newCell + rD;
                                             }
-                                            else
-                                            {
-                                                fprintf (stderr, "foo!\n");
-                                            }
 
                                             for (unsigned int j = 0; j < rF.count; j++)
                                             {
@@ -266,12 +249,6 @@ namespace efgy
                             }
 
                             r.cells = r.cells + cell(v, newCell, colour);
-                        }
-                        else /* this be pretty strange... */
-                        {
-                            fprintf (stderr, "baz!\n");
-//                            r.cells = r.cells + cell(v, perpendicularBisector); 
-//                            r.cells = r.cells + cell(v, nearestPoly); 
                         }
                     }
                     else
