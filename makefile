@@ -12,6 +12,7 @@ CXX:=clang++
 EMXX:=em++
 PKGCONFIG:=pkg-config
 INSTALL:=install
+XSLTPROC:=xsltproc
 
 LIBRARIES:=
 
@@ -52,6 +53,11 @@ archive: ../$(NAME)-$(VERSION).tar.gz
 
 ../$(NAME)-$(VERSION).tar.gz:
 	git archive --format=tar --prefix=$(NAME)-$(VERSION)/ HEAD | gzip -9 >$@
+
+# meta rules for documentation
+documentation.xml: doxyfile include/*/*
+	doxygen $^
+	cd documentation/xml && $(XSLTPROC) combine.xslt index.xml > ../../$@
 
 # meta rules for javascript
 js: $(JSBINARIES)
