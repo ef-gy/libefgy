@@ -50,6 +50,9 @@ namespace efgy
                     : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
                     {}
 
+                void frameStart (void) const {};
+                void frameEnd (void) const {};
+
                 void drawLine
                     (const typename geometry::euclidian::space<Q,d>::vector &pA,
                      const typename geometry::euclidian::space<Q,d>::vector &pB) const;
@@ -76,6 +79,9 @@ namespace efgy
                     : transformation(pTransformation)
                     {}
 
+                void frameStart (void) const {};
+                void frameEnd (void) const {};
+
                 void drawLine
                     (const typename geometry::euclidian::space<Q,3>::vector &pA,
                      const typename geometry::euclidian::space<Q,3>::vector &pB) const;
@@ -97,6 +103,9 @@ namespace efgy
                     (const geometry::transformation<Q,2> &pTransformation)
                     : transformation(pTransformation)
                     {}
+
+                void frameStart (void) const {};
+                void frameEnd (void) const {};
 
                 void drawLine
                     (const typename geometry::euclidian::space<Q,2>::vector &pA,
