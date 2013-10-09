@@ -106,6 +106,26 @@ namespace efgy
                           GLfloat(transformation.transformationMatrix.data[3][3]) };
                     glLoadMatrixf(mat);
                     glMatrixMode(GL_PROJECTION);
+                    /*
+                    GLfloat matp[16] =
+                        { GLfloat(projection.transformationMatrix.data[0][0]),
+                          GLfloat(projection.transformationMatrix.data[0][1]),
+                          GLfloat(projection.transformationMatrix.data[0][2]),
+                          GLfloat(projection.transformationMatrix.data[0][3]),
+                          GLfloat(projection.transformationMatrix.data[1][0]),
+                          GLfloat(projection.transformationMatrix.data[1][1]),
+                          GLfloat(projection.transformationMatrix.data[1][2]),
+                          GLfloat(projection.transformationMatrix.data[1][3]),
+                          GLfloat(projection.transformationMatrix.data[2][0]),
+                          GLfloat(projection.transformationMatrix.data[2][1]),
+                          GLfloat(projection.transformationMatrix.data[2][2]),
+                          GLfloat(projection.transformationMatrix.data[2][3]),
+                          GLfloat(projection.transformationMatrix.data[3][0]),
+                          GLfloat(projection.transformationMatrix.data[3][1]),
+                          GLfloat(projection.transformationMatrix.data[3][2]),
+                          GLfloat(projection.transformationMatrix.data[3][3]) };
+                    glLoadMatrixf(matp);
+                     */
                     glLoadIdentity();
                 };
                 void frameEnd (void) const {};

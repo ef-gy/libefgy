@@ -288,11 +288,10 @@ namespace efgy
                     translation<Q,d> translationTransformation(from * Q(-1));
                     perspective<Q,d> perspectiveTransformation(eyeAngle);
 
-                    transformationMatrix
-                        = translationTransformation.transformationMatrix
-                        * lookAtTransformation.transformationMatrix
-                        * perspectiveTransformation.transformationMatrix
-                    ;
+                    this->transformationMatrix =
+                          ( translationTransformation
+                          * lookAtTransformation
+                          * perspectiveTransformation ).transformationMatrix;
                 }
 
                 typename euclidian::space<Q,d>::vector from;
