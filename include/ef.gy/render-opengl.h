@@ -79,13 +79,34 @@ namespace efgy
             public:
                 opengl
                     (const geometry::transformation<Q,3> &pTransformation,
-                     const geometry::projection<Q,3> &,
+                     const geometry::projection<Q,3> &pProjection,
                      const opengl<Q,2> &)
-                    : transformation(pTransformation)
+                    : transformation(pTransformation), projection(pProjection)
                     {}
 
-                void frameStart (void) const
+                void frameStart (void)
                 {
+                    glMatrixMode(GL_MODELVIEW);
+                    GLfloat mat[16] =
+                        { GLfloat(transformation.transformationMatrix.data[0][0]),
+                          GLfloat(transformation.transformationMatrix.data[0][1]),
+                          GLfloat(transformation.transformationMatrix.data[0][2]),
+                          GLfloat(transformation.transformationMatrix.data[0][3]),
+                          GLfloat(transformation.transformationMatrix.data[1][0]),
+                          GLfloat(transformation.transformationMatrix.data[1][1]),
+                          GLfloat(transformation.transformationMatrix.data[1][2]),
+                          GLfloat(transformation.transformationMatrix.data[1][3]),
+                          GLfloat(transformation.transformationMatrix.data[2][0]),
+                          GLfloat(transformation.transformationMatrix.data[2][1]),
+                          GLfloat(transformation.transformationMatrix.data[2][2]),
+                          GLfloat(transformation.transformationMatrix.data[2][3]),
+                          GLfloat(transformation.transformationMatrix.data[3][0]),
+                          GLfloat(transformation.transformationMatrix.data[3][1]),
+                          GLfloat(transformation.transformationMatrix.data[3][2]),
+                          GLfloat(transformation.transformationMatrix.data[3][3]) };
+                    glLoadMatrixf(mat);
+                    glMatrixMode(GL_PROJECTION);
+                    glLoadIdentity();
                 };
                 void frameEnd (void) const {};
 
@@ -99,6 +120,7 @@ namespace efgy
 
             protected:
                 const geometry::transformation<Q,3> &transformation;
+                const geometry::projection<Q,3> &projection;
         };
 #endif
 
@@ -155,12 +177,9 @@ namespace efgy
 #if defined(GL3D)
         template<typename Q>
         void opengl<Q,3>::drawLine
-            (const typename geometry::euclidian::space<Q,3>::vector &pA,
-             const typename geometry::euclidian::space<Q,3>::vector &pB) const
+            (const typename geometry::euclidian::space<Q,3>::vector &A,
+             const typename geometry::euclidian::space<Q,3>::vector &B) const
         {
-            const typename geometry::euclidian::space<Q,3>::vector A = transformation * pA;
-            const typename geometry::euclidian::space<Q,3>::vector B = transformation * pB;
-
             const GLfloat vertices[6] =
                 { GLfloat(A.data[0]), GLfloat(A.data[1]), GLfloat(A.data[2]),
                   GLfloat(B.data[0]), GLfloat(B.data[1]), GLfloat(B.data[2]) };
@@ -178,11 +197,9 @@ namespace efgy
             GLfloat vertices[(q*3)];
             for (unsigned int i = 0; i < q; i++)
             {
-                const typename geometry::euclidian::space<Q,3>::vector V = transformation * pV.data[i];
-
-                vertices[(i*3)+0] = V.data[0];
-                vertices[(i*3)+1] = V.data[1];
-                vertices[(i*3)+2] = V.data[2];
+                vertices[(i*3)+0] = pV.data[i].data[0];
+                vertices[(i*3)+1] = pV.data[i].data[1];
+                vertices[(i*3)+2] = pV.data[i].data[2];
             }
             glNormalPointer(GL_FLOAT, 0, vertices);
             glVertexPointer(3, GL_FLOAT, 0, vertices);
