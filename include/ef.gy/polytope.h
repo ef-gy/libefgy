@@ -337,6 +337,8 @@ namespace efgy
                 static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "axe-graph"; }
             
+                void calculateObject (void) const {}
+
                 void renderWireframe ()
                 {
                     typename euclidian::space<Q,d>::vector A;
