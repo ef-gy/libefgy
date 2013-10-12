@@ -150,6 +150,9 @@ namespace efgy
                     {
                         haveBuffers = true;
 
+#if 0
+                        glGenVertexArraysAPPLE(1, &VertexArrayID);
+#endif
                         glGenBuffers(1, &vertexbuffer);
                         glGenBuffers(1, &elementbuffer);
                         glGenBuffers(1, &linebuffer);
@@ -191,12 +194,25 @@ namespace efgy
                 {
                     if (prepared)
                     {
+#if 0
+                        glBindVertexArrayAPPLE(VertexArrayID);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
+                        glDrawElements (GL_LINES, lindices, GL_UNSIGNED_INT, 0);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                        
+                        glBindVertexArrayAPPLE(0);
+#else
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
                         glEnableClientState(GL_VERTEX_ARRAY);
                         glEnableClientState(GL_NORMAL_ARRAY);
-                        glVertexPointer(3, GL_FLOAT, 0, 0);
-                        glNormalPointer(GL_FLOAT, 0, 0);
+                        //glVertexPointer(3, GL_FLOAT, 3*sizeof(GLfloat), 0);
+                        glVertexPointer(3, GL_FLOAT, 6*sizeof(GLfloat), 0);
+                        glNormalPointer(GL_FLOAT, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
                         glDrawElements (GL_LINES, lindices, GL_UNSIGNED_INT, 0);
                         
                         glDisableClientState(GL_NORMAL_ARRAY);
@@ -204,6 +220,7 @@ namespace efgy
                         
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#endif
                     }
                 }
 
@@ -211,19 +228,32 @@ namespace efgy
                 {
                     if (prepared)
                     {
+#if 0
+                        glBindVertexArrayAPPLE(VertexArrayID);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuelementbufferffer);
+                        glDrawElements (GL_LINES, lindices, GL_UNSIGNED_INT, 0);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                        
+                        glBindVertexArrayAPPLE(0);
+#else
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
                         glEnableClientState(GL_VERTEX_ARRAY);
                         glEnableClientState(GL_NORMAL_ARRAY);
-                        glVertexPointer(3, GL_FLOAT, 0, 0);
-                        glNormalPointer(GL_FLOAT, 0, 0);
+                        glVertexPointer(3, GL_FLOAT, 6*sizeof(GLfloat), 0);
+                        glNormalPointer(GL_FLOAT, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
                         glDrawElements (GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
-                        
+
                         glDisableClientState(GL_NORMAL_ARRAY);
                         glDisableClientState(GL_VERTEX_ARRAY);
-                        
+
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#endif
                     }
                 }
 
@@ -327,22 +357,20 @@ namespace efgy
             vertices.push_back(GLfloat(A.data[1]));
             vertices.push_back(GLfloat(A.data[2]));
 
+            vertices.push_back(GLfloat(0));
+            vertices.push_back(GLfloat(0));
+            vertices.push_back(GLfloat(0));
+
             vertices.push_back(GLfloat(B.data[0]));
             vertices.push_back(GLfloat(B.data[1]));
             vertices.push_back(GLfloat(B.data[2]));
 
+            vertices.push_back(GLfloat(0));
+            vertices.push_back(GLfloat(0));
+            vertices.push_back(GLfloat(0));
+
             lineindices.push_back(indices); indices++;
             lineindices.push_back(indices); indices++;
-
-            /*
-            const GLfloat vertices[6] =
-                { GLfloat(A.data[0]), GLfloat(A.data[1]), GLfloat(A.data[2]),
-                  GLfloat(B.data[0]), GLfloat(B.data[1]), GLfloat(B.data[2]) };
-
-            glNormalPointer(GL_FLOAT, 0, vertices);
-            glVertexPointer(3, GL_FLOAT, 0, vertices);
-            glDrawArrays(GL_LINES, 0, 2);
-             */
         }
 
         template<typename Q>
@@ -352,61 +380,135 @@ namespace efgy
         {
             if (isPrepared()) return;
 
-            //const unsigned int l = (q - 2) * 3 * 3;
-            //GLfloat ivertices[l];
-            unsigned int i;
-            for (i = 0; i < 3; i++)
-            {
-                /*
-                ivertices[(i*3)+0] = pV.data[i].data[0];
-                ivertices[(i*3)+1] = pV.data[i].data[1];
-                ivertices[(i*3)+2] = pV.data[i].data[2];
-                 */
+            typename geometry::euclidian::space<Q,3>::vector R
+                = geometry::euclidian::normalise<Q,3>
+                    (geometry::euclidian::crossProduct<Q>
+                        (pV.data[1] - pV.data[0], pV.data[2] - pV.data[0]));
 
-                vertices.push_back(GLfloat(pV.data[i].data[0]));
-                vertices.push_back(GLfloat(pV.data[i].data[1]));
-                vertices.push_back(GLfloat(pV.data[i].data[2]));
+            typename geometry::euclidian::space<Q,3>::vector RN
+                = geometry::euclidian::normalise<Q,3>
+                    (geometry::euclidian::crossProduct<Q>
+                        (pV.data[2] - pV.data[0], pV.data[1] - pV.data[0]));
 
-                triindices.push_back(indices); indices++;
-            }
+            vertices.push_back(GLfloat(pV.data[0].data[0]));
+            vertices.push_back(GLfloat(pV.data[0].data[1]));
+            vertices.push_back(GLfloat(pV.data[0].data[2]));
+            
+            vertices.push_back(GLfloat(R.data[0]));
+            vertices.push_back(GLfloat(R.data[1]));
+            vertices.push_back(GLfloat(R.data[2]));
+
+            triindices.push_back(indices); indices++;
+
+            vertices.push_back(GLfloat(pV.data[1].data[0]));
+            vertices.push_back(GLfloat(pV.data[1].data[1]));
+            vertices.push_back(GLfloat(pV.data[1].data[2]));
+            
+            vertices.push_back(GLfloat(R.data[0]));
+            vertices.push_back(GLfloat(R.data[1]));
+            vertices.push_back(GLfloat(R.data[2]));
+
+            triindices.push_back(indices); indices++;
+
+            vertices.push_back(GLfloat(pV.data[2].data[0]));
+            vertices.push_back(GLfloat(pV.data[2].data[1]));
+            vertices.push_back(GLfloat(pV.data[2].data[2]));
+            
+            vertices.push_back(GLfloat(R.data[0]));
+            vertices.push_back(GLfloat(R.data[1]));
+            vertices.push_back(GLfloat(R.data[2]));
+
+            triindices.push_back(indices); indices++;
+
+            vertices.push_back(GLfloat(pV.data[2].data[0]));
+            vertices.push_back(GLfloat(pV.data[2].data[1]));
+            vertices.push_back(GLfloat(pV.data[2].data[2]));
+            
+            vertices.push_back(GLfloat(RN.data[0]));
+            vertices.push_back(GLfloat(RN.data[1]));
+            vertices.push_back(GLfloat(RN.data[2]));
+            
+            triindices.push_back(indices); indices++;
+            
+            vertices.push_back(GLfloat(pV.data[1].data[0]));
+            vertices.push_back(GLfloat(pV.data[1].data[1]));
+            vertices.push_back(GLfloat(pV.data[1].data[2]));
+            
+            vertices.push_back(GLfloat(RN.data[0]));
+            vertices.push_back(GLfloat(RN.data[1]));
+            vertices.push_back(GLfloat(RN.data[2]));
+            
+            triindices.push_back(indices); indices++;
+            
+            vertices.push_back(GLfloat(pV.data[0].data[0]));
+            vertices.push_back(GLfloat(pV.data[0].data[1]));
+            vertices.push_back(GLfloat(pV.data[0].data[2]));
+            
+            vertices.push_back(GLfloat(RN.data[0]));
+            vertices.push_back(GLfloat(RN.data[1]));
+            vertices.push_back(GLfloat(RN.data[2]));
+            
+            triindices.push_back(indices); indices++;
+            
+
             for (unsigned int j = 3; j < q; j++)
             {
-                /*
-                ivertices[(i*3)+0] = pV.data[0].data[0];
-                ivertices[(i*3)+1] = pV.data[0].data[1];
-                ivertices[(i*3)+2] = pV.data[0].data[2];
-                i++;
-                ivertices[(i*3)+0] = pV.data[(j-1)].data[0];
-                ivertices[(i*3)+1] = pV.data[(j-1)].data[1];
-                ivertices[(i*3)+2] = pV.data[(j-1)].data[2];
-                i++;
-                ivertices[(i*3)+0] = pV.data[j].data[0];
-                ivertices[(i*3)+1] = pV.data[j].data[1];
-                ivertices[(i*3)+2] = pV.data[j].data[2];
-                i++;
-                 */
-
                 vertices.push_back(GLfloat(pV.data[0].data[0]));
                 vertices.push_back(GLfloat(pV.data[0].data[1]));
                 vertices.push_back(GLfloat(pV.data[0].data[2]));
+
+                vertices.push_back(GLfloat(R.data[0]));
+                vertices.push_back(GLfloat(R.data[1]));
+                vertices.push_back(GLfloat(R.data[2]));
 
                 vertices.push_back(GLfloat(pV.data[(j-1)].data[0]));
                 vertices.push_back(GLfloat(pV.data[(j-1)].data[1]));
                 vertices.push_back(GLfloat(pV.data[(j-1)].data[2]));
 
+                vertices.push_back(GLfloat(R.data[0]));
+                vertices.push_back(GLfloat(R.data[1]));
+                vertices.push_back(GLfloat(R.data[2]));
+
                 vertices.push_back(GLfloat(pV.data[j].data[0]));
                 vertices.push_back(GLfloat(pV.data[j].data[1]));
                 vertices.push_back(GLfloat(pV.data[j].data[2]));
 
+                vertices.push_back(GLfloat(R.data[0]));
+                vertices.push_back(GLfloat(R.data[1]));
+                vertices.push_back(GLfloat(R.data[2]));
+
+                triindices.push_back(indices); indices++;
+                triindices.push_back(indices); indices++;
+                triindices.push_back(indices); indices++;
+
+                vertices.push_back(GLfloat(pV.data[j].data[0]));
+                vertices.push_back(GLfloat(pV.data[j].data[1]));
+                vertices.push_back(GLfloat(pV.data[j].data[2]));
+                
+                vertices.push_back(GLfloat(RN.data[0]));
+                vertices.push_back(GLfloat(RN.data[1]));
+                vertices.push_back(GLfloat(RN.data[2]));
+                
+                vertices.push_back(GLfloat(pV.data[(j-1)].data[0]));
+                vertices.push_back(GLfloat(pV.data[(j-1)].data[1]));
+                vertices.push_back(GLfloat(pV.data[(j-1)].data[2]));
+                
+                vertices.push_back(GLfloat(RN.data[0]));
+                vertices.push_back(GLfloat(RN.data[1]));
+                vertices.push_back(GLfloat(RN.data[2]));
+                
+                vertices.push_back(GLfloat(pV.data[0].data[0]));
+                vertices.push_back(GLfloat(pV.data[0].data[1]));
+                vertices.push_back(GLfloat(pV.data[0].data[2]));
+                
+                vertices.push_back(GLfloat(RN.data[0]));
+                vertices.push_back(GLfloat(RN.data[1]));
+                vertices.push_back(GLfloat(RN.data[2]));
+                
                 triindices.push_back(indices); indices++;
                 triindices.push_back(indices); indices++;
                 triindices.push_back(indices); indices++;
             }
-            /*
-            glNormalPointer(GL_FLOAT, 0, ivertices);
-            glVertexPointer(3, GL_FLOAT, 0, ivertices);
-            glDrawArrays(GL_TRIANGLES, 0, (q - 2) * 3);
-             */
         }
 #endif
 
