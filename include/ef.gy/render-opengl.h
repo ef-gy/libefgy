@@ -267,6 +267,25 @@ namespace efgy
 
                 void reset (void) { prepared = false; }
                 const bool isPrepared (void) const { return prepared; }
+            
+                unsigned int addVertex
+                    (const GLfloat &x, const GLfloat &y, const GLfloat &z,
+                     const GLfloat &nx = 0.f, const GLfloat &ny = 0.f, const GLfloat &nz = 0.f)
+                {
+                    vertices.push_back(x);
+                    vertices.push_back(y);
+                    vertices.push_back(z);
+
+                    vertices.push_back(nx);
+                    vertices.push_back(ny);
+                    vertices.push_back(nz);
+
+                    unsigned int rv = indices;
+
+                    indices++;
+
+                    return rv;
+                }
 
             protected:
                 const geometry::transformation<Q,3> &transformation;
@@ -353,24 +372,8 @@ namespace efgy
         {
             if (isPrepared()) return;
 
-            vertices.push_back(GLfloat(A.data[0]));
-            vertices.push_back(GLfloat(A.data[1]));
-            vertices.push_back(GLfloat(A.data[2]));
-
-            vertices.push_back(GLfloat(0));
-            vertices.push_back(GLfloat(0));
-            vertices.push_back(GLfloat(0));
-
-            vertices.push_back(GLfloat(B.data[0]));
-            vertices.push_back(GLfloat(B.data[1]));
-            vertices.push_back(GLfloat(B.data[2]));
-
-            vertices.push_back(GLfloat(0));
-            vertices.push_back(GLfloat(0));
-            vertices.push_back(GLfloat(0));
-
-            lineindices.push_back(indices); indices++;
-            lineindices.push_back(indices); indices++;
+            lineindices.push_back(addVertex(GLfloat(A.data[0]), GLfloat(A.data[1]), GLfloat(A.data[2])));
+            lineindices.push_back(addVertex(GLfloat(B.data[0]), GLfloat(B.data[1]), GLfloat(B.data[2])));
         }
 
         template<typename Q>
@@ -390,124 +393,35 @@ namespace efgy
                     (geometry::euclidian::crossProduct<Q>
                         (pV.data[2] - pV.data[0], pV.data[1] - pV.data[0]));
 
-            vertices.push_back(GLfloat(pV.data[0].data[0]));
-            vertices.push_back(GLfloat(pV.data[0].data[1]));
-            vertices.push_back(GLfloat(pV.data[0].data[2]));
-            
-            vertices.push_back(GLfloat(R.data[0]));
-            vertices.push_back(GLfloat(R.data[1]));
-            vertices.push_back(GLfloat(R.data[2]));
+            triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
+                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+            triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
+                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+            triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
+                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
 
-            triindices.push_back(indices); indices++;
-
-            vertices.push_back(GLfloat(pV.data[1].data[0]));
-            vertices.push_back(GLfloat(pV.data[1].data[1]));
-            vertices.push_back(GLfloat(pV.data[1].data[2]));
-            
-            vertices.push_back(GLfloat(R.data[0]));
-            vertices.push_back(GLfloat(R.data[1]));
-            vertices.push_back(GLfloat(R.data[2]));
-
-            triindices.push_back(indices); indices++;
-
-            vertices.push_back(GLfloat(pV.data[2].data[0]));
-            vertices.push_back(GLfloat(pV.data[2].data[1]));
-            vertices.push_back(GLfloat(pV.data[2].data[2]));
-            
-            vertices.push_back(GLfloat(R.data[0]));
-            vertices.push_back(GLfloat(R.data[1]));
-            vertices.push_back(GLfloat(R.data[2]));
-
-            triindices.push_back(indices); indices++;
-
-            vertices.push_back(GLfloat(pV.data[2].data[0]));
-            vertices.push_back(GLfloat(pV.data[2].data[1]));
-            vertices.push_back(GLfloat(pV.data[2].data[2]));
-            
-            vertices.push_back(GLfloat(RN.data[0]));
-            vertices.push_back(GLfloat(RN.data[1]));
-            vertices.push_back(GLfloat(RN.data[2]));
-            
-            triindices.push_back(indices); indices++;
-            
-            vertices.push_back(GLfloat(pV.data[1].data[0]));
-            vertices.push_back(GLfloat(pV.data[1].data[1]));
-            vertices.push_back(GLfloat(pV.data[1].data[2]));
-            
-            vertices.push_back(GLfloat(RN.data[0]));
-            vertices.push_back(GLfloat(RN.data[1]));
-            vertices.push_back(GLfloat(RN.data[2]));
-            
-            triindices.push_back(indices); indices++;
-            
-            vertices.push_back(GLfloat(pV.data[0].data[0]));
-            vertices.push_back(GLfloat(pV.data[0].data[1]));
-            vertices.push_back(GLfloat(pV.data[0].data[2]));
-            
-            vertices.push_back(GLfloat(RN.data[0]));
-            vertices.push_back(GLfloat(RN.data[1]));
-            vertices.push_back(GLfloat(RN.data[2]));
-            
-            triindices.push_back(indices); indices++;
-            
+            triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
+                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+            triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
+                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+            triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
+                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
 
             for (unsigned int j = 3; j < q; j++)
             {
-                vertices.push_back(GLfloat(pV.data[0].data[0]));
-                vertices.push_back(GLfloat(pV.data[0].data[1]));
-                vertices.push_back(GLfloat(pV.data[0].data[2]));
+                triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
+                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
+                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
+                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
 
-                vertices.push_back(GLfloat(R.data[0]));
-                vertices.push_back(GLfloat(R.data[1]));
-                vertices.push_back(GLfloat(R.data[2]));
-
-                vertices.push_back(GLfloat(pV.data[(j-1)].data[0]));
-                vertices.push_back(GLfloat(pV.data[(j-1)].data[1]));
-                vertices.push_back(GLfloat(pV.data[(j-1)].data[2]));
-
-                vertices.push_back(GLfloat(R.data[0]));
-                vertices.push_back(GLfloat(R.data[1]));
-                vertices.push_back(GLfloat(R.data[2]));
-
-                vertices.push_back(GLfloat(pV.data[j].data[0]));
-                vertices.push_back(GLfloat(pV.data[j].data[1]));
-                vertices.push_back(GLfloat(pV.data[j].data[2]));
-
-                vertices.push_back(GLfloat(R.data[0]));
-                vertices.push_back(GLfloat(R.data[1]));
-                vertices.push_back(GLfloat(R.data[2]));
-
-                triindices.push_back(indices); indices++;
-                triindices.push_back(indices); indices++;
-                triindices.push_back(indices); indices++;
-
-                vertices.push_back(GLfloat(pV.data[j].data[0]));
-                vertices.push_back(GLfloat(pV.data[j].data[1]));
-                vertices.push_back(GLfloat(pV.data[j].data[2]));
-                
-                vertices.push_back(GLfloat(RN.data[0]));
-                vertices.push_back(GLfloat(RN.data[1]));
-                vertices.push_back(GLfloat(RN.data[2]));
-                
-                vertices.push_back(GLfloat(pV.data[(j-1)].data[0]));
-                vertices.push_back(GLfloat(pV.data[(j-1)].data[1]));
-                vertices.push_back(GLfloat(pV.data[(j-1)].data[2]));
-                
-                vertices.push_back(GLfloat(RN.data[0]));
-                vertices.push_back(GLfloat(RN.data[1]));
-                vertices.push_back(GLfloat(RN.data[2]));
-                
-                vertices.push_back(GLfloat(pV.data[0].data[0]));
-                vertices.push_back(GLfloat(pV.data[0].data[1]));
-                vertices.push_back(GLfloat(pV.data[0].data[2]));
-                
-                vertices.push_back(GLfloat(RN.data[0]));
-                vertices.push_back(GLfloat(RN.data[1]));
-                vertices.push_back(GLfloat(RN.data[2]));
-                
-                triindices.push_back(indices); indices++;
-                triindices.push_back(indices); indices++;
-                triindices.push_back(indices); indices++;
+                triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
+                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
+                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
+                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
             }
         }
 #endif
