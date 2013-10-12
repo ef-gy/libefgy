@@ -30,7 +30,6 @@
 #if !defined (EF_GY_GRAPH_H)
 #define EF_GY_GRAPH_H
 
-#include "matrix.h"
 #include <vector>
 
 namespace efgy
