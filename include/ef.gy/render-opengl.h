@@ -31,6 +31,7 @@
 
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
+#include <vector>
 
 #undef GL3D
 #define GL3D
@@ -55,7 +56,9 @@ namespace efgy
                     combined = transformation * projection;
                     lowerRenderer.frameStart();
                 };
-                void frameEnd (void) const {};
+                void frameEnd (void) const { lowerRenderer.frameEnd(); };
+                void pushLines (void) const { lowerRenderer.pushLines(); };
+                void pushFaces (void) const { lowerRenderer.pushFaces(); };
 
                 void drawLine
                     (const typename geometry::euclidian::space<Q,d>::vector &pA,
@@ -64,6 +67,9 @@ namespace efgy
                 template<unsigned int q>
                 void drawFace
                     (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const;
+
+                void reset (void) const { lowerRenderer.reset(); }
+                const bool isPrepared (void) const { return lowerRenderer.isPrepared(); }
 
             protected:
                 const geometry::transformation<Q,d> &transformation;
@@ -81,8 +87,20 @@ namespace efgy
                     (const geometry::transformation<Q,3> &pTransformation,
                      const geometry::projection<Q,3> &pProjection,
                      const opengl<Q,2> &)
-                    : transformation(pTransformation), projection(pProjection)
-                    {}
+                    : transformation(pTransformation), projection(pProjection),
+                      haveBuffers(false), prepared(false)
+                    {
+                    }
+
+                ~opengl (void)
+                    {
+                        if (haveBuffers)
+                        {
+                            glDeleteBuffers(1, &vertexbuffer);
+                            glDeleteBuffers(1, &elementbuffer);
+                            glDeleteBuffers(1, &linebuffer);
+                        }
+                    }
 
                 void frameStart (void)
                 {
@@ -127,20 +145,114 @@ namespace efgy
                     glLoadMatrixf(matp);
                      */
                     glLoadIdentity();
+                    
+                    if(!haveBuffers)
+                    {
+                        haveBuffers = true;
+
+                        glGenBuffers(1, &vertexbuffer);
+                        glGenBuffers(1, &elementbuffer);
+                        glGenBuffers(1, &linebuffer);
+                    }
+                    /*
+                    if (prepared)
+                    {
+                        prepared = false;
+                    }
+                     */
                 };
-                void frameEnd (void) const {};
+                void frameEnd (void)
+                {
+                    if (!prepared)
+                    {
+                        prepared = true;
+
+                        //GLuint VertexArrayID;
+                        //glGenVertexArrays(1, &VertexArrayID);
+                        //glBindVertexArray(VertexArrayID);
+                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+                        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, triindices.size() * sizeof(unsigned int), &triindices[0], GL_STATIC_DRAW);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
+                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);
+                        
+                        tindices = GLsizei(triindices.size());
+                        lindices = GLsizei(lineindices.size());
+
+                        vertices.clear();
+                        triindices.clear();
+                        lineindices.clear();
+                        indices = 0;
+                    }
+                };
+
+                void pushLines (void) const
+                {
+                    if (prepared)
+                    {
+                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
+                        glEnableClientState(GL_VERTEX_ARRAY);
+                        glEnableClientState(GL_NORMAL_ARRAY);
+                        glVertexPointer(3, GL_FLOAT, 0, 0);
+                        glNormalPointer(GL_FLOAT, 0, 0);
+                        glDrawElements (GL_LINES, lindices, GL_UNSIGNED_INT, 0);
+                        
+                        glDisableClientState(GL_NORMAL_ARRAY);
+                        glDisableClientState(GL_VERTEX_ARRAY);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                    }
+                }
+
+                void pushFaces (void) const
+                {
+                    if (prepared)
+                    {
+                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+                        glEnableClientState(GL_VERTEX_ARRAY);
+                        glEnableClientState(GL_NORMAL_ARRAY);
+                        glVertexPointer(3, GL_FLOAT, 0, 0);
+                        glNormalPointer(GL_FLOAT, 0, 0);
+                        glDrawElements (GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
+                        
+                        glDisableClientState(GL_NORMAL_ARRAY);
+                        glDisableClientState(GL_VERTEX_ARRAY);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                    }
+                }
 
                 void drawLine
                     (const typename geometry::euclidian::space<Q,3>::vector &pA,
-                     const typename geometry::euclidian::space<Q,3>::vector &pB) const;
+                     const typename geometry::euclidian::space<Q,3>::vector &pB);
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV) const;
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV);
+
+                void reset (void) { prepared = false; }
+                const bool isPrepared (void) const { return prepared; }
 
             protected:
                 const geometry::transformation<Q,3> &transformation;
                 const geometry::projection<Q,3> &projection;
+                std::vector<GLfloat> vertices;
+                std::vector<unsigned int> triindices;
+                std::vector<unsigned int> lineindices;
+                unsigned int indices;
+                GLsizei tindices;
+                GLsizei lindices;
+                bool haveBuffers;
+                bool prepared;
+                GLuint VertexArrayID;
+                GLuint vertexbuffer;
+                GLuint elementbuffer;
+                GLuint linebuffer;
         };
 #endif
 
@@ -155,6 +267,8 @@ namespace efgy
 
                 void frameStart (void) const {};
                 void frameEnd (void) const {};
+                void pushLines (void) const {};
+                void pushFaces (void) const {};
 
                 void drawLine
                     (const typename geometry::euclidian::space<Q,2>::vector &pA,
@@ -163,6 +277,9 @@ namespace efgy
                 template<unsigned int q>
                 void drawFace
                     (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV) const;
+
+                void reset (void) {}
+                const bool isPrepared (void) const { return false; }
 
             protected:
                 const geometry::transformation<Q,2> &transformation;
@@ -173,6 +290,8 @@ namespace efgy
             (const typename geometry::euclidian::space<Q,d>::vector &pA,
              const typename geometry::euclidian::space<Q,d>::vector &pB) const
         {
+            if (isPrepared()) return;
+            
             typename geometry::euclidian::space<Q,d-1>::vector A = combined.project(pA);
             typename geometry::euclidian::space<Q,d-1>::vector B = combined.project(pB);
 
@@ -184,6 +303,8 @@ namespace efgy
         void opengl<Q,d>::drawFace
             (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const
         {
+            if (isPrepared()) return;
+
             math::tuple<q, typename geometry::euclidian::space<Q,d-1>::vector> V;
 
             for (unsigned int i = 0; i < q; i++)
@@ -198,8 +319,22 @@ namespace efgy
         template<typename Q>
         void opengl<Q,3>::drawLine
             (const typename geometry::euclidian::space<Q,3>::vector &A,
-             const typename geometry::euclidian::space<Q,3>::vector &B) const
+             const typename geometry::euclidian::space<Q,3>::vector &B)
         {
+            if (isPrepared()) return;
+
+            vertices.push_back(GLfloat(A.data[0]));
+            vertices.push_back(GLfloat(A.data[1]));
+            vertices.push_back(GLfloat(A.data[2]));
+
+            vertices.push_back(GLfloat(B.data[0]));
+            vertices.push_back(GLfloat(B.data[1]));
+            vertices.push_back(GLfloat(B.data[2]));
+
+            lineindices.push_back(indices); indices++;
+            lineindices.push_back(indices); indices++;
+
+            /*
             const GLfloat vertices[6] =
                 { GLfloat(A.data[0]), GLfloat(A.data[1]), GLfloat(A.data[2]),
                   GLfloat(B.data[0]), GLfloat(B.data[1]), GLfloat(B.data[2]) };
@@ -207,23 +342,71 @@ namespace efgy
             glNormalPointer(GL_FLOAT, 0, vertices);
             glVertexPointer(3, GL_FLOAT, 0, vertices);
             glDrawArrays(GL_LINES, 0, 2);
+             */
         }
 
         template<typename Q>
         template<unsigned int q>
         void opengl<Q,3>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV) const
+            (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV)
         {
-            GLfloat vertices[(q*3)];
-            for (unsigned int i = 0; i < q; i++)
+            if (isPrepared()) return;
+
+            //const unsigned int l = (q - 2) * 3 * 3;
+            //GLfloat ivertices[l];
+            unsigned int i;
+            for (i = 0; i < 3; i++)
             {
-                vertices[(i*3)+0] = pV.data[i].data[0];
-                vertices[(i*3)+1] = pV.data[i].data[1];
-                vertices[(i*3)+2] = pV.data[i].data[2];
+                /*
+                ivertices[(i*3)+0] = pV.data[i].data[0];
+                ivertices[(i*3)+1] = pV.data[i].data[1];
+                ivertices[(i*3)+2] = pV.data[i].data[2];
+                 */
+
+                vertices.push_back(GLfloat(pV.data[i].data[0]));
+                vertices.push_back(GLfloat(pV.data[i].data[1]));
+                vertices.push_back(GLfloat(pV.data[i].data[2]));
+
+                triindices.push_back(indices); indices++;
             }
-            glNormalPointer(GL_FLOAT, 0, vertices);
-            glVertexPointer(3, GL_FLOAT, 0, vertices);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, q);
+            for (unsigned int j = 3; j < q; j++)
+            {
+                /*
+                ivertices[(i*3)+0] = pV.data[0].data[0];
+                ivertices[(i*3)+1] = pV.data[0].data[1];
+                ivertices[(i*3)+2] = pV.data[0].data[2];
+                i++;
+                ivertices[(i*3)+0] = pV.data[(j-1)].data[0];
+                ivertices[(i*3)+1] = pV.data[(j-1)].data[1];
+                ivertices[(i*3)+2] = pV.data[(j-1)].data[2];
+                i++;
+                ivertices[(i*3)+0] = pV.data[j].data[0];
+                ivertices[(i*3)+1] = pV.data[j].data[1];
+                ivertices[(i*3)+2] = pV.data[j].data[2];
+                i++;
+                 */
+
+                vertices.push_back(GLfloat(pV.data[0].data[0]));
+                vertices.push_back(GLfloat(pV.data[0].data[1]));
+                vertices.push_back(GLfloat(pV.data[0].data[2]));
+
+                vertices.push_back(GLfloat(pV.data[(j-1)].data[0]));
+                vertices.push_back(GLfloat(pV.data[(j-1)].data[1]));
+                vertices.push_back(GLfloat(pV.data[(j-1)].data[2]));
+
+                vertices.push_back(GLfloat(pV.data[j].data[0]));
+                vertices.push_back(GLfloat(pV.data[j].data[1]));
+                vertices.push_back(GLfloat(pV.data[j].data[2]));
+
+                triindices.push_back(indices); indices++;
+                triindices.push_back(indices); indices++;
+                triindices.push_back(indices); indices++;
+            }
+            /*
+            glNormalPointer(GL_FLOAT, 0, ivertices);
+            glVertexPointer(3, GL_FLOAT, 0, ivertices);
+            glDrawArrays(GL_TRIANGLES, 0, (q - 2) * 3);
+             */
         }
 #endif
 

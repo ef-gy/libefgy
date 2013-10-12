@@ -41,7 +41,7 @@ namespace efgy
             public:
                 typedef polytope<Q,d,4,render> parent;
 
-                ifs (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                ifs (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {}
 
@@ -61,7 +61,7 @@ namespace efgy
                 public:
                     typedef ifs<Q,od,render,d> parent;
 
-                    gasket(const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    gasket(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                         : parent(pRenderer, pParameter, pMultiplier)
                         {
                             translation.data[0].data[0] = Q(0.25);
@@ -164,7 +164,7 @@ namespace efgy
                 public:
                     typedef ifs<Q,od,render,d> parent;
 
-                    carpet(const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    carpet(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                         : parent(pRenderer, pParameter, pMultiplier)
                         {
                             if (od > 1)

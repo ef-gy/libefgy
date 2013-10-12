@@ -41,7 +41,7 @@ namespace efgy
             public:
                 typedef polytope<Q,d,f,render> parent;
 
-                parametric (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                parametric (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {}
 
@@ -60,7 +60,7 @@ namespace efgy
             public:
                 typedef parametric<Q,d,4,render> parent;
 
-                moebiusStrip (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                moebiusStrip (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject();
@@ -172,7 +172,7 @@ namespace efgy
             public:
                 typedef parametric<Q,d,4,render> parent;
 
-                kleinBagel (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                kleinBagel (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject();

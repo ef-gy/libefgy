@@ -50,7 +50,7 @@ namespace efgy
         class polytope
         {
             public:
-                polytope (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier)
+                polytope (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier)
                     : renderer(pRenderer), parameter(pParameter), precisionMultiplier(pMultiplier)
                     {}
 
@@ -73,7 +73,7 @@ namespace efgy
                 }
 
             protected:
-                const render &renderer;
+                render &renderer;
                 const parameters<Q> &parameter;
                 const Q &precisionMultiplier;
 
@@ -87,7 +87,7 @@ namespace efgy
             public:
                 typedef polytope<Q,d,3,render> parent;
 
-                simplex (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                simplex (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject();
@@ -215,7 +215,7 @@ namespace efgy
             public:
                 typedef polytope<Q,d,4,render> parent;
 
-                cube (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                cube (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject();
@@ -329,7 +329,7 @@ namespace efgy
         class axeGraph
         {
             public:
-                axeGraph (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                axeGraph (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : renderer(pRenderer)
                     {}
 
@@ -370,7 +370,7 @@ namespace efgy
                 }
             
             protected:
-                const render &renderer;
+                render &renderer;
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
@@ -379,7 +379,7 @@ namespace efgy
             public:
                 typedef polytope<Q,d,3,render> parent;
 
-                sphere (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                sphere (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier),
                       step(Q(M_PI) / (parameter.polarPrecision * precisionMultiplier))
                     {
