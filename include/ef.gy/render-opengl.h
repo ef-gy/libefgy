@@ -32,6 +32,7 @@
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
 #include <vector>
+#include <map>
 
 #undef GL3D
 #define GL3D
@@ -170,6 +171,8 @@ namespace efgy
                     {
                         prepared = true;
 
+                        std::cerr << "cn:" << vertices.size() << "=" << (vertices.size()/6) << ":" << triindices.size() << "=" << (triindices.size()/3)<< ":" << lineindices.size() << "=" << (lineindices.size()/2)<< "\n";
+
                         //GLuint VertexArrayID;
                         //glGenVertexArrays(1, &VertexArrayID);
                         //glBindVertexArray(VertexArrayID);
@@ -184,6 +187,7 @@ namespace efgy
                         lindices = GLsizei(lineindices.size());
 
                         vertices.clear();
+                        vertexmap.clear();
                         triindices.clear();
                         lineindices.clear();
                         indices = 0;
@@ -267,11 +271,25 @@ namespace efgy
 
                 void reset (void) { prepared = false; }
                 const bool isPrepared (void) const { return prepared; }
-            
+
                 unsigned int addVertex
                     (const GLfloat &x, const GLfloat &y, const GLfloat &z,
                      const GLfloat &nx = 0.f, const GLfloat &ny = 0.f, const GLfloat &nz = 0.f)
                 {
+                    std::vector<GLfloat> key (6);
+                    key[0] = x;
+                    key[1] = y;
+                    key[2] = z;
+                    key[3] = nx;
+                    key[4] = ny;
+                    key[5] = nz;
+                    
+                    std::map<std::vector<GLfloat>,unsigned long>::iterator it = vertexmap.find(key);
+                    if (it != vertexmap.end())
+                    {
+                        return it->second;
+                    }
+
                     vertices.push_back(x);
                     vertices.push_back(y);
                     vertices.push_back(z);
@@ -284,6 +302,8 @@ namespace efgy
 
                     indices++;
 
+                    vertexmap[key] = rv;
+
                     return rv;
                 }
 
@@ -291,6 +311,7 @@ namespace efgy
                 const geometry::transformation<Q,3> &transformation;
                 const geometry::projection<Q,3> &projection;
                 std::vector<GLfloat> vertices;
+                std::map<std::vector<GLfloat>,unsigned long> vertexmap;
                 std::vector<unsigned int> triindices;
                 std::vector<unsigned int> lineindices;
                 unsigned int indices;
