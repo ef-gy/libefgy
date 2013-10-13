@@ -37,10 +37,20 @@
 #undef GL3D
 #define GL3D
 
+//#define GLVA
+
 namespace efgy
 {
     namespace render
     {
+        // Attribute index.
+        enum
+        {
+            attributePosition,
+            attributeNormal,
+            attributeColour
+        } openGLShaderAttribute;
+
         template<typename Q, unsigned int d>
         class opengl
         {
@@ -71,6 +81,10 @@ namespace efgy
 
                 void reset (void) const { lowerRenderer.reset(); }
                 const bool isPrepared (void) const { return lowerRenderer.isPrepared(); }
+                bool setColour (float red, float green, float blue, float alpha)
+                {
+                    return lowerRenderer.setColour(red,green,blue,alpha);
+                }
 
             protected:
                 const geometry::transformation<Q,d> &transformation;
@@ -105,6 +119,7 @@ namespace efgy
 
                 void frameStart (void)
                 {
+#if !defined(GLVA)
                     glMatrixMode(GL_MODELVIEW);
                     GLfloat mat[16] =
                         { GLfloat(transformation.transformationMatrix.data[0][0]),
@@ -146,13 +161,14 @@ namespace efgy
                     glLoadMatrixf(matp);
                      */
                     glLoadIdentity();
+#endif
                     
                     if(!haveBuffers)
                     {
                         haveBuffers = true;
 
-#if 0
-                        glGenVertexArraysAPPLE(1, &VertexArrayID);
+#if defined(GLVA)
+                        glGenVertexArrays(1, &VertexArrayID);
 #endif
                         glGenBuffers(1, &vertexbuffer);
                         glGenBuffers(1, &elementbuffer);
@@ -171,18 +187,31 @@ namespace efgy
                     {
                         prepared = true;
 
-                        std::cerr << "cn:" << vertices.size() << "=" << (vertices.size()/6) << ":" << triindices.size() << "=" << (triindices.size()/3)<< ":" << lineindices.size() << "=" << (lineindices.size()/2)<< "\n";
+                        //std::cerr << "cn:" << vertices.size() << "=" << (vertices.size()/6) << ":" << triindices.size() << "=" << (triindices.size()/3)<< ":" << lineindices.size() << "=" << (lineindices.size()/2)<< "\n";
 
-                        //GLuint VertexArrayID;
-                        //glGenVertexArrays(1, &VertexArrayID);
-                        //glBindVertexArray(VertexArrayID);
+#if defined(GLVA)
+                        glGenVertexArrays(1, &VertexArrayID);
+                        glBindVertexArray(VertexArrayID);
+#endif
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, triindices.size() * sizeof(unsigned int), &triindices[0], GL_STATIC_DRAW);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);
-                        
+#if defined(GLVA)
+                        glEnableVertexAttribArray(attributePosition);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 10*sizeof(GLfloat), 0);
+                        glEnableVertexAttribArray(attributeNormal);
+                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 10*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(attributeColour);
+                        glVertexAttribPointer(attributeColour, 4, GL_FLOAT, GL_FALSE, 10*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ARRAY_BUFFER, 0);
+                        glBindVertexArray(0);
+#endif
+
                         tindices = GLsizei(triindices.size());
                         lindices = GLsizei(lineindices.size());
 
@@ -198,23 +227,21 @@ namespace efgy
                 {
                     if (prepared)
                     {
-#if 0
-                        glBindVertexArrayAPPLE(VertexArrayID);
+#if defined(GLVA)
+                        glBindVertexArray(VertexArrayID);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
-                        glDrawElements (GL_LINES, lindices, GL_UNSIGNED_INT, 0);
+                        glDrawArrays(GL_LINES, 0, lindices);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                        
-                        glBindVertexArrayAPPLE(0);
+                        glBindVertexArray(0);
 #else
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
                         glEnableClientState(GL_VERTEX_ARRAY);
                         glEnableClientState(GL_NORMAL_ARRAY);
-                        //glVertexPointer(3, GL_FLOAT, 3*sizeof(GLfloat), 0);
                         glVertexPointer(3, GL_FLOAT, 6*sizeof(GLfloat), 0);
                         glNormalPointer(GL_FLOAT, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
                         glDrawElements (GL_LINES, lindices, GL_UNSIGNED_INT, 0);
@@ -232,17 +259,16 @@ namespace efgy
                 {
                     if (prepared)
                     {
-#if 0
-                        glBindVertexArrayAPPLE(VertexArrayID);
-                        
+#if defined(GLVA)
+                        glBindVertexArray(VertexArrayID);
+
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuelementbufferffer);
-                        glDrawElements (GL_LINES, lindices, GL_UNSIGNED_INT, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+                        glDrawArrays(GL_TRIANGLES, lindices, tindices);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                        
-                        glBindVertexArrayAPPLE(0);
+                        glBindVertexArray(0);
 #else
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
@@ -276,6 +302,7 @@ namespace efgy
                     (const GLfloat &x, const GLfloat &y, const GLfloat &z,
                      const GLfloat &nx = 0.f, const GLfloat &ny = 0.f, const GLfloat &nz = 0.f)
                 {
+#if !defined(GLVA)
                     std::vector<GLfloat> key (6);
                     key[0] = x;
                     key[1] = y;
@@ -284,11 +311,12 @@ namespace efgy
                     key[4] = ny;
                     key[5] = nz;
                     
-                    std::map<std::vector<GLfloat>,unsigned long>::iterator it = vertexmap.find(key);
+                    std::map<std::vector<GLfloat>,unsigned int>::iterator it = vertexmap.find(key);
                     if (it != vertexmap.end())
                     {
                         return it->second;
                     }
+#endif
 
                     vertices.push_back(x);
                     vertices.push_back(y);
@@ -298,20 +326,42 @@ namespace efgy
                     vertices.push_back(ny);
                     vertices.push_back(nz);
 
+#if defined(GLVA)
+                    vertices.push_back(red);
+                    vertices.push_back(green);
+                    vertices.push_back(blue);
+                    vertices.push_back(alpha);
+#endif
+
                     unsigned int rv = indices;
 
                     indices++;
 
+#if !defined(GLVA)
                     vertexmap[key] = rv;
+#endif
 
                     return rv;
+                }
+
+                bool setColour (float pRed, float pGreen, float pBlue, float pAlpha)
+                {
+#if defined (GLVA)
+                    red   = pRed;
+                    green = pGreen;
+                    blue  = pBlue;
+                    alpha = pAlpha;
+#else
+                    glColor4f(pRed, pGreen, pBlue, pAlpha);
+#endif
+                    return true;
                 }
 
             protected:
                 const geometry::transformation<Q,3> &transformation;
                 const geometry::projection<Q,3> &projection;
                 std::vector<GLfloat> vertices;
-                std::map<std::vector<GLfloat>,unsigned long> vertexmap;
+                std::map<std::vector<GLfloat>,unsigned int> vertexmap;
                 std::vector<unsigned int> triindices;
                 std::vector<unsigned int> lineindices;
                 unsigned int indices;
@@ -323,6 +373,12 @@ namespace efgy
                 GLuint vertexbuffer;
                 GLuint elementbuffer;
                 GLuint linebuffer;
+#if defined (GLVA)
+                GLfloat red;
+                GLfloat green;
+                GLfloat blue;
+                GLfloat alpha;
+#endif
         };
 #endif
 
@@ -350,6 +406,7 @@ namespace efgy
 
                 void reset (void) {}
                 const bool isPrepared (void) const { return false; }
+                bool setColour (float red, float green, float blue, float alpha) const { return false; }
 
             protected:
                 const geometry::transformation<Q,2> &transformation;
