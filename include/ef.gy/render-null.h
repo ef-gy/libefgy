@@ -41,30 +41,23 @@ namespace efgy
         {
             public:
                 null
-                    (const geometry::transformation<Q,d> &pTransformation,
-                     const geometry::projection<Q,d> &pProjection,
-                     null<Q,d-1> &pLowerRenderer)
-                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
+                    (const geometry::transformation<Q,d> &,
+                     const geometry::projection<Q,d> &,
+                     const null<Q,d-1> &)
                     {}
 
                 void frameStart (void) const {};
                 void frameEnd (void) const {};
 
                 void drawLine
-                    (const typename geometry::euclidian::space<Q,d>::vector &pA,
-                     const typename geometry::euclidian::space<Q,d>::vector &pB) const {}
+                    (const typename geometry::euclidian::space<Q,d>::vector &,
+                     const typename geometry::euclidian::space<Q,d>::vector &) const {}
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const {}
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &) const {}
 
                 void reset (void) const {}
-
-            protected:
-                const geometry::transformation<Q,d> &transformation;
-                const geometry::projection<Q,d> &projection;
-                geometry::transformation<Q,d> combined;
-                null<Q,d-1> &lowerRenderer;
         };
 
         template<typename Q>
@@ -72,26 +65,21 @@ namespace efgy
         {
             public:
                 null
-                    (const typename geometry::transformation<Q,2> &pTransformation)
-                    : transformation(pTransformation)
+                    (const typename geometry::transformation<Q,2> &)
                     {}
 
                 void frameStart (void) const {};
                 void frameEnd (void) const {};
 
                 void drawLine
-                    (const typename geometry::euclidian::space<Q,2>::vector &pA,
-                     const typename geometry::euclidian::space<Q,2>::vector &pB) const {}
+                    (const typename geometry::euclidian::space<Q,2>::vector &,
+                     const typename geometry::euclidian::space<Q,2>::vector &) const {}
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV) const {}
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &) const {}
 
                 void reset (void) const {}
-
-            protected:
-                const geometry::transformation<Q,2> &transformation;
-                Q previousX, previousY;
         };
     };
 };
