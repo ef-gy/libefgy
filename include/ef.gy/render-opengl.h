@@ -44,12 +44,12 @@ namespace efgy
     namespace render
     {
         // Attribute index.
-        enum
+        enum openGLShaderAttribute
         {
             attributePosition,
             attributeNormal,
             attributeColour
-        } openGLShaderAttribute;
+        };
 
         template<typename Q, unsigned int d>
         class opengl
@@ -195,10 +195,10 @@ namespace efgy
 #endif
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+/*                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, triindices.size() * sizeof(unsigned int), &triindices[0], GL_STATIC_DRAW);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
-                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);
+                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);*/
 #if defined(GLVA)
                         glEnableVertexAttribArray(attributePosition);
                         glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 10*sizeof(GLfloat), 0);
@@ -207,7 +207,7 @@ namespace efgy
                         glEnableVertexAttribArray(attributeColour);
                         glVertexAttribPointer(attributeColour, 4, GL_FLOAT, GL_FALSE, 10*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
 
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
                         glBindVertexArray(0);
 #endif
@@ -231,11 +231,11 @@ namespace efgy
                         glBindVertexArray(VertexArrayID);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
+//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
                         glDrawArrays(GL_LINES, 0, lindices);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindVertexArray(0);
 #else
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -263,11 +263,11 @@ namespace efgy
                         glBindVertexArray(VertexArrayID);
 
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
                         glDrawArrays(GL_TRIANGLES, lindices, tindices);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindVertexArray(0);
 #else
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
