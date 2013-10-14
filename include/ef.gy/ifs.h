@@ -51,6 +51,11 @@ namespace efgy
                 using parent::renderer;
                 using parent::lines;
                 using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                using parent::modelDimensionMaximum;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
         };
 
         namespace sierpinski
@@ -88,6 +93,11 @@ namespace efgy
                     using parent::renderer;
                     using parent::lines;
                     using parent::faces;
+
+                    using parent::modelDimensionMinimum;
+                    static const unsigned int modelDimensionMaximum = d;
+                    using parent::renderDimensionMinimum;
+                    using parent::renderDimensionMaximum;
 
                     static unsigned int depth (void) { return od; }
                     static unsigned int renderDepth (void) { return d; }
@@ -217,6 +227,11 @@ namespace efgy
                     using parent::renderer;
                     using parent::lines;
                     using parent::faces;
+
+                    using parent::modelDimensionMinimum;
+                    static const unsigned int modelDimensionMaximum = d == 2 ? d : 3;
+                    using parent::renderDimensionMinimum;
+                    using parent::renderDimensionMaximum;
 
                     static unsigned int depth (void) { return od; }
                     static unsigned int renderDepth (void) { return d; }

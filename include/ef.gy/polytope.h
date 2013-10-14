@@ -72,6 +72,11 @@ namespace efgy
                     }
                 }
 
+                static const unsigned int modelDimensionMinimum  = 2;
+                static const unsigned int modelDimensionMaximum  = 0;
+                static const unsigned int renderDimensionMinimum = 3;
+                static const unsigned int renderDimensionMaximum = 0;
+
             protected:
                 render &renderer;
                 const parameters<Q> &parameter;
@@ -99,6 +104,11 @@ namespace efgy
                 using parent::renderer;
                 using parent::lines;
                 using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                static const unsigned int modelDimensionMaximum = d;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
@@ -227,6 +237,11 @@ namespace efgy
                 using parent::renderer;
                 using parent::lines;
                 using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                static const unsigned int modelDimensionMaximum = d;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
@@ -365,10 +380,13 @@ namespace efgy
                     }
                 }
 
-                void renderSolid ()
-                {
-                }
+                void renderSolid () const {}
             
+                static const unsigned int modelDimensionMinimum  = 1;
+                static const unsigned int modelDimensionMaximum  = d;
+                static const unsigned int renderDimensionMinimum = 3;
+                static const unsigned int renderDimensionMaximum = 0;
+
             protected:
                 render &renderer;
         };
@@ -393,6 +411,11 @@ namespace efgy
                 using parent::renderer;
                 using parent::lines;
                 using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                static const unsigned int modelDimensionMaximum = d - 1;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
