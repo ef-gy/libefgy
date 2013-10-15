@@ -34,11 +34,6 @@
 #include <vector>
 #include <map>
 
-#undef GL3D
-#define GL3D
-
-//#define GLVA
-
 namespace efgy
 {
     namespace render
@@ -102,7 +97,6 @@ namespace efgy
                 opengl<Q,d-1> &lowerRenderer;
         };
 
-#if defined(GL3D)
         template<typename Q>
         class opengl<Q,3>
         {
@@ -369,36 +363,12 @@ namespace efgy
                 GLuint elementbuffer;
                 GLuint linebuffer;
         };
-#endif
 
         template<typename Q>
         class opengl<Q,2>
         {
             public:
-                opengl
-                    (const geometry::transformation<Q,2> &pTransformation)
-                    : transformation(pTransformation)
-                    {}
-
-                void frameStart (void) const {};
-                void frameEnd (void) const {};
-                void pushLines (void) const {};
-                void pushFaces (void) const {};
-
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,2>::vector &pA,
-                     const typename geometry::euclidian::space<Q,2>::vector &pB) const;
-
-                template<unsigned int q>
-                void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV) const;
-
-                void reset (void) {}
-                const bool isPrepared (void) const { return false; }
-                bool setColour (float red, float green, float blue, float alpha) const { return false; }
-
-            protected:
-                const geometry::transformation<Q,2> &transformation;
+                opengl (const geometry::transformation<Q,2> &) {}
         };
 
         template<typename Q, unsigned int d>
@@ -431,7 +401,6 @@ namespace efgy
             lowerRenderer.drawFace(V);
         }
 
-#if defined(GL3D)
         template<typename Q>
         void opengl<Q,3>::drawLine
             (const typename geometry::euclidian::space<Q,3>::vector &A,
@@ -490,43 +459,6 @@ namespace efgy
                 triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
                                                GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
             }
-        }
-#endif
-
-        template<typename Q>
-        void opengl<Q,2>::drawLine
-            (const typename geometry::euclidian::space<Q,2>::vector &pA,
-             const typename geometry::euclidian::space<Q,2>::vector &pB) const
-        {
-            const typename geometry::euclidian::space<Q,3>::vector A = transformation * pA;
-            const typename geometry::euclidian::space<Q,3>::vector B = transformation * pB;
-
-            const GLfloat vertices[6] =
-                { GLfloat(A.data[0]), GLfloat(A.data[1]), 0,
-                  GLfloat(B.data[0]), GLfloat(B.data[1]), 0 };
-
-            glNormalPointer(GL_FLOAT, 0, vertices);
-            glVertexPointer(3, GL_FLOAT, 0, vertices);
-            glDrawArrays(GL_LINES, 0, 2);
-        }
-
-        template<typename Q>
-        template<unsigned int q>
-        void opengl<Q,2>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV) const
-        {
-            GLfloat vertices[(q*3)];
-            for (unsigned int i = 0; i < q; i++)
-            {
-                const typename geometry::euclidian::space<Q,3>::vector V = transformation * pV.data[i];
-
-                vertices[(i*3)+0] = V.data[0];
-                vertices[(i*3)+1] = V.data[1];
-                vertices[(i*3)+2] = 0;
-            }
-            glNormalPointer(GL_FLOAT, 0, vertices);
-            glVertexPointer(3, GL_FLOAT, 0, vertices);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, q);
         }
     };
 };
