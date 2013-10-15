@@ -41,7 +41,7 @@ namespace efgy
             public:
                 typedef polytope<Q,d,4,render> parent;
 
-                ifs (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                ifs (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {}
 
@@ -51,6 +51,11 @@ namespace efgy
                 using parent::renderer;
                 using parent::lines;
                 using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                using parent::modelDimensionMaximum;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
         };
 
         namespace sierpinski
@@ -61,7 +66,7 @@ namespace efgy
                 public:
                     typedef ifs<Q,od,render,d> parent;
 
-                    gasket(const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    gasket(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                         : parent(pRenderer, pParameter, pMultiplier)
                         {
                             translation.data[0].data[0] = Q(0.25);
@@ -88,6 +93,11 @@ namespace efgy
                     using parent::renderer;
                     using parent::lines;
                     using parent::faces;
+
+                    using parent::modelDimensionMinimum;
+                    static const unsigned int modelDimensionMaximum = d;
+                    using parent::renderDimensionMinimum;
+                    using parent::renderDimensionMaximum;
 
                     static unsigned int depth (void) { return od; }
                     static unsigned int renderDepth (void) { return d; }
@@ -164,7 +174,7 @@ namespace efgy
                 public:
                     typedef ifs<Q,od,render,d> parent;
 
-                    carpet(const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    carpet(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                         : parent(pRenderer, pParameter, pMultiplier)
                         {
                             if (od > 1)
@@ -217,6 +227,11 @@ namespace efgy
                     using parent::renderer;
                     using parent::lines;
                     using parent::faces;
+
+                    using parent::modelDimensionMinimum;
+                    static const unsigned int modelDimensionMaximum = d == 2 ? d : 3;
+                    using parent::renderDimensionMinimum;
+                    using parent::renderDimensionMaximum;
 
                     static unsigned int depth (void) { return od; }
                     static unsigned int renderDepth (void) { return d; }

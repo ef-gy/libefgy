@@ -50,7 +50,7 @@ namespace efgy
         class polytope
         {
             public:
-                polytope (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier)
+                polytope (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier)
                     : renderer(pRenderer), parameter(pParameter), precisionMultiplier(pMultiplier)
                     {}
 
@@ -72,8 +72,13 @@ namespace efgy
                     }
                 }
 
+                static const unsigned int modelDimensionMinimum  = 2;
+                static const unsigned int modelDimensionMaximum  = 0;
+                static const unsigned int renderDimensionMinimum = 3;
+                static const unsigned int renderDimensionMaximum = 0;
+
             protected:
-                const render &renderer;
+                render &renderer;
                 const parameters<Q> &parameter;
                 const Q &precisionMultiplier;
 
@@ -87,7 +92,7 @@ namespace efgy
             public:
                 typedef polytope<Q,d,3,render> parent;
 
-                simplex (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                simplex (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject();
@@ -99,6 +104,11 @@ namespace efgy
                 using parent::renderer;
                 using parent::lines;
                 using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                static const unsigned int modelDimensionMaximum = d;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
@@ -215,7 +225,7 @@ namespace efgy
             public:
                 typedef polytope<Q,d,4,render> parent;
 
-                cube (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                cube (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject();
@@ -227,6 +237,11 @@ namespace efgy
                 using parent::renderer;
                 using parent::lines;
                 using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                static const unsigned int modelDimensionMaximum = d;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
@@ -329,7 +344,7 @@ namespace efgy
         class axeGraph
         {
             public:
-                axeGraph (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                axeGraph (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : renderer(pRenderer)
                     {}
 
@@ -337,6 +352,8 @@ namespace efgy
                 static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "axe-graph"; }
             
+                void calculateObject (void) const {}
+
                 void renderWireframe ()
                 {
                     typename euclidian::space<Q,d>::vector A;
@@ -363,12 +380,15 @@ namespace efgy
                     }
                 }
 
-                void renderSolid ()
-                {
-                }
+                void renderSolid () const {}
             
+                static const unsigned int modelDimensionMinimum  = 1;
+                static const unsigned int modelDimensionMaximum  = d;
+                static const unsigned int renderDimensionMinimum = 3;
+                static const unsigned int renderDimensionMaximum = 0;
+
             protected:
-                const render &renderer;
+                render &renderer;
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
@@ -377,7 +397,7 @@ namespace efgy
             public:
                 typedef polytope<Q,d,3,render> parent;
 
-                sphere (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                sphere (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier),
                       step(Q(M_PI) / (parameter.polarPrecision * precisionMultiplier))
                     {
@@ -391,6 +411,11 @@ namespace efgy
                 using parent::renderer;
                 using parent::lines;
                 using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                static const unsigned int modelDimensionMaximum = d - 1;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }

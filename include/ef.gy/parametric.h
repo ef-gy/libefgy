@@ -41,7 +41,7 @@ namespace efgy
             public:
                 typedef polytope<Q,d,f,render> parent;
 
-                parametric (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                parametric (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {}
 
@@ -52,6 +52,11 @@ namespace efgy
                 using parent::renderer;
                 using parent::lines;
                 using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                using parent::modelDimensionMaximum;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = 3>
@@ -60,7 +65,7 @@ namespace efgy
             public:
                 typedef parametric<Q,d,4,render> parent;
 
-                moebiusStrip (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                moebiusStrip (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject();
@@ -73,6 +78,11 @@ namespace efgy
                 using parent::renderer;
                 using parent::lines;
                 using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                static const unsigned int modelDimensionMaximum = 2;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
@@ -172,7 +182,7 @@ namespace efgy
             public:
                 typedef parametric<Q,d,4,render> parent;
 
-                kleinBagel (const render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                kleinBagel (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
                     {
                         calculateObject();
@@ -185,6 +195,11 @@ namespace efgy
                 using parent::renderer;
                 using parent::lines;
                 using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                static const unsigned int modelDimensionMaximum = 2;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }

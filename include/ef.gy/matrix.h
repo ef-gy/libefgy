@@ -166,6 +166,39 @@ namespace efgy
         {
             return pM.data[0][0];
         }
+
+        template <typename Q, unsigned int d>
+        bool isIdentity (const matrix<Q,d,d> &pM)
+        {
+            for (unsigned int i = 0; i < d; i++)
+            {
+                for (unsigned int j = 0; j < d; j++)
+                {
+                    if (pM.data[i][j] != (i == j ? Q(1) : Q(0)))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        template <typename Q, unsigned int n, unsigned int m>
+        matrix<Q,m,n> transpose (const matrix<Q,n,m> &pM)
+        {
+            matrix<Q,m,n> rv;
+
+            for (unsigned int i = 0; i < n; i++)
+            {
+                for (unsigned int j = 0; j < m; j++)
+                {
+                    rv.data[j][i] = pM.data[i][j];
+                }
+            }
+
+            return rv;
+        }
     };
 };
 

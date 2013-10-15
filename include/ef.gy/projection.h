@@ -78,6 +78,31 @@ namespace efgy
                     return rv;
                 }
 
+                transformation operator *
+                    (const transformation &pB) const
+                {
+                    transformation t;
+                    t.transformationMatrix = this->transformationMatrix * pB.transformationMatrix;
+                    return t;
+                }
+
+                typename euclidian::space<Q,(d-1)>::vector project
+                    (const typename euclidian::space<Q,d>::vector &pP) const
+                {
+                    typename euclidian::space<Q,(d-1)>::vector result;
+                
+                    typename euclidian::space<Q,d>::vector R = transformation<Q,d>(*this) * pP;
+                
+                    Q S = 1 / R.data[(d-1)];
+                
+                    for (unsigned int i = 0; i < (d-1); i++)
+                    {
+                        result.data[i] = S * R.data[i];
+                    }
+                
+                    return result;
+                }
+            
                 math::matrix<Q,d+1,d+1> transformationMatrix;
         };
 
@@ -85,8 +110,6 @@ namespace efgy
         class translation : public transformation<Q,d>
         {
             public:
-                using transformation<Q,d>::transformationMatrix;
-
                 translation(const typename euclidian::space<Q,d>::vector &pFrom)
                     : from(pFrom)
                     {
@@ -95,7 +118,7 @@ namespace efgy
 
                 /* note: this formula was obtained by generalising over the 3d translation matrix.
                  */
-                void updateMatrix()
+                void updateMatrix (void)
                 {
                     for (unsigned int i = 0; i <= d; i++)
                     {
@@ -117,6 +140,8 @@ namespace efgy
                     }
                 }
 
+                using transformation<Q,d>::transformationMatrix;
+
             protected:
                 typename euclidian::space<Q,d>::vector from;
         };
@@ -125,8 +150,6 @@ namespace efgy
         class lookAt : public transformation<Q,d>
         {
             public:
-                using transformation<Q,d>::transformationMatrix;
-
                 lookAt(typename euclidian::space<Q,d>::vector pFrom, typename euclidian::space<Q,d>::vector pTo)
                     : from(pFrom), to(pTo)
                     {
@@ -143,7 +166,7 @@ namespace efgy
                 /* note: this formula was obtained by generalising over the 3d-to-2d and 4d-to-3d
                  *       lookat matrices.
                  */
-                void updateMatrix()
+                void updateMatrix (void)
                 {
                     columns.data[(d-1)] = to - from;
                     columns.data[(d-1)] = euclidian::normalise<Q,d>(columns.data[(d-1)]);
@@ -198,6 +221,8 @@ namespace efgy
 
                 math::tuple<d,typename euclidian::space<Q,d>::vector> columns;
 
+                using transformation<Q,d>::transformationMatrix;
+
             protected:
                 typename euclidian::space<Q,d>::vector from;
                 typename euclidian::space<Q,d>::vector to;
@@ -209,15 +234,13 @@ namespace efgy
         class perspective : public transformation<Q,d>
         {
             public:
-                using transformation<Q,d>::transformationMatrix;
-            
                 perspective(Q pEyeAngle = M_PI_4)
                     : eyeAngle(pEyeAngle)
                     {
                         updateMatrix();
                     }
             
-                void updateMatrix()
+                void updateMatrix (void)
                 {
                     Q f = 1 / tan(eyeAngle / Q(2));
 
@@ -236,6 +259,8 @@ namespace efgy
                         }
                     }
                 }
+
+                using transformation<Q,d>::transformationMatrix;
             
             protected:
                 Q near;
@@ -245,10 +270,10 @@ namespace efgy
         };
 
         template <typename Q, unsigned int d>
-        class perspectiveProjection
+        class projection : public transformation<Q,d>
         {
             public:
-                perspectiveProjection(typename euclidian::space<Q,d>::vector pFrom, typename euclidian::space<Q,d>::vector pTo, Q pEyeAngle = M_PI_4, const bool &initialiseMatrix = true)
+                projection(typename euclidian::space<Q,d>::vector pFrom, typename euclidian::space<Q,d>::vector pTo, Q pEyeAngle = M_PI_4, const bool &initialiseMatrix = true)
                     : from(pFrom), to(pTo), eyeAngle(pEyeAngle)
                     {
                         if (initialiseMatrix)
@@ -257,44 +282,26 @@ namespace efgy
                         }
                     }
 
-                void updateMatrix()
+                void updateMatrix (void)
                 {
                     lookAt<Q,d> lookAtTransformation(from, to);
                     translation<Q,d> translationTransformation(from * Q(-1));
                     perspective<Q,d> perspectiveTransformation(eyeAngle);
 
-                    worldTransformation.transformationMatrix
-                        = translationTransformation.transformationMatrix
-                        * lookAtTransformation.transformationMatrix
-                        * perspectiveTransformation.transformationMatrix
-                    ;
-                }
-
-                typename euclidian::space<Q,(d-1)>::vector project
-                    (const typename euclidian::space<Q,d>::vector &pP) const
-                {
-                    typename euclidian::space<Q,(d-1)>::vector result;
-
-                    typename euclidian::space<Q,d>::vector R = worldTransformation * pP;
-
-                    Q S = 1 / R.data[(d-1)];
-
-                    for (unsigned int i = 0; i < (d-1); i++)
-                    {
-                        result.data[i] = S * R.data[i];
-                    }
-
-                    return result;
+                    this->transformationMatrix =
+                          ( translationTransformation
+                          * lookAtTransformation
+                          * perspectiveTransformation ).transformationMatrix;
                 }
 
                 typename euclidian::space<Q,d>::vector from;
                 typename euclidian::space<Q,d>::vector to;
 
-            protected:
-                transformation<Q,d> worldTransformation;
+                using transformation<Q,d>::transformationMatrix;
 
+            protected:
                 const Q eyeAngle;
-            };
+        };
     };
 };
 

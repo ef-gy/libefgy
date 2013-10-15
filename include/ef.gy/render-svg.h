@@ -43,12 +43,16 @@ namespace efgy
             public:
                 svg
                     (const geometry::transformation<Q,d> &pTransformation,
-                     const geometry::perspectiveProjection<Q,d> &pProjection,
+                     const geometry::projection<Q,d> &pProjection,
                      svg<Q,d-1> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
                     {}
 
-                void frameStart (void) const {};
+                void frameStart (void)
+                {
+                    combined = transformation * projection;
+                    lowerRenderer.frameStart();
+                };
                 void frameEnd (void) const {};
 
                 void drawLine
@@ -66,7 +70,8 @@ namespace efgy
 
             protected:
                 const geometry::transformation<Q,d> &transformation;
-                const geometry::perspectiveProjection<Q,d> &projection;
+                const geometry::projection<Q,d> &projection;
+                geometry::transformation<Q,d> combined;
                 svg<Q,d-1> &lowerRenderer;
         };
 
@@ -109,11 +114,8 @@ namespace efgy
             (const typename geometry::euclidian::space<Q,d>::vector &pA,
              const typename geometry::euclidian::space<Q,d>::vector &pB) const
         {
-            typename geometry::euclidian::space<Q,d-1>::vector A;
-            typename geometry::euclidian::space<Q,d-1>::vector B;
-
-            A = projection.project(transformation * pA);
-            B = projection.project(transformation * pB);
+            typename geometry::euclidian::space<Q,d-1>::vector A = combined.project(pA);
+            typename geometry::euclidian::space<Q,d-1>::vector B = combined.project(pB);
 
             lowerRenderer.drawLine(A, B);
         }
@@ -127,7 +129,7 @@ namespace efgy
 
             for (unsigned int i = 0; i < q; i++)
             {
-                V.data[i] = projection.project(transformation * pV.data[i]);
+                V.data[i] = combined.project(pV.data[i]);
             }
 
             lowerRenderer.drawFace(V);
