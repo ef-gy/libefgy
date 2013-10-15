@@ -55,6 +55,39 @@ namespace efgy
             uniformMax
         };
 
+        static const char referenceVertexShader []
+          = "#version 100\n"
+            "attribute vec4 position;\n"
+            "attribute vec3 normal;\n"
+            "varying lowp vec4 colorVarying;\n"
+            "uniform mat4 modelViewProjectionMatrix;\n"
+            "uniform mat3 normalMatrix;\n"
+            "uniform vec4 surfaceColour;\n"
+            "uniform vec4 wireframeColour;\n"
+            "void main()\n"
+            "{\n"
+                "vec3 eyeNormal = normalize(normalMatrix * normal);\n"
+                "vec3 lightPosition = vec3(0.0, 0.0, 1.0);\n"
+                "float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));\n"
+                "if ((normal[0] == 0.0) && (normal[1] == 0.0) && (normal[2] == 0.0))\n"
+                "{\n"
+                    "colorVarying = wireframeColour;\n"
+                "}\n"
+                "else\n"
+                "{\n"
+                    "colorVarying = surfaceColour * nDotVP;\n"
+                "}\n"
+                "gl_Position = modelViewProjectionMatrix * position;\n"
+            "}";
+
+        static const char referenceFragmentShader []
+          = "#version 100\n"
+            "varying lowp vec4 colorVarying;\n"
+            "void main()\n"
+            "{\n"
+                "gl_FragColor = colorVarying;\n"
+            "}\n";
+
         template<typename Q, unsigned int d>
         class opengl
         {
@@ -85,9 +118,9 @@ namespace efgy
 
                 void reset (void) const { lowerRenderer.reset(); }
                 const bool isPrepared (void) const { return lowerRenderer.isPrepared(); }
-                bool setColour (float red, float green, float blue, float alpha)
+                bool setColour (float red, float green, float blue, float alpha, bool wireframe)
                 {
-                    return lowerRenderer.setColour(red,green,blue,alpha);
+                    return lowerRenderer.setColour(red,green,blue,alpha,wireframe);
                 }
 
             protected:
@@ -106,7 +139,7 @@ namespace efgy
                      const geometry::projection<Q,3> &pProjection,
                      const opengl<Q,2> &)
                     : transformation(pTransformation), projection(pProjection),
-                      haveBuffers(false), prepared(false)
+                      haveBuffers(false), prepared(false), program(0)
                     {
                     }
 
@@ -117,6 +150,10 @@ namespace efgy
                             glDeleteBuffers(1, &vertexbuffer);
                             glDeleteBuffers(1, &elementbuffer);
                             glDeleteBuffers(1, &linebuffer);
+                        }
+
+                        if (program) {
+                            glDeleteProgram(program);
                         }
                     }
 
@@ -171,26 +208,23 @@ namespace efgy
                         haveBuffers = true;
 
 #if defined(GLVA)
+                        loadShaders(program);
+                        
+                        glUseProgram(program);
+
                         glGenVertexArrays(1, &VertexArrayID);
 #endif
                         glGenBuffers(1, &vertexbuffer);
                         glGenBuffers(1, &elementbuffer);
                         glGenBuffers(1, &linebuffer);
                     }
-                    /*
-                    if (prepared)
-                    {
-                        prepared = false;
-                    }
-                     */
                 };
+
                 void frameEnd (void)
                 {
                     if (!prepared)
                     {
                         prepared = true;
-
-                        //std::cerr << "cn:" << vertices.size() << "=" << (vertices.size()/6) << ":" << triindices.size() << "=" << (triindices.size()/3)<< ":" << lineindices.size() << "=" << (lineindices.size()/2)<< "\n";
 
 #if defined(GLVA)
                         glGenVertexArrays(1, &VertexArrayID);
@@ -338,9 +372,18 @@ namespace efgy
                     return rv;
                 }
 
-                bool setColour (float pRed, float pGreen, float pBlue, float pAlpha)
+                bool setColour (float pRed, float pGreen, float pBlue, float pAlpha, bool pWireframe)
                 {
-#if !defined (GLVA)
+#if defined (GLVA)
+                    if (pWireframe)
+                    {
+                        glUniform4f(uniforms[uniformWireframeColour], pRed, pGreen, pBlue, pAlpha);
+                    }
+                    else
+                    {
+                        glUniform4f(uniforms[uniformSurfaceColour], pRed, pGreen, pBlue, pAlpha);
+                    }
+#else
                     glColor4f(pRed, pGreen, pBlue, pAlpha);
 #endif
                     return true;
@@ -362,6 +405,136 @@ namespace efgy
                 GLuint vertexbuffer;
                 GLuint elementbuffer;
                 GLuint linebuffer;
+                GLuint program;
+
+            public:
+
+                GLint uniforms[uniformMax];
+
+            protected:
+
+                bool compileShader (GLuint &shader, GLenum type, const char *data)
+                {
+                    GLint status;
+                    const GLchar *source = (const GLchar *)data;
+                    
+                    shader = glCreateShader(type);
+                    glShaderSource(shader, 1, &source, NULL);
+                    glCompileShader(shader);
+                    
+#if defined(DEBUG)
+                    GLint logLength;
+                    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+                    if (logLength > 0)
+                    {
+                        GLchar *log = new GLchar[logLength];
+                        glGetShaderInfoLog(shader, logLength, &logLength, log);
+                        std::cerr << "Shader compile log:\n" << log << "\n";
+                        delete[] log;
+                    }
+#endif
+                    
+                    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+                    if (status == 0) {
+                        glDeleteShader(shader);
+                        return false;
+                    }
+                    
+                    return true;
+                }
+
+                bool linkProgram (GLuint prog)
+                {
+                    GLint status;
+                    glLinkProgram(prog);
+                    
+#if defined(DEBUG)
+                    GLint logLength;
+                    glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
+                    if (logLength > 0)
+                    {
+                        GLchar *log = new GLchar[logLength];
+                        glGetProgramInfoLog(prog, logLength, &logLength, log);
+                        std::cerr << "Program link log:\n" << log << "\n";
+                        delete[] log;
+                    }
+#endif
+                    
+                    glGetProgramiv(prog, GL_LINK_STATUS, &status);
+                    if (status == 0)
+                    {
+                        return false;
+                    }
+                    
+                    return true;
+                }
+
+            public:
+
+                bool loadShaders (GLuint &program)
+                {
+                    GLuint vertShader, fragShader;
+                    
+                    program = glCreateProgram();
+                    
+                    if (!compileShader(vertShader, GL_VERTEX_SHADER, referenceVertexShader))
+                    {
+                        std::cerr << "Failed to compile vertex shader\n";
+                        return false;
+                    }
+                    
+                    if (!compileShader(fragShader, GL_FRAGMENT_SHADER, referenceFragmentShader))
+                    {
+                        std::cerr << "Failed to compile fragment shader\n";
+                        return false;
+                    }
+                    
+                    glAttachShader(program, vertShader);
+                    
+                    glAttachShader(program, fragShader);
+                    
+                    glBindAttribLocation(program, attributePosition, "position");
+                    glBindAttribLocation(program, attributeNormal,   "normal");
+                    glBindAttribLocation(program, attributeColour,   "colour");
+                    
+                    if (!linkProgram(program))
+                    {
+                        std::cerr << "Failed to link program: " << program << "\n";
+                        
+                        if (vertShader) {
+                            glDeleteShader(vertShader);
+                            vertShader = 0;
+                        }
+                        if (fragShader) {
+                            glDeleteShader(fragShader);
+                            fragShader = 0;
+                        }
+                        if (program) {
+                            glDeleteProgram(program);
+                            program = 0;
+                        }
+                        
+                        return false;
+                    }
+                    
+                    // Get uniform locations.
+                    uniforms[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
+                    uniforms[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
+                    uniforms[uniformSurfaceColour]    = glGetUniformLocation(program, "surfaceColour");
+                    uniforms[uniformWireframeColour]  = glGetUniformLocation(program, "wireframeColour");
+                    
+                    // Release vertex and fragment shaders.
+                    if (vertShader) {
+                        glDetachShader(program, vertShader);
+                        glDeleteShader(vertShader);
+                    }
+                    if (fragShader) {
+                        glDetachShader(program, fragShader);
+                        glDeleteShader(fragShader);
+                    }
+                    
+                    return true;
+                }
         };
 
         template<typename Q>
