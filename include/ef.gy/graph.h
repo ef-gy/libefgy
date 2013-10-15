@@ -30,7 +30,6 @@
 #if !defined (EF_GY_GRAPH_H)
 #define EF_GY_GRAPH_H
 
-#include "matrix.h"
 #include <vector>
 
 namespace efgy
@@ -163,6 +162,8 @@ namespace efgy
                 return nodes[i];
             }
 
+            
+            /// return all adjacent  nodes to the ith node
             std::vector<unsigned int> adjacentNodes(unsigned int i)
             {
                std::vector<unsigned int> ret;
@@ -174,6 +175,41 @@ namespace efgy
                 }
                 return ret;
             }
+
+            /// does a path exist between nodes i and k?
+            bool pathExists(unsigned int i, unsigned int k)
+            {
+                if(adjacency[i][k])
+                { 
+                   return true;
+                }
+                else
+                {
+                  bool found = false;
+                  unsigned int a = 0;
+                  while(!found && (a < nodes.size()))
+                   {
+                        found = (a != i) && adjacency[i][a] && pathExists(a, k);
+                        a++;
+                   }
+                }
+            }
+
+
+            
+        };
+
+        template <typename T>
+        class node
+        {
+            public:
+
+
+            private:
+                T data;
+                std::vector<node<T>* 
+                
+
         };
     }
 }
