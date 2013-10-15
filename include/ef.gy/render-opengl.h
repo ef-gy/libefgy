@@ -51,6 +51,15 @@ namespace efgy
             attributeColour
         };
 
+        enum openGLUniforms
+        {
+            uniformProjectionMatrix,
+            uniformNormalMatrix,
+            uniformSurfaceColour,
+            uniformWireframeColour,
+            uniformMax
+        };
+
         template<typename Q, unsigned int d>
         class opengl
         {
@@ -201,11 +210,9 @@ namespace efgy
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);*/
 #if defined(GLVA)
                         glEnableVertexAttribArray(attributePosition);
-                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 10*sizeof(GLfloat), 0);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), 0);
                         glEnableVertexAttribArray(attributeNormal);
-                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 10*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-                        glEnableVertexAttribArray(attributeColour);
-                        glVertexAttribPointer(attributeColour, 4, GL_FLOAT, GL_FALSE, 10*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
 
 //                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -326,13 +333,6 @@ namespace efgy
                     vertices.push_back(ny);
                     vertices.push_back(nz);
 
-#if defined(GLVA)
-                    vertices.push_back(red);
-                    vertices.push_back(green);
-                    vertices.push_back(blue);
-                    vertices.push_back(alpha);
-#endif
-
                     unsigned int rv = indices;
 
                     indices++;
@@ -346,12 +346,7 @@ namespace efgy
 
                 bool setColour (float pRed, float pGreen, float pBlue, float pAlpha)
                 {
-#if defined (GLVA)
-                    red   = pRed;
-                    green = pGreen;
-                    blue  = pBlue;
-                    alpha = pAlpha;
-#else
+#if !defined (GLVA)
                     glColor4f(pRed, pGreen, pBlue, pAlpha);
 #endif
                     return true;
@@ -373,12 +368,6 @@ namespace efgy
                 GLuint vertexbuffer;
                 GLuint elementbuffer;
                 GLuint linebuffer;
-#if defined (GLVA)
-                GLfloat red;
-                GLfloat green;
-                GLfloat blue;
-                GLfloat alpha;
-#endif
         };
 #endif
 
