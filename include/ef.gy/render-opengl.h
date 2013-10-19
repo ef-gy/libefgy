@@ -159,7 +159,53 @@ namespace efgy
 
                 void frameStart (void)
                 {
-#if !defined(GLVA)
+#if defined(GLVA)
+                    const geometry::transformation<Q,3> combined = transformation * projection;
+
+                    GLfloat mat[16] =
+                      { GLfloat(combined.transformationMatrix.data[0][0]),
+                        GLfloat(combined.transformationMatrix.data[0][1]),
+                        GLfloat(combined.transformationMatrix.data[0][2]),
+                        GLfloat(combined.transformationMatrix.data[0][3]),
+                        GLfloat(combined.transformationMatrix.data[1][0]),
+                        GLfloat(combined.transformationMatrix.data[1][1]),
+                        GLfloat(combined.transformationMatrix.data[1][2]),
+                        GLfloat(combined.transformationMatrix.data[1][3]),
+                        GLfloat(combined.transformationMatrix.data[2][0]),
+                        GLfloat(combined.transformationMatrix.data[2][1]),
+                        GLfloat(combined.transformationMatrix.data[2][2]),
+                        GLfloat(combined.transformationMatrix.data[2][3]),
+                        GLfloat(combined.transformationMatrix.data[3][0]),
+                        GLfloat(combined.transformationMatrix.data[3][1]),
+                        GLfloat(combined.transformationMatrix.data[3][2]),
+                        GLfloat(combined.transformationMatrix.data[3][3]) };
+
+                    math::matrix<Q,3,3> normalMatrix;
+
+                    for (unsigned int i = 0; i < 3; i++)
+                    {
+                        for (unsigned int j = 0; j < 3; j++)
+                        {
+                            normalMatrix.data[i][j] = transformation.transformationMatrix.data[i][j];
+                        }
+                    }
+
+                    normalMatrix = math::transpose(math::invert(math::transpose(normalMatrix)));
+
+                    GLfloat matn[9] =
+                      { GLfloat(normalMatrix.data[0][0]),
+                        GLfloat(normalMatrix.data[0][1]),
+                        GLfloat(normalMatrix.data[0][2]),
+                        GLfloat(normalMatrix.data[1][0]),
+                        GLfloat(normalMatrix.data[1][1]),
+                        GLfloat(normalMatrix.data[1][2]),
+                        GLfloat(normalMatrix.data[2][0]),
+                        GLfloat(normalMatrix.data[2][1]),
+                        GLfloat(normalMatrix.data[2][2]) };
+
+                    glUniformMatrix4fv(uniforms[efgy::render::uniformProjectionMatrix], 1, 0, mat);
+                    glUniformMatrix3fv(uniforms[efgy::render::uniformNormalMatrix], 1, 0, matn);
+#else
                     glMatrixMode(GL_MODELVIEW);
                     GLfloat mat[16] =
                         { GLfloat(transformation.transformationMatrix.data[0][0]),

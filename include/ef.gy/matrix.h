@@ -98,20 +98,80 @@ namespace efgy
                 matrix<Q,n,p> operator * (const matrix<Q,m,p> &b) const
                 {
                     matrix<Q,n,p> r;
-
+                    
                     for (unsigned int i = 0; i < n; i++)
                     {
                         for (unsigned int j = 0; j < p; j++)
                         {
                             r.data[i][j] = 0;
-
+                            
                             for (unsigned int k = 0; k < m; k++)
                             {
                                 r.data[i][j] += data[i][k] * b.data[k][j];
                             }
                         }
                     }
+                    
+                    return r;
+                }
 
+                matrix<Q,n,m> operator + (const Q &b) const
+                {
+                    matrix<Q,n,m> r;
+                    
+                    for (unsigned int i = 0; i < n; i++)
+                    {
+                        for (unsigned int j = 0; j < m; j++)
+                        {
+                            r.data[i][j] = data[i][j] + b;
+                        }
+                    }
+                    
+                    return r;
+                }
+
+                matrix<Q,n,m> operator - (const Q &b) const
+                {
+                    matrix<Q,n,m> r;
+                    
+                    for (unsigned int i = 0; i < n; i++)
+                    {
+                        for (unsigned int j = 0; j < m; j++)
+                        {
+                            r.data[i][j] = data[i][j] - b;
+                        }
+                    }
+                    
+                    return r;
+                }
+
+                matrix<Q,n,m> operator * (const Q &b) const
+                {
+                    matrix<Q,n,m> r;
+                    
+                    for (unsigned int i = 0; i < n; i++)
+                    {
+                        for (unsigned int j = 0; j < m; j++)
+                        {
+                            r.data[i][j] = data[i][j] * b;
+                        }
+                    }
+                    
+                    return r;
+                }
+
+                matrix<Q,n,m> operator / (const Q &b) const
+                {
+                    matrix<Q,n,m> r;
+                    
+                    for (unsigned int i = 0; i < n; i++)
+                    {
+                        for (unsigned int j = 0; j < m; j++)
+                        {
+                            r.data[i][j] = data[i][j] / b;
+                        }
+                    }
+                    
                     return r;
                 }
 
@@ -198,6 +258,34 @@ namespace efgy
             }
 
             return rv;
+        }
+
+        template <typename Q>
+        matrix<Q,3,3> invert (const matrix<Q,3,3> &pM)
+        {
+            matrix<Q,3,3> rv;
+
+            const Q &a = pM.data[0][0];
+            const Q &b = pM.data[0][1];
+            const Q &c = pM.data[0][2];
+            const Q &d = pM.data[1][0];
+            const Q &e = pM.data[1][1];
+            const Q &f = pM.data[1][2];
+            const Q &g = pM.data[2][0];
+            const Q &h = pM.data[2][1];
+            const Q &i = pM.data[2][2];
+
+            rv.data[0][0] =   e * i - f * h;
+            rv.data[0][1] = -(d * i - f * g);
+            rv.data[0][2] =   d * h - e * g;
+            rv.data[1][0] = -(b * i - c * h);
+            rv.data[1][1] =   a * i - c * g;
+            rv.data[1][2] = -(a * h - b * g);
+            rv.data[2][0] =   b * f - c * e;
+            rv.data[2][1] = -(a * f - c * d);
+            rv.data[2][2] =   a * e - b * d;
+
+            return rv / determinant(pM);
         }
     };
 };
