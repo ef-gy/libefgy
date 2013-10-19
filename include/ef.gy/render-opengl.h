@@ -255,7 +255,7 @@ namespace efgy
 
 #if defined(GLVA)
                         loadShaders(program);
-                        
+
                         glUseProgram(program);
 
                         glGenVertexArrays(1, &VertexArrayID);
@@ -278,10 +278,10 @@ namespace efgy
 #endif
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
-/*                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, triindices.size() * sizeof(unsigned int), &triindices[0], GL_STATIC_DRAW);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
-                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);*/
+                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);
 #if defined(GLVA)
                         glEnableVertexAttribArray(attributePosition);
                         glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), 0);
@@ -309,14 +309,15 @@ namespace efgy
                     if (prepared)
                     {
 #if defined(GLVA)
+                        glUseProgram(program);
                         glBindVertexArray(VertexArrayID);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
-                        glDrawArrays(GL_LINES, 0, lindices);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
+                        glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
-//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindVertexArray(0);
 #else
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -341,14 +342,15 @@ namespace efgy
                     if (prepared)
                     {
 #if defined(GLVA)
+                        glUseProgram(program);
                         glBindVertexArray(VertexArrayID);
 
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-                        glDrawArrays(GL_TRIANGLES, lindices, tindices);
-                        
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+                        glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
+
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
-//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindVertexArray(0);
 #else
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -383,7 +385,6 @@ namespace efgy
                     (const GLfloat &x, const GLfloat &y, const GLfloat &z,
                      const GLfloat &nx = 0.f, const GLfloat &ny = 0.f, const GLfloat &nz = 0.f)
                 {
-#if !defined(GLVA)
                     std::vector<GLfloat> key (6);
                     key[0] = x;
                     key[1] = y;
@@ -397,7 +398,6 @@ namespace efgy
                     {
                         return it->second;
                     }
-#endif
 
                     vertices.push_back(x);
                     vertices.push_back(y);
@@ -411,9 +411,7 @@ namespace efgy
 
                     indices++;
 
-#if !defined(GLVA)
                     vertexmap[key] = rv;
-#endif
 
                     return rv;
                 }
@@ -514,8 +512,6 @@ namespace efgy
                     
                     return true;
                 }
-
-            public:
 
                 bool loadShaders (GLuint &program)
                 {
