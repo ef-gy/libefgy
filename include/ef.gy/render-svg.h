@@ -146,9 +146,9 @@ namespace efgy
             const typename geometry::euclidian::space<Q,2>::vector &A = transformation * pA;
             const typename geometry::euclidian::space<Q,2>::vector &B = transformation * pB;
 
-            const double a0 = -Q(A.data[0]);
+            const double a0 =  Q(A.data[0]);
             const double a1 = -Q(A.data[1]);
-            const double b0 = -Q(B.data[0]);
+            const double b0 =  Q(B.data[0]);
             const double b1 = -Q(B.data[1]);
 
             const double a0r = a0 - previousX;
@@ -230,7 +230,7 @@ namespace efgy
 
                 const typename geometry::euclidian::space<Q,2>::vector V = transformation * pV.data[i];
 
-                const double a0 = -Q(V.data[0]);
+                const double a0 =  Q(V.data[0]);
                 const double a1 = -Q(V.data[1]);
 
                 if (i == 0)
@@ -242,7 +242,7 @@ namespace efgy
                 {
                     const typename geometry::euclidian::space<Q,2>::vector V1 = transformation * pV.data[(i-1)];
 
-                    const double a0r = a0 + Q(V1.data[0]);
+                    const double a0r = a0 - Q(V1.data[0]);
                     const double a1r = a1 + Q(V1.data[1]);
 
                     if (pV.data[i].data[1] == V1.data[1])
@@ -250,7 +250,7 @@ namespace efgy
                         sbuf1 << "H" << a0;
                         sbuf2 << "h" << a0r;
                     }
-                    else if (pV.data[i].data[0] == V1.data[0])
+                    else if (pV.data[i].data[0] == -V1.data[0])
                     {
                         sbuf1 << "V" << a1;
                         sbuf2 << "v" << a1r;
