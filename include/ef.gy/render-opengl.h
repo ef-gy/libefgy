@@ -105,8 +105,6 @@ namespace efgy
                     lowerRenderer.frameStart();
                 };
                 void frameEnd (void) const { lowerRenderer.frameEnd(); };
-                void pushLines (void) const { lowerRenderer.pushLines(); };
-                void pushFaces (void) const { lowerRenderer.pushFaces(); };
 
                 void drawLine
                     (const typename geometry::euclidian::space<Q,d>::vector &pA,
@@ -128,6 +126,9 @@ namespace efgy
                 const geometry::projection<Q,d> &projection;
                 geometry::transformation<Q,d> combined;
                 opengl<Q,d-1> &lowerRenderer;
+
+                void pushLines (void) const { lowerRenderer.pushLines(); };
+                void pushFaces (void) const { lowerRenderer.pushFaces(); };
         };
 
         template<typename Q>
@@ -251,41 +252,10 @@ namespace efgy
                         lineindices.clear();
                         indices = 0;
                     }
+
+                    pushLines();
+                    pushFaces();
                 };
-
-                void pushLines (void) const
-                {
-                    if (prepared)
-                    {
-                        glUseProgram(program);
-                        glBindVertexArray(VertexArrayID);
-                        
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
-                        glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
-                        
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                        glBindVertexArray(0);
-                    }
-                }
-
-                void pushFaces (void) const
-                {
-                    if (prepared)
-                    {
-                        glUseProgram(program);
-                        glBindVertexArray(VertexArrayID);
-
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-                        glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
-
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                        glBindVertexArray(0);
-                    }
-                }
 
                 void drawLine
                     (const typename geometry::euclidian::space<Q,3>::vector &pA,
@@ -337,10 +307,14 @@ namespace efgy
                 {
                     if (pWireframe)
                     {
+                        linesEnabled = pAlpha > 0.f;
+                        lineDepthMask = true;
                         glUniform4f(uniforms[uniformWireframeColour], pRed, pGreen, pBlue, pAlpha);
                     }
                     else
                     {
+                        facesEnabled = pAlpha > 0.f;
+                        faceDepthMask = pAlpha >= 1.f;
                         glUniform4f(uniforms[uniformSurfaceColour], pRed, pGreen, pBlue, pAlpha);
                     }
                     return true;
@@ -363,14 +337,13 @@ namespace efgy
                 GLuint elementbuffer;
                 GLuint linebuffer;
                 GLuint program;
-
-            public:
-
                 GLint uniforms[uniformMax];
+                bool linesEnabled;
+                bool facesEnabled;
+                bool lineDepthMask;
+                bool faceDepthMask;
 
-            protected:
-
-                bool compileShader (GLuint &shader, GLenum type, const char *data)
+             bool compileShader (GLuint &shader, GLenum type, const char *data)
                 {
                     GLint status;
                     const GLchar *source = (const GLchar *)data;
@@ -489,6 +462,44 @@ namespace efgy
                     }
                     
                     return true;
+                }
+
+                void pushLines (void) const
+                {
+                    if (prepared && linesEnabled)
+                    {
+                        glDepthMask (lineDepthMask ? GL_TRUE : GL_FALSE);
+
+                        glUseProgram(program);
+                        glBindVertexArray(VertexArrayID);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
+                        glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                        glBindVertexArray(0);
+                    }
+                }
+            
+                void pushFaces (void) const
+                {
+                    if (prepared && facesEnabled)
+                    {
+                        glDepthMask (faceDepthMask ? GL_TRUE : GL_FALSE);
+
+                        glUseProgram(program);
+                        glBindVertexArray(VertexArrayID);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+                        glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                        glBindVertexArray(0);
+                    }
                 }
         };
 
