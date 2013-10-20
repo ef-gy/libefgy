@@ -107,6 +107,97 @@ namespace efgy
         };
 
         template <typename Q, unsigned int d>
+        class scale : public transformation<Q,d>
+        {
+            public:
+                scale(const Q &pScale)
+                    : targetScale(pScale)
+                    {
+                        updateMatrix();
+                    }
+
+                void updateMatrix (void)
+                {
+                    for (unsigned int i = 0; i <= d; i++)
+                    {
+                        for (unsigned int j = 0; j <= d; j++)
+                        {
+                            if (i == j)
+                            {
+                                transformationMatrix.data[i][j] = i == d ? Q(1) / targetScale : Q(1);
+                            }
+                            else
+                            {
+                                transformationMatrix.data[i][j] = 0;
+                            }
+                        }
+                    }
+                }
+
+                using transformation<Q,d>::transformationMatrix;
+
+            protected:
+                const Q &targetScale;
+        };
+
+        template <typename Q, unsigned int d>
+        class rotation : public transformation<Q,d>
+        {
+            public:
+                rotation(const Q &pAngle, const unsigned int &pAxis1, const unsigned int &pAxis2)
+                    : angle(pAngle), axis1(pAxis1), axis2(pAxis2)
+                    {
+                        updateMatrix();
+                    }
+            
+                void updateMatrix (void)
+                {
+                    for (unsigned int i = 0; i <= d; i++)
+                    {
+                        for (unsigned int j = 0; j <= d; j++)
+                        {
+                            if ((i == axis1) && (j == axis1))
+                            {
+                                transformationMatrix.data[i][j] =  cos(angle);
+                            }
+                            else if ((i == axis1) && (j == axis2))
+                            {
+                                transformationMatrix.data[i][j] = -sin(angle);
+                            }
+                            else if ((i == axis2) && (j == axis2))
+                            {
+                                transformationMatrix.data[i][j] =  cos(angle);
+                            }
+                            else if ((i == axis2) && (j == axis1))
+                            {
+                                transformationMatrix.data[i][j] =  sin(angle);
+                            }
+                            else if (i == j)
+                            {
+                                transformationMatrix.data[i][j] = Q(1);
+                            }
+                            else
+                            {
+                                transformationMatrix.data[i][j] = 0;
+                            }
+                        }
+                    }
+                    
+                    if ((axis1 + axis2) % 2 == 1)
+                    {
+                        transformationMatrix = math::transpose(transformationMatrix);
+                    }
+                }
+
+                using transformation<Q,d>::transformationMatrix;
+
+            protected:
+                const Q &angle;
+                const unsigned int &axis1;
+                const unsigned int &axis2;
+        };
+
+        template <typename Q, unsigned int d>
         class translation : public transformation<Q,d>
         {
             public:

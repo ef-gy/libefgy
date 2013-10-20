@@ -33,6 +33,7 @@
 #include <ef.gy/projection.h>
 #include <vector>
 #include <map>
+#include <sstream>
 
 namespace efgy
 {
@@ -42,8 +43,7 @@ namespace efgy
         enum openGLShaderAttribute
         {
             attributePosition,
-            attributeNormal,
-            attributeColour
+            attributeNormal
         };
 
         enum openGLUniforms
@@ -87,6 +87,20 @@ namespace efgy
             "{\n"
                 "gl_FragColor = colorVarying;\n"
             "}\n";
+
+        static inline std::stringstream getVertexShader ()
+        {
+            std::stringstream output;
+            output << referenceVertexShader;
+            return output;
+        }
+        
+        static inline std::stringstream getFragmentShader ()
+        {
+            std::stringstream output;
+            output << referenceFragmentShader;
+            return output;
+        }
 
         template<typename Q, unsigned int d>
         class opengl
@@ -320,6 +334,11 @@ namespace efgy
                     return true;
                 }
 
+                bool setUniform ()
+                {
+                    return true;
+                }
+
             protected:
                 const geometry::transformation<Q,3> &transformation;
                 const geometry::projection<Q,3> &projection;
@@ -343,7 +362,7 @@ namespace efgy
                 bool lineDepthMask;
                 bool faceDepthMask;
 
-             bool compileShader (GLuint &shader, GLenum type, const char *data)
+                bool compileShader (GLuint &shader, GLenum type, const char *data)
                 {
                     GLint status;
                     const GLchar *source = (const GLchar *)data;
@@ -405,13 +424,13 @@ namespace efgy
                     
                     program = glCreateProgram();
                     
-                    if (!compileShader(vertShader, GL_VERTEX_SHADER, referenceVertexShader))
+                    if (!compileShader(vertShader, GL_VERTEX_SHADER, getVertexShader().str().c_str()))
                     {
                         std::cerr << "Failed to compile vertex shader\n";
                         return false;
                     }
                     
-                    if (!compileShader(fragShader, GL_FRAGMENT_SHADER, referenceFragmentShader))
+                    if (!compileShader(fragShader, GL_FRAGMENT_SHADER, getFragmentShader().str().c_str()))
                     {
                         std::cerr << "Failed to compile fragment shader\n";
                         return false;
@@ -423,7 +442,6 @@ namespace efgy
                     
                     glBindAttribLocation(program, attributePosition, "position");
                     glBindAttribLocation(program, attributeNormal,   "normal");
-                    glBindAttribLocation(program, attributeColour,   "colour");
                     
                     if (!linkProgram(program))
                     {
