@@ -159,7 +159,6 @@ namespace efgy
 
                 void frameStart (void)
                 {
-#if defined(GLVA)
                     const geometry::transformation<Q,3> combined = transformation * projection;
 
                     GLfloat mat[16] =
@@ -205,61 +204,15 @@ namespace efgy
 
                     glUniformMatrix4fv(uniforms[efgy::render::uniformProjectionMatrix], 1, 0, mat);
                     glUniformMatrix3fv(uniforms[efgy::render::uniformNormalMatrix], 1, 0, matn);
-#else
-                    glMatrixMode(GL_MODELVIEW);
-                    GLfloat mat[16] =
-                        { GLfloat(transformation.transformationMatrix.data[0][0]),
-                          GLfloat(transformation.transformationMatrix.data[0][1]),
-                          GLfloat(transformation.transformationMatrix.data[0][2]),
-                          GLfloat(transformation.transformationMatrix.data[0][3]),
-                          GLfloat(transformation.transformationMatrix.data[1][0]),
-                          GLfloat(transformation.transformationMatrix.data[1][1]),
-                          GLfloat(transformation.transformationMatrix.data[1][2]),
-                          GLfloat(transformation.transformationMatrix.data[1][3]),
-                          GLfloat(transformation.transformationMatrix.data[2][0]),
-                          GLfloat(transformation.transformationMatrix.data[2][1]),
-                          GLfloat(transformation.transformationMatrix.data[2][2]),
-                          GLfloat(transformation.transformationMatrix.data[2][3]),
-                          GLfloat(transformation.transformationMatrix.data[3][0]),
-                          GLfloat(transformation.transformationMatrix.data[3][1]),
-                          GLfloat(transformation.transformationMatrix.data[3][2]),
-                          GLfloat(transformation.transformationMatrix.data[3][3]) };
-                    glLoadMatrixf(mat);
-                    glMatrixMode(GL_PROJECTION);
-                    /*
-                    GLfloat matp[16] =
-                        { GLfloat(projection.transformationMatrix.data[0][0]),
-                          GLfloat(projection.transformationMatrix.data[0][1]),
-                          GLfloat(projection.transformationMatrix.data[0][2]),
-                          GLfloat(projection.transformationMatrix.data[0][3]),
-                          GLfloat(projection.transformationMatrix.data[1][0]),
-                          GLfloat(projection.transformationMatrix.data[1][1]),
-                          GLfloat(projection.transformationMatrix.data[1][2]),
-                          GLfloat(projection.transformationMatrix.data[1][3]),
-                          GLfloat(projection.transformationMatrix.data[2][0]),
-                          GLfloat(projection.transformationMatrix.data[2][1]),
-                          GLfloat(projection.transformationMatrix.data[2][2]),
-                          GLfloat(projection.transformationMatrix.data[2][3]),
-                          GLfloat(projection.transformationMatrix.data[3][0]),
-                          GLfloat(projection.transformationMatrix.data[3][1]),
-                          GLfloat(projection.transformationMatrix.data[3][2]),
-                          GLfloat(projection.transformationMatrix.data[3][3]) };
-                    glLoadMatrixf(matp);
-                     */
-                    glLoadIdentity();
-#endif
                     
                     if(!haveBuffers)
                     {
                         haveBuffers = true;
-
-#if defined(GLVA)
                         loadShaders(program);
 
                         glUseProgram(program);
 
                         glGenVertexArrays(1, &VertexArrayID);
-#endif
                         glGenBuffers(1, &vertexbuffer);
                         glGenBuffers(1, &elementbuffer);
                         glGenBuffers(1, &linebuffer);
@@ -272,26 +225,22 @@ namespace efgy
                     {
                         prepared = true;
 
-#if defined(GLVA)
                         glGenVertexArrays(1, &VertexArrayID);
                         glBindVertexArray(VertexArrayID);
-#endif
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, triindices.size() * sizeof(unsigned int), &triindices[0], GL_STATIC_DRAW);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);
-#if defined(GLVA)
                         glEnableVertexAttribArray(attributePosition);
                         glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), 0);
                         glEnableVertexAttribArray(attributeNormal);
                         glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
 
-//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
                         glBindVertexArray(0);
-#endif
 
                         tindices = GLsizei(triindices.size());
                         lindices = GLsizei(lineindices.size());
@@ -308,7 +257,6 @@ namespace efgy
                 {
                     if (prepared)
                     {
-#if defined(GLVA)
                         glUseProgram(program);
                         glBindVertexArray(VertexArrayID);
                         
@@ -319,21 +267,6 @@ namespace efgy
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindVertexArray(0);
-#else
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
-                        glEnableClientState(GL_VERTEX_ARRAY);
-                        glEnableClientState(GL_NORMAL_ARRAY);
-                        glVertexPointer(3, GL_FLOAT, 6*sizeof(GLfloat), 0);
-                        glNormalPointer(GL_FLOAT, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-                        glDrawElements (GL_LINES, lindices, GL_UNSIGNED_INT, 0);
-                        
-                        glDisableClientState(GL_NORMAL_ARRAY);
-                        glDisableClientState(GL_VERTEX_ARRAY);
-                        
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#endif
                     }
                 }
 
@@ -341,7 +274,6 @@ namespace efgy
                 {
                     if (prepared)
                     {
-#if defined(GLVA)
                         glUseProgram(program);
                         glBindVertexArray(VertexArrayID);
 
@@ -352,21 +284,6 @@ namespace efgy
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindVertexArray(0);
-#else
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-                        glEnableClientState(GL_VERTEX_ARRAY);
-                        glEnableClientState(GL_NORMAL_ARRAY);
-                        glVertexPointer(3, GL_FLOAT, 6*sizeof(GLfloat), 0);
-                        glNormalPointer(GL_FLOAT, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-                        glDrawElements (GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
-
-                        glDisableClientState(GL_NORMAL_ARRAY);
-                        glDisableClientState(GL_VERTEX_ARRAY);
-
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#endif
                     }
                 }
 
@@ -418,7 +335,6 @@ namespace efgy
 
                 bool setColour (float pRed, float pGreen, float pBlue, float pAlpha, bool pWireframe)
                 {
-#if defined (GLVA)
                     if (pWireframe)
                     {
                         glUniform4f(uniforms[uniformWireframeColour], pRed, pGreen, pBlue, pAlpha);
@@ -427,9 +343,6 @@ namespace efgy
                     {
                         glUniform4f(uniforms[uniformSurfaceColour], pRed, pGreen, pBlue, pAlpha);
                     }
-#else
-                    glColor4f(pRed, pGreen, pBlue, pAlpha);
-#endif
                     return true;
                 }
 
