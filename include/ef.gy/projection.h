@@ -183,7 +183,7 @@ namespace efgy
                         }
                     }
                     
-                    if ((axis1 + axis2) % 2 == 1)
+                    if ((axis1 + axis2 + d + 1) % 2 == 1)
                     {
                         transformationMatrix = math::transpose(transformationMatrix);
                     }
