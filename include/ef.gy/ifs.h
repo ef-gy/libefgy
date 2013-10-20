@@ -32,6 +32,7 @@
 #include <ef.gy/polytope.h>
 #include <ef.gy/projection.h>
 #include <vector>
+#include <cstdlib>
 
 namespace efgy
 {
@@ -258,6 +259,113 @@ namespace efgy
                     static unsigned int renderDepth (void) { return d; }
                     static const char *id (void) { return "sierpinski-carpet"; }
             };
+        };
+
+        template <typename Q, unsigned int od, typename render, unsigned int d = od>
+        class randomAffineIFS : public ifs<Q,od,render,d,cube,transformation>
+        {
+            public:
+                typedef ifs<Q,od,render,d,cube,transformation> parent;
+
+                randomAffineIFS(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : parent(pRenderer, pParameter, pMultiplier)
+                    {
+                        calculateObject();
+                    }
+
+                    void calculateObject (void)
+                    {
+                        functions.clear();
+
+                        std::srand(parameter.seed);
+                        
+                        const unsigned int nfunctions = parameter.functions;
+                        
+                        for (unsigned int i = 0; i < nfunctions; i++)
+                        {
+                            const unsigned int rdim = parameter.extendedRotation ? d : od;
+                            typename euclidian::space<Q,d>::vector V;
+                            const Q s(Q(std::rand()%9000)/Q(10000)+Q(.1));
+                            const Q r1(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
+                            unsigned int a1 = std::rand() % rdim;
+                            unsigned int a2 = std::rand() % rdim;
+                            const Q r2(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
+                            unsigned int a4 = std::rand() % rdim;
+                            unsigned int a5 = std::rand() % rdim;
+
+                            if (a1 > a2)
+                            {
+                                unsigned int a3 = a1;
+                                a1 = a2;
+                                a2 = a3;
+                            }
+                            else if (a1 == a2)
+                            {
+                                if (a1 == 0)
+                                {
+                                    a2 = std::rand() % (rdim-1) + 1;
+                                }
+                                else
+                                {
+                                    a1--;
+                                }
+                            }
+
+                            if (a4 > a5)
+                            {
+                                unsigned int a6 = a4;
+                                a4 = a5;
+                                a5 = a6;
+                            }
+                            else if (a4 == a5)
+                            {
+                                if (a4 == 0)
+                                {
+                                    a5 = std::rand() % (rdim-1) + 1;
+                                }
+                                else
+                                {
+                                    a4--;
+                                }
+                            }
+
+                            for (unsigned int j = 0; j < od; j++)
+                            {
+                                V.data[j] = Q(std::rand()%10000)/Q(5000)-Q(1);
+                            }
+
+                            functions.push_back
+                                (  scale<Q,d>(s)
+                                 * ( parameter.preRotate
+                                        ? transformation<Q,d> (rotation<Q,d>(r1, a1, a2))
+                                        : transformation<Q,d> () )
+                                 * translation<Q,d>(V)
+                                 * ( parameter.postRotate
+                                        ? transformation<Q,d> (rotation<Q,d>(r2, a4, a5))
+                                        : transformation<Q,d> () ) );
+                        }
+                        
+                        parent::calculateObject();
+                    }
+
+                using parent::parameter;
+                using parent::renderWireframe;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::lines;
+                using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                static const unsigned int modelDimensionMaximum = d;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
+
+                using parent::functions;
+                using parent::calculateObject;
+
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "random-affine-ifs"; }
         };
     };
 };

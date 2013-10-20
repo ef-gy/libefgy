@@ -44,6 +44,11 @@ namespace efgy
                 Q polarRadius;
                 Q polarPrecision;
                 unsigned int iterations;
+                unsigned int functions;
+                unsigned int seed;
+                bool preRotate;
+                bool postRotate;
+                bool extendedRotation;
         };
 
         template <typename Q, unsigned int d, unsigned int f, typename render>
