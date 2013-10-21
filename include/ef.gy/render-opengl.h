@@ -112,8 +112,8 @@ namespace efgy
                 void frameEnd (void) const { lowerRenderer.frameEnd(); };
 
                 void drawLine
-                    (const typename geometry::euclidian::space<Q,d>::vector &pA,
-                     const typename geometry::euclidian::space<Q,d>::vector &pB) const;
+                    (const typename geometry::euclidian::space<Q,d>::vector &,
+                     const typename geometry::euclidian::space<Q,d>::vector &) const {};
 
                 template<unsigned int q>
                 void drawFace
@@ -263,8 +263,8 @@ namespace efgy
                 };
 
                 void drawLine
-                    (const typename geometry::euclidian::space<Q,3>::vector &pA,
-                     const typename geometry::euclidian::space<Q,3>::vector &pB) const;
+                    (const typename geometry::euclidian::space<Q,3>::vector &,
+                     const typename geometry::euclidian::space<Q,3>::vector &) const {};
 
                 template<unsigned int q>
                 void drawFace
@@ -531,21 +531,6 @@ namespace efgy
         };
 
         template<typename Q, unsigned int d>
-        void opengl<Q,d>::drawLine
-            (const typename geometry::euclidian::space<Q,d>::vector &pA,
-             const typename geometry::euclidian::space<Q,d>::vector &pB) const
-        {
-            /*
-            if (isPrepared()) return;
-            
-            typename geometry::euclidian::space<Q,d-1>::vector A = combined * pA;
-            typename geometry::euclidian::space<Q,d-1>::vector B = combined * pB;
-
-            lowerRenderer.drawLine(A, B);
-             */
-        }
-
-        template<typename Q, unsigned int d>
         template<unsigned int q>
         void opengl<Q,d>::drawFace
             (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const
@@ -560,19 +545,6 @@ namespace efgy
             }
 
             lowerRenderer.drawFace(V);
-        }
-
-        template<typename Q>
-        void opengl<Q,3>::drawLine
-            (const typename geometry::euclidian::space<Q,3>::vector &A,
-             const typename geometry::euclidian::space<Q,3>::vector &B) const
-        {
-            /*
-            if (isPrepared()) return;
-
-            lineindices.push_back(addVertex(GLfloat(A.data[0]), GLfloat(A.data[1]), GLfloat(A.data[2])));
-            lineindices.push_back(addVertex(GLfloat(B.data[0]), GLfloat(B.data[1]), GLfloat(B.data[2])));
-             */
         }
 
         template<typename Q>
@@ -599,15 +571,19 @@ namespace efgy
             triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
                                            GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
             lineindices.push_back(triindices.back());
+            lineindices.push_back(triindices.back());
             triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
                                            GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
             unsigned int nendf = triindices.back();
+            lineindices.push_back(nendf);
 
             triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
                                            GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
             unsigned int nendb = triindices.back();
+            lineindices.push_back(nendb);
             triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
                                            GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+            lineindices.push_back(triindices.back());
             lineindices.push_back(triindices.back());
             triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
                                            GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));

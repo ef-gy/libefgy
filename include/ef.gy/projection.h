@@ -189,7 +189,7 @@ namespace efgy
                     lookAt<Q,d> lookAtTransformation(from * Q(-1), to);
                     transformation::translation<Q,d> translationTransformation(from * Q(-1));
                     perspective<Q,d> perspectiveTransformation(eyeAngle, aspect);
-                        
+
                     this->transformationMatrix =
                       ( translationTransformation
                       * lookAtTransformation
