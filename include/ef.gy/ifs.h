@@ -42,10 +42,10 @@ namespace efgy
                   template <class,unsigned int,class,unsigned int> class primitive,
                   unsigned int pd,
                   template <class,unsigned int> class trans>
-        class ifs : public polytope<Q,d,4,render>
+        class ifs : public polytope<Q,d,primitive<Q,pd,render,d>::faceVertices,render>
         {
             public:
-                typedef polytope<Q,d,4,render> parent;
+                typedef polytope<Q,d,primitive<Q,pd,render,d>::faceVertices,render> parent;
 
                 ifs (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
@@ -62,6 +62,8 @@ namespace efgy
                 using parent::modelDimensionMaximum;
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
 
                 std::vector<trans<Q,d> > functions;
 
@@ -172,6 +174,8 @@ namespace efgy
                     using parent::renderDimensionMinimum;
                     using parent::renderDimensionMaximum;
 
+                    using parent::faceVertices;
+
                     using parent::functions;
                     using parent::calculateObject;
 
@@ -253,6 +257,8 @@ namespace efgy
                     using parent::renderDimensionMinimum;
                     using parent::renderDimensionMaximum;
 
+                    using parent::faceVertices;
+
                     using parent::functions;
                     using parent::calculateObject;
 
@@ -263,10 +269,10 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class randomAffineIFS : public ifs<Q,od,render,d,cube,2,transformation::affine>
+        class randomAffineIFS : public ifs<Q,od,render,d,simplex,2,transformation::affine>
         {
             public:
-                typedef ifs<Q,od,render,d,cube,2,transformation::affine> parent;
+                typedef ifs<Q,od,render,d,simplex,2,transformation::affine> parent;
 
                 randomAffineIFS(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
@@ -284,15 +290,14 @@ namespace efgy
                         
                         for (unsigned int i = 0; i < nfunctions; i++)
                         {
-                            const unsigned int rdim = parameter.extendedRotation ? d : od;
                             typename euclidian::space<Q,d>::vector V;
                             const Q s(Q(std::rand()%9000)/Q(10000)+Q(.1));
                             const Q r1(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
-                            unsigned int a1 = std::rand() % rdim;
-                            unsigned int a2 = std::rand() % rdim;
+                            unsigned int a1 = std::rand() % od;
+                            unsigned int a2 = std::rand() % od;
                             const Q r2(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
-                            unsigned int a4 = std::rand() % rdim;
-                            unsigned int a5 = std::rand() % rdim;
+                            unsigned int a4 = std::rand() % od;
+                            unsigned int a5 = std::rand() % od;
 
                             if (a1 > a2)
                             {
@@ -304,7 +309,7 @@ namespace efgy
                             {
                                 if (a1 == 0)
                                 {
-                                    a2 = std::rand() % (rdim-1) + 1;
+                                    a2 = std::rand() % (od-1) + 1;
                                 }
                                 else
                                 {
@@ -322,7 +327,7 @@ namespace efgy
                             {
                                 if (a4 == 0)
                                 {
-                                    a5 = std::rand() % (rdim-1) + 1;
+                                    a5 = std::rand() % (od-1) + 1;
                                 }
                                 else
                                 {
@@ -360,6 +365,8 @@ namespace efgy
                 static const unsigned int modelDimensionMaximum = d;
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
 
                 using parent::functions;
                 using parent::calculateObject;

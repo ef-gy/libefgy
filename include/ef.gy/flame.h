@@ -80,6 +80,8 @@ namespace efgy
                     using parent::renderDimensionMinimum;
                     using parent::renderDimensionMaximum;
 
+                    using parent::faceVertices;
+
                     using parent::functions;
                     using parent::calculateObject;
 

@@ -48,7 +48,6 @@ namespace efgy
                 unsigned int seed;
                 bool preRotate;
                 bool postRotate;
-                bool extendedRotation;
         };
 
         template <typename Q, unsigned int d, unsigned int f, typename render>
@@ -82,6 +81,8 @@ namespace efgy
                 static const unsigned int renderDimensionMinimum = 3;
                 static const unsigned int renderDimensionMaximum = 0;
 
+                static const unsigned int faceVertices = f;
+
             protected:
                 render &renderer;
                 const parameters<Q> &parameter;
@@ -114,6 +115,8 @@ namespace efgy
                 static const unsigned int modelDimensionMaximum = d;
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
@@ -247,6 +250,8 @@ namespace efgy
                 static const unsigned int modelDimensionMaximum = d;
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
@@ -392,6 +397,8 @@ namespace efgy
                 static const unsigned int renderDimensionMinimum = 3;
                 static const unsigned int renderDimensionMaximum = 0;
 
+                static const unsigned int faceVertices = 0;
+
             protected:
                 render &renderer;
         };
@@ -421,6 +428,8 @@ namespace efgy
                 static const unsigned int modelDimensionMaximum = d - 1;
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }

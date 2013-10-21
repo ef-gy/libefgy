@@ -57,6 +57,8 @@ namespace efgy
                 using parent::modelDimensionMaximum;
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = 3>
@@ -83,6 +85,8 @@ namespace efgy
                 static const unsigned int modelDimensionMaximum = 2;
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
@@ -200,6 +204,8 @@ namespace efgy
                 static const unsigned int modelDimensionMaximum = 2;
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
