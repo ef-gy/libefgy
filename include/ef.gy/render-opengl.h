@@ -88,18 +88,18 @@ namespace efgy
                 "gl_FragColor = colorVarying;\n"
             "}\n";
 
-        static inline std::stringstream getVertexShader ()
+        static inline std::string getVertexShader ()
         {
             std::stringstream output;
             output << referenceVertexShader;
-            return output;
+            return output.str();
         }
         
-        static inline std::stringstream getFragmentShader ()
+        static inline std::string getFragmentShader ()
         {
             std::stringstream output;
             output << referenceFragmentShader;
-            return output;
+            return output.str();
         }
 
         template<typename Q, unsigned int d>
@@ -424,13 +424,13 @@ namespace efgy
                     
                     program = glCreateProgram();
                     
-                    if (!compileShader(vertShader, GL_VERTEX_SHADER, getVertexShader().str().c_str()))
+                    if (!compileShader(vertShader, GL_VERTEX_SHADER, getVertexShader().c_str()))
                     {
                         std::cerr << "Failed to compile vertex shader\n";
                         return false;
                     }
                     
-                    if (!compileShader(fragShader, GL_FRAGMENT_SHADER, getFragmentShader().str().c_str()))
+                    if (!compileShader(fragShader, GL_FRAGMENT_SHADER, getFragmentShader().c_str()))
                     {
                         std::cerr << "Failed to compile fragment shader\n";
                         return false;
