@@ -48,6 +48,7 @@ namespace efgy
                 class value : public space<Q,3>::value
                 {
                     public:
+                        typedef typename HSL<Q>::scalar scalar;
                         using space<Q,3>::value::data;
 
                         value ()
@@ -204,6 +205,7 @@ namespace efgy
                 class value : public space<Q,4>::value
                 {
                     public:
+                        typedef typename HSLA<Q>::scalar scalar;
                         using space<Q,4>::vector::data;
 
                         value ()
