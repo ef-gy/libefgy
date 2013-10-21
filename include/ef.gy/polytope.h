@@ -351,59 +351,6 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class axeGraph
-        {
-            public:
-                axeGraph (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : renderer(pRenderer)
-                    {}
-
-                static unsigned int depth (void) { return od; }
-                static unsigned int renderDepth (void) { return d; }
-                static const char *id (void) { return "axe-graph"; }
-            
-                void calculateObject (void) const {}
-
-                void renderWireframe ()
-                {
-                    typename euclidian::space<Q,d>::vector A;
-                    typename euclidian::space<Q,d>::vector B;
-
-                    std::vector<typename euclidian::space<Q,d>::vector> points;
-                    std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> > lines;
-
-                    for (unsigned int i = 0; i < od; i++)
-                    {
-                        for (unsigned int j = 0; j < d; j++)
-                        {
-                            if (i == j)
-                            {
-                                A.data[i] = 1;
-                            }
-                            else
-                            {
-                                A.data[j] = 0;
-                            }
-                        }
-
-                        renderer.drawLine(A, B);
-                    }
-                }
-
-                void renderSolid () const {}
-            
-                static const unsigned int modelDimensionMinimum  = 1;
-                static const unsigned int modelDimensionMaximum  = d;
-                static const unsigned int renderDimensionMinimum = 3;
-                static const unsigned int renderDimensionMaximum = 0;
-
-                static const unsigned int faceVertices = 0;
-
-            protected:
-                render &renderer;
-        };
-
-        template <typename Q, unsigned int od, typename render, unsigned int d = od>
         class sphere : public polytope<Q,d,3,render>
         {
             public:
