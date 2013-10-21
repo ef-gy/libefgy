@@ -267,7 +267,7 @@ namespace efgy
 
         namespace transformation
         {
-            template <typename Q, unsigned int d, unsigned int od>
+            template <typename Q, unsigned int d, unsigned int od = d>
             class randomAffine : public affine<Q,d>
             {
                 public:
@@ -365,14 +365,14 @@ namespace efgy
                         functions.clear();
 
                         std::srand(parameter.seed);
-                        
+
                         const unsigned int nfunctions = parameter.functions;
-                        
+
                         for (unsigned int i = 0; i < nfunctions; i++)
                         {
                             functions.push_back (transformation::randomAffine<Q,d,od>(parameter));
                         }
-                        
+
                         parent::calculateObject();
                     }
 

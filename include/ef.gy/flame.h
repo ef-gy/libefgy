@@ -37,15 +37,101 @@ namespace efgy
     {
         namespace transformation
         {
+            /* These transformations are based on the 'Fractal Flame Algorithm' paper by Scott Draves
+               and Eric Reckase.
+               See http://flam3.com/flame_draves.pdf for the original paper. */
+            template <typename Q, unsigned int d>
+            class flame : public affine<Q,d>
+            {
+                public:
+                    flame (void) {}
+
+                    using affine<Q,d>::transformationMatrix;
+
+                    typename euclidian::space<Q,d>::vector operator *
+                        (const typename euclidian::space<Q,d>::vector &pV) const
+                    {
+                        const typename euclidian::space<Q,d>::vector V = affine<Q,d>(*this) * pV;
+                        typename euclidian::space<Q,d>::vector rv = V * coefficient[0];
+
+                        for (unsigned int i = 1; i < coefficients; i++)
+                        {
+                            rv = rv + apply(i, V);
+                        }
+
+                        return rv;
+                    }
+
+                    static const unsigned int coefficients = 3;
+                    Q coefficient[coefficients];
+
+                protected:
+                    typename euclidian::space<Q,d>::vector apply
+                        (unsigned int f, const typename euclidian::space<Q,d>::vector &V) const
+                    {
+                        typename euclidian::space<Q,d>::vector rv;
+
+                        if (coefficient[f] <= Q(0.))
+                        {
+                            return rv;
+                        }
+
+                        switch (f)
+                        {
+                            case 1:
+                                for (unsigned int i = 0; i < d; i++)
+                                {
+                                    rv.data[i] = sin(V.data[i]);
+                                }
+                                break;
+                            case 2:
+                                rv = V * 1/euclidian::lengthSquared<Q,d>(V);
+                                break;
+                        }
+
+                        return rv * coefficient[f];
+                    }
+            };
+
+            template <typename Q, unsigned int d, unsigned int od = d>
+            class randomFlame : public flame<Q,d>
+            {
+                public:
+                    randomFlame(const parameters<Q> &pParameter)
+                        {
+                            transformationMatrix = randomAffine<Q,d,od>(pParameter).transformationMatrix;
+
+                            for (unsigned int i = 0; i < coefficients; i++)
+                            {
+                                coefficient[i] = Q(std::rand()%10000)/Q(10000);
+                            }
+                            
+                            Q coefficientsum = coefficient[0];
+
+                            for (unsigned int i = 1; i < coefficients; i++)
+                            {
+                                coefficientsum = coefficientsum + coefficient[i];
+                            }
+                            
+                            for (unsigned int i = 0; i < coefficients; i++)
+                            {
+                                coefficient[i] = coefficient[i] / coefficientsum;
+                            }
+                        }
+
+                    using flame<Q,d>::transformationMatrix;
+                    using flame<Q,d>::coefficient;
+                    using flame<Q,d>::coefficients;
+            };
         };
 
         namespace flame
         {
             template <typename Q, unsigned int od, typename render, unsigned int d = od>
-            class random : public ifs<Q,od,render,d,cube,2,transformation::affine>
+            class random : public ifs<Q,od,render,d,simplex,2,transformation::flame>
             {
                 public:
-                    typedef ifs<Q,od,render,d,cube,2,transformation::affine> parent;
+                    typedef ifs<Q,od,render,d,simplex,2,transformation::flame> parent;
 
                     random(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                         : parent(pRenderer, pParameter, pMultiplier)
@@ -63,6 +149,7 @@ namespace efgy
                         
                             for (unsigned int i = 0; i < nfunctions; i++)
                             {
+                                functions.push_back (transformation::randomFlame<Q,d,od>(parameter));
                             }
                         
                             parent::calculateObject();
