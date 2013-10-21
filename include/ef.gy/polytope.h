@@ -48,6 +48,7 @@ namespace efgy
                 unsigned int seed;
                 bool preRotate;
                 bool postRotate;
+                unsigned int flameCoefficients;
         };
 
         template <typename Q, unsigned int d, unsigned int f, typename render>

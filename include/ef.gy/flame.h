@@ -62,7 +62,7 @@ namespace efgy
                         return rv;
                     }
 
-                    static const unsigned int coefficients = 3;
+                    static const unsigned int coefficients = 7;
                     Q coefficient[coefficients];
 
                 protected:
@@ -78,6 +78,9 @@ namespace efgy
 
                         switch (f)
                         {
+                            case 0:
+                                rv = V;
+                                break;
                             case 1:
                                 for (unsigned int i = 0; i < d; i++)
                                 {
@@ -85,7 +88,59 @@ namespace efgy
                                 }
                                 break;
                             case 2:
-                                rv = V * 1/euclidian::lengthSquared<Q,d>(V);
+                                rv = V * Q(1)/euclidian::lengthSquared<Q,d>(V);
+                                break;
+                            case 3:
+                            {
+                                const Q rsq = euclidian::lengthSquared<Q,d>(V);
+                                const Q sinrsq = sin(rsq);
+                                const Q cosrsq = cos(rsq);
+                                for (unsigned int i = 0; i < d; i++)
+                                {
+                                    if ((i % 2 == 0) && (i < (d-1)))
+                                    {
+                                        rv.data[i] = rv.data[i] * sinrsq - rv.data[(i+1)] * cosrsq;
+                                    }
+                                    else
+                                    {
+                                        rv.data[i] = rv.data[(i-1)] * cosrsq + rv.data[i] * sinrsq;
+                                    }
+                                }
+                            }
+                                break;
+                            case 4:
+                                rv = V;
+                                rv.data[0] = (V.data[0]-V.data[1])*(V.data[0]+V.data[1]);
+                                rv.data[1] = Q(2) * V.data[0] * V.data[1];
+                                rv = rv * Q(1)/sqrt(euclidian::lengthSquared<Q,d>(V));
+                                break;
+                            case 5:
+                            {
+                                const Q theta = atan(V.data[0]/V.data[1]);
+                                rv = V;
+                                rv.data[0] = theta/Q(M_PI);
+                                rv.data[1] = sqrt(euclidian::lengthSquared<Q,d>(V)) - Q(1);
+                            }
+                                break;
+                            case 6:
+                            {
+                                const Q theta = atan(V.data[0]/V.data[1]);
+                                const Q r = sqrt(euclidian::lengthSquared<Q,d>(V)) - Q(1);
+                                const Q sintpr = sin(theta + r);
+                                const Q costmr = cos(theta - r);
+                                for (unsigned int i = 0; i < d; i++)
+                                {
+                                    if (i % 2 == 0)
+                                    {
+                                        rv.data[i] = sintpr;
+                                    }
+                                    else
+                                    {
+                                        rv.data[i] = costmr;
+                                    }
+                                }
+                                rv = rv * r;
+                            }
                                 break;
                         }
 
@@ -104,6 +159,28 @@ namespace efgy
                             for (unsigned int i = 0; i < coefficients; i++)
                             {
                                 coefficient[i] = Q(std::rand()%10000)/Q(10000);
+                            }
+
+                            for (unsigned int nonzero = pParameter.flameCoefficients + 1;
+                                 nonzero > pParameter.flameCoefficients; )
+                            {
+                                nonzero = 0;
+                                for (unsigned int i = 0; i < coefficients; i++)
+                                {
+                                    if (coefficient[i] > Q(0.))
+                                    {
+                                        nonzero++;
+                                    }
+                                    else if (coefficient[i] < Q(0.))
+                                    {
+                                        coefficient[i] = Q(0.);
+                                    }
+                                }
+                                
+                                if (nonzero > pParameter.flameCoefficients)
+                                {
+                                    coefficient[(std::rand()%coefficients)] = Q(0.);
+                                }
                             }
                             
                             Q coefficientsum = coefficient[0];
