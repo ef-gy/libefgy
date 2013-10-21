@@ -41,6 +41,71 @@ namespace efgy
             template <typename Q, unsigned int d> class projective;
 
             template <typename Q, unsigned int d>
+            class linear
+            {
+                public:
+                    linear ()
+                        {
+                            for (unsigned int i = 0; i < d; i++)
+                            {
+                                for (unsigned int j = 0; j < d; j++)
+                                {
+                                    matrix.data[i][j] = (i == j) ? 1 : 0;
+                                }
+                            }
+                        }
+
+                    typename euclidian::space<Q,d>::vector operator *
+                        (const typename euclidian::space<Q,d>::vector &pV) const
+                    {
+                        typename euclidian::space<Q,d>::vector rv;
+
+                        math::matrix<Q,1,d> vectorMatrix;
+
+                        for (unsigned int i = 0; i < d; i++)
+                        {
+                            vectorMatrix.data[0][i] = pV.data[i];
+                        }
+
+                        vectorMatrix
+                            = vectorMatrix
+                            * matrix;
+
+                        for (unsigned int i = 0; i < d; i++)
+                        {
+                            rv.data[i] = vectorMatrix.data[0][i];
+                        }
+
+                        return rv;
+                    }
+
+                    linear operator *
+                        (const linear &pB) const
+                    {
+                        linear t;
+                        t.matrix = this->matrix * pB.matrix;
+                        return t;
+                    }
+
+                    projective<Q,d> operator *
+                        (const projective<Q,d> &pB) const
+                    {
+                        return pB * (*this);
+                    }
+
+                    math::matrix<Q,d,d> matrix;
+            };
+
+            template <typename Q, unsigned int d>
+            class identity : public linear<Q,d>
+            {
+                public:
+                    identity()
+                        : linear<Q,d>()
+                        {}
+            };
+
+            template <typename Q, unsigned int d>
             class affine
             {
                 public:
@@ -53,6 +118,23 @@ namespace efgy
                                     transformationMatrix.data[i][j] = (i == j) ? 1 : 0;
                                 }
                             }
+                        }
+
+                    affine (const linear<Q,d> &L)
+                        {
+                            for (unsigned int i = 0; i < d; i++)
+                            {
+                                for (unsigned int j = 0; j < d; j++)
+                                {
+                                    transformationMatrix.data[i][j] = L.data[i][j];
+                                }
+                            }
+                            for (unsigned int i = 0; i < d; i++)
+                            {
+                                transformationMatrix.data[i][d] = Q(0);
+                                transformationMatrix.data[d][i] = Q(0);
+                            }
+                            transformationMatrix.data[d][d] = Q(1);
                         }
 
                     typename euclidian::space<Q,d>::vector operator *
