@@ -30,6 +30,7 @@
 #define EF_GY_CONTINUED_FRACTIONS_H
 
 #include <ef.gy/fractions.h>
+#include <vector>
 
 namespace efgy
 {
@@ -44,18 +45,17 @@ namespace efgy
                     typedef N integer;
 
                     continuedFractional ()
-                        : coefficientCount(N(0)), coefficient(N(0)), negative(false)
+                        : coefficient(), negative(false)
                         {}
                     continuedFractional (const N &t)
-                        : coefficientCount(N(1)), coefficient(N(1)), negative(false)
+                        : coefficient(), negative(false)
                         {
-                            coefficient[0] = t;
+                            coefficient.push_back(t);
                         }
                     continuedFractional (const fractional<N> &pF)
-                        : coefficientCount(N(0)), coefficient(N(0)), negative(false)
+                        : coefficient(), negative(false)
                         {
                             N i = N(0);
-                            N p = N(0);
                             for (fractional<N> f = pF;
                                     (f.numerator != zero())
                                  && (f.denominator != zero());
@@ -63,18 +63,14 @@ namespace efgy
                             {
                                 i = N(f);
 
-                                p = coefficientCount;
-                                coefficientCount = p + N(1);
-                                coefficient.resize(coefficientCount);
-
                                 if (i < zero())
                                 {
-                                    coefficient[p] = -i;
+                                    coefficient.push_back(-i);
                                     negative = true;
                                 }
                                 else
                                 {
-                                    coefficient[p] = i;
+                                    coefficient.push_back(i);
                                 }
 
                                 if (f < zero())
@@ -84,36 +80,32 @@ namespace efgy
                                 }
                             }
 
-                            if ((coefficientCount > one()) && (coefficient[p] == N(1)))
+                            if ((coefficient.size() > one()) && (coefficient.back() == N(1)))
                             {
-                                coefficientCount = p;
-                                coefficient.resize(coefficientCount);
-                                coefficient[(p - N(1))] += N(1);
+                                coefficient.push_back(N(1));
                             }
                         }
                     continuedFractional (const continuedFractional &cf)
-                        : coefficientCount(cf.coefficientCount), coefficient(cf.coefficient), negative(cf.negative)
+                        : coefficient(cf.coefficient), negative(cf.negative)
                         {}
 
                     continuedFractional &operator = (const continuedFractional &b)
                     {
-                        coefficientCount = b.coefficientCount;
                         coefficient = b.coefficient;
                         negative = b.negative;
                         return *this;
                     }
                     continuedFractional &operator = (const N &b)
                     {
-                        coefficientCount = N(1);
-                        coefficient.resize(coefficientCount);
+                        coefficient.clear();
                         if (b < zero())
                         {
-                            coefficient[N(0)] = -b;
+                            coefficient.push_back(-b);
                             negative = true;
                         }
                         else
                         {
-                            coefficient[N(0)] = b;
+                            coefficient.push_back(b);
                             negative = false;
                         }
                         return *this;
@@ -170,39 +162,39 @@ namespace efgy
                     bool operator > (const continuedFractional &b) const;
                     bool operator > (const zero &b) const
                     {
-                        return (   (coefficientCount > N(1))
-                                || ((coefficientCount == N(1)) && (coefficient[N(0)] > zero())))
+                        return (   (coefficient.size() > N(1))
+                                || ((coefficient.size() == N(1)) && (coefficient[N(0)] > zero())))
                             && !negative;
                     }
                     bool operator > (const one &b) const
                     {
-                        return (   ((coefficientCount > N(1)) && (coefficient[N(0)] >= N(1)))
-                                || ((coefficientCount >= N(1)) && (coefficient[N(0)] > N(1))))
+                        return (   ((coefficient.size() > N(1)) && (coefficient[N(0)] >= N(1)))
+                                || ((coefficient.size() >= N(1)) && (coefficient[N(0)] > N(1))))
                             && !negative;
                     }
                     bool operator > (const negativeOne &b) const
                     {
                         return !negative
-                            || (coefficientCount == zero())
+                            || (coefficient.size() == zero())
                             || (coefficient[N(0)] == zero());
                     }
 
                     bool operator == (const continuedFractional &b) const;
                     bool operator == (const zero &b) const
                     {
-                        return (coefficientCount == zero())
+                        return (coefficient.size() == zero())
                             || (coefficient[N(0)] == zero());
                     }
                     bool operator == (const one &b) const
                     {
                         return !negative
-                            && (coefficientCount == N(1))
+                            && (coefficient.size() == N(1))
                             && (coefficient[N(0)] == N(1));
                     }
                     bool operator == (const negativeOne &b) const
                     {
                         return negative
-                            && (coefficientCount == N(1))
+                            && (coefficient.size() == N(1))
                             && (coefficient[N(0)] == N(1));
                     }
 
@@ -213,12 +205,12 @@ namespace efgy
                         if (b < zero())
                         {
                             rv.negative = true;
-                            b = -b;
+                            rv.coefficient.push_back(-b);
                         }
-                        N p = rv.coefficientCount;
-                        rv.coefficientCount++;
-                        rv.coefficient.resize(rv.coefficientCount);
-                        rv.coefficient[p] = b;
+                        else
+                        {
+                            rv.coefficient.push_back(b);
+                        }
                         return rv;
                     }
 
@@ -226,7 +218,7 @@ namespace efgy
 
                     operator std::string (void) const
                     {
-                        if (coefficientCount == N(0))
+                        if (coefficient.size() == N(0))
                         {
                             return std::string("[ 0 ]");
                         }
@@ -236,7 +228,7 @@ namespace efgy
                         {
                             r = "- " + r;
                         }
-                        for (N i = N(0); i < coefficientCount; i++)
+                        for (N i = N(0); i < coefficient.size(); i++)
                         {
                             if (i == N(0))
                             {
@@ -258,7 +250,7 @@ namespace efgy
                     operator fractional<N> (void) const
                     {
                         fractional<N> rv;
-                        N j = coefficientCount - N(1);
+                        N j = coefficient.size() - N(1);
                         for (N i = j; i >= N(0); i--)
                         {
                             if (i == j)
@@ -277,8 +269,7 @@ namespace efgy
                         return rv;
                     }
 
-                    data::scratchPad<N> coefficient;
-                    N coefficientCount;
+                    std::vector<N> coefficient;
                     bool negative;
 
                 protected:
@@ -345,7 +336,7 @@ namespace efgy
                                         {
                                             continuedFractional<N> cfdh = dh;
                                             for (N i = N(0);
-                                                 i < cfdh.coefficientCount;
+                                                 i < cfdh.coefficient.size();
                                                  i++)
                                             {
                                                 rv = (rv, cfdh.coefficient[i]);
@@ -372,7 +363,7 @@ namespace efgy
                                     if (bfae > cgae)
                                     {
                                     processX:
-                                        if (px < x.coefficientCount)
+                                        if (px < x.coefficient.size())
                                         {
                                             op = op.insertX (x.coefficient[px]);
                                             px++;
@@ -390,7 +381,7 @@ namespace efgy
                                     else
                                     {
                                     processY:
-                                        if (py < y.coefficientCount)
+                                        if (py < y.coefficient.size())
                                         {
                                             op = op.insertY (y.coefficient[py]);
                                             py++;
@@ -493,8 +484,7 @@ namespace efgy
                             : (q.numerator > N(maxNumerator)))
                        || (q.denominator > N(maxDenominator)))
                 {
-                    cf.coefficientCount -= N(1);
-                    cf.coefficient.resize(cf.coefficientCount);
+                    cf.coefficient.pop_back();
                     q = cf;
                 }
                 return q;
