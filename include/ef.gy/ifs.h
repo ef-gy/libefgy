@@ -40,6 +40,7 @@ namespace efgy
     {
         template <typename Q, unsigned int od, typename render, unsigned int d,
                   template <class,unsigned int,class,unsigned int> class primitive,
+                  unsigned int pd,
                   template <class,unsigned int> class transformation>
         class ifs : public polytope<Q,d,4,render>
         {
@@ -66,7 +67,7 @@ namespace efgy
 
                 void calculateObject (void)
                 {
-                    primitive<Q,od,render,d> source(parent::renderer, parameter, parent::precisionMultiplier);
+                    primitive<Q,pd,render,d> source(parent::renderer, parameter, parent::precisionMultiplier);
                     
                     lines = source.lines;
                     faces = source.faces;
@@ -125,10 +126,10 @@ namespace efgy
         namespace sierpinski
         {
             template <typename Q, unsigned int od, typename render, unsigned int d = od>
-            class gasket : public ifs<Q,od,render,d,cube,transformation>
+            class gasket : public ifs<Q,od,render,d,cube,od,transformation>
             {
                 public:
-                    typedef ifs<Q,od,render,d,cube,transformation> parent;
+                    typedef ifs<Q,od,render,d,cube,od,transformation> parent;
 
                     gasket(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                         : parent(pRenderer, pParameter, pMultiplier)
@@ -180,10 +181,10 @@ namespace efgy
             };
 
             template <typename Q, unsigned int od, typename render, unsigned int d = od>
-            class carpet : public ifs<Q,od,render,d,cube,transformation>
+            class carpet : public ifs<Q,od,render,d,cube,od,transformation>
             {
                 public:
-                    typedef ifs<Q,od,render,d,cube,transformation> parent;
+                    typedef ifs<Q,od,render,d,cube,od,transformation> parent;
 
                     carpet(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                         : parent(pRenderer, pParameter, pMultiplier)
@@ -262,10 +263,10 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class randomAffineIFS : public ifs<Q,od,render,d,cube,transformation>
+        class randomAffineIFS : public ifs<Q,od,render,d,cube,2,transformation>
         {
             public:
-                typedef ifs<Q,od,render,d,cube,transformation> parent;
+                typedef ifs<Q,od,render,d,cube,2,transformation> parent;
 
                 randomAffineIFS(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
