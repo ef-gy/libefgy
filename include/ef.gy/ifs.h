@@ -268,6 +268,89 @@ namespace efgy
             };
         };
 
+        namespace transformation
+        {
+            template <typename Q, unsigned int d, unsigned int od>
+            class randomAffine : public affine<Q,d>
+            {
+                public:
+                    randomAffine(const parameters<Q> &pParameter)
+                        : parameter(pParameter)
+                        {
+                            updateMatrix();
+                        }
+
+                    void updateMatrix (void)
+                    {
+                        typename euclidian::space<Q,d>::vector V;
+                        const Q s(Q(std::rand()%9000)/Q(10000)+Q(.1));
+                        const Q r1(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
+                        unsigned int a1 = std::rand() % od;
+                        unsigned int a2 = std::rand() % od;
+                        const Q r2(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
+                        unsigned int a4 = std::rand() % od;
+                        unsigned int a5 = std::rand() % od;
+                        
+                        if (a1 > a2)
+                        {
+                            unsigned int a3 = a1;
+                            a1 = a2;
+                            a2 = a3;
+                        }
+                        else if (a1 == a2)
+                        {
+                            if (a1 == 0)
+                            {
+                                a2 = std::rand() % (od-1) + 1;
+                            }
+                            else
+                            {
+                                a1--;
+                            }
+                        }
+                        
+                        if (a4 > a5)
+                        {
+                            unsigned int a6 = a4;
+                            a4 = a5;
+                            a5 = a6;
+                        }
+                        else if (a4 == a5)
+                        {
+                            if (a4 == 0)
+                            {
+                                a5 = std::rand() % (od-1) + 1;
+                            }
+                            else
+                            {
+                                a4--;
+                            }
+                        }
+                        
+                        for (unsigned int j = 0; j < od; j++)
+                        {
+                            V.data[j] = Q(std::rand()%10000)/Q(5000)-Q(1);
+                        }
+                        
+                        transformationMatrix =
+                                (  transformation::scale<Q,d>(s)
+                                 * ( parameter.preRotate
+                                        ? transformation::affine<Q,d> (transformation::rotation<Q,d>(r1, a1, a2))
+                                        : transformation::affine<Q,d> () )
+                                 * transformation::translation<Q,d>(V)
+                                 * ( parameter.postRotate
+                                        ? transformation::affine<Q,d> (transformation::rotation<Q,d>(r2, a4, a5))
+                                        : transformation::affine<Q,d> () )
+                                 ).transformationMatrix;
+                    }
+
+                    using affine<Q,d>::transformationMatrix;
+
+                protected:
+                    const parameters<Q> &parameter;
+            };
+        };
+
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
         class randomAffineIFS : public ifs<Q,od,render,d,simplex,2,transformation::affine>
         {
@@ -290,65 +373,7 @@ namespace efgy
                         
                         for (unsigned int i = 0; i < nfunctions; i++)
                         {
-                            typename euclidian::space<Q,d>::vector V;
-                            const Q s(Q(std::rand()%9000)/Q(10000)+Q(.1));
-                            const Q r1(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
-                            unsigned int a1 = std::rand() % od;
-                            unsigned int a2 = std::rand() % od;
-                            const Q r2(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
-                            unsigned int a4 = std::rand() % od;
-                            unsigned int a5 = std::rand() % od;
-
-                            if (a1 > a2)
-                            {
-                                unsigned int a3 = a1;
-                                a1 = a2;
-                                a2 = a3;
-                            }
-                            else if (a1 == a2)
-                            {
-                                if (a1 == 0)
-                                {
-                                    a2 = std::rand() % (od-1) + 1;
-                                }
-                                else
-                                {
-                                    a1--;
-                                }
-                            }
-
-                            if (a4 > a5)
-                            {
-                                unsigned int a6 = a4;
-                                a4 = a5;
-                                a5 = a6;
-                            }
-                            else if (a4 == a5)
-                            {
-                                if (a4 == 0)
-                                {
-                                    a5 = std::rand() % (od-1) + 1;
-                                }
-                                else
-                                {
-                                    a4--;
-                                }
-                            }
-
-                            for (unsigned int j = 0; j < od; j++)
-                            {
-                                V.data[j] = Q(std::rand()%10000)/Q(5000)-Q(1);
-                            }
-
-                            functions.push_back
-                                (  transformation::scale<Q,d>(s)
-                                 * ( parameter.preRotate
-                                        ? transformation::affine<Q,d> (transformation::rotation<Q,d>(r1, a1, a2))
-                                        : transformation::affine<Q,d> () )
-                                 * transformation::translation<Q,d>(V)
-                                 * ( parameter.postRotate
-                                        ? transformation::affine<Q,d> (transformation::rotation<Q,d>(r2, a4, a5))
-                                        : transformation::affine<Q,d> () ) );
+                            functions.push_back (transformation::randomAffine<Q,d,od>(parameter));
                         }
                         
                         parent::calculateObject();
