@@ -174,7 +174,9 @@ namespace efgy
                     projective<Q,d> operator *
                         (const projective<Q,d> &pB) const
                     {
-                        return pB * (*this);
+                        projective<Q,d> t;
+                        t.transformationMatrix = this->transformationMatrix * pB.transformationMatrix;
+                        return t;
                     }
 
                     math::matrix<Q,d+1,d+1> transformationMatrix;
