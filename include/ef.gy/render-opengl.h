@@ -50,8 +50,7 @@ namespace efgy
         {
             uniformProjectionMatrix,
             uniformNormalMatrix,
-            uniformSurfaceColour,
-            uniformWireframeColour,
+            uniformColour,
             uniformMax
         };
 
@@ -62,21 +61,13 @@ namespace efgy
             "varying lowp vec4 colorVarying;\n"
             "uniform mat4 modelViewProjectionMatrix;\n"
             "uniform mat3 normalMatrix;\n"
-            "uniform vec4 surfaceColour;\n"
-            "uniform vec4 wireframeColour;\n"
+            "uniform vec4 colour;\n"
             "void main()\n"
             "{\n"
                 "vec3 eyeNormal = normalize(normalMatrix * normal);\n"
                 "vec3 lightPosition = vec3(0.0, 0.0, 1.0);\n"
                 "float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));\n"
-                "if ((normal[0] == 0.0) && (normal[1] == 0.0) && (normal[2] == 0.0))\n"
-                "{\n"
-                    "colorVarying = wireframeColour;\n"
-                "}\n"
-                "else\n"
-                "{\n"
-                    "colorVarying = surfaceColour * nDotVP;\n"
-                "}\n"
+                "colorVarying = colour * nDotVP;\n"
                 "gl_Position = modelViewProjectionMatrix * position;\n"
             "}";
 
@@ -273,7 +264,7 @@ namespace efgy
 
                 void drawLine
                     (const typename geometry::euclidian::space<Q,3>::vector &pA,
-                     const typename geometry::euclidian::space<Q,3>::vector &pB);
+                     const typename geometry::euclidian::space<Q,3>::vector &pB) const;
 
                 template<unsigned int q>
                 void drawFace
@@ -323,13 +314,19 @@ namespace efgy
                     {
                         linesEnabled = pAlpha > 0.f;
                         lineDepthMask = true;
-                        glUniform4f(uniforms[uniformWireframeColour], pRed, pGreen, pBlue, pAlpha);
+                        wireframeColour[0] = pRed;
+                        wireframeColour[1] = pGreen;
+                        wireframeColour[2] = pBlue;
+                        wireframeColour[3] = pAlpha;
                     }
                     else
                     {
                         facesEnabled = pAlpha > 0.f;
                         faceDepthMask = pAlpha >= 1.f;
-                        glUniform4f(uniforms[uniformSurfaceColour], pRed, pGreen, pBlue, pAlpha);
+                        surfaceColour[0] = pRed;
+                        surfaceColour[1] = pGreen;
+                        surfaceColour[2] = pBlue;
+                        surfaceColour[3] = pAlpha;
                     }
                     return true;
                 }
@@ -361,6 +358,8 @@ namespace efgy
                 bool facesEnabled;
                 bool lineDepthMask;
                 bool faceDepthMask;
+                GLfloat wireframeColour[4];
+                GLfloat surfaceColour[4];
 
                 bool compileShader (GLuint &shader, GLenum type, const char *data)
                 {
@@ -466,8 +465,7 @@ namespace efgy
                     // Get uniform locations.
                     uniforms[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
                     uniforms[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
-                    uniforms[uniformSurfaceColour]    = glGetUniformLocation(program, "surfaceColour");
-                    uniforms[uniformWireframeColour]  = glGetUniformLocation(program, "wireframeColour");
+                    uniforms[uniformColour]           = glGetUniformLocation(program, "colour");
                     
                     // Release vertex and fragment shaders.
                     if (vertShader) {
@@ -486,6 +484,8 @@ namespace efgy
                 {
                     if (prepared && linesEnabled)
                     {
+                        glUniform4f(uniforms[uniformColour], wireframeColour[0], wireframeColour[1], wireframeColour[2], wireframeColour[3]);
+
                         glDepthMask (lineDepthMask ? GL_TRUE : GL_FALSE);
 
                         glUseProgram(program);
@@ -505,6 +505,8 @@ namespace efgy
                 {
                     if (prepared && facesEnabled)
                     {
+                        glUniform4f(uniforms[uniformColour], surfaceColour[0], surfaceColour[1], surfaceColour[2], surfaceColour[3]);
+
                         glDepthMask (faceDepthMask ? GL_TRUE : GL_FALSE);
 
                         glUseProgram(program);
@@ -533,12 +535,14 @@ namespace efgy
             (const typename geometry::euclidian::space<Q,d>::vector &pA,
              const typename geometry::euclidian::space<Q,d>::vector &pB) const
         {
+            /*
             if (isPrepared()) return;
             
             typename geometry::euclidian::space<Q,d-1>::vector A = combined * pA;
             typename geometry::euclidian::space<Q,d-1>::vector B = combined * pB;
 
             lowerRenderer.drawLine(A, B);
+             */
         }
 
         template<typename Q, unsigned int d>
@@ -561,12 +565,14 @@ namespace efgy
         template<typename Q>
         void opengl<Q,3>::drawLine
             (const typename geometry::euclidian::space<Q,3>::vector &A,
-             const typename geometry::euclidian::space<Q,3>::vector &B)
+             const typename geometry::euclidian::space<Q,3>::vector &B) const
         {
+            /*
             if (isPrepared()) return;
 
             lineindices.push_back(addVertex(GLfloat(A.data[0]), GLfloat(A.data[1]), GLfloat(A.data[2])));
             lineindices.push_back(addVertex(GLfloat(B.data[0]), GLfloat(B.data[1]), GLfloat(B.data[2])));
+             */
         }
 
         template<typename Q>
@@ -588,17 +594,25 @@ namespace efgy
 
             triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
                                            GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+            unsigned int nstartf = triindices.back();
+            lineindices.push_back(nstartf);
             triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
                                            GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+            lineindices.push_back(triindices.back());
             triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
                                            GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+            unsigned int nendf = triindices.back();
 
             triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
                                            GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+            unsigned int nendb = triindices.back();
             triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
                                            GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+            lineindices.push_back(triindices.back());
             triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
                                            GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+            unsigned int nstartb = triindices.back();
+            lineindices.push_back(nstartb);
 
             for (unsigned int j = 3; j < q; j++)
             {
@@ -606,16 +620,27 @@ namespace efgy
                                                GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
                 triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
                                                GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                lineindices.push_back(triindices.back());
                 triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
                                                GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                lineindices.push_back(triindices.back());
+                nendf = triindices.back();
 
                 triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
                                                GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                nendb = triindices.back();
+                lineindices.push_back(triindices.back());
                 triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
                                                GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                lineindices.push_back(triindices.back());
                 triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
                                                GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
             }
+
+            lineindices.push_back(nendf);
+            lineindices.push_back(nstartf);
+            lineindices.push_back(nstartb);
+            lineindices.push_back(nendb);
         }
     };
 };
