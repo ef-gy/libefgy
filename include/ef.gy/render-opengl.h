@@ -107,7 +107,7 @@ namespace efgy
         {
             public:
                 opengl
-                    (const geometry::transformation<Q,d> &pTransformation,
+                    (const geometry::transformation::affine<Q,d> &pTransformation,
                      const geometry::projection<Q,d> &pProjection,
                      opengl<Q,d-1> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
@@ -136,9 +136,9 @@ namespace efgy
                 }
 
             protected:
-                const geometry::transformation<Q,d> &transformation;
+                const geometry::transformation::affine<Q,d> &transformation;
                 const geometry::projection<Q,d> &projection;
-                geometry::transformation<Q,d> combined;
+                geometry::transformation::projective<Q,d> combined;
                 opengl<Q,d-1> &lowerRenderer;
 
                 void pushLines (void) const { lowerRenderer.pushLines(); };
@@ -150,7 +150,7 @@ namespace efgy
         {
             public:
                 opengl
-                    (const geometry::transformation<Q,3> &pTransformation,
+                    (const geometry::transformation::affine<Q,3> &pTransformation,
                      const geometry::projection<Q,3> &pProjection,
                      const opengl<Q,2> &)
                     : transformation(pTransformation), projection(pProjection),
@@ -174,7 +174,7 @@ namespace efgy
 
                 void frameStart (void)
                 {
-                    const geometry::transformation<Q,3> combined = transformation * projection;
+                    const geometry::transformation::projective<Q,3> combined = transformation * projection;
 
                     GLfloat mat[16] =
                       { GLfloat(combined.transformationMatrix.data[0][0]),
@@ -340,7 +340,7 @@ namespace efgy
                 }
 
             protected:
-                const geometry::transformation<Q,3> &transformation;
+                const geometry::transformation::affine<Q,3> &transformation;
                 const geometry::projection<Q,3> &projection;
                 std::vector<GLfloat> vertices;
                 std::map<std::vector<GLfloat>,unsigned int> vertexmap;
@@ -525,7 +525,7 @@ namespace efgy
         class opengl<Q,2>
         {
             public:
-                opengl (const geometry::transformation<Q,2> &) {}
+                opengl (const geometry::transformation::affine<Q,2> &) {}
         };
 
         template<typename Q, unsigned int d>
@@ -535,8 +535,8 @@ namespace efgy
         {
             if (isPrepared()) return;
             
-            typename geometry::euclidian::space<Q,d-1>::vector A = combined.project(pA);
-            typename geometry::euclidian::space<Q,d-1>::vector B = combined.project(pB);
+            typename geometry::euclidian::space<Q,d-1>::vector A = combined * pA;
+            typename geometry::euclidian::space<Q,d-1>::vector B = combined * pB;
 
             lowerRenderer.drawLine(A, B);
         }
@@ -552,7 +552,7 @@ namespace efgy
 
             for (unsigned int i = 0; i < q; i++)
             {
-                V.data[i] = combined.project(pV.data[i]);
+                V.data[i] = combined * pV.data[i];
             }
 
             lowerRenderer.drawFace(V);

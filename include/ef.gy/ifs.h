@@ -41,7 +41,7 @@ namespace efgy
         template <typename Q, unsigned int od, typename render, unsigned int d,
                   template <class,unsigned int,class,unsigned int> class primitive,
                   unsigned int pd,
-                  template <class,unsigned int> class transformation>
+                  template <class,unsigned int> class trans>
         class ifs : public polytope<Q,d,4,render>
         {
             public:
@@ -63,7 +63,7 @@ namespace efgy
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
 
-                std::vector<transformation<Q,d> > functions;
+                std::vector<trans<Q,d> > functions;
 
                 void calculateObject (void)
                 {
@@ -126,10 +126,10 @@ namespace efgy
         namespace sierpinski
         {
             template <typename Q, unsigned int od, typename render, unsigned int d = od>
-            class gasket : public ifs<Q,od,render,d,cube,od,transformation>
+            class gasket : public ifs<Q,od,render,d,cube,od,transformation::affine>
             {
                 public:
-                    typedef ifs<Q,od,render,d,cube,od,transformation> parent;
+                    typedef ifs<Q,od,render,d,cube,od,transformation::affine> parent;
 
                     gasket(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                         : parent(pRenderer, pParameter, pMultiplier)
@@ -154,7 +154,7 @@ namespace efgy
 
                             for (unsigned int i = 0; i < nfunctions; i++)
                             {
-                                functions.push_back(scale<Q,d>(0.5) * translation<Q,d>(translations.data[i]));
+                                functions.push_back(transformation::scale<Q,d>(0.5) * transformation::translation<Q,d>(translations.data[i]));
                             }
 
                             calculateObject();
@@ -181,10 +181,10 @@ namespace efgy
             };
 
             template <typename Q, unsigned int od, typename render, unsigned int d = od>
-            class carpet : public ifs<Q,od,render,d,cube,od,transformation>
+            class carpet : public ifs<Q,od,render,d,cube,od,transformation::affine>
             {
                 public:
-                    typedef ifs<Q,od,render,d,cube,od,transformation> parent;
+                    typedef ifs<Q,od,render,d,cube,od,transformation::affine> parent;
 
                     carpet(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                         : parent(pRenderer, pParameter, pMultiplier)
@@ -235,7 +235,7 @@ namespace efgy
 
                             for (unsigned int i = 0; i < nfunctions; i++)
                             {
-                                functions.push_back(scale<Q,d>(Q(1)/Q(3)) * translation<Q,d>(translations.data[i]));
+                                functions.push_back(transformation::scale<Q,d>(Q(1)/Q(3)) * transformation::translation<Q,d>(translations.data[i]));
                             }
 
                             calculateObject();
@@ -263,10 +263,10 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class randomAffineIFS : public ifs<Q,od,render,d,cube,2,transformation>
+        class randomAffineIFS : public ifs<Q,od,render,d,cube,2,transformation::affine>
         {
             public:
-                typedef ifs<Q,od,render,d,cube,2,transformation> parent;
+                typedef ifs<Q,od,render,d,cube,2,transformation::affine> parent;
 
                 randomAffineIFS(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
@@ -336,14 +336,14 @@ namespace efgy
                             }
 
                             functions.push_back
-                                (  scale<Q,d>(s)
+                                (  transformation::scale<Q,d>(s)
                                  * ( parameter.preRotate
-                                        ? transformation<Q,d> (rotation<Q,d>(r1, a1, a2))
-                                        : transformation<Q,d> () )
-                                 * translation<Q,d>(V)
+                                        ? transformation::affine<Q,d> (transformation::rotation<Q,d>(r1, a1, a2))
+                                        : transformation::affine<Q,d> () )
+                                 * transformation::translation<Q,d>(V)
                                  * ( parameter.postRotate
-                                        ? transformation<Q,d> (rotation<Q,d>(r2, a4, a5))
-                                        : transformation<Q,d> () ) );
+                                        ? transformation::affine<Q,d> (transformation::rotation<Q,d>(r2, a4, a5))
+                                        : transformation::affine<Q,d> () ) );
                         }
                         
                         parent::calculateObject();

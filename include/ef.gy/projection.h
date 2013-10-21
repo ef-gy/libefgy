@@ -29,8 +29,7 @@
 #if !defined(EF_GY_PROJECTION_H)
 #define EF_GY_PROJECTION_H
 
-#include <ef.gy/euclidian.h>
-#include <ef.gy/matrix.h>
+#include <ef.gy/transformation.h>
 #include <ef.gy/tuple.h>
 
 namespace efgy
@@ -38,213 +37,7 @@ namespace efgy
     namespace geometry
     {
         template <typename Q, unsigned int d>
-        class transformation
-        {
-            public:
-                transformation ()
-                    {
-                        for (unsigned int i = 0; i <= d; i++)
-                        {
-                            for (unsigned int j = 0; j <= d; j++)
-                            {
-                                transformationMatrix.data[i][j] = (i == j) ? 1 : 0;
-                            }
-                        }
-                    }
-
-                typename euclidian::space<Q,d>::vector operator *
-                    (const typename euclidian::space<Q,d>::vector &pV) const
-                {
-                    typename euclidian::space<Q,d>::vector rv;
-
-                    math::matrix<Q,1,d+1> vectorMatrix;
-
-                    for (unsigned int i = 0; i < d; i++)
-                    {
-                        vectorMatrix.data[0][i] = pV.data[i];
-                    }
-
-                    vectorMatrix.data[0][d] = 1;
-
-                    vectorMatrix
-                        = vectorMatrix
-                        * transformationMatrix;
-
-                    for (unsigned int i = 0; i < d; i++)
-                    {
-                        rv.data[i] = vectorMatrix.data[0][i] / vectorMatrix.data[0][d];
-                    }
-
-                    return rv;
-                }
-
-                transformation operator *
-                    (const transformation &pB) const
-                {
-                    transformation t;
-                    t.transformationMatrix = this->transformationMatrix * pB.transformationMatrix;
-                    return t;
-                }
-
-                typename euclidian::space<Q,(d-1)>::vector project
-                    (const typename euclidian::space<Q,d>::vector &pP) const
-                {
-                    typename euclidian::space<Q,(d-1)>::vector result;
-                
-                    typename euclidian::space<Q,d>::vector R = transformation<Q,d>(*this) * pP;
-                
-                    Q S = 1 / R.data[(d-1)];
-                
-                    for (unsigned int i = 0; i < (d-1); i++)
-                    {
-                        result.data[i] = S * R.data[i];
-                    }
-                
-                    return result;
-                }
-            
-                math::matrix<Q,d+1,d+1> transformationMatrix;
-        };
-
-        template <typename Q, unsigned int d>
-        class scale : public transformation<Q,d>
-        {
-            public:
-                scale(const Q &pScale)
-                    : targetScale(pScale)
-                    {
-                        updateMatrix();
-                    }
-
-                void updateMatrix (void)
-                {
-                    for (unsigned int i = 0; i <= d; i++)
-                    {
-                        for (unsigned int j = 0; j <= d; j++)
-                        {
-                            if (i == j)
-                            {
-                                transformationMatrix.data[i][j] = i == d ? Q(1) / targetScale : Q(1);
-                            }
-                            else
-                            {
-                                transformationMatrix.data[i][j] = 0;
-                            }
-                        }
-                    }
-                }
-
-                using transformation<Q,d>::transformationMatrix;
-
-            protected:
-                const Q &targetScale;
-        };
-
-        template <typename Q, unsigned int d>
-        class rotation : public transformation<Q,d>
-        {
-            public:
-                rotation(const Q &pAngle, const unsigned int &pAxis1, const unsigned int &pAxis2)
-                    : angle(pAngle), axis1(pAxis1), axis2(pAxis2)
-                    {
-                        updateMatrix();
-                    }
-            
-                void updateMatrix (void)
-                {
-                    for (unsigned int i = 0; i <= d; i++)
-                    {
-                        for (unsigned int j = 0; j <= d; j++)
-                        {
-                            if ((i == axis1) && (j == axis1))
-                            {
-                                transformationMatrix.data[i][j] =  cos(angle);
-                            }
-                            else if ((i == axis1) && (j == axis2))
-                            {
-                                transformationMatrix.data[i][j] = -sin(angle);
-                            }
-                            else if ((i == axis2) && (j == axis2))
-                            {
-                                transformationMatrix.data[i][j] =  cos(angle);
-                            }
-                            else if ((i == axis2) && (j == axis1))
-                            {
-                                transformationMatrix.data[i][j] =  sin(angle);
-                            }
-                            else if (i == j)
-                            {
-                                transformationMatrix.data[i][j] = Q(1);
-                            }
-                            else
-                            {
-                                transformationMatrix.data[i][j] = 0;
-                            }
-                        }
-                    }
-                    
-                    if ((axis1 + axis2 + d + 1) % 2 == 1)
-                    {
-                        transformationMatrix = math::transpose(transformationMatrix);
-                    }
-                }
-
-                using transformation<Q,d>::transformationMatrix;
-
-            protected:
-                const Q &angle;
-                const unsigned int &axis1;
-                const unsigned int &axis2;
-        };
-
-        template <typename Q, unsigned int d>
-        class translation : public transformation<Q,d>
-        {
-            public:
-                translation(const typename euclidian::space<Q,d>::vector &pFrom)
-                    : from(pFrom)
-                    {
-                        updateMatrix();
-                    }
-
-                /* note: this formula was obtained by generalising over the 3d translation matrix.
-                 */
-                void updateMatrix (void)
-                {
-                    if (d == 3)
-                    {
-                        transformationMatrix.data[3][0] = from.data[0];
-                        transformationMatrix.data[3][1] = from.data[1];
-                        transformationMatrix.data[3][2] = from.data[2];
-                    }
-                    else for (unsigned int i = 0; i <= d; i++)
-                    {
-                        for (unsigned int j = 0; j <= d; j++)
-                        {
-                            if ((i == d) && (j < d))
-                            {
-                                transformationMatrix.data[i][j] = from.data[j];
-                            }
-                            else if (i == j)
-                            {
-                                transformationMatrix.data[i][j] = 1;
-                            }
-                            else
-                            {
-                                transformationMatrix.data[i][j] = 0;
-                            }
-                        }
-                    }
-                }
-
-                using transformation<Q,d>::transformationMatrix;
-
-            protected:
-                typename euclidian::space<Q,d>::vector from;
-        };
-
-        template <typename Q, unsigned int d>
-        class lookAt : public transformation<Q,d>
+        class lookAt : public transformation::affine<Q,d>
         {
             public:
                 lookAt(typename euclidian::space<Q,d>::vector pFrom, typename euclidian::space<Q,d>::vector pTo)
@@ -318,7 +111,7 @@ namespace efgy
 
                 math::tuple<d,typename euclidian::space<Q,d>::vector> columns;
 
-                using transformation<Q,d>::transformationMatrix;
+                using transformation::affine<Q,d>::transformationMatrix;
 
             protected:
                 typename euclidian::space<Q,d>::vector from;
@@ -328,7 +121,7 @@ namespace efgy
         };
 
         template <typename Q, unsigned int d>
-        class perspective : public transformation<Q,d>
+        class perspective : public transformation::affine<Q,d>
         {
             public:
                 perspective(Q pEyeAngle = M_PI_4, const Q &pAspect = 1.8, const Q &pNear = -0.1, const Q &pFar = -100)
@@ -369,7 +162,7 @@ namespace efgy
                     }
                 }
 
-                using transformation<Q,d>::transformationMatrix;
+                using transformation::affine<Q,d>::transformationMatrix;
 
             protected:
                 Q near;
@@ -379,7 +172,7 @@ namespace efgy
         };
 
         template <typename Q, unsigned int d>
-        class projection : public transformation<Q,d>
+        class projection : public transformation::projective<Q,d>
         {
             public:
                 projection(typename euclidian::space<Q,d>::vector pFrom, typename euclidian::space<Q,d>::vector pTo, const Q &pEyeAngle = M_PI_4, const Q &pAspect = 1.8, const bool &initialiseMatrix = true)
@@ -394,7 +187,7 @@ namespace efgy
                 void updateMatrix (void)
                 {
                     lookAt<Q,d> lookAtTransformation(from * Q(-1), to);
-                    translation<Q,d> translationTransformation(from * Q(-1));
+                    transformation::translation<Q,d> translationTransformation(from * Q(-1));
                     perspective<Q,d> perspectiveTransformation(eyeAngle, aspect);
                         
                     this->transformationMatrix =
@@ -408,7 +201,7 @@ namespace efgy
                 const Q eyeAngle;
                 Q aspect;
 
-                using transformation<Q,d>::transformationMatrix;
+                using transformation::affine<Q,d>::transformationMatrix;
         };
     };
 };

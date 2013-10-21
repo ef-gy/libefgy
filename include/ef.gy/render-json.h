@@ -42,7 +42,7 @@ namespace efgy
         {
             public:
                 json
-                    (const geometry::transformation<Q,d> &pTransformation,
+                    (const geometry::transformation::affine<Q,d> &pTransformation,
                      const geometry::projection<Q,d> &pProjection,
                      json<Q,d-1> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
@@ -69,9 +69,9 @@ namespace efgy
                 }
 
             protected:
-                const geometry::transformation<Q,d> &transformation;
+                const geometry::transformation::affine<Q,d> &transformation;
                 const geometry::projection<Q,d> &projection;
-                geometry::transformation<Q,d> combined;
+                geometry::transformation::projective<Q,d> combined;
                 json<Q,d-1> &lowerRenderer;
         };
 
@@ -80,7 +80,7 @@ namespace efgy
         {
             public:
                 json
-                    (const typename geometry::transformation<Q,2> &pTransformation)
+                    (const typename geometry::transformation::affine<Q,2> &pTransformation)
                     : transformation(pTransformation)
                     {}
 
@@ -105,7 +105,7 @@ namespace efgy
                 std::stringstream output;
 
             protected:
-                const geometry::transformation<Q,2> &transformation;
+                const geometry::transformation::affine<Q,2> &transformation;
                 Q previousX, previousY;
         };
 
@@ -114,8 +114,8 @@ namespace efgy
             (const typename geometry::euclidian::space<Q,d>::vector &pA,
              const typename geometry::euclidian::space<Q,d>::vector &pB) const
         {
-            typename geometry::euclidian::space<Q,d-1>::vector A = combined.project(pA);
-            typename geometry::euclidian::space<Q,d-1>::vector B = combined.project(pB);
+            typename geometry::euclidian::space<Q,d-1>::vector A = combined * pA;
+            typename geometry::euclidian::space<Q,d-1>::vector B = combined * pB;
 
             lowerRenderer.drawLine(A, B);
         }
@@ -129,7 +129,7 @@ namespace efgy
 
             for (unsigned int i = 0; i < q; i++)
             {
-                V.data[i] = combined.project(pV.data[i]);
+                V.data[i] = combined * pV.data[i];
             }
 
             lowerRenderer.drawFace(V);

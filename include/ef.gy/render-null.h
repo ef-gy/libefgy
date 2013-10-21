@@ -41,7 +41,7 @@ namespace efgy
         {
             public:
                 null
-                    (const geometry::transformation<Q,d> &,
+                    (const geometry::transformation::affine<Q,d> &,
                      const geometry::projection<Q,d> &,
                      const null<Q,d-1> &)
                     {}
@@ -65,7 +65,7 @@ namespace efgy
         {
             public:
                 null
-                    (const typename geometry::transformation<Q,2> &)
+                    (const typename geometry::transformation::affine<Q,2> &)
                     {}
 
                 void frameStart (void) const {};
