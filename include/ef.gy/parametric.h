@@ -47,7 +47,6 @@ namespace efgy
 
                 using parent::precisionMultiplier;
                 using parent::parameter;
-                using parent::renderWireframe;
                 using parent::renderSolid;
                 using parent::renderer;
                 using parent::lines;
@@ -75,7 +74,6 @@ namespace efgy
 
                 using parent::precisionMultiplier;
                 using parent::parameter;
-                using parent::renderWireframe;
                 using parent::renderSolid;
                 using parent::renderer;
                 using parent::lines;
@@ -194,7 +192,6 @@ namespace efgy
 
                 using parent::precisionMultiplier;
                 using parent::parameter;
-                using parent::renderWireframe;
                 using parent::renderSolid;
                 using parent::renderer;
                 using parent::lines;

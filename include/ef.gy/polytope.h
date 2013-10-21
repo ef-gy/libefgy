@@ -58,15 +58,6 @@ namespace efgy
                     : renderer(pRenderer), parameter(pParameter), precisionMultiplier(pMultiplier)
                     {}
 
-                void renderWireframe () const
-                {
-                    for (typename std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >::const_iterator it = lines.begin();
-                         it != lines.end(); it++)
-                    {
-                        renderer.drawLine (it->data[0], it->data[1]);
-                    }
-                }
-
                 void renderSolid () const
                 {
                     for (typename std::vector<math::tuple<f,typename euclidian::space<Q,d>::vector> >::const_iterator it = faces.begin();
@@ -105,7 +96,6 @@ namespace efgy
                     }
 
                 using parent::parameter;
-                using parent::renderWireframe;
                 using parent::renderSolid;
                 using parent::renderer;
                 using parent::lines;
@@ -240,7 +230,6 @@ namespace efgy
                     }
 
                 using parent::parameter;
-                using parent::renderWireframe;
                 using parent::renderSolid;
                 using parent::renderer;
                 using parent::lines;
@@ -365,7 +354,6 @@ namespace efgy
 
                 using parent::precisionMultiplier;
                 using parent::parameter;
-                using parent::renderWireframe;
                 using parent::renderSolid;
                 using parent::renderer;
                 using parent::lines;

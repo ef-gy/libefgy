@@ -55,10 +55,6 @@ namespace efgy
                 };
                 void frameEnd (void) const {};
 
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,d>::vector &pA,
-                     const typename geometry::euclidian::space<Q,d>::vector &pB) const;
-
                 template<unsigned int q>
                 void drawFace
                     (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const;
@@ -87,10 +83,6 @@ namespace efgy
                 void frameStart (void) const {};
                 void frameEnd (void) const {};
 
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,2>::vector &pA,
-                     const typename geometry::euclidian::space<Q,2>::vector &pB);
-
                 template<unsigned int q>
                 void drawFace
                     (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV);
@@ -110,17 +102,6 @@ namespace efgy
         };
 
         template<typename Q, unsigned int d>
-        void json<Q,d>::drawLine
-            (const typename geometry::euclidian::space<Q,d>::vector &pA,
-             const typename geometry::euclidian::space<Q,d>::vector &pB) const
-        {
-            typename geometry::euclidian::space<Q,d-1>::vector A = combined * pA;
-            typename geometry::euclidian::space<Q,d-1>::vector B = combined * pB;
-
-            lowerRenderer.drawLine(A, B);
-        }
-
-        template<typename Q, unsigned int d>
         template<unsigned int q>
         void json<Q,d>::drawFace
             (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const
@@ -133,88 +114,6 @@ namespace efgy
             }
 
             lowerRenderer.drawFace(V);
-        }
-
-        template<typename Q>
-        void json<Q,2>::drawLine
-            (const typename geometry::euclidian::space<Q,2>::vector &pA,
-             const typename geometry::euclidian::space<Q,2>::vector &pB)
-        {
-            std::stringstream sbuf1;
-            std::stringstream sbuf2;
-
-            const typename geometry::euclidian::space<Q,2>::vector &A = transformation * pA;
-            const typename geometry::euclidian::space<Q,2>::vector &B = transformation * pB;
-
-            const double a0 = -Q(A.data[0]);
-            const double a1 = -Q(A.data[1]);
-            const double b0 = -Q(B.data[0]);
-            const double b1 = -Q(B.data[1]);
-
-            const double a0r = a0 - previousX;
-            const double a1r = a1 - previousY;
-            const double b0r = b0 - a0;
-            const double b1r = b1 - a1;
-
-            if ((a0 == previousX) && (a1 == previousY))
-            {
-                if (B.data[1] == A.data[1])
-                {
-                    sbuf1 << "H" << b0;
-                    sbuf2 << "h" << b0r;
-                }
-                else if (B.data[0] == A.data[0])
-                {
-                    sbuf1 << "V" << b1;
-                    sbuf2 << "v" << b1r;
-                }
-                else
-                {
-                    sbuf1 << "L" << b0 << "," << b1;
-                    sbuf2 << "l" << b0r << "," << b1r;
-                }
-            }
-            else
-            {
-                sbuf1 << "M" << a0 << "," << a1;
-                sbuf2 << "m" << a0r << "," << a1r;
-                if (sbuf1.str().size() >= sbuf2.str().size())
-                {
-                    output << sbuf2.str();
-                }
-                else
-                {
-                    output << sbuf1.str();
-                }
-                sbuf1.str("");
-                sbuf2.str("");
-
-                if (B.data[1] == A.data[1])
-                {
-                    sbuf1 << "H" << b0;
-                    sbuf2 << "h" << b0r;
-                }
-                else if (B.data[0] == A.data[0])
-                {
-                    sbuf1 << "V" << b1;
-                    sbuf2 << "v" << b1r;
-                }
-                else
-                {
-                    sbuf1 << "L" << b0 << "," << b1;
-                    sbuf2 << "l" << b0r << "," << b1r;
-                }
-            }
-            if (sbuf1.str().size() >= sbuf2.str().size())
-            {
-                output << sbuf2.str();
-            }
-            else
-            {
-                output << sbuf1.str();
-            }
-            previousX = b0;
-            previousY = b1;
         }
 
         template<typename Q>

@@ -111,10 +111,6 @@ namespace efgy
                 };
                 void frameEnd (void) const { lowerRenderer.frameEnd(); };
 
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,d>::vector &,
-                     const typename geometry::euclidian::space<Q,d>::vector &) const {};
-
                 template<unsigned int q>
                 void drawFace
                     (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const;
@@ -261,10 +257,6 @@ namespace efgy
                     pushLines();
                     pushFaces();
                 };
-
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,3>::vector &,
-                     const typename geometry::euclidian::space<Q,3>::vector &) const {};
 
                 template<unsigned int q>
                 void drawFace
