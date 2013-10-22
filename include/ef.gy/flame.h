@@ -62,7 +62,7 @@ namespace efgy
                         return rv;
                     }
 
-                    static const unsigned int coefficients = 11;
+                    static const unsigned int coefficients = 15;
                     Q coefficient[coefficients];
 
                 protected:
@@ -76,6 +76,14 @@ namespace efgy
                             return rv;
                         }
 
+                        const Q theta = atan(V.data[0]/V.data[1]);
+                        const Q phi   = atan(V.data[1]/V.data[0]);
+                        const Q r2    = euclidian::lengthSquared<Q,d>(V);
+                        const Q r     = sqrt(r2);
+                        const Q omega = Q(std::rand() % 2) * Q(M_PI);
+                        const Q delta = (std::rand() % 2) == 1 ? Q(1) : Q(-1);
+                        const Q psi   = Q(std::rand() % 10000) / Q(10000);
+
                         switch (f)
                         {
                             case 0: // "linear"
@@ -83,18 +91,15 @@ namespace efgy
                                 break;
                             case 1: // "sinusoidal"
                                 for (unsigned int i = 0; i < d; i++)
-                                {
                                     rv.data[i] = sin(V.data[i]);
-                                }
                                 break;
                             case 2: // "spherical"
-                                rv = V * Q(1)/euclidian::lengthSquared<Q,d>(V);
+                                rv = V / r2;
                                 break;
                             case 3: // "swirl"
                             {
-                                const Q rsq = euclidian::lengthSquared<Q,d>(V);
-                                const Q sinrsq = sin(rsq);
-                                const Q cosrsq = cos(rsq);
+                                const Q sinrsq = sin(r2);
+                                const Q cosrsq = cos(r2);
                                 for (unsigned int i = 0; i < d; i++)
                                 {
                                     if ((i % 2 == 0) && (i < (d-1)))
@@ -112,76 +117,46 @@ namespace efgy
                                 rv = V;
                                 rv.data[0] = (V.data[0]-V.data[1])*(V.data[0]+V.data[1]);
                                 rv.data[1] = Q(2) * V.data[0] * V.data[1];
-                                rv = rv * Q(1)/sqrt(euclidian::lengthSquared<Q,d>(V));
+                                rv = rv / r;
                                 break;
                             case 5: // "polar"
-                            {
-                                const Q theta = atan(V.data[0]/V.data[1]);
                                 rv = V;
                                 rv.data[0] = theta/Q(M_PI);
                                 rv.data[1] = sqrt(euclidian::lengthSquared<Q,d>(V)) - Q(1);
-                            }
                                 break;
                             case 6: // "handkerchief"
-                            {
-                                const Q theta = atan(V.data[0]/V.data[1]);
-                                const Q r = sqrt(euclidian::lengthSquared<Q,d>(V));
-                                const Q sintpr = sin(theta + r);
-                                const Q costmr = cos(theta - r);
                                 for (unsigned int i = 0; i < d; i++)
-                                {
-                                    if (i % 2 == 0)
-                                    {
-                                        rv.data[i] = sintpr;
-                                    }
-                                    else
-                                    {
-                                        rv.data[i] = costmr;
-                                    }
-                                }
-                                rv = rv * r;
-                            }
-                                break;
-                            case 7: // "heart"
-                            {
-                                const Q theta = atan(V.data[0]/V.data[1]);
-                                const Q r = sqrt(euclidian::lengthSquared<Q,d>(V));
-                                const Q sintr = sin(theta * r);
-                                const Q costr = cos(theta * r);
-                                for (unsigned int i = 0; i < d; i++)
-                                {
                                     switch (i % 4)
                                     {
-                                        case 0: rv.data[i] =  sintr; break;
-                                        case 1: rv.data[i] = -costr; break;
-                                        case 2: rv.data[i] = -sintr; break;
-                                        case 3: rv.data[i] =  costr; break;
+                                        case 0: rv.data[i] = sin(theta + r);
+                                        case 1: rv.data[i] = cos(theta - r);
+                                        case 3: rv.data[i] = sin(theta - r);
+                                        case 4: rv.data[i] = cos(theta + r);
                                     }
-                                }
                                 rv = rv * r;
-                            }
-                            case 8: // "disc"
-                            {
-                                const Q theta = atan(V.data[0]/V.data[1]);
-                                const Q r = sqrt(euclidian::lengthSquared<Q,d>(V));
-                                const Q sinpr = sin(Q(M_PI) * r);
-                                const Q cospr = cos(Q(M_PI) * r);
+                                break;
+                            case 7: // "heart"
                                 for (unsigned int i = 0; i < d; i++)
-                                {
+                                    switch (i % 4)
+                                    {
+                                        case 0: rv.data[i] =  sin(theta * r); break;
+                                        case 1: rv.data[i] = -cos(theta * r); break;
+                                        case 2: rv.data[i] = -sin(theta * r); break;
+                                        case 3: rv.data[i] =  cos(theta * r); break;
+                                    }
+                                rv = rv * r;
+                                break;
+                            case 8: // "disc"
+                                for (unsigned int i = 0; i < d; i++)
                                     switch (i % 2)
                                     {
-                                        case 0: rv.data[i] = sinpr; break;
-                                        case 1: rv.data[i] = cospr; break;
+                                        case 0: rv.data[i] = sin(Q(M_PI) * r); break;
+                                        case 1: rv.data[i] = cos(Q(M_PI) * r); break;
                                     }
-                                }
                                 rv = rv * theta / Q(M_PI);
-                            }
+                                break;
                             case 9: // "spiral"
-                            {
-                                const Q theta = atan(V.data[0]/V.data[1]);
-                                const Q r = sqrt(euclidian::lengthSquared<Q,d>(V));
                                 for (unsigned int i = 0; i < d; i++)
-                                {
                                     switch (i % 4)
                                     {
                                         case 0: rv.data[i] = cos(theta) + sin(r); break;
@@ -189,15 +164,10 @@ namespace efgy
                                         case 2: rv.data[i] = cos(theta) - sin(r); break;
                                         case 3: rv.data[i] = sin(theta) + cos(r); break;
                                     }
-                                }
                                 rv = rv / r;
-                            }
+                                break;
                             case 10: // "hyperbolic"
-                            {
-                                const Q theta = atan(V.data[0]/V.data[1]);
-                                const Q r = sqrt(euclidian::lengthSquared<Q,d>(V));
                                 for (unsigned int i = 0; i < d; i++)
-                                {
                                     switch (i % 4)
                                     {
                                         case 0: rv.data[i] = sin(theta) / r; break;
@@ -205,8 +175,58 @@ namespace efgy
                                         case 2: rv.data[i] = sin(theta) * r; break;
                                         case 3: rv.data[i] = cos(theta) / r; break;
                                     }
-                                }
+                                break;
+                            case 11: // "diamond"
+                                for (unsigned int i = 0; i < d; i++)
+                                    switch (i % 2)
+                                    {
+                                        case 0: rv.data[i] = sin(theta) * cos(r); break;
+                                        case 1: rv.data[i] = cos(theta) * sin(r); break;
+                                    }
+                                break;
+                            case 12: // "ex"
+                            {
+                                const Q p0 = sin(theta + r),
+                                        p1 = cos(theta - r),
+                                        p2 = sin(theta - r),
+                                        p3 = cos(theta + r);
+                                for (unsigned int i = 0; i < d; i++)
+                                    switch (i % 4)
+                                    {
+                                        case 0: rv.data[i] = p0*p0*p0 + p1*p1*p1; break;
+                                        case 1: rv.data[i] = p0*p0*p0 - p1*p1*p1; break;
+                                        case 2: rv.data[i] = p2*p2*p2 + p3*p3*p3; break;
+                                        case 3: rv.data[i] = p2*p2*p2 - p3*p3*p3; break;
+                                    }
+                                rv = rv / r;
                             }
+                                break;
+                            case 13: // "julia"
+                            {
+                                const Q thpo = theta/Q(2) + omega;
+                                for (unsigned int i = 0; i < d; i++)
+                                    switch (i % 2)
+                                    {
+                                        case 0: rv.data[i] = cos(thpo); break;
+                                        case 1: rv.data[i] = sin(thpo); break;
+                                    }
+                                rv = rv * sqrt(r);
+                            }
+                                break;
+                            case 14: // "bent"
+                                for (unsigned int i = 0; i < d; i++)
+                                    switch ((i % 2) + ((rv.data[0] < Q(0)) << 1) + ((rv.data[1] < Q(0)) << 2))
+                                    {
+                                        case 0: rv.data[i] = rv.data[i];        break;
+                                        case 1: rv.data[i] = rv.data[i];        break;
+                                        case 2: rv.data[i] = rv.data[i] * Q(2); break;
+                                        case 3: rv.data[i] = rv.data[i];        break;
+                                        case 4: rv.data[i] = rv.data[i];        break;
+                                        case 5: rv.data[i] = rv.data[i] / Q(2); break;
+                                        case 6: rv.data[i] = rv.data[i] * Q(2); break;
+                                        case 7: rv.data[i] = rv.data[i] / Q(2); break;
+                                    }
+                                break;
                             default:
                                return rv;
                         }

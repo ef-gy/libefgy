@@ -280,7 +280,7 @@ namespace efgy
                     void updateMatrix (void)
                     {
                         typename euclidian::space<Q,d>::vector V;
-                        const Q s(Q(std::rand()%9000)/Q(10000)+Q(.1));
+                        const Q s(Q(std::rand()%8000)/Q(10000)+Q(.2));
                         const Q r1(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
                         unsigned int a1 = std::rand() % od;
                         unsigned int a2 = std::rand() % od;
