@@ -62,7 +62,7 @@ namespace efgy
                         return rv;
                     }
 
-                    static const unsigned int coefficients = 9;
+                    static const unsigned int coefficients = 11;
                     Q coefficient[coefficients];
 
                 protected:
@@ -175,6 +175,37 @@ namespace efgy
                                     }
                                 }
                                 rv = rv * theta / Q(M_PI);
+                            }
+                            case 9: // "spiral"
+                            {
+                                const Q theta = atan(V.data[0]/V.data[1]);
+                                const Q r = sqrt(euclidian::lengthSquared<Q,d>(V));
+                                for (unsigned int i = 0; i < d; i++)
+                                {
+                                    switch (i % 4)
+                                    {
+                                        case 0: rv.data[i] = cos(theta) + sin(r); break;
+                                        case 1: rv.data[i] = sin(theta) - cos(r); break;
+                                        case 2: rv.data[i] = cos(theta) - sin(r); break;
+                                        case 3: rv.data[i] = sin(theta) + cos(r); break;
+                                    }
+                                }
+                                rv = rv / r;
+                            }
+                            case 10: // "hyperbolic"
+                            {
+                                const Q theta = atan(V.data[0]/V.data[1]);
+                                const Q r = sqrt(euclidian::lengthSquared<Q,d>(V));
+                                for (unsigned int i = 0; i < d; i++)
+                                {
+                                    switch (i % 4)
+                                    {
+                                        case 0: rv.data[i] = sin(theta) / r; break;
+                                        case 1: rv.data[i] = cos(theta) * r; break;
+                                        case 2: rv.data[i] = sin(theta) * r; break;
+                                        case 3: rv.data[i] = cos(theta) / r; break;
+                                    }
+                                }
                             }
                             default:
                                return rv;
