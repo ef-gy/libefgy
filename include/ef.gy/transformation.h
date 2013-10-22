@@ -319,8 +319,6 @@ namespace efgy
                             updateMatrix();
                         }
 
-                    /* note: this formula was obtained by generalising over the 3d translation matrix.
-                     */
                     void updateMatrix (void)
                     {
                         if (d == 3)
