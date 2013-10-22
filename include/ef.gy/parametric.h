@@ -49,7 +49,6 @@ namespace efgy
                 using parent::parameter;
                 using parent::renderSolid;
                 using parent::renderer;
-                using parent::lines;
                 using parent::faces;
 
                 using parent::modelDimensionMinimum;
@@ -76,7 +75,6 @@ namespace efgy
                 using parent::parameter;
                 using parent::renderSolid;
                 using parent::renderer;
-                using parent::lines;
                 using parent::faces;
 
                 using parent::modelDimensionMinimum;
@@ -102,7 +100,6 @@ namespace efgy
                     const Q stepU = Q(M_PI/(precision*Q(2)));
                     const Q stepV = Q((2*radius)/precision);
 
-                    lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
                     faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
 
                     for (Q u = 0; u < Q(2*M_PI); u += stepU)
@@ -114,19 +111,7 @@ namespace efgy
 
                             const typename euclidian::space<Q,d>::vector A = getCoordinates(radius, u, v);
                             const typename euclidian::space<Q,d>::vector B = getCoordinates(radius, un, v);
-
-                            math::tuple<2,typename euclidian::space<Q,d>::vector> newLine;
-
-                            newLine.data[0] = A;
-                            newLine.data[1] = B;
-
-                            lines.push_back(newLine);
-
                             const typename euclidian::space<Q,d>::vector C = getCoordinates(radius, u, vn);
-                                newLine.data[1] = C;
-
-                            lines.push_back(newLine);
-
                             const typename euclidian::space<Q,d>::vector D = getCoordinates(radius, un, vn);
 
                             math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
@@ -137,14 +122,6 @@ namespace efgy
                             newFace.data[3] = C;
 
                             faces.push_back(newFace);
-
-                            if ((v + stepV) > vn)
-                            {
-                                newLine.data[0] = C;
-                                newLine.data[1] = D;
-
-                                lines.push_back(newLine);
-                            }
                         }
                     }
                 }
@@ -194,7 +171,6 @@ namespace efgy
                 using parent::parameter;
                 using parent::renderSolid;
                 using parent::renderer;
-                using parent::lines;
                 using parent::faces;
 
                 using parent::modelDimensionMinimum;
@@ -220,7 +196,6 @@ namespace efgy
                     const Q stepU = Q(M_PI/(precision));
                     const Q stepV = stepU;
 
-                    lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
                     faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
 
                     for (Q u = 0; u < Q(2*M_PI); u += stepU)
@@ -232,19 +207,7 @@ namespace efgy
 
                             const typename euclidian::space<Q,d>::vector A = getCoordinates(radius, u, v);
                             const typename euclidian::space<Q,d>::vector B = getCoordinates(radius, un, v);
-
-                            math::tuple<2,typename euclidian::space<Q,d>::vector> newLine;
-
-                            newLine.data[0] = A;
-                            newLine.data[1] = B;
-
-                            lines.push_back(newLine);
-
                             const typename euclidian::space<Q,d>::vector C = getCoordinates(radius, u, vn);
-                            newLine.data[1] = C;
-
-                            lines.push_back(newLine);
-
                             const typename euclidian::space<Q,d>::vector D = getCoordinates(radius, un, vn);
 
                             math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
@@ -255,14 +218,6 @@ namespace efgy
                             newFace.data[3] = C;
 
                             faces.push_back(newFace);
-
-                            if ((v + stepV) > vn)
-                            {
-                                newLine.data[0] = C;
-                                newLine.data[1] = D;
-
-                                lines.push_back(newLine);
-                            }
                         }
                     }
                 }

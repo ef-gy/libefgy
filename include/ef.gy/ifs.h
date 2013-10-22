@@ -54,8 +54,8 @@ namespace efgy
                 using parent::parameter;
                 using parent::renderSolid;
                 using parent::renderer;
-                using parent::lines;
                 using parent::faces;
+                using parent::indices;
 
                 using parent::modelDimensionMinimum;
                 using parent::modelDimensionMaximum;
@@ -69,34 +69,24 @@ namespace efgy
                 void calculateObject (void)
                 {
                     primitive<Q,pd,render,d> source(parent::renderer, parameter, parent::precisionMultiplier);
-                    
-                    lines = source.lines;
+
                     faces = source.faces;
-                    
+
                     for (unsigned int i = 0; i < parameter.iterations; i++)
                     {
-                        decltype(lines) rlines;
-                        decltype(faces) rfaces;
-                        
-                        while (lines.size() > 0)
-                        {
-                            for (unsigned int j = 0; j < functions.size(); j++)
-                            {
-                                rlines.push_back(apply(j,lines.back()));
-                            }
-                            lines.pop_back();
-                        }
-                        
+                        indices.clear();
+                        std::vector<math::tuple<faceVertices,typename euclidian::space<Q,d>::vector> > rfaces;
+
                         while (faces.size() > 0)
                         {
                             for (unsigned int j = 0; j < functions.size(); j++)
                             {
                                 rfaces.push_back(apply(j,faces.back()));
+                                indices.push_back(Q(j)/Q(functions.size()));
                             }
                             faces.pop_back();
                         }
                         
-                        lines = rlines;
                         faces = rfaces;
                     }
                 }
@@ -164,7 +154,6 @@ namespace efgy
                     using parent::parameter;
                     using parent::renderSolid;
                     using parent::renderer;
-                    using parent::lines;
                     using parent::faces;
 
                     using parent::modelDimensionMinimum;
@@ -246,7 +235,6 @@ namespace efgy
                     using parent::parameter;
                     using parent::renderSolid;
                     using parent::renderer;
-                    using parent::lines;
                     using parent::faces;
 
                     using parent::modelDimensionMinimum;
@@ -379,7 +367,6 @@ namespace efgy
                 using parent::parameter;
                 using parent::renderSolid;
                 using parent::renderer;
-                using parent::lines;
                 using parent::faces;
 
                 using parent::modelDimensionMinimum;

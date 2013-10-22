@@ -43,7 +43,8 @@ namespace efgy
         enum openGLShaderAttribute
         {
             attributePosition,
-            attributeNormal
+            attributeNormal,
+            attributeIndex
         };
 
         enum openGLUniforms
@@ -54,42 +55,43 @@ namespace efgy
             uniformMax
         };
 
-        static const char referenceVertexShader []
-          = "#version 100\n"
-            "attribute vec4 position;\n"
-            "attribute vec3 normal;\n"
-            "varying lowp vec4 colorVarying;\n"
-            "uniform mat4 modelViewProjectionMatrix;\n"
-            "uniform mat3 normalMatrix;\n"
-            "uniform vec4 colour;\n"
-            "void main()\n"
-            "{\n"
-                "vec3 eyeNormal = normalize(normalMatrix * normal);\n"
-                "vec3 lightPosition = vec3(0.0, 0.0, 1.0);\n"
-                "float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));\n"
-                "colorVarying = colour * nDotVP;\n"
-                "gl_Position = modelViewProjectionMatrix * position;\n"
-            "}";
-
-        static const char referenceFragmentShader []
-          = "#version 100\n"
-            "varying lowp vec4 colorVarying;\n"
-            "void main()\n"
-            "{\n"
-                "gl_FragColor = colorVarying;\n"
-            "}\n";
-
-        static inline std::string getVertexShader ()
+        static inline std::string getVertexShader (const bool fractalFlameColouring)
         {
             std::stringstream output;
-            output << referenceVertexShader;
+            output
+                <<  "#version 100\n"
+                    "attribute vec4 position;\n"
+                    "attribute vec3 normal;\n"
+                    "attribute float index;\n"
+                    "varying lowp vec4 colorVarying;\n"
+                    "varying lowp float indexVarying;\n"
+                    "uniform mat4 modelViewProjectionMatrix;\n"
+                    "uniform mat3 normalMatrix;\n"
+                    "uniform vec4 colour;\n"
+                    "void main() {\n"
+                << (fractalFlameColouring
+                      ? "indexVarying = index;\n"
+                      : "vec3 eyeNormal = normalize(normalMatrix * normal);\n"
+                        "vec3 lightPosition = vec3(0.0, 0.0, 1.0);\n"
+                        "float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));\n"
+                        "colorVarying = colour * nDotVP;\n")
+                <<      "gl_Position = modelViewProjectionMatrix * position;\n"
+                    "}";
             return output.str();
         }
         
-        static inline std::string getFragmentShader ()
+        static inline std::string getFragmentShader (const bool fractalFlameColouring)
         {
             std::stringstream output;
-            output << referenceFragmentShader;
+            output
+                <<  "#version 100\n"
+                    "varying lowp vec4 colorVarying;\n"
+                    "varying lowp float indexVarying;\n"
+                    "void main() {\n"
+                << (fractalFlameColouring
+                      ? "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,0.5);\n"
+                      : "gl_FragColor = colorVarying;\n")
+                <<  "}\n";
             return output.str();
         }
 
@@ -101,7 +103,8 @@ namespace efgy
                     (const geometry::transformation::affine<Q,d> &pTransformation,
                      const geometry::projection<Q,d> &pProjection,
                      opengl<Q,d-1> &pLowerRenderer)
-                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
+                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer),
+                      fractalFlameColouring(pLowerRenderer.fractalFlameColouring)
                     {}
 
                 void frameStart (void)
@@ -113,7 +116,7 @@ namespace efgy
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const;
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index = 0.5) const;
 
                 void reset (void) const { lowerRenderer.reset(); }
                 const bool isPrepared (void) const { return lowerRenderer.isPrepared(); }
@@ -121,6 +124,8 @@ namespace efgy
                 {
                     return lowerRenderer.setColour(red,green,blue,alpha,wireframe);
                 }
+
+                bool &fractalFlameColouring;
 
             protected:
                 const geometry::transformation::affine<Q,d> &transformation;
@@ -141,7 +146,7 @@ namespace efgy
                      const geometry::projection<Q,3> &pProjection,
                      const opengl<Q,2> &)
                     : transformation(pTransformation), projection(pProjection),
-                      haveBuffers(false), prepared(false), program(0)
+                      haveBuffers(false), prepared(false), programRegular(0), programFlameColouring(0)
                     {
                     }
 
@@ -154,13 +159,56 @@ namespace efgy
                             glDeleteBuffers(1, &linebuffer);
                         }
 
-                        if (program) {
-                            glDeleteProgram(program);
+                        if (programRegular) {
+                            glDeleteProgram(programRegular);
+                        }
+                        if (programFlameColouring) {
+                            glDeleteProgram(programFlameColouring);
                         }
                     }
 
                 void frameStart (void)
                 {
+                    if(!haveBuffers)
+                    {
+                        haveBuffers = true;
+                        loadShaders(programRegular, false);
+                        loadShaders(programFlameColouring, true);
+
+                        glGenVertexArrays(1, &VertexArrayID);
+                        glGenBuffers(1, &vertexbuffer);
+                        glGenBuffers(1, &elementbuffer);
+                        glGenBuffers(1, &linebuffer);
+                    }
+
+                    if (fractalFlameColouring)
+                    {
+                        glUseProgram(programFlameColouring);
+                        glDepthMask(GL_FALSE);
+                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
+                        glDisable(GL_DEPTH_TEST);
+
+                        for (unsigned int i = 0; i < uniformMax; i++)
+                        {
+                            uniforms[i] = uniformsFlameColouring[i];
+                        }
+                    }
+                    else
+                    {
+                        glUseProgram(programRegular);
+                        glDepthMask(GL_TRUE);
+                        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        glEnable(GL_DEPTH_TEST);
+                        glDepthFunc(GL_LEQUAL);
+
+                        for (unsigned int i = 0; i < uniformMax; i++)
+                        {
+                            uniforms[i] = uniformsRegular[i];
+                        }
+                    }
+
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
                     const geometry::transformation::projective<Q,3> combined = transformation * projection;
 
                     GLfloat mat[16] =
@@ -206,19 +254,6 @@ namespace efgy
 
                     glUniformMatrix4fv(uniforms[efgy::render::uniformProjectionMatrix], 1, 0, mat);
                     glUniformMatrix3fv(uniforms[efgy::render::uniformNormalMatrix], 1, 0, matn);
-                    
-                    if(!haveBuffers)
-                    {
-                        haveBuffers = true;
-                        loadShaders(program);
-
-                        glUseProgram(program);
-
-                        glGenVertexArrays(1, &VertexArrayID);
-                        glGenBuffers(1, &vertexbuffer);
-                        glGenBuffers(1, &elementbuffer);
-                        glGenBuffers(1, &linebuffer);
-                    }
                 };
 
                 void frameEnd (void)
@@ -236,9 +271,11 @@ namespace efgy
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);
                         glEnableVertexAttribArray(attributePosition);
-                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), 0);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
                         glEnableVertexAttribArray(attributeNormal);
-                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(attributeIndex);
+                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
 
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -260,23 +297,25 @@ namespace efgy
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV);
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV, const Q &index = 0.5);
 
                 void reset (void) { prepared = false; }
                 const bool isPrepared (void) const { return prepared; }
 
                 unsigned int addVertex
                     (const GLfloat &x, const GLfloat &y, const GLfloat &z,
-                     const GLfloat &nx = 0.f, const GLfloat &ny = 0.f, const GLfloat &nz = 0.f)
+                     const GLfloat &nx, const GLfloat &ny, const GLfloat &nz,
+                     const GLfloat &index)
                 {
-                    std::vector<GLfloat> key (6);
+                    std::vector<GLfloat> key (7);
                     key[0] = x;
                     key[1] = y;
                     key[2] = z;
                     key[3] = nx;
                     key[4] = ny;
                     key[5] = nz;
-                    
+                    key[6] = index;
+
                     std::map<std::vector<GLfloat>,unsigned int>::iterator it = vertexmap.find(key);
                     if (it != vertexmap.end())
                     {
@@ -290,6 +329,8 @@ namespace efgy
                     vertices.push_back(nx);
                     vertices.push_back(ny);
                     vertices.push_back(nz);
+
+                    vertices.push_back(index);
 
                     unsigned int rv = indices;
 
@@ -323,10 +364,7 @@ namespace efgy
                     return true;
                 }
 
-                bool setUniform ()
-                {
-                    return true;
-                }
+                bool fractalFlameColouring;
 
             protected:
                 const geometry::transformation::affine<Q,3> &transformation;
@@ -344,8 +382,11 @@ namespace efgy
                 GLuint vertexbuffer;
                 GLuint elementbuffer;
                 GLuint linebuffer;
-                GLuint program;
+                GLuint programRegular;
+                GLuint programFlameColouring;
                 GLint uniforms[uniformMax];
+                GLint uniformsRegular[uniformMax];
+                GLint uniformsFlameColouring[uniformMax];
                 bool linesEnabled;
                 bool facesEnabled;
                 bool lineDepthMask;
@@ -409,19 +450,19 @@ namespace efgy
                     return true;
                 }
 
-                bool loadShaders (GLuint &program)
+                bool loadShaders (GLuint &program, const bool fractalFlameColouring)
                 {
                     GLuint vertShader, fragShader;
                     
                     program = glCreateProgram();
                     
-                    if (!compileShader(vertShader, GL_VERTEX_SHADER, getVertexShader().c_str()))
+                    if (!compileShader(vertShader, GL_VERTEX_SHADER, getVertexShader(fractalFlameColouring).c_str()))
                     {
                         std::cerr << "Failed to compile vertex shader\n";
                         return false;
                     }
                     
-                    if (!compileShader(fragShader, GL_FRAGMENT_SHADER, getFragmentShader().c_str()))
+                    if (!compileShader(fragShader, GL_FRAGMENT_SHADER, getFragmentShader(fractalFlameColouring).c_str()))
                     {
                         std::cerr << "Failed to compile fragment shader\n";
                         return false;
@@ -433,6 +474,7 @@ namespace efgy
                     
                     glBindAttribLocation(program, attributePosition, "position");
                     glBindAttribLocation(program, attributeNormal,   "normal");
+                    glBindAttribLocation(program, attributeIndex,    "index");
                     
                     if (!linkProgram(program))
                     {
@@ -455,9 +497,18 @@ namespace efgy
                     }
                     
                     // Get uniform locations.
-                    uniforms[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
-                    uniforms[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
-                    uniforms[uniformColour]           = glGetUniformLocation(program, "colour");
+                    if (fractalFlameColouring)
+                    {
+                        uniformsFlameColouring[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
+                        uniformsFlameColouring[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
+                        uniformsFlameColouring[uniformColour]           = glGetUniformLocation(program, "colour");
+                    }
+                    else
+                    {
+                        uniformsRegular[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
+                        uniformsRegular[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
+                        uniformsRegular[uniformColour]           = glGetUniformLocation(program, "colour");
+                    }
                     
                     // Release vertex and fragment shaders.
                     if (vertShader) {
@@ -474,13 +525,12 @@ namespace efgy
 
                 void pushLines (void) const
                 {
-                    if (prepared && linesEnabled)
+                    if (prepared && linesEnabled && !fractalFlameColouring)
                     {
                         glUniform4f(uniforms[uniformColour], wireframeColour[0], wireframeColour[1], wireframeColour[2], wireframeColour[3]);
 
                         glDepthMask (lineDepthMask ? GL_TRUE : GL_FALSE);
 
-                        glUseProgram(program);
                         glBindVertexArray(VertexArrayID);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -501,7 +551,6 @@ namespace efgy
 
                         glDepthMask (faceDepthMask ? GL_TRUE : GL_FALSE);
 
-                        glUseProgram(program);
                         glBindVertexArray(VertexArrayID);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -525,7 +574,7 @@ namespace efgy
         template<typename Q, unsigned int d>
         template<unsigned int q>
         void opengl<Q,d>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const
+            (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index) const
         {
             if (isPrepared()) return;
 
@@ -536,13 +585,13 @@ namespace efgy
                 V.data[i] = combined * pV.data[i];
             }
 
-            lowerRenderer.drawFace(V);
+            lowerRenderer.drawFace(V, index);
         }
 
         template<typename Q>
         template<unsigned int q>
         void opengl<Q,3>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV)
+            (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV, const Q &index)
         {
             if (isPrepared()) return;
 
@@ -557,52 +606,52 @@ namespace efgy
                         (pV.data[2] - pV.data[0], pV.data[1] - pV.data[0]));
 
             triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
             unsigned int nstartf = triindices.back();
             lineindices.push_back(nstartf);
             triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
-                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
             lineindices.push_back(triindices.back());
             lineindices.push_back(triindices.back());
             triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
-                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
             unsigned int nendf = triindices.back();
             lineindices.push_back(nendf);
 
             triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
-                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
             unsigned int nendb = triindices.back();
             lineindices.push_back(nendb);
             triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
-                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
             lineindices.push_back(triindices.back());
             lineindices.push_back(triindices.back());
             triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
             unsigned int nstartb = triindices.back();
             lineindices.push_back(nstartb);
 
             for (unsigned int j = 3; j < q; j++)
             {
                 triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
                 triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
-                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
                 lineindices.push_back(triindices.back());
                 triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
-                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
                 lineindices.push_back(triindices.back());
                 nendf = triindices.back();
 
                 triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
-                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
                 nendb = triindices.back();
                 lineindices.push_back(triindices.back());
                 triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
-                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
                 lineindices.push_back(triindices.back());
                 triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
             }
 
             lineindices.push_back(nendf);

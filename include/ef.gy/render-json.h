@@ -57,7 +57,7 @@ namespace efgy
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const;
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index = 0.5) const;
 
                 void reset (void) const
                 {
@@ -85,7 +85,7 @@ namespace efgy
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV);
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV, const Q &index = 0.5);
 
                 void reset (void)
                 {
@@ -104,7 +104,7 @@ namespace efgy
         template<typename Q, unsigned int d>
         template<unsigned int q>
         void json<Q,d>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const
+            (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index) const
         {
             math::tuple<q, typename geometry::euclidian::space<Q,d-1>::vector> V;
 
@@ -113,13 +113,13 @@ namespace efgy
                 V.data[i] = combined * pV.data[i];
             }
 
-            lowerRenderer.drawFace(V);
+            lowerRenderer.drawFace(V, index);
         }
 
         template<typename Q>
         template<unsigned int q>
         void json<Q,2>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV)
+            (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV, const Q &index)
         {
             output << ",'";
             for (unsigned int i = 0; i < q; i++)

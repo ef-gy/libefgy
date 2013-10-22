@@ -345,7 +345,6 @@ namespace efgy
                     using parent::parameter;
                     using parent::renderSolid;
                     using parent::renderer;
-                    using parent::lines;
                     using parent::faces;
 
                     using parent::modelDimensionMinimum;

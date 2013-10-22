@@ -51,7 +51,7 @@ namespace efgy
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &) const {}
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &, const Q &index = 0.5) const {}
 
                 void reset (void) const {}
         };
@@ -69,7 +69,7 @@ namespace efgy
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &) const {}
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &, const Q &index = 0.5) const {}
 
                 void reset (void) const {}
         };
