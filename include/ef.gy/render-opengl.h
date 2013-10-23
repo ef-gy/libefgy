@@ -190,7 +190,8 @@ namespace efgy
                     : transformation(pTransformation), projection(pProjection),
                       haveBuffers(false), prepared(false),
                       programRegular(0), programFlameColouring(0), programFlamePostProcess(0),
-                      framebufferFlameColouring(0), textureFlameColouring(0)
+                      framebufferFlameColouring(0), framebufferFlameHistogram(0),
+                      textureFlameColouring(0), textureFlameHistogram(0)
                     {
                     }
 
@@ -213,6 +214,10 @@ namespace efgy
                         {
                             glDeleteProgram(programFlamePostProcess);
                         }
+                        if (framebufferFlameHistogram)
+                        {
+                            glDeleteFramebuffers(1, &framebufferFlameHistogram);
+                        }
                         if (framebufferFlameColouring)
                         {
                             glDeleteFramebuffers(1, &framebufferFlameColouring);
@@ -220,6 +225,10 @@ namespace efgy
                         if (textureFlameColouring)
                         {
                             glDeleteTextures(1, &textureFlameColouring);
+                        }
+                        if (textureFlameHistogram)
+                        {
+                            glDeleteTextures(1, &textureFlameHistogram);
                         }
                     }
 
@@ -232,6 +241,10 @@ namespace efgy
                         glGenFramebuffers(1, &framebufferFlameColouring);
                         glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
                         glGenTextures(1, &textureFlameColouring);
+
+                        glGenFramebuffers(1, &framebufferFlameHistogram);
+                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
+                        glGenTextures(1, &textureFlameHistogram);
 
                         loadShaders(programRegular, false, false);
                         loadShaders(programFlameColouring, true, false);
@@ -275,17 +288,34 @@ namespace efgy
                             uniforms[i] = uniformsFlameColouring[i];
                         }
 
-                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
+                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
                         glViewport(0,0,width,height);
 
-                        glBindTexture(GL_TEXTURE_2D, textureFlameColouring);
+                        glBindTexture(GL_TEXTURE_2D, textureFlameHistogram);
                         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                         
-                        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameColouring, 0);
+                        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameHistogram, 0);
                         GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+                        glDrawBuffers(1, DrawBuffers);
+                        
+                        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                        {
+                            std::runtime_error("framebuffer has not been initialised properly");
+                        }
+
+                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
+                        glViewport(0,0,width,height);
+                        
+                        glBindTexture(GL_TEXTURE_2D, textureFlameColouring);
+                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+                        
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                        
+                        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameColouring, 0);
                         glDrawBuffers(1, DrawBuffers);
                         
                         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -524,8 +554,11 @@ namespace efgy
                 GLfloat wireframeColour[4];
                 GLfloat surfaceColour[4];
                 GLuint framebufferFlameColouring;
+                GLuint framebufferFlameHistogram;
                 GLuint textureFlameColouring;
+                GLuint textureFlameHistogram;
                 GLuint uniformScreenFramebuffer;
+                GLuint uniformScreenHistogram;
 
                 bool compileShader (GLuint &shader, GLenum type, const char *data)
                 {
