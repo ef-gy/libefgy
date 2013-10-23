@@ -247,8 +247,10 @@ namespace efgy
                         loadShaders(programFlameColouring, true, false);
                         loadShaders(programFlamePostProcess, true, true);
 
+#if !defined(NOVAO)
                         glGenVertexArrays(1, &vertexArrayFullscreenQuad);
                         glBindVertexArray(vertexArrayFullscreenQuad);
+#endif
                         glGenBuffers(1, &vertexbufferFullscreenQuad);
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbufferFullscreenQuad);
 
@@ -263,11 +265,15 @@ namespace efgy
                         };
                         
                         glBufferData(GL_ARRAY_BUFFER, sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData, GL_STATIC_DRAW);
+#if !defined(NOVAO)
                         glEnableVertexAttribArray(attributePosition);
                         glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+#endif
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+#if !defined(NOVAO)
                         glGenVertexArrays(1, &vertexArrayModel);
+#endif
                         glGenBuffers(1, &vertexbuffer);
                         glGenBuffers(1, &elementbuffer);
                         glGenBuffers(1, &linebuffer);
@@ -391,23 +397,29 @@ namespace efgy
                     {
                         prepared = true;
 
+#if !defined(NOVAO)
                         glBindVertexArray(vertexArrayModel);
+#endif
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, triindices.size() * sizeof(unsigned int), &triindices[0], GL_STATIC_DRAW);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);
+#if !defined(NOVAO)
                         glEnableVertexAttribArray(attributePosition);
                         glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
                         glEnableVertexAttribArray(attributeNormal);
                         glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
                         glEnableVertexAttribArray(attributeIndex);
                         glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+#endif
 
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
+#if !defined(NOVAO)
                         glBindVertexArray(0);
+#endif
 
                         tindices = GLsizei(triindices.size());
                         lindices = GLsizei(lineindices.size());
@@ -441,8 +453,16 @@ namespace efgy
 
                         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+#if !defined(NOVAO)
                         glBindVertexArray(vertexArrayFullscreenQuad);
+#endif
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbufferFullscreenQuad);
+
+#if defined(NOVAO)
+                        glEnableVertexAttribArray(attributePosition);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+#endif
+
                         glDrawArrays(GL_TRIANGLES, 0, 6);
 
                         glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
@@ -539,8 +559,10 @@ namespace efgy
                 GLsizei lindices;
                 bool haveBuffers;
                 bool prepared;
+#if !defined(NOVAO)
                 GLuint vertexArrayModel;
                 GLuint vertexArrayFullscreenQuad;
+#endif
                 GLuint vertexbuffer;
                 GLuint vertexbufferFullscreenQuad;
                 GLuint elementbuffer;
@@ -709,15 +731,28 @@ namespace efgy
 
                         glDepthMask (lineDepthMask ? GL_TRUE : GL_FALSE);
 
+#if !defined(NOVAO)
                         glBindVertexArray(vertexArrayModel);
-                        
+#endif
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
+
+#if defined(NOVAO)
+                        glEnableVertexAttribArray(attributePosition);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
+                        glEnableVertexAttribArray(attributeNormal);
+                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(attributeIndex);
+                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+#endif
+
                         glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#if !defined(NOVAO)
                         glBindVertexArray(0);
+#endif
                     }
                 }
             
@@ -729,15 +764,28 @@ namespace efgy
 
                         glDepthMask (faceDepthMask ? GL_TRUE : GL_FALSE);
 
+#if !defined(NOVAO)
                         glBindVertexArray(vertexArrayModel);
-                        
+#endif
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+
+#if defined(NOVAO)
+                        glEnableVertexAttribArray(attributePosition);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
+                        glEnableVertexAttribArray(attributeNormal);
+                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(attributeIndex);
+                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+#endif
+
                         glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
                         
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#if !defined(NOVAO)
                         glBindVertexArray(0);
+#endif
                     }
                 }
         };
