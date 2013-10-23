@@ -104,6 +104,7 @@ namespace efgy
                 output
                 <<  "varying lowp vec2 UV;\n"
                     "uniform sampler2D screenFramebuffer;\n"
+                    "uniform sampler2D screenHistogram;\n"
                     "void main() {\n"
                         "gl_FragColor = texture2D(screenFramebuffer, UV);\n"
                     "}\n";
@@ -276,6 +277,8 @@ namespace efgy
                         glGenBuffers(1, &linebuffer);
                     }
 
+                    glViewport(0, 0, width, height);
+
                     if (fractalFlameColouring)
                     {
                         glUseProgram(programFlameColouring);
@@ -289,7 +292,6 @@ namespace efgy
                         }
 
                         glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
-                        glViewport(0,0,width,height);
 
                         glBindTexture(GL_TEXTURE_2D, textureFlameHistogram);
                         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
@@ -307,7 +309,6 @@ namespace efgy
                         }
 
                         glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
-                        glViewport(0,0,width,height);
                         
                         glBindTexture(GL_TEXTURE_2D, textureFlameColouring);
                         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
@@ -426,6 +427,10 @@ namespace efgy
                     {
                         pushFaces();
 
+                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
+
+                        pushFaces();
+
                         glBlendFunc (GL_ONE, GL_ZERO);
 
                         glUseProgram(programFlamePostProcess);
@@ -434,8 +439,11 @@ namespace efgy
                         glBindTexture(GL_TEXTURE_2D, textureFlameColouring);
                         glUniform1i(uniformScreenFramebuffer, 0);
 
+                        glActiveTexture(GL_TEXTURE0+1);
+                        glBindTexture(GL_TEXTURE_2D, textureFlameHistogram);
+                        glUniform1i(uniformScreenHistogram, 1);
+
                         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-                        glViewport(0,0,width,height);
 
                         glBindVertexArray(vertexArrayFullscreenQuad);
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbufferFullscreenQuad);
@@ -681,6 +689,7 @@ namespace efgy
                     else
                     {
                         uniformScreenFramebuffer = glGetUniformLocation(program, "screenFramebuffer");
+                        uniformScreenHistogram   = glGetUniformLocation(program, "screenHistogram");
                     }
                     
                     // Release vertex and fragment shaders.
