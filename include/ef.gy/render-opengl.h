@@ -307,7 +307,7 @@ namespace efgy
                         
                         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
                         {
-                            std::runtime_error("framebuffer has not been initialised properly");
+                            throw std::runtime_error("framebuffer has not been initialised properly");
                         }
 
                         glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
@@ -323,7 +323,7 @@ namespace efgy
                         
                         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
                         {
-                            std::runtime_error("framebuffer has not been initialised properly");
+                            throw std::runtime_error("framebuffer has not been initialised properly");
                         }
                     }
                     else
