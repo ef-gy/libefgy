@@ -55,9 +55,11 @@ namespace efgy
             uniformMax
         };
 
-        static inline std::string getVertexShader (const bool fractalFlameColouring, const bool postProcess)
+        static inline std::string getVertexShader (const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
         {
-            std::stringstream output ("#version 100\n");
+            std::stringstream output ("");
+            output
+                << "#version 100\n";
             if (postProcess)
             {
                 output
@@ -92,17 +94,22 @@ namespace efgy
             return output.str();
         }
 
-        static inline std::string getFragmentShader (const bool fractalFlameColouring, const bool postProcess)
+        static inline std::string getFragmentShader (const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
         {
-            std::stringstream output ("#version 100\n");
+            std::stringstream output ("");
+            output
+                << "#version 100\n";
             if (postProcess)
             {
                 output
                 <<  "varying lowp vec2 UV;\n"
                     "uniform sampler2D screenFramebuffer;\n"
                     "uniform sampler2D screenHistogram;\n"
+                    "uniform sampler2D colourMap;\n"
                     "void main() {\n"
-                        "gl_FragColor = texture2D(screenFramebuffer, UV);\n"
+                        "highp float intensity = 1.0 - texture2D(screenHistogram, UV).x;\n"
+                        "highp float index     = texture2D(screenFramebuffer, UV).x;\n"
+                        "gl_FragColor = texture2D(colourMap, vec2(index,0.0)) * intensity;\n"
                     "}\n";
             }
             else
@@ -112,7 +119,9 @@ namespace efgy
                     "varying lowp float indexVarying;\n"
                     "void main() {\n"
                 << (fractalFlameColouring
-                      ? "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,0.5);\n"
+                      ? (renderHistogram
+                            ? "gl_FragColor = vec4(1,1,1,0.992);\n"
+                            : "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,0.5);\n")
                       : "gl_FragColor = colorVarying;\n")
                 <<  "}\n";
             }
@@ -186,9 +195,9 @@ namespace efgy
                      const opengl<Q,2> &)
                     : transformation(pTransformation), projection(pProjection),
                       haveBuffers(false), prepared(false),
-                      programRegular(0), programFlameColouring(0), programFlamePostProcess(0),
+                      programRegular(0), programFlameColouring(0), programFlameHistogram(0), programFlamePostProcess(0),
                       framebufferFlameColouring(0), framebufferFlameHistogram(0),
-                      textureFlameColouring(0), textureFlameHistogram(0)
+                      textureFlameColouring(0), textureFlameHistogram(0), textureFlameColourMap(0)
                     {
                     }
 
@@ -196,16 +205,23 @@ namespace efgy
                     {
                         if (haveBuffers)
                         {
+                            glDeleteBuffers(1, &vertexbufferFullscreenQuad);
                             glDeleteBuffers(1, &vertexbuffer);
                             glDeleteBuffers(1, &elementbuffer);
                             glDeleteBuffers(1, &linebuffer);
                         }
 
-                        if (programRegular) {
+                        if (programRegular)
+                        {
                             glDeleteProgram(programRegular);
                         }
-                        if (programFlameColouring) {
+                        if (programFlameColouring)
+                        {
                             glDeleteProgram(programFlameColouring);
+                        }
+                        if (programFlameHistogram)
+                        {
+                            glDeleteProgram(programFlameHistogram);
                         }
                         if (programFlamePostProcess)
                         {
@@ -227,6 +243,10 @@ namespace efgy
                         {
                             glDeleteTextures(1, &textureFlameHistogram);
                         }
+                        if (textureFlameColourMap)
+                        {
+                            glDeleteTextures(1, &textureFlameColourMap);
+                        }
                     }
 
                 void frameStart (void)
@@ -243,9 +263,12 @@ namespace efgy
                         glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
                         glGenTextures(1, &textureFlameHistogram);
 
-                        loadShaders(programRegular, false, false);
-                        loadShaders(programFlameColouring, true, false);
-                        loadShaders(programFlamePostProcess, true, true);
+                        glGenTextures(1, &textureFlameColourMap);
+
+                        loadShaders(programRegular, false, false, false);
+                        loadShaders(programFlameColouring, true, false, false);
+                        loadShaders(programFlameHistogram, true, false, true);
+                        loadShaders(programFlamePostProcess, true, true, false);
 
 #if !defined(NOVAO)
                         glGenVertexArrays(1, &vertexArrayFullscreenQuad);
@@ -277,72 +300,11 @@ namespace efgy
                         glGenBuffers(1, &vertexbuffer);
                         glGenBuffers(1, &elementbuffer);
                         glGenBuffers(1, &linebuffer);
+
+                        setColourMap();
                     }
 
                     glViewport(0, 0, width, height);
-
-                    if (fractalFlameColouring)
-                    {
-                        glUseProgram(programFlameColouring);
-                        glDepthMask(GL_FALSE);
-                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
-                        glDisable(GL_DEPTH_TEST);
-
-                        for (unsigned int i = 0; i < uniformMax; i++)
-                        {
-                            uniforms[i] = uniformsFlameColouring[i];
-                        }
-
-                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
-
-                        glBindTexture(GL_TEXTURE_2D, textureFlameHistogram);
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                        
-                        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameHistogram, 0);
-                        GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-                        glDrawBuffers(1, DrawBuffers);
-                        
-                        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-                        {
-                            throw std::runtime_error("framebuffer has not been initialised properly");
-                        }
-
-                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
-                        
-                        glBindTexture(GL_TEXTURE_2D, textureFlameColouring);
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-                        
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                        
-                        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameColouring, 0);
-                        glDrawBuffers(1, DrawBuffers);
-                        
-                        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-                        {
-                            throw std::runtime_error("framebuffer has not been initialised properly");
-                        }
-                    }
-                    else
-                    {
-                        glUseProgram(programRegular);
-                        glDepthMask(GL_TRUE);
-                        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                        glEnable(GL_DEPTH_TEST);
-                        glDepthFunc(GL_LEQUAL);
-
-                        for (unsigned int i = 0; i < uniformMax; i++)
-                        {
-                            uniforms[i] = uniformsRegular[i];
-                        }
-
-                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-                    }
-
-                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                     const geometry::transformation::projective<Q,3> combined = transformation * projection;
 
@@ -386,6 +348,27 @@ namespace efgy
                         GLfloat(normalMatrix.data[2][0]),
                         GLfloat(normalMatrix.data[2][1]),
                         GLfloat(normalMatrix.data[2][2]) };
+
+                    if (fractalFlameColouring)
+                    {
+                        glUseProgram(programFlameHistogram);
+                        glUniformMatrix4fv(uniformsFlameHistogram[efgy::render::uniformProjectionMatrix], 1, 0, mat);
+                        glUniformMatrix3fv(uniformsFlameHistogram[efgy::render::uniformNormalMatrix], 1, 0, matn);
+
+                        glUseProgram(programFlameColouring);
+                        for (unsigned int i = 0; i < uniformMax; i++)
+                        {
+                            uniforms[i] = uniformsFlameColouring[i];
+                        }
+                    }
+                    else
+                    {
+                        glUseProgram(programRegular);
+                        for (unsigned int i = 0; i < uniformMax; i++)
+                        {
+                            uniforms[i] = uniformsRegular[i];
+                        }
+                    }
 
                     glUniformMatrix4fv(uniforms[efgy::render::uniformProjectionMatrix], 1, 0, mat);
                     glUniformMatrix3fv(uniforms[efgy::render::uniformNormalMatrix], 1, 0, matn);
@@ -433,23 +416,55 @@ namespace efgy
 
                     if (fractalFlameColouring)
                     {
+                        glUseProgram(programFlameColouring);
+                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
+
+                        glActiveTexture(GL_TEXTURE0 + 0);
+
+                        glBindTexture(GL_TEXTURE_2D, textureFlameColouring);
+                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+                        
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+                        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameColouring, 0);
+                        glDepthMask(GL_FALSE);
+                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
+                        glDisable(GL_DEPTH_TEST);
+
+                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
                         pushFaces();
 
+                        glUseProgram(programFlameHistogram);
                         glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
 
-                        pushFaces();
+                        glActiveTexture(GL_TEXTURE0 + 1);
 
-                        glBlendFunc (GL_ONE, GL_ZERO);
+                        glBindTexture(GL_TEXTURE_2D, textureFlameHistogram);
+                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+                         
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+                        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameHistogram, 0);
+                         
+                        glBlendFunc (GL_ZERO, GL_SRC_ALPHA);
+
+                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+ 
+                        pushFaces();
 
                         glUseProgram(programFlamePostProcess);
 
-                        glActiveTexture(GL_TEXTURE0);
-                        glBindTexture(GL_TEXTURE_2D, textureFlameColouring);
                         glUniform1i(uniformScreenFramebuffer, 0);
-
-                        glActiveTexture(GL_TEXTURE0+1);
-                        glBindTexture(GL_TEXTURE_2D, textureFlameHistogram);
                         glUniform1i(uniformScreenHistogram, 1);
+
+                        glActiveTexture(GL_TEXTURE0 + 2);
+                        glBindTexture(GL_TEXTURE_2D, textureFlameColourMap);
+                        glUniform1i(uniformColourMap, 2);
+
+                        glBlendFunc (GL_ONE, GL_ZERO);
 
                         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -469,6 +484,16 @@ namespace efgy
                     }
                     else
                     {
+                        glUseProgram(programRegular);
+                        glDepthMask(GL_TRUE);
+                        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        glEnable(GL_DEPTH_TEST);
+                        glDepthFunc(GL_LEQUAL);
+
+                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
                         pushLines();
                         pushFaces();
                     }
@@ -542,6 +567,25 @@ namespace efgy
                     }
                     return true;
                 }
+            
+                void setColourMap (void)
+                {
+                    glBindTexture(GL_TEXTURE_2D, textureFlameColourMap);
+                    std::vector<unsigned char> colours;
+                    
+                    for (unsigned int i = 0; i < 8; i++)
+                    {
+                        colours.push_back(std::rand()%255);
+                        colours.push_back(std::rand()%255);
+                        colours.push_back(std::rand()%255);
+                        colours.push_back(255);
+                    }
+
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GLsizei(colours.size()/4), 1, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &colours[0]);
+                    
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                }
 
                 bool fractalFlameColouring;
                 GLuint width;
@@ -569,10 +613,12 @@ namespace efgy
                 GLuint linebuffer;
                 GLuint programRegular;
                 GLuint programFlameColouring;
+                GLuint programFlameHistogram;
                 GLuint programFlamePostProcess;
                 GLint uniforms[uniformMax];
                 GLint uniformsRegular[uniformMax];
                 GLint uniformsFlameColouring[uniformMax];
+                GLint uniformsFlameHistogram[uniformMax];
                 bool linesEnabled;
                 bool facesEnabled;
                 bool lineDepthMask;
@@ -583,8 +629,10 @@ namespace efgy
                 GLuint framebufferFlameHistogram;
                 GLuint textureFlameColouring;
                 GLuint textureFlameHistogram;
+                GLuint textureFlameColourMap;
                 GLuint uniformScreenFramebuffer;
                 GLuint uniformScreenHistogram;
+                GLuint uniformColourMap;
 
                 bool compileShader (GLuint &shader, GLenum type, const char *data)
                 {
@@ -642,19 +690,19 @@ namespace efgy
                     return true;
                 }
 
-                bool loadShaders (GLuint &program, const bool fractalFlameColouring, const bool postProcess)
+                bool loadShaders (GLuint &program, const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
                 {
                     GLuint vertShader, fragShader;
                     
                     program = glCreateProgram();
                     
-                    if (!compileShader(vertShader, GL_VERTEX_SHADER, getVertexShader(fractalFlameColouring, postProcess).c_str()))
+                    if (!compileShader(vertShader, GL_VERTEX_SHADER, getVertexShader(fractalFlameColouring, postProcess, renderHistogram).c_str()))
                     {
                         std::cerr << "Failed to compile vertex shader\n";
                         return false;
                     }
                     
-                    if (!compileShader(fragShader, GL_FRAGMENT_SHADER, getFragmentShader(fractalFlameColouring, postProcess).c_str()))
+                    if (!compileShader(fragShader, GL_FRAGMENT_SHADER, getFragmentShader(fractalFlameColouring, postProcess, renderHistogram).c_str()))
                     {
                         std::cerr << "Failed to compile fragment shader\n";
                         return false;
@@ -691,7 +739,13 @@ namespace efgy
                     // Get uniform locations.
                     if (!postProcess)
                     {
-                        if (fractalFlameColouring)
+                        if (renderHistogram)
+                        {
+                            uniformsFlameHistogram[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
+                            uniformsFlameHistogram[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
+                            uniformsFlameHistogram[uniformColour]           = glGetUniformLocation(program, "colour");
+                        }
+                        else if (fractalFlameColouring)
                         {
                             uniformsFlameColouring[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
                             uniformsFlameColouring[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
@@ -708,6 +762,7 @@ namespace efgy
                     {
                         uniformScreenFramebuffer = glGetUniformLocation(program, "screenFramebuffer");
                         uniformScreenHistogram   = glGetUniformLocation(program, "screenHistogram");
+                        uniformColourMap         = glGetUniformLocation(program, "colourMap");
                     }
                     
                     // Release vertex and fragment shaders.
