@@ -67,7 +67,7 @@ namespace efgy
                     "varying lowp vec2 UV;\n"
                     "void main() {\n"
                         "gl_Position = position;\n"
-                        "UV = (position.xy+vec2(1.1))/2.0;\n"
+                        "UV = (position.xy+vec2(1.0,1.0))/2.0;\n"
                     "}\n";
             }
             else
@@ -255,6 +255,7 @@ namespace efgy
                         glBufferData(GL_ARRAY_BUFFER, sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData, GL_STATIC_DRAW);
                         glEnableVertexAttribArray(attributePosition);
                         glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+                        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
                         glGenVertexArrays(1, &vertexArrayModel);
                         glGenBuffers(1, &vertexbuffer);
@@ -278,7 +279,7 @@ namespace efgy
                         glViewport(0,0,width,height);
 
                         glBindTexture(GL_TEXTURE_2D, textureFlameColouring);
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -391,11 +392,10 @@ namespace efgy
                         indices = 0;
                     }
 
-                    pushLines();
-                    pushFaces();
-
                     if (fractalFlameColouring)
                     {
+                        pushFaces();
+
                         glBlendFunc (GL_ONE, GL_ZERO);
 
                         glUseProgram(programFlamePostProcess);
@@ -412,6 +412,11 @@ namespace efgy
                         glDrawArrays(GL_TRIANGLES, 0, 6);
 
                         glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
+                    }
+                    else
+                    {
+                        pushLines();
+                        pushFaces();
                     }
                 };
 
@@ -680,7 +685,7 @@ namespace efgy
             
                 void pushFaces (void) const
                 {
-                    if (prepared && facesEnabled)
+                    if (prepared && (facesEnabled || fractalFlameColouring))
                     {
                         glUniform4f(uniforms[uniformColour], surfaceColour[0], surfaceColour[1], surfaceColour[2], surfaceColour[3]);
 
