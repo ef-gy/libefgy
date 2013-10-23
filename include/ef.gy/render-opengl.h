@@ -57,9 +57,7 @@ namespace efgy
 
         static inline std::string getVertexShader (const bool fractalFlameColouring, const bool postProcess)
         {
-            std::stringstream output;
-            output
-                <<  "#version 100\n";
+            std::stringstream output ("#version 100\n");
             if (postProcess)
             {
                 output
@@ -96,9 +94,7 @@ namespace efgy
 
         static inline std::string getFragmentShader (const bool fractalFlameColouring, const bool postProcess)
         {
-            std::stringstream output;
-            output
-                <<  "#version 100\n";
+            std::stringstream output ("#version 100\n");
             if (postProcess)
             {
                 output
