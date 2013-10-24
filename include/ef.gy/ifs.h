@@ -337,10 +337,10 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class randomAffineIFS : public ifs<Q,od,render,d,plane,2,transformation::affine>
+        class randomAffineIFS : public ifs<Q,od,render,d,cube,2,transformation::affine>
         {
             public:
-                typedef ifs<Q,od,render,d,plane,2,transformation::affine> parent;
+                typedef ifs<Q,od,render,d,cube,2,transformation::affine> parent;
 
                 randomAffineIFS(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
