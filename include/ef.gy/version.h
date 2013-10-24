@@ -30,6 +30,27 @@
  * documentation that didn't seem to fit in anywhere else.
  */
 
+/**\mainpage
+ *
+ * libefgy is a header-only C++ template library with lots of templates dealing
+ * with maths in all its glory. And a few random other things not directly
+ * related to maths that still come in handy. Unlike other libraries, all of
+ * the classes take the datatype to work on as a template argument and
+ * oftentimes the size of things like vectors and matrices are set at compile
+ * time.
+ *
+ * This may seem inconvenient, but in theory it should allow the compiler to
+ * produce code that is better optimised. Also, since everything is done in
+ * templates, the compiler might even be able to remove a lot of code it would
+ * otherwise have to leave in.
+ *
+ * \note Some of the headers may require C++0x compiler features. Also, It is
+ *       recommended to use 'clang++' with these headers, if possible, as that
+ *       is the compiler the headers were designed for. 'clang++' also happens
+ *       to provide much more useful error messages when things don't work out
+ *       like they should with templates.
+ */
+
 /**\brief Base namespace
  *
  * This is the base namespace for all the headers contained within libefgy.
