@@ -30,7 +30,11 @@
  * documentation that didn't seem to fit in anywhere else.
  */
 
-/**\mainpage
+/**\if LIBEFGYMAIN
+ * \mainpage libefgy-3
+ * \else
+ * \page libefgy libefgy-3
+ * \endif
  *
  * libefgy is a header-only C++ template library with lots of templates dealing
  * with maths in all its glory. And a few random other things not directly
