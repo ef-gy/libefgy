@@ -29,26 +29,50 @@
 #if !defined(EF_GY_PI_H)
 #define EF_GY_PI_H
 
+/**\file
+ * \brief Calculate 'pi'
+ *
+ * This file contains a template class to calculate arbitrarily accurate
+ * approximations of 'pi' based on the algorithm described by Bailey et al in
+ * 1997.
+ */
+
 namespace efgy
 {
     namespace math
     {
-        /* This class is used to handle (and calculate) pi with arbitrary precision (up to the
-         * chosen data type's limits, anyway). Results start to get unstable with iterations > 4
-         * when used with the default fraction data type. pi<Q,4> results in an approximation
-         * that is already accurate to +/- 1.960*10^-7. If you use a larger integer base for
-         * Q, you should be able to get an arbitrarily precise approximation to pi.
+        /**\brief Calculate 'pi' with arbitrary precision
          *
-         * To calculate pi we use the power series expansion described by Bailey et al in 1997.
-         * */
-        template <typename Q, unsigned int iterations = 3>
+         * This class is used to handle (and calculate) pi with arbitrary
+         * precision (up to the chosen data type's limits, anyway). Results
+         * start to get unstable with iterations > 4 when used with the
+         * default fraction data type. pi<Q,4> results in an approximation
+         * that is already accurate to +/- 1.960*10^-7. If you use a larger
+         * integer base for Q you should be able to get an arbitrarily precise
+         * approximation to pi.
+         *
+         * To calculate pi we use the power series expansion described by
+         * Bailey et al in 1997.
+         *
+         * \tparam Q          The data type to use in the calculations -
+         *                    should be rational or similar. Must be a class
+         *                    that defines an integer subtype and behaves like
+         *                    a typical numeric data type.
+         * \tparam iterations The number of iterations to run Bailey's
+         *                    algorithm. This is a compile time constant in
+         *                    the hope that the compiler will be able to
+         *                    substitute a constant value for base data types.
+         */
+       template <typename Q, unsigned int iterations = 3>
         class pi
         {
             public:
+                /**\brief The base data type's integer type
+                 */
                 typedef typename Q::integer integer;
                 typedef Q rational;
 
-                pi()
+                pi(void)
                     : factor(Q(1))
                     {}
 
