@@ -335,10 +335,10 @@ namespace efgy
              * \tparam d      The render depth to use.
              */
             template <typename Q, unsigned int od, typename render, unsigned int d = od>
-            class random : public ifs<Q,od,render,d,cube,2,transformation::flame>
+            class random : public ifs<Q,od,render,d,plane,2,transformation::flame>
             {
                 public:
-                    typedef ifs<Q,od,render,d,cube,2,transformation::flame> parent;
+                    typedef ifs<Q,od,render,d,plane,2,transformation::flame> parent;
 
                     random(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                         : parent(pRenderer, pParameter, pMultiplier)
