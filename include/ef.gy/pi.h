@@ -37,8 +37,32 @@
  * 1997.
  */
 
+/**\brief Base namespace
+ *
+ * This is the base namespace for all the headers contained within libefgy.
+ * This namespace is used to prevent namespace clashes with your own code - if
+ * you don't want to use fully qualified names in your code, use the 'using'
+ * directive after including the headers, like so:
+ *
+ * \code
+ * using namespace efgy;
+ * \endcode
+ */
 namespace efgy
 {
+    /**\brief Classes and functions dealing with mathematics
+     *
+     * This namespace contains all sorts of classes and functions more or less
+     * loosely related to mathematics in one way or another. This does not
+     * include code that fits better into some other namespace.
+     *
+     * Use the 'using' directive after including the headers you need if you
+     * don't want to use fully qualified names everywhere:
+     *
+     * \code
+     * using namespace efgy::math;
+     * \endcode
+     */
     namespace math
     {
         /**\brief Calculate 'pi' with arbitrary precision
@@ -97,15 +121,15 @@ namespace efgy
             protected:
                 Q getSequenceMemberAt (unsigned int n) const
                 {
-                    Q one = integer(1);
-                    Q two = integer(2);
-                    Q four = integer(4);
-                    Q five = integer(5);
-                    Q six = integer(6);
-                    Q eight = integer(8);
-                    Q d = one / integer(16);
+                    const Q one = integer(1);
+                    const Q two = integer(2);
+                    const Q four = integer(4);
+                    const Q five = integer(5);
+                    const Q six = integer(6);
+                    const Q eight = integer(8);
+                    const Q d = Q(one) / Q(16);
 
-                    Q cn = integer(n);
+                    const Q cn = integer(n);
                     Q rv = integer(1);
 
                     if (n > 0)
