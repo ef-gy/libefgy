@@ -37,8 +37,6 @@ namespace efgy {
    
    namespace optimise { 
     
-    template<typename T_, int length, typename Initialise>
-    class GAIndividual;
     
     /*
         A class that handles classic genetic algorithms. 
@@ -66,31 +64,45 @@ namespace efgy {
         as its arguments, and returns a vector of GAIndividual as the new population, implementing a selection
         method of the user's choice.
 
+        Initialise is assumed to be a functor that takes an array of T
+        and its length, initialising each element of the array
+        to some kind of value of type T. A likely choice is to just
+        initialise each element with a random value.
+
     */
-    template<typename T, int genomeLength, typename Fitness, typename Mutate, typename hasTerminated, typename Select, typename Initialise_, int populationSize=1000, typename Q=double>
+    template<typename T, int genomeLength, typename Fitness, typename Mutate, typename hasTerminated, typename Select, typename Initialise, int populationSize=1000, typename Q=double>
     class geneticAlgorithm
     {
-       public:
-        geneticAlgorithm(Q pMutate_, Q pCrossover_) : pMutate(pMutate_), pCrossover(pCrossover_)
-        {
-            for(int i = 0; i < populationSize; i++)
-            {
-                population.push_back(GAIndividual<T, genomeLength, Initialise_>());
-            }
-        }
 
-        void mutate(GAIndividual<T, genomeLength, Initialise_> &individual)
+
+       private:
+        /// an individual for genetic algorithms
+    
+        class GAIndividual
         {
-            std::srand(std::time(NULL));
-            int position = rand() % genomeLength;
+           public:
+             GAIndividual()
+             {
+                Initialise(genome, genomeLength);
+             }
             
-            individual.set(position, Mutate(individual[position]));
-        }
+             void set(int position, T newValue)
+             {
+                if((0 <= position) && (position <= genomeLength))
+                {
+                    genome[position] = newValue;
+                }
+             }
+             
+           private:
+             T genome[genomeLength];
+             
+    
+        };
 
-        
        protected:
         /// population
-        std::vector<GAIndividual<T, genomeLength, Initialise_ > > population;
+        std::vector<GAIndividual> population;
 
         /// mutation probability
         Q pMutate;
@@ -104,40 +116,29 @@ namespace efgy {
 
         void select()
         {
-           std::vector<GAIndividual<T, genomeLength, Initialise_ > > newPopulation = Select(populationSize, population);
+           std::vector<GAIndividual> newPopulation = Select(populationSize, population);
 
         }
 
-       private:
-        /// an individual for genetic algorithms
-    
-        /// Initialise is assumed to be a functor that takes an array of T
-        /// and its length, initialising each element of the array
-        /// to some kind of value of type T. A likely choice is to just
-        /// initialise each element with a random value.
-        template<typename T_, int length, typename Initialise>
-        class GAIndividual
-        {
-           public:
-             GAIndividual()
-             {
-                Initialise(genome, length);
-             }
-            
-             void set(int position, T_ newValue)
-             {
-                if((0 <= position) && (position <= length))
-                {
-                    genome[position] = newValue;
-                }
-             }
-             
-           private:
-             T_ genome[length];
-             
-    
-        };
 
+       public:
+        geneticAlgorithm(Q pMutate_, Q pCrossover_) : pMutate(pMutate_), pCrossover(pCrossover_)
+        {
+            for(int i = 0; i < populationSize; i++)
+            {
+                population.push_back(GAIndividual());
+            }
+        }
+
+        void mutate(GAIndividual &individual)
+        {
+            std::srand(std::time(NULL));
+            int position = rand() % genomeLength;
+            
+            individual.set(position, Mutate(individual[position]));
+        }
+
+        
 
     };
    }
