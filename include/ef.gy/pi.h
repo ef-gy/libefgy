@@ -76,23 +76,41 @@ namespace efgy
          *                    the hope that the compiler will be able to
          *                    substitute a constant value for base data types.
          */
-       template <typename Q, unsigned int iterations = 3>
+        template <typename Q, unsigned int iterations = 3>
         class pi
         {
             public:
                 /**\brief The base data type's integer type
                  */
                 typedef typename Q::integer integer;
-                typedef Q rational;
 
+                /**\brief Default constructor
+                 *
+                 * Initialises the object so that it creates an approximation
+                 * of 1*pi.
+                 */
                 pi(void)
                     : factor(Q(1))
                     {}
 
+                /**\brief Construct with factor
+                 *
+                 * Initialises the object so that it creates an approximation
+                 * of pFactor * pi.
+                 *
+                 * \param[in] pFactor The factor to multiply pi with.
+                 */
                 pi(const Q &pFactor)
                     : factor(pFactor)
                     {}
 
+                /**\brief Calculate approximation of pi
+                 *
+                 * Cast a pi object to the type you specified with the template
+                 * parameter Q to access an appropriate approximation of pi.
+                 *
+                 * \return The approximation of pi with the given parameters.
+                 */
                 operator Q (void) const
                 {
                     Q rv = Q();
@@ -105,9 +123,13 @@ namespace efgy
                     return rv;
                 }
 
-                Q factor;
-
             protected:
+                /**\brief Get specific member of sequence
+                 *
+                 * Bailey's algorithm uses a sequence that converges to pi
+                 * fairly quickly. This function generates the individual
+                 * sequence members.
+                 */
                 Q getSequenceMemberAt (unsigned int n) const
                 {
                     const Q one = integer(1);
@@ -133,6 +155,12 @@ namespace efgy
 
                     return factor * rv * (four/(eight*cn+one) - two/(eight*cn+four) - one/(eight*cn+five) - one/(eight*cn+six));
                 }
+
+                /**\brief The factor to multiply pi with
+                 *
+                 * This is set to an appropriate value in the constructor.
+                 */
+                const Q factor;
         };
     };
 };
