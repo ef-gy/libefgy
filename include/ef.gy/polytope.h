@@ -44,6 +44,11 @@ namespace efgy
                 Q polarRadius;
                 Q polarPrecision;
                 unsigned int iterations;
+                unsigned int functions;
+                unsigned int seed;
+                bool preRotate;
+                bool postRotate;
+                unsigned int flameCoefficients;
         };
 
         template <typename Q, unsigned int d, unsigned int f, typename render>
@@ -54,21 +59,23 @@ namespace efgy
                     : renderer(pRenderer), parameter(pParameter), precisionMultiplier(pMultiplier)
                     {}
 
-                void renderWireframe () const
-                {
-                    for (typename std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >::const_iterator it = lines.begin();
-                         it != lines.end(); it++)
-                    {
-                        renderer.drawLine (it->data[0], it->data[1]);
-                    }
-                }
-
                 void renderSolid () const
                 {
-                    for (typename std::vector<math::tuple<f,typename euclidian::space<Q,d>::vector> >::const_iterator it = faces.begin();
-                         it != faces.end(); it++)
+                    typename std::vector<math::tuple<f,typename euclidian::space<Q,d>::vector> >::const_iterator it = faces.begin();
+                    typename std::vector<Q>::const_iterator itIndex = indices.begin();
+
+                    while (it != faces.end())
                     {
-                        renderer.render::template drawFace<f> (*it);
+                        if (itIndex == indices.end())
+                        {
+                            renderer.render::template drawFace<f> (*it);
+                        }
+                        else
+                        {
+                            renderer.render::template drawFace<f> (*it, *itIndex);
+                            itIndex++;
+                        }
+                        it++;
                     }
                 }
 
@@ -77,13 +84,15 @@ namespace efgy
                 static const unsigned int renderDimensionMinimum = 3;
                 static const unsigned int renderDimensionMaximum = 0;
 
+                static const unsigned int faceVertices = f;
+
             protected:
                 render &renderer;
                 const parameters<Q> &parameter;
                 const Q &precisionMultiplier;
 
-                std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> > lines;
                 std::vector<math::tuple<f,typename euclidian::space<Q,d>::vector> > faces;
+                std::vector<Q> indices;
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
@@ -99,16 +108,16 @@ namespace efgy
                     }
 
                 using parent::parameter;
-                using parent::renderWireframe;
                 using parent::renderSolid;
                 using parent::renderer;
-                using parent::lines;
                 using parent::faces;
 
                 using parent::modelDimensionMinimum;
                 static const unsigned int modelDimensionMaximum = d;
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
@@ -136,7 +145,6 @@ namespace efgy
                 {
                     Q radius = parameter.polarRadius;
 
-                    lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
                     faces = std::vector<math::tuple<3,typename euclidian::space<Q,d>::vector> >();
 
                     std::vector<typename euclidian::space<Q,d>::vector> points;
@@ -193,12 +201,6 @@ namespace efgy
                         {
                             const typename euclidian::space<Q,d>::vector B = *it2;
 
-                            math::tuple<2,typename euclidian::space<Q,d>::vector> newLine;
-                            newLine.data[0] = A;
-                            newLine.data[1] = B;
-
-                            lines.push_back(newLine);
-
                             for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it3 = usedPoints2.begin();
                                  it3 != usedPoints2.end(); it3++)
                             {
@@ -232,16 +234,16 @@ namespace efgy
                     }
 
                 using parent::parameter;
-                using parent::renderWireframe;
                 using parent::renderSolid;
                 using parent::renderer;
-                using parent::lines;
                 using parent::faces;
 
                 using parent::modelDimensionMinimum;
                 static const unsigned int modelDimensionMaximum = d;
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
@@ -250,14 +252,14 @@ namespace efgy
                 void calculateObject (void)
                 {
                     Q diameter = parameter.polarRadius * Q(0.5);
-
-                    lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
+                    
+                    std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> > lines;
                     faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
-
+                    
                     std::vector<typename euclidian::space<Q,d>::vector> points;
-
+                    
                     typename euclidian::space<Q,d>::vector A;
-
+                    
                     points.push_back (A);
                     
                     for (unsigned int i = 0; i < od; i++)
@@ -265,20 +267,20 @@ namespace efgy
                         std::vector<typename euclidian::space<Q,d>::vector> newPoints;
                         std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> > newLines;
                         std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> > newFaces;
-
+                        
                         for (typename std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >::iterator it = lines.begin();
                              it != lines.end(); it++)
                         {
                             it->data[0].data[i] = -diameter;
                             it->data[1].data[i] = -diameter;
-
+                            
                             math::tuple<2,typename euclidian::space<Q,d>::vector> newLine = *it;
-
+                            
                             newLine.data[0].data[i] = diameter;
                             newLine.data[1].data[i] = diameter;
-
+                            
                             newLines.push_back(newLine);
-
+                            
                             math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
                             newFace.data[0] = newLine.data [0];
                             newFace.data[1] = newLine.data [1];
@@ -286,7 +288,7 @@ namespace efgy
                             newFace.data[3] = it->data     [0];
                             newFaces.push_back(newFace);
                         }
-
+                        
                         for (typename std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >::iterator it = faces.begin();
                              it != faces.end(); it++)
                         {
@@ -294,7 +296,7 @@ namespace efgy
                             it->data[1].data[i] = -diameter;
                             it->data[2].data[i] = -diameter;
                             it->data[3].data[i] = -diameter;
-
+                            
                             math::tuple<4,typename euclidian::space<Q,d>::vector> newFace = *it;
                             newFace.data[0].data[i] = diameter;
                             newFace.data[1].data[i] = diameter;
@@ -302,7 +304,7 @@ namespace efgy
                             newFace.data[3].data[i] = diameter;
                             newFaces.push_back(newFace);
                         }
-
+                        
                         for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it = points.begin();
                              it != points.end(); it++)
                         {
@@ -324,13 +326,13 @@ namespace efgy
                         {
                             points.push_back(*it);
                         }
-
+                        
                         for (typename std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >::iterator it = newLines.begin();
                              it != newLines.end(); it++)
                         {
                             lines.push_back(*it);
                         }
-
+                        
                         for (typename std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >::iterator it = newFaces.begin();
                              it != newFaces.end(); it++)
                         {
@@ -338,57 +340,6 @@ namespace efgy
                         }
                     }
                 }
-        };
-
-        template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class axeGraph
-        {
-            public:
-                axeGraph (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : renderer(pRenderer)
-                    {}
-
-                static unsigned int depth (void) { return od; }
-                static unsigned int renderDepth (void) { return d; }
-                static const char *id (void) { return "axe-graph"; }
-            
-                void calculateObject (void) const {}
-
-                void renderWireframe ()
-                {
-                    typename euclidian::space<Q,d>::vector A;
-                    typename euclidian::space<Q,d>::vector B;
-
-                    std::vector<typename euclidian::space<Q,d>::vector> points;
-                    std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> > lines;
-
-                    for (unsigned int i = 0; i < od; i++)
-                    {
-                        for (unsigned int j = 0; j < d; j++)
-                        {
-                            if (i == j)
-                            {
-                                A.data[i] = 1;
-                            }
-                            else
-                            {
-                                A.data[j] = 0;
-                            }
-                        }
-
-                        renderer.drawLine(A, B);
-                    }
-                }
-
-                void renderSolid () const {}
-            
-                static const unsigned int modelDimensionMinimum  = 1;
-                static const unsigned int modelDimensionMaximum  = d;
-                static const unsigned int renderDimensionMinimum = 3;
-                static const unsigned int renderDimensionMaximum = 0;
-
-            protected:
-                render &renderer;
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
@@ -406,16 +357,16 @@ namespace efgy
 
                 using parent::precisionMultiplier;
                 using parent::parameter;
-                using parent::renderWireframe;
                 using parent::renderSolid;
                 using parent::renderer;
-                using parent::lines;
                 using parent::faces;
 
                 using parent::modelDimensionMinimum;
                 static const unsigned int modelDimensionMaximum = d - 1;
                 using parent::renderDimensionMinimum;
                 using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
 
                 static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
@@ -434,13 +385,6 @@ namespace efgy
                             v1.data[i] += step;
 
                             const typename euclidian::space<Q,d>::vector B = v1;
-
-                            math::tuple<2,typename euclidian::space<Q,d>::vector> newLine;
-
-                            newLine.data[0] = A;
-                            newLine.data[1] = B;
-
-                            lines.push_back(newLine);
 
                             math::tuple<3,typename euclidian::space<Q,d>::vector> newFace;
 
@@ -481,7 +425,6 @@ namespace efgy
 
                     Q usedRadius = radius;
 
-                    lines = std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >();
                     faces = std::vector<math::tuple<3,typename euclidian::space<Q,d>::vector> >();
 
                     typename polar::space<Q,d>::vector v;

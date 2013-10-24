@@ -42,7 +42,7 @@ namespace efgy
         {
             public:
                 json
-                    (const geometry::transformation<Q,d> &pTransformation,
+                    (const geometry::transformation::affine<Q,d> &pTransformation,
                      const geometry::projection<Q,d> &pProjection,
                      json<Q,d-1> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
@@ -55,13 +55,9 @@ namespace efgy
                 };
                 void frameEnd (void) const {};
 
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,d>::vector &pA,
-                     const typename geometry::euclidian::space<Q,d>::vector &pB) const;
-
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const;
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index = 0.5) const;
 
                 void reset (void) const
                 {
@@ -69,9 +65,9 @@ namespace efgy
                 }
 
             protected:
-                const geometry::transformation<Q,d> &transformation;
+                const geometry::transformation::affine<Q,d> &transformation;
                 const geometry::projection<Q,d> &projection;
-                geometry::transformation<Q,d> combined;
+                geometry::transformation::projective<Q,d> combined;
                 json<Q,d-1> &lowerRenderer;
         };
 
@@ -80,20 +76,16 @@ namespace efgy
         {
             public:
                 json
-                    (const typename geometry::transformation<Q,2> &pTransformation)
+                    (const typename geometry::transformation::affine<Q,2> &pTransformation)
                     : transformation(pTransformation)
                     {}
 
                 void frameStart (void) const {};
                 void frameEnd (void) const {};
 
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,2>::vector &pA,
-                     const typename geometry::euclidian::space<Q,2>::vector &pB);
-
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV);
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV, const Q &index = 0.5);
 
                 void reset (void)
                 {
@@ -105,122 +97,29 @@ namespace efgy
                 std::stringstream output;
 
             protected:
-                const geometry::transformation<Q,2> &transformation;
+                const geometry::transformation::affine<Q,2> &transformation;
                 Q previousX, previousY;
         };
 
         template<typename Q, unsigned int d>
-        void json<Q,d>::drawLine
-            (const typename geometry::euclidian::space<Q,d>::vector &pA,
-             const typename geometry::euclidian::space<Q,d>::vector &pB) const
-        {
-            typename geometry::euclidian::space<Q,d-1>::vector A = combined.project(pA);
-            typename geometry::euclidian::space<Q,d-1>::vector B = combined.project(pB);
-
-            lowerRenderer.drawLine(A, B);
-        }
-
-        template<typename Q, unsigned int d>
         template<unsigned int q>
         void json<Q,d>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const
+            (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index) const
         {
             math::tuple<q, typename geometry::euclidian::space<Q,d-1>::vector> V;
 
             for (unsigned int i = 0; i < q; i++)
             {
-                V.data[i] = combined.project(pV.data[i]);
+                V.data[i] = combined * pV.data[i];
             }
 
-            lowerRenderer.drawFace(V);
-        }
-
-        template<typename Q>
-        void json<Q,2>::drawLine
-            (const typename geometry::euclidian::space<Q,2>::vector &pA,
-             const typename geometry::euclidian::space<Q,2>::vector &pB)
-        {
-            std::stringstream sbuf1;
-            std::stringstream sbuf2;
-
-            const typename geometry::euclidian::space<Q,2>::vector &A = transformation * pA;
-            const typename geometry::euclidian::space<Q,2>::vector &B = transformation * pB;
-
-            const double a0 = -Q(A.data[0]);
-            const double a1 = -Q(A.data[1]);
-            const double b0 = -Q(B.data[0]);
-            const double b1 = -Q(B.data[1]);
-
-            const double a0r = a0 - previousX;
-            const double a1r = a1 - previousY;
-            const double b0r = b0 - a0;
-            const double b1r = b1 - a1;
-
-            if ((a0 == previousX) && (a1 == previousY))
-            {
-                if (B.data[1] == A.data[1])
-                {
-                    sbuf1 << "H" << b0;
-                    sbuf2 << "h" << b0r;
-                }
-                else if (B.data[0] == A.data[0])
-                {
-                    sbuf1 << "V" << b1;
-                    sbuf2 << "v" << b1r;
-                }
-                else
-                {
-                    sbuf1 << "L" << b0 << "," << b1;
-                    sbuf2 << "l" << b0r << "," << b1r;
-                }
-            }
-            else
-            {
-                sbuf1 << "M" << a0 << "," << a1;
-                sbuf2 << "m" << a0r << "," << a1r;
-                if (sbuf1.str().size() >= sbuf2.str().size())
-                {
-                    output << sbuf2.str();
-                }
-                else
-                {
-                    output << sbuf1.str();
-                }
-                sbuf1.str("");
-                sbuf2.str("");
-
-                if (B.data[1] == A.data[1])
-                {
-                    sbuf1 << "H" << b0;
-                    sbuf2 << "h" << b0r;
-                }
-                else if (B.data[0] == A.data[0])
-                {
-                    sbuf1 << "V" << b1;
-                    sbuf2 << "v" << b1r;
-                }
-                else
-                {
-                    sbuf1 << "L" << b0 << "," << b1;
-                    sbuf2 << "l" << b0r << "," << b1r;
-                }
-            }
-            if (sbuf1.str().size() >= sbuf2.str().size())
-            {
-                output << sbuf2.str();
-            }
-            else
-            {
-                output << sbuf1.str();
-            }
-            previousX = b0;
-            previousY = b1;
+            lowerRenderer.drawFace(V, index);
         }
 
         template<typename Q>
         template<unsigned int q>
         void json<Q,2>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV)
+            (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV, const Q &index)
         {
             output << ",'";
             for (unsigned int i = 0; i < q; i++)

@@ -41,7 +41,7 @@ namespace efgy
         {
             public:
                 null
-                    (const geometry::transformation<Q,d> &,
+                    (const geometry::transformation::affine<Q,d> &,
                      const geometry::projection<Q,d> &,
                      const null<Q,d-1> &)
                     {}
@@ -49,13 +49,9 @@ namespace efgy
                 void frameStart (void) const {};
                 void frameEnd (void) const {};
 
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,d>::vector &,
-                     const typename geometry::euclidian::space<Q,d>::vector &) const {}
-
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &) const {}
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &, const Q &index = 0.5) const {}
 
                 void reset (void) const {}
         };
@@ -65,19 +61,15 @@ namespace efgy
         {
             public:
                 null
-                    (const typename geometry::transformation<Q,2> &)
+                    (const typename geometry::transformation::affine<Q,2> &)
                     {}
 
                 void frameStart (void) const {};
                 void frameEnd (void) const {};
 
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,2>::vector &,
-                     const typename geometry::euclidian::space<Q,2>::vector &) const {}
-
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &) const {}
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &, const Q &index = 0.5) const {}
 
                 void reset (void) const {}
         };

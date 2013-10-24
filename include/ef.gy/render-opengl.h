@@ -33,11 +33,7 @@
 #include <ef.gy/projection.h>
 #include <vector>
 #include <map>
-
-#undef GL3D
-#define GL3D
-
-//#define GLVA
+#include <sstream>
 
 namespace efgy
 {
@@ -48,27 +44,101 @@ namespace efgy
         {
             attributePosition,
             attributeNormal,
-            attributeColour
+            attributeIndex
         };
 
         enum openGLUniforms
         {
             uniformProjectionMatrix,
             uniformNormalMatrix,
-            uniformSurfaceColour,
-            uniformWireframeColour,
+            uniformColour,
             uniformMax
         };
+
+        static inline std::string getVertexShader (const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
+        {
+            std::stringstream output ("");
+            output
+                << "#version 100\n";
+            if (postProcess)
+            {
+                output
+                <<  "attribute vec4 position;\n"
+                    "varying lowp vec2 UV;\n"
+                    "void main() {\n"
+                        "gl_Position = position;\n"
+                        "UV = (position.xy+vec2(1.0,1.0))/2.0;\n"
+                    "}\n";
+            }
+            else
+            {
+                output
+                <<  "attribute vec4 position;\n"
+                    "attribute vec3 normal;\n"
+                    "attribute float index;\n"
+                    "varying lowp vec4 colorVarying;\n"
+                    "varying lowp float indexVarying;\n"
+                    "uniform mat4 modelViewProjectionMatrix;\n"
+                    "uniform mat3 normalMatrix;\n"
+                    "uniform vec4 colour;\n"
+                    "void main() {\n"
+                << (fractalFlameColouring
+                      ? "indexVarying = index;\n"
+                      : "vec3 eyeNormal = normalize(normalMatrix * normal);\n"
+                        "vec3 lightPosition = vec3(0.0, 0.0, 1.0);\n"
+                        "float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));\n"
+                        "colorVarying = colour * nDotVP;\n")
+                <<      "gl_Position = modelViewProjectionMatrix * position;\n"
+                    "}";
+            }
+            return output.str();
+        }
+
+        static inline std::string getFragmentShader (const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
+        {
+            std::stringstream output ("");
+            output
+                << "#version 100\n";
+            if (postProcess)
+            {
+                output
+                <<  "varying lowp vec2 UV;\n"
+                    "uniform sampler2D screenFramebuffer;\n"
+                    "uniform sampler2D screenHistogram;\n"
+                    "uniform sampler2D colourMap;\n"
+                    "void main() {\n"
+                        "highp float intensity = 1.0 - texture2D(screenHistogram, UV).x;\n"
+                        "highp float index     = texture2D(screenFramebuffer, UV).x;\n"
+                        "gl_FragColor = texture2D(colourMap, vec2(index,0.0)) * intensity;\n"
+                    "}\n";
+            }
+            else
+            {
+                output
+                <<  "varying lowp vec4 colorVarying;\n"
+                    "varying lowp float indexVarying;\n"
+                    "void main() {\n"
+                << (fractalFlameColouring
+                      ? (renderHistogram
+                            ? "gl_FragColor = vec4(1,1,1,0.992);\n"
+                            : "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,0.5);\n")
+                      : "gl_FragColor = colorVarying;\n")
+                <<  "}\n";
+            }
+            return output.str();
+        }
 
         template<typename Q, unsigned int d>
         class opengl
         {
             public:
                 opengl
-                    (const geometry::transformation<Q,d> &pTransformation,
+                    (const geometry::transformation::affine<Q,d> &pTransformation,
                      const geometry::projection<Q,d> &pProjection,
                      opengl<Q,d-1> &pLowerRenderer)
-                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
+                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer),
+                      fractalFlameColouring(pLowerRenderer.fractalFlameColouring),
+                      width(pLowerRenderer.width), height(pLowerRenderer.height)
                     {}
 
                 void frameStart (void)
@@ -77,42 +147,57 @@ namespace efgy
                     lowerRenderer.frameStart();
                 };
                 void frameEnd (void) const { lowerRenderer.frameEnd(); };
-                void pushLines (void) const { lowerRenderer.pushLines(); };
-                void pushFaces (void) const { lowerRenderer.pushFaces(); };
-
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,d>::vector &pA,
-                     const typename geometry::euclidian::space<Q,d>::vector &pB) const;
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const;
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index = 0.5) const
+                {
+                    if (isPrepared()) return;
+                    
+                    math::tuple<q, typename geometry::euclidian::space<Q,d-1>::vector> V;
+                    
+                    for (unsigned int i = 0; i < q; i++)
+                    {
+                        V.data[i] = combined * pV.data[i];
+                    }
+                    
+                    lowerRenderer.drawFace(V, index);
+                }
 
                 void reset (void) const { lowerRenderer.reset(); }
                 const bool isPrepared (void) const { return lowerRenderer.isPrepared(); }
-                bool setColour (float red, float green, float blue, float alpha)
+                bool setColour (float red, float green, float blue, float alpha, bool wireframe)
                 {
-                    return lowerRenderer.setColour(red,green,blue,alpha);
+                    return lowerRenderer.setColour(red,green,blue,alpha,wireframe);
                 }
 
+                bool &fractalFlameColouring;
+                GLuint &width;
+                GLuint &height;
+
             protected:
-                const geometry::transformation<Q,d> &transformation;
+                const geometry::transformation::affine<Q,d> &transformation;
                 const geometry::projection<Q,d> &projection;
-                geometry::transformation<Q,d> combined;
+                geometry::transformation::projective<Q,d> combined;
                 opengl<Q,d-1> &lowerRenderer;
+
+                void pushLines (void) const { lowerRenderer.pushLines(); };
+                void pushFaces (void) const { lowerRenderer.pushFaces(); };
         };
 
-#if defined(GL3D)
         template<typename Q>
         class opengl<Q,3>
         {
             public:
                 opengl
-                    (const geometry::transformation<Q,3> &pTransformation,
+                    (const geometry::transformation::affine<Q,3> &pTransformation,
                      const geometry::projection<Q,3> &pProjection,
                      const opengl<Q,2> &)
                     : transformation(pTransformation), projection(pProjection),
-                      haveBuffers(false), prepared(false)
+                      haveBuffers(false), prepared(false),
+                      programRegular(0), programFlameColouring(0), programFlameHistogram(0), programFlamePostProcess(0),
+                      framebufferFlameColouring(0), framebufferFlameHistogram(0),
+                      textureFlameColouring(0), textureFlameHistogram(0), textureFlameColourMap(0)
                     {
                     }
 
@@ -120,102 +205,202 @@ namespace efgy
                     {
                         if (haveBuffers)
                         {
+                            glDeleteBuffers(1, &vertexbufferFullscreenQuad);
                             glDeleteBuffers(1, &vertexbuffer);
                             glDeleteBuffers(1, &elementbuffer);
                             glDeleteBuffers(1, &linebuffer);
+                        }
+
+                        if (programRegular)
+                        {
+                            glDeleteProgram(programRegular);
+                        }
+                        if (programFlameColouring)
+                        {
+                            glDeleteProgram(programFlameColouring);
+                        }
+                        if (programFlameHistogram)
+                        {
+                            glDeleteProgram(programFlameHistogram);
+                        }
+                        if (programFlamePostProcess)
+                        {
+                            glDeleteProgram(programFlamePostProcess);
+                        }
+                        if (framebufferFlameHistogram)
+                        {
+                            glDeleteFramebuffers(1, &framebufferFlameHistogram);
+                        }
+                        if (framebufferFlameColouring)
+                        {
+                            glDeleteFramebuffers(1, &framebufferFlameColouring);
+                        }
+                        if (textureFlameColouring)
+                        {
+                            glDeleteTextures(1, &textureFlameColouring);
+                        }
+                        if (textureFlameHistogram)
+                        {
+                            glDeleteTextures(1, &textureFlameHistogram);
+                        }
+                        if (textureFlameColourMap)
+                        {
+                            glDeleteTextures(1, &textureFlameColourMap);
                         }
                     }
 
                 void frameStart (void)
                 {
-#if !defined(GLVA)
-                    glMatrixMode(GL_MODELVIEW);
-                    GLfloat mat[16] =
-                        { GLfloat(transformation.transformationMatrix.data[0][0]),
-                          GLfloat(transformation.transformationMatrix.data[0][1]),
-                          GLfloat(transformation.transformationMatrix.data[0][2]),
-                          GLfloat(transformation.transformationMatrix.data[0][3]),
-                          GLfloat(transformation.transformationMatrix.data[1][0]),
-                          GLfloat(transformation.transformationMatrix.data[1][1]),
-                          GLfloat(transformation.transformationMatrix.data[1][2]),
-                          GLfloat(transformation.transformationMatrix.data[1][3]),
-                          GLfloat(transformation.transformationMatrix.data[2][0]),
-                          GLfloat(transformation.transformationMatrix.data[2][1]),
-                          GLfloat(transformation.transformationMatrix.data[2][2]),
-                          GLfloat(transformation.transformationMatrix.data[2][3]),
-                          GLfloat(transformation.transformationMatrix.data[3][0]),
-                          GLfloat(transformation.transformationMatrix.data[3][1]),
-                          GLfloat(transformation.transformationMatrix.data[3][2]),
-                          GLfloat(transformation.transformationMatrix.data[3][3]) };
-                    glLoadMatrixf(mat);
-                    glMatrixMode(GL_PROJECTION);
-                    /*
-                    GLfloat matp[16] =
-                        { GLfloat(projection.transformationMatrix.data[0][0]),
-                          GLfloat(projection.transformationMatrix.data[0][1]),
-                          GLfloat(projection.transformationMatrix.data[0][2]),
-                          GLfloat(projection.transformationMatrix.data[0][3]),
-                          GLfloat(projection.transformationMatrix.data[1][0]),
-                          GLfloat(projection.transformationMatrix.data[1][1]),
-                          GLfloat(projection.transformationMatrix.data[1][2]),
-                          GLfloat(projection.transformationMatrix.data[1][3]),
-                          GLfloat(projection.transformationMatrix.data[2][0]),
-                          GLfloat(projection.transformationMatrix.data[2][1]),
-                          GLfloat(projection.transformationMatrix.data[2][2]),
-                          GLfloat(projection.transformationMatrix.data[2][3]),
-                          GLfloat(projection.transformationMatrix.data[3][0]),
-                          GLfloat(projection.transformationMatrix.data[3][1]),
-                          GLfloat(projection.transformationMatrix.data[3][2]),
-                          GLfloat(projection.transformationMatrix.data[3][3]) };
-                    glLoadMatrixf(matp);
-                     */
-                    glLoadIdentity();
-#endif
-                    
                     if(!haveBuffers)
                     {
                         haveBuffers = true;
 
-#if defined(GLVA)
-                        glGenVertexArrays(1, &VertexArrayID);
+                        glGenFramebuffers(1, &framebufferFlameColouring);
+                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
+                        glGenTextures(1, &textureFlameColouring);
+
+                        glGenFramebuffers(1, &framebufferFlameHistogram);
+                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
+                        glGenTextures(1, &textureFlameHistogram);
+
+                        glGenTextures(1, &textureFlameColourMap);
+
+                        loadShaders(programRegular, false, false, false);
+                        loadShaders(programFlameColouring, true, false, false);
+                        loadShaders(programFlameHistogram, true, false, true);
+                        loadShaders(programFlamePostProcess, true, true, false);
+
+#if !defined(NOVAO)
+                        glGenVertexArrays(1, &vertexArrayFullscreenQuad);
+                        glBindVertexArray(vertexArrayFullscreenQuad);
+#endif
+                        glGenBuffers(1, &vertexbufferFullscreenQuad);
+                        glBindBuffer(GL_ARRAY_BUFFER, vertexbufferFullscreenQuad);
+
+                        static const GLfloat fullscreenQuadBufferData[] =
+                        {
+                            -1.0f, -1.0f,  0.0f,
+                             1.0f, -1.0f,  0.0f,
+                            -1.0f,  1.0f,  0.0f,
+                            -1.0f,  1.0f,  0.0f,
+                             1.0f, -1.0f,  0.0f,
+                             1.0f,  1.0f,  0.0f
+                        };
+                        
+                        glBufferData(GL_ARRAY_BUFFER, sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData, GL_STATIC_DRAW);
+#if !defined(NOVAO)
+                        glEnableVertexAttribArray(attributePosition);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+#endif
+                        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+#if !defined(NOVAO)
+                        glGenVertexArrays(1, &vertexArrayModel);
 #endif
                         glGenBuffers(1, &vertexbuffer);
                         glGenBuffers(1, &elementbuffer);
                         glGenBuffers(1, &linebuffer);
+
+                        setColourMap();
                     }
-                    /*
-                    if (prepared)
+
+                    glViewport(0, 0, width, height);
+
+                    const geometry::transformation::projective<Q,3> combined = transformation * projection;
+
+                    GLfloat mat[16] =
+                      { GLfloat(combined.transformationMatrix.data[0][0]),
+                        GLfloat(combined.transformationMatrix.data[0][1]),
+                        GLfloat(combined.transformationMatrix.data[0][2]),
+                        GLfloat(combined.transformationMatrix.data[0][3]),
+                        GLfloat(combined.transformationMatrix.data[1][0]),
+                        GLfloat(combined.transformationMatrix.data[1][1]),
+                        GLfloat(combined.transformationMatrix.data[1][2]),
+                        GLfloat(combined.transformationMatrix.data[1][3]),
+                        GLfloat(combined.transformationMatrix.data[2][0]),
+                        GLfloat(combined.transformationMatrix.data[2][1]),
+                        GLfloat(combined.transformationMatrix.data[2][2]),
+                        GLfloat(combined.transformationMatrix.data[2][3]),
+                        GLfloat(combined.transformationMatrix.data[3][0]),
+                        GLfloat(combined.transformationMatrix.data[3][1]),
+                        GLfloat(combined.transformationMatrix.data[3][2]),
+                        GLfloat(combined.transformationMatrix.data[3][3]) };
+
+                    math::matrix<Q,3,3> normalMatrix;
+
+                    for (unsigned int i = 0; i < 3; i++)
                     {
-                        prepared = false;
+                        for (unsigned int j = 0; j < 3; j++)
+                        {
+                            normalMatrix.data[i][j] = transformation.transformationMatrix.data[i][j];
+                        }
                     }
-                     */
+
+                    normalMatrix = math::transpose(math::invert(math::transpose(normalMatrix)));
+
+                    GLfloat matn[9] =
+                      { GLfloat(normalMatrix.data[0][0]),
+                        GLfloat(normalMatrix.data[0][1]),
+                        GLfloat(normalMatrix.data[0][2]),
+                        GLfloat(normalMatrix.data[1][0]),
+                        GLfloat(normalMatrix.data[1][1]),
+                        GLfloat(normalMatrix.data[1][2]),
+                        GLfloat(normalMatrix.data[2][0]),
+                        GLfloat(normalMatrix.data[2][1]),
+                        GLfloat(normalMatrix.data[2][2]) };
+
+                    if (fractalFlameColouring)
+                    {
+                        glUseProgram(programFlameHistogram);
+                        glUniformMatrix4fv(uniformsFlameHistogram[efgy::render::uniformProjectionMatrix], 1, 0, mat);
+                        glUniformMatrix3fv(uniformsFlameHistogram[efgy::render::uniformNormalMatrix], 1, 0, matn);
+
+                        glUseProgram(programFlameColouring);
+                        for (unsigned int i = 0; i < uniformMax; i++)
+                        {
+                            uniforms[i] = uniformsFlameColouring[i];
+                        }
+                    }
+                    else
+                    {
+                        glUseProgram(programRegular);
+                        for (unsigned int i = 0; i < uniformMax; i++)
+                        {
+                            uniforms[i] = uniformsRegular[i];
+                        }
+                    }
+
+                    glUniformMatrix4fv(uniforms[efgy::render::uniformProjectionMatrix], 1, 0, mat);
+                    glUniformMatrix3fv(uniforms[efgy::render::uniformNormalMatrix], 1, 0, matn);
                 };
+
                 void frameEnd (void)
                 {
                     if (!prepared)
                     {
                         prepared = true;
 
-                        //std::cerr << "cn:" << vertices.size() << "=" << (vertices.size()/6) << ":" << triindices.size() << "=" << (triindices.size()/3)<< ":" << lineindices.size() << "=" << (lineindices.size()/2)<< "\n";
-
-#if defined(GLVA)
-                        glGenVertexArrays(1, &VertexArrayID);
-                        glBindVertexArray(VertexArrayID);
+#if !defined(NOVAO)
+                        glBindVertexArray(vertexArrayModel);
 #endif
                         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
                         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
-/*                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, triindices.size() * sizeof(unsigned int), &triindices[0], GL_STATIC_DRAW);
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
-                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);*/
-#if defined(GLVA)
+                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);
+#if !defined(NOVAO)
                         glEnableVertexAttribArray(attributePosition);
-                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), 0);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
                         glEnableVertexAttribArray(attributeNormal);
-                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(attributeIndex);
+                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+#endif
 
-//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
+#if !defined(NOVAO)
                         glBindVertexArray(0);
 #endif
 
@@ -228,102 +413,118 @@ namespace efgy
                         lineindices.clear();
                         indices = 0;
                     }
+
+                    if (fractalFlameColouring)
+                    {
+                        glUseProgram(programFlameColouring);
+                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
+
+                        glActiveTexture(GL_TEXTURE0 + 0);
+
+                        glBindTexture(GL_TEXTURE_2D, textureFlameColouring);
+                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+                        
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+                        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameColouring, 0);
+                        glDepthMask(GL_FALSE);
+                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
+                        glDisable(GL_DEPTH_TEST);
+
+                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                        pushFaces();
+
+                        glUseProgram(programFlameHistogram);
+                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
+
+                        glActiveTexture(GL_TEXTURE0 + 1);
+
+                        glBindTexture(GL_TEXTURE_2D, textureFlameHistogram);
+                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+                         
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+                        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameHistogram, 0);
+                         
+                        glBlendFunc (GL_ZERO, GL_SRC_ALPHA);
+
+                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+ 
+                        pushFaces();
+
+                        glUseProgram(programFlamePostProcess);
+
+                        glUniform1i(uniformScreenFramebuffer, 0);
+                        glUniform1i(uniformScreenHistogram, 1);
+
+                        glActiveTexture(GL_TEXTURE0 + 2);
+                        glBindTexture(GL_TEXTURE_2D, textureFlameColourMap);
+                        glUniform1i(uniformColourMap, 2);
+
+                        glBlendFunc (GL_ONE, GL_ZERO);
+
+                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+#if !defined(NOVAO)
+                        glBindVertexArray(vertexArrayFullscreenQuad);
+#endif
+                        glBindBuffer(GL_ARRAY_BUFFER, vertexbufferFullscreenQuad);
+
+#if defined(NOVAO)
+                        glEnableVertexAttribArray(attributePosition);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+#endif
+
+                        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
+                    }
+                    else
+                    {
+                        glUseProgram(programRegular);
+                        glDepthMask(GL_TRUE);
+                        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        glEnable(GL_DEPTH_TEST);
+                        glDepthFunc(GL_LEQUAL);
+
+                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                        pushLines();
+                        pushFaces();
+                    }
                 };
-
-                void pushLines (void) const
-                {
-                    if (prepared)
-                    {
-#if defined(GLVA)
-                        glBindVertexArray(VertexArrayID);
-                        
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
-                        glDrawArrays(GL_LINES, 0, lindices);
-                        
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                        glBindVertexArray(0);
-#else
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
-                        glEnableClientState(GL_VERTEX_ARRAY);
-                        glEnableClientState(GL_NORMAL_ARRAY);
-                        glVertexPointer(3, GL_FLOAT, 6*sizeof(GLfloat), 0);
-                        glNormalPointer(GL_FLOAT, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-                        glDrawElements (GL_LINES, lindices, GL_UNSIGNED_INT, 0);
-                        
-                        glDisableClientState(GL_NORMAL_ARRAY);
-                        glDisableClientState(GL_VERTEX_ARRAY);
-                        
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#endif
-                    }
-                }
-
-                void pushFaces (void) const
-                {
-                    if (prepared)
-                    {
-#if defined(GLVA)
-                        glBindVertexArray(VertexArrayID);
-
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-                        glDrawArrays(GL_TRIANGLES, lindices, tindices);
-                        
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-//                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                        glBindVertexArray(0);
-#else
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-                        glEnableClientState(GL_VERTEX_ARRAY);
-                        glEnableClientState(GL_NORMAL_ARRAY);
-                        glVertexPointer(3, GL_FLOAT, 6*sizeof(GLfloat), 0);
-                        glNormalPointer(GL_FLOAT, 6*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-                        glDrawElements (GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
-
-                        glDisableClientState(GL_NORMAL_ARRAY);
-                        glDisableClientState(GL_VERTEX_ARRAY);
-
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#endif
-                    }
-                }
-
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,3>::vector &pA,
-                     const typename geometry::euclidian::space<Q,3>::vector &pB);
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV);
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV, const Q &index = 0.5);
 
                 void reset (void) { prepared = false; }
                 const bool isPrepared (void) const { return prepared; }
 
                 unsigned int addVertex
                     (const GLfloat &x, const GLfloat &y, const GLfloat &z,
-                     const GLfloat &nx = 0.f, const GLfloat &ny = 0.f, const GLfloat &nz = 0.f)
+                     const GLfloat &nx, const GLfloat &ny, const GLfloat &nz,
+                     const GLfloat &index)
                 {
-#if !defined(GLVA)
-                    std::vector<GLfloat> key (6);
+                    std::vector<GLfloat> key (7);
                     key[0] = x;
                     key[1] = y;
                     key[2] = z;
                     key[3] = nx;
                     key[4] = ny;
                     key[5] = nz;
-                    
+                    key[6] = index;
+
                     std::map<std::vector<GLfloat>,unsigned int>::iterator it = vertexmap.find(key);
                     if (it != vertexmap.end())
                     {
                         return it->second;
                     }
-#endif
 
                     vertices.push_back(x);
                     vertices.push_back(y);
@@ -333,27 +534,65 @@ namespace efgy
                     vertices.push_back(ny);
                     vertices.push_back(nz);
 
+                    vertices.push_back(index);
+
                     unsigned int rv = indices;
 
                     indices++;
 
-#if !defined(GLVA)
                     vertexmap[key] = rv;
-#endif
 
                     return rv;
                 }
 
-                bool setColour (float pRed, float pGreen, float pBlue, float pAlpha)
+                bool setColour (float pRed, float pGreen, float pBlue, float pAlpha, bool pWireframe)
                 {
-#if !defined (GLVA)
-                    glColor4f(pRed, pGreen, pBlue, pAlpha);
-#endif
+                    if (pWireframe)
+                    {
+                        linesEnabled = pAlpha > 0.f;
+                        lineDepthMask = true;
+                        wireframeColour[0] = pRed;
+                        wireframeColour[1] = pGreen;
+                        wireframeColour[2] = pBlue;
+                        wireframeColour[3] = pAlpha;
+                    }
+                    else
+                    {
+                        facesEnabled = pAlpha > 0.f;
+                        faceDepthMask = pAlpha >= 1.f;
+                        surfaceColour[0] = pRed;
+                        surfaceColour[1] = pGreen;
+                        surfaceColour[2] = pBlue;
+                        surfaceColour[3] = pAlpha;
+                    }
                     return true;
                 }
+            
+                void setColourMap (void)
+                {
+                    glBindTexture(GL_TEXTURE_2D, textureFlameColourMap);
+                    std::vector<unsigned char> colours;
+                    
+                    for (unsigned int i = 0; i < 8; i++)
+                    {
+                        colours.push_back(std::rand()%255);
+                        colours.push_back(std::rand()%255);
+                        colours.push_back(std::rand()%255);
+                        colours.push_back(255);
+                    }
+
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GLsizei(colours.size()/4), 1, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &colours[0]);
+                    
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                }
+
+                bool fractalFlameColouring;
+                GLuint width;
+                GLuint height;
 
             protected:
-                const geometry::transformation<Q,3> &transformation;
+                const geometry::transformation::affine<Q,3> &transformation;
                 const geometry::projection<Q,3> &projection;
                 std::vector<GLfloat> vertices;
                 std::map<std::vector<GLfloat>,unsigned int> vertexmap;
@@ -364,89 +603,259 @@ namespace efgy
                 GLsizei lindices;
                 bool haveBuffers;
                 bool prepared;
-                GLuint VertexArrayID;
+#if !defined(NOVAO)
+                GLuint vertexArrayModel;
+                GLuint vertexArrayFullscreenQuad;
+#endif
                 GLuint vertexbuffer;
+                GLuint vertexbufferFullscreenQuad;
                 GLuint elementbuffer;
                 GLuint linebuffer;
-        };
+                GLuint programRegular;
+                GLuint programFlameColouring;
+                GLuint programFlameHistogram;
+                GLuint programFlamePostProcess;
+                GLint uniforms[uniformMax];
+                GLint uniformsRegular[uniformMax];
+                GLint uniformsFlameColouring[uniformMax];
+                GLint uniformsFlameHistogram[uniformMax];
+                bool linesEnabled;
+                bool facesEnabled;
+                bool lineDepthMask;
+                bool faceDepthMask;
+                GLfloat wireframeColour[4];
+                GLfloat surfaceColour[4];
+                GLuint framebufferFlameColouring;
+                GLuint framebufferFlameHistogram;
+                GLuint textureFlameColouring;
+                GLuint textureFlameHistogram;
+                GLuint textureFlameColourMap;
+                GLuint uniformScreenFramebuffer;
+                GLuint uniformScreenHistogram;
+                GLuint uniformColourMap;
+
+                bool compileShader (GLuint &shader, GLenum type, const char *data)
+                {
+                    GLint status;
+                    const GLchar *source = (const GLchar *)data;
+                    
+                    shader = glCreateShader(type);
+                    glShaderSource(shader, 1, &source, NULL);
+                    glCompileShader(shader);
+                    
+#if defined(DEBUG)
+                    GLint logLength;
+                    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+                    if (logLength > 0)
+                    {
+                        GLchar *log = new GLchar[logLength];
+                        glGetShaderInfoLog(shader, logLength, &logLength, log);
+                        std::cerr << "Shader compile log:\n" << log << "\n";
+                        delete[] log;
+                    }
 #endif
+                    
+                    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+                    if (status == 0) {
+                        glDeleteShader(shader);
+                        return false;
+                    }
+                    
+                    return true;
+                }
+
+                bool linkProgram (GLuint prog)
+                {
+                    GLint status;
+                    glLinkProgram(prog);
+                    
+#if defined(DEBUG)
+                    GLint logLength;
+                    glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
+                    if (logLength > 0)
+                    {
+                        GLchar *log = new GLchar[logLength];
+                        glGetProgramInfoLog(prog, logLength, &logLength, log);
+                        std::cerr << "Program link log:\n" << log << "\n";
+                        delete[] log;
+                    }
+#endif
+                    
+                    glGetProgramiv(prog, GL_LINK_STATUS, &status);
+                    if (status == 0)
+                    {
+                        return false;
+                    }
+                    
+                    return true;
+                }
+
+                bool loadShaders (GLuint &program, const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
+                {
+                    GLuint vertShader, fragShader;
+                    
+                    program = glCreateProgram();
+                    
+                    if (!compileShader(vertShader, GL_VERTEX_SHADER, getVertexShader(fractalFlameColouring, postProcess, renderHistogram).c_str()))
+                    {
+                        std::cerr << "Failed to compile vertex shader\n";
+                        return false;
+                    }
+                    
+                    if (!compileShader(fragShader, GL_FRAGMENT_SHADER, getFragmentShader(fractalFlameColouring, postProcess, renderHistogram).c_str()))
+                    {
+                        std::cerr << "Failed to compile fragment shader\n";
+                        return false;
+                    }
+                    
+                    glAttachShader(program, vertShader);
+                    
+                    glAttachShader(program, fragShader);
+                    
+                    glBindAttribLocation(program, attributePosition, "position");
+                    glBindAttribLocation(program, attributeNormal,   "normal");
+                    glBindAttribLocation(program, attributeIndex,    "index");
+                    
+                    if (!linkProgram(program))
+                    {
+                        std::cerr << "Failed to link program: " << program << "\n";
+                        
+                        if (vertShader) {
+                            glDeleteShader(vertShader);
+                            vertShader = 0;
+                        }
+                        if (fragShader) {
+                            glDeleteShader(fragShader);
+                            fragShader = 0;
+                        }
+                        if (program) {
+                            glDeleteProgram(program);
+                            program = 0;
+                        }
+                        
+                        return false;
+                    }
+                    
+                    // Get uniform locations.
+                    if (!postProcess)
+                    {
+                        if (renderHistogram)
+                        {
+                            uniformsFlameHistogram[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
+                            uniformsFlameHistogram[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
+                            uniformsFlameHistogram[uniformColour]           = glGetUniformLocation(program, "colour");
+                        }
+                        else if (fractalFlameColouring)
+                        {
+                            uniformsFlameColouring[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
+                            uniformsFlameColouring[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
+                            uniformsFlameColouring[uniformColour]           = glGetUniformLocation(program, "colour");
+                        }
+                        else
+                        {
+                            uniformsRegular[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
+                            uniformsRegular[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
+                            uniformsRegular[uniformColour]           = glGetUniformLocation(program, "colour");
+                        }
+                    }
+                    else
+                    {
+                        uniformScreenFramebuffer = glGetUniformLocation(program, "screenFramebuffer");
+                        uniformScreenHistogram   = glGetUniformLocation(program, "screenHistogram");
+                        uniformColourMap         = glGetUniformLocation(program, "colourMap");
+                    }
+                    
+                    // Release vertex and fragment shaders.
+                    if (vertShader) {
+                        glDetachShader(program, vertShader);
+                        glDeleteShader(vertShader);
+                    }
+                    if (fragShader) {
+                        glDetachShader(program, fragShader);
+                        glDeleteShader(fragShader);
+                    }
+                    
+                    return true;
+                }
+
+                void pushLines (void) const
+                {
+                    if (prepared && linesEnabled && !fractalFlameColouring)
+                    {
+                        glUniform4f(uniforms[uniformColour], wireframeColour[0], wireframeColour[1], wireframeColour[2], wireframeColour[3]);
+
+                        glDepthMask (lineDepthMask ? GL_TRUE : GL_FALSE);
+
+#if !defined(NOVAO)
+                        glBindVertexArray(vertexArrayModel);
+#endif
+                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
+
+#if defined(NOVAO)
+                        glEnableVertexAttribArray(attributePosition);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
+                        glEnableVertexAttribArray(attributeNormal);
+                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(attributeIndex);
+                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+#endif
+
+                        glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#if !defined(NOVAO)
+                        glBindVertexArray(0);
+#endif
+                    }
+                }
+            
+                void pushFaces (void) const
+                {
+                    if (prepared && (facesEnabled || fractalFlameColouring))
+                    {
+                        glUniform4f(uniforms[uniformColour], surfaceColour[0], surfaceColour[1], surfaceColour[2], surfaceColour[3]);
+
+                        glDepthMask (faceDepthMask ? GL_TRUE : GL_FALSE);
+
+#if !defined(NOVAO)
+                        glBindVertexArray(vertexArrayModel);
+#endif
+                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+
+#if defined(NOVAO)
+                        glEnableVertexAttribArray(attributePosition);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
+                        glEnableVertexAttribArray(attributeNormal);
+                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(attributeIndex);
+                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+#endif
+
+                        glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
+                        
+                        glBindBuffer(GL_ARRAY_BUFFER, 0);
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#if !defined(NOVAO)
+                        glBindVertexArray(0);
+#endif
+                    }
+                }
+        };
 
         template<typename Q>
         class opengl<Q,2>
         {
             public:
-                opengl
-                    (const geometry::transformation<Q,2> &pTransformation)
-                    : transformation(pTransformation)
-                    {}
-
-                void frameStart (void) const {};
-                void frameEnd (void) const {};
-                void pushLines (void) const {};
-                void pushFaces (void) const {};
-
-                void drawLine
-                    (const typename geometry::euclidian::space<Q,2>::vector &pA,
-                     const typename geometry::euclidian::space<Q,2>::vector &pB) const;
-
-                template<unsigned int q>
-                void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV) const;
-
-                void reset (void) {}
-                const bool isPrepared (void) const { return false; }
-                bool setColour (float red, float green, float blue, float alpha) const { return false; }
-
-            protected:
-                const geometry::transformation<Q,2> &transformation;
+                opengl (const geometry::transformation::affine<Q,2> &) {}
         };
-
-        template<typename Q, unsigned int d>
-        void opengl<Q,d>::drawLine
-            (const typename geometry::euclidian::space<Q,d>::vector &pA,
-             const typename geometry::euclidian::space<Q,d>::vector &pB) const
-        {
-            if (isPrepared()) return;
-            
-            typename geometry::euclidian::space<Q,d-1>::vector A = combined.project(pA);
-            typename geometry::euclidian::space<Q,d-1>::vector B = combined.project(pB);
-
-            lowerRenderer.drawLine(A, B);
-        }
-
-        template<typename Q, unsigned int d>
-        template<unsigned int q>
-        void opengl<Q,d>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV) const
-        {
-            if (isPrepared()) return;
-
-            math::tuple<q, typename geometry::euclidian::space<Q,d-1>::vector> V;
-
-            for (unsigned int i = 0; i < q; i++)
-            {
-                V.data[i] = combined.project(pV.data[i]);
-            }
-
-            lowerRenderer.drawFace(V);
-        }
-
-#if defined(GL3D)
-        template<typename Q>
-        void opengl<Q,3>::drawLine
-            (const typename geometry::euclidian::space<Q,3>::vector &A,
-             const typename geometry::euclidian::space<Q,3>::vector &B)
-        {
-            if (isPrepared()) return;
-
-            lineindices.push_back(addVertex(GLfloat(A.data[0]), GLfloat(A.data[1]), GLfloat(A.data[2])));
-            lineindices.push_back(addVertex(GLfloat(B.data[0]), GLfloat(B.data[1]), GLfloat(B.data[2])));
-        }
 
         template<typename Q>
         template<unsigned int q>
         void opengl<Q,3>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV)
+            (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV, const Q &index)
         {
             if (isPrepared()) return;
 
@@ -461,72 +870,58 @@ namespace efgy
                         (pV.data[2] - pV.data[0], pV.data[1] - pV.data[0]));
 
             triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+            unsigned int nstartf = triindices.back();
+            lineindices.push_back(nstartf);
             triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
-                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+            lineindices.push_back(triindices.back());
+            lineindices.push_back(triindices.back());
             triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
-                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+            unsigned int nendf = triindices.back();
+            lineindices.push_back(nendf);
 
             triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
-                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+            unsigned int nendb = triindices.back();
+            lineindices.push_back(nendb);
             triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
-                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+            lineindices.push_back(triindices.back());
+            lineindices.push_back(triindices.back());
             triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+            unsigned int nstartb = triindices.back();
+            lineindices.push_back(nstartb);
 
             for (unsigned int j = 3; j < q; j++)
             {
                 triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
                 triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
-                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                lineindices.push_back(triindices.back());
                 triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
-                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2])));
+                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                lineindices.push_back(triindices.back());
+                nendf = triindices.back();
 
                 triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
-                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                nendb = triindices.back();
+                lineindices.push_back(triindices.back());
                 triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
-                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                lineindices.push_back(triindices.back());
                 triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2])));
+                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
             }
-        }
-#endif
 
-        template<typename Q>
-        void opengl<Q,2>::drawLine
-            (const typename geometry::euclidian::space<Q,2>::vector &pA,
-             const typename geometry::euclidian::space<Q,2>::vector &pB) const
-        {
-            const typename geometry::euclidian::space<Q,3>::vector A = transformation * pA;
-            const typename geometry::euclidian::space<Q,3>::vector B = transformation * pB;
-
-            const GLfloat vertices[6] =
-                { GLfloat(A.data[0]), GLfloat(A.data[1]), 0,
-                  GLfloat(B.data[0]), GLfloat(B.data[1]), 0 };
-
-            glNormalPointer(GL_FLOAT, 0, vertices);
-            glVertexPointer(3, GL_FLOAT, 0, vertices);
-            glDrawArrays(GL_LINES, 0, 2);
-        }
-
-        template<typename Q>
-        template<unsigned int q>
-        void opengl<Q,2>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV) const
-        {
-            GLfloat vertices[(q*3)];
-            for (unsigned int i = 0; i < q; i++)
-            {
-                const typename geometry::euclidian::space<Q,3>::vector V = transformation * pV.data[i];
-
-                vertices[(i*3)+0] = V.data[0];
-                vertices[(i*3)+1] = V.data[1];
-                vertices[(i*3)+2] = 0;
-            }
-            glNormalPointer(GL_FLOAT, 0, vertices);
-            glVertexPointer(3, GL_FLOAT, 0, vertices);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, q);
+            lineindices.push_back(nendf);
+            lineindices.push_back(nstartf);
+            lineindices.push_back(nstartb);
+            lineindices.push_back(nendb);
         }
     };
 };
