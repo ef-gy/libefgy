@@ -55,10 +55,34 @@ int main (int argc, char **argv)
         return 3;
     }
 
+    something = nothing;
+
     if (something)
     {
         cerr << "'something' was changed to 'nothing', but still thinks otherwise.\n";
         return 4;
+    }
+
+    maybe<double> somethingElse (something);
+
+    if (somethingElse)
+    {
+        cerr << "value should have been 'nothing'\n";
+        return 5;
+    }
+
+    somethingElse = maybe<int>(42);
+
+    if (!somethingElse)
+    {
+        cerr << "value should have been something other than 'nothing'\n";
+        return 6;
+    }
+
+    if (double(somethingElse) != 42)
+    {
+        cerr << "value should have been '42', but is '" << double(somethingElse) << "'\n";
+        return 7;
     }
 
     return 0;
