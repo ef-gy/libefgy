@@ -1,7 +1,5 @@
 /*
- * This file is part of the ef.gy project.
- * See the appropriate repository at http://ef.gy/.git for exact file
- * modification records.
+ * This file is part of the libefgy project.
 */
 
 /*
@@ -26,27 +24,38 @@
  * THE SOFTWARE.
 */
 
-#if !defined(EF_GY_MATH_H)
-#define EF_GY_MATH_H
+#include <iostream>
 
-#include <ef.gy/integers.h>
+#include <ef.gy/primitive.h>
 #include <ef.gy/fractions.h>
-#include <ef.gy/factorial.h>
-#include <ef.gy/complex.h>
-#include <ef.gy/e.h>
 #include <ef.gy/pi.h>
-#include <ef.gy/matrix.h>
-#include <ef.gy/trigonometrics.h>
-#include <ef.gy/tuple.h>
-#include <ef.gy/coordinate-space.h>
-#include <ef.gy/polynomial.h>
-#include <ef.gy/exponential.h>
 
-namespace efgy
+using namespace efgy::math;
+using namespace std;
+
+typedef primitive<long double, unsigned long long> longDouble;
+
+int main (int argc, char **argv)
 {
-    namespace math
-    {
-    };
-};
+    pi<longDouble,1> piD1;
+    pi<longDouble,2> piD2;
+    pi<longDouble,3> piD3;
+    pi<longDouble,4> piD4;
 
-#endif
+    std::cerr << "pi<1> = " << (long double)longDouble(piD1) << "\n";
+    std::cerr << "pi<2> = " << (long double)longDouble(piD2) << "\n";
+    std::cerr << "pi<3> = " << (long double)longDouble(piD3) << "\n";
+    std::cerr << "pi<4> = " << (long double)longDouble(piD4) << "\n";
+
+    pi<fraction,1> piQ1;
+    pi<fraction,2> piQ2;
+    pi<fraction,3> piQ3;
+    pi<fraction,4> piQ4;
+
+    std::cerr << "pi<fraction,1> = " << (string)fraction(piQ1) << "\n";
+    std::cerr << "pi<fraction,2> = " << (string)fraction(piQ2) << "\n";
+    std::cerr << "pi<fraction,3> = " << (string)fraction(piQ3) << "\n";
+    std::cerr << "pi<fraction,4> = " << (string)fraction(piQ4) << "\n";
+
+    return 0;
+}

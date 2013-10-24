@@ -29,33 +29,88 @@
 #if !defined(EF_GY_PI_H)
 #define EF_GY_PI_H
 
+/**\file
+ * \brief Calculate 'pi'
+ *
+ * This file contains a template class to calculate arbitrarily accurate
+ * approximations of 'pi' based on the algorithm described by Bailey et al in
+ * 1997.
+ */
+
 namespace efgy
 {
+    /**\brief Classes and functions dealing with mathematics
+     *
+     * This namespace contains all sorts of classes and functions more or less
+     * loosely related to mathematics in one way or another. This does not
+     * include code that fits better into some other namespace.
+     *
+     * Use the 'using' directive after including the headers you need if you
+     * don't want to use fully qualified names everywhere:
+     *
+     * \code
+     * using namespace efgy::math;
+     * \endcode
+     */
     namespace math
     {
-        /* This class is used to handle (and calculate) pi with arbitrary precision (up to the
-         * chosen data type's limits, anyway). Results start to get unstable with iterations > 4
-         * when used with the default fraction data type. pi<Q,4> results in an approximation
-         * that is already accurate to +/- 1.960*10^-7. If you use a larger integer base for
-         * Q, you should be able to get an arbitrarily precise approximation to pi.
+        /**\brief Calculate 'pi' with arbitrary precision
          *
-         * To calculate pi we use the power series expansion described by Bailey et al in 1997.
-         * */
+         * This class is used to handle (and calculate) pi with arbitrary
+         * precision (up to the chosen data type's limits, anyway). Results
+         * start to get unstable with iterations > 4 when used with the
+         * default fraction data type. pi<Q,4> results in an approximation
+         * that is already accurate to +/- 1.960*10^-7. If you use a larger
+         * integer base for Q you should be able to get an arbitrarily precise
+         * approximation to pi.
+         *
+         * To calculate pi we use the power series expansion described by
+         * Bailey et al in 1997.
+         *
+         * \tparam Q          The data type to use in the calculations -
+         *                    should be rational or similar. Must be a class
+         *                    that defines an integer subtype and behaves like
+         *                    a typical numeric data type.
+         * \tparam iterations The number of iterations to run Bailey's
+         *                    algorithm. This is a compile time constant in
+         *                    the hope that the compiler will be able to
+         *                    substitute a constant value for base data types.
+         */
         template <typename Q, unsigned int iterations = 3>
         class pi
         {
             public:
+                /**\brief The base data type's integer type
+                 */
                 typedef typename Q::integer integer;
-                typedef Q rational;
 
-                pi()
+                /**\brief Default constructor
+                 *
+                 * Initialises the object so that it creates an approximation
+                 * of 1*pi.
+                 */
+                pi(void)
                     : factor(Q(1))
                     {}
 
+                /**\brief Construct with factor
+                 *
+                 * Initialises the object so that it creates an approximation
+                 * of pFactor * pi.
+                 *
+                 * \param[in] pFactor The factor to multiply pi with.
+                 */
                 pi(const Q &pFactor)
                     : factor(pFactor)
                     {}
 
+                /**\brief Calculate approximation of pi
+                 *
+                 * Cast a pi object to the type you specified with the template
+                 * parameter Q to access an appropriate approximation of pi.
+                 *
+                 * \return The approximation of pi with the given parameters.
+                 */
                 operator Q (void) const
                 {
                     Q rv = Q();
@@ -68,20 +123,24 @@ namespace efgy
                     return rv;
                 }
 
-                Q factor;
-
             protected:
+                /**\brief Get specific member of sequence
+                 *
+                 * Bailey's algorithm uses a sequence that converges to pi
+                 * fairly quickly. This function generates the individual
+                 * sequence members.
+                 */
                 Q getSequenceMemberAt (unsigned int n) const
                 {
-                    Q one = integer(1);
-                    Q two = integer(2);
-                    Q four = integer(4);
-                    Q five = integer(5);
-                    Q six = integer(6);
-                    Q eight = integer(8);
-                    Q d = one / integer(16);
+                    const Q one = integer(1);
+                    const Q two = integer(2);
+                    const Q four = integer(4);
+                    const Q five = integer(5);
+                    const Q six = integer(6);
+                    const Q eight = integer(8);
+                    const Q d = Q(one) / Q(16);
 
-                    Q cn = integer(n);
+                    const Q cn = integer(n);
                     Q rv = integer(1);
 
                     if (n > 0)
@@ -96,6 +155,12 @@ namespace efgy
 
                     return factor * rv * (four/(eight*cn+one) - two/(eight*cn+four) - one/(eight*cn+five) - one/(eight*cn+six));
                 }
+
+                /**\brief The factor to multiply pi with
+                 *
+                 * This is set to an appropriate value in the constructor.
+                 */
+                const Q factor;
         };
     };
 };
