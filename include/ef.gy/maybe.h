@@ -29,9 +29,22 @@
 #if !defined(EF_GY_MAYBE_H)
 #define EF_GY_MAYBE_H
 
+/** \file
+  * \brief Haskell-like "maybe" template
+  *
+  * This header implements a 'maybe' template, much like the one found in the
+  * programming language Haskell. The basic idea is that you have a class that
+  * either contains a value, or a special sentinel value that indicates a value
+  * of 'nothing'.
+  *
+  * This concept comes up surprisingly often - mostly for errors and the like,
+  * where you typically do get a proper value, but sometimes you just don't for
+  * one reason or another.
+  */
+
 namespace efgy
 {
-    /** \brief "Maybe" template
+    /** \brief Haskell-like "maybe" template
       *
       * A 'maybe' is a special container that contains either a value or
       * 'nothing'. This is useful when writing functions that may or may not
