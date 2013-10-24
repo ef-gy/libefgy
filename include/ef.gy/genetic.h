@@ -94,8 +94,7 @@ namespace efgy {
                 }
              }
              
-           private:
-             T genome[genomeLength];
+            T genome[genomeLength];
              
     
         };
@@ -107,20 +106,65 @@ namespace efgy {
         /// mutation probability
         Q pMutate;
 
-        /// crossover probability
+        /// onePointCrossover probability
         Q pCrossover;
 
-        /// number of current generation
-        int currentGeneration;
-    
-
-        void select()
+        void breedNextGeneration()
         {
-           std::vector<GAIndividual> newPopulation = Select(populationSize, population);
+           std::vector<GAIndividual> parents = Select(populationSize, population);
+           
+           std::vector<GAIndividual> children;
+           while(children.size() < populationSize)
+           {
+              std::srand(std::time(NULL));
 
+              GAIndividual i1 = parents[rand() % parents.size()];
+              GAIndividual i2 = parents[rand() % parents.size()];
+
+              std::pair<GAIndividual, GAIndividual> offspring;
+              double r = (double) rand() / (double) RAND_MAX;
+              if(r < pCrossover) {
+                offspring = onePointCrossover(i1, i2);
+              }
+              else
+              {
+                offspring = std::pair<GAIndividual, GAIndividual>(i1, i2);
+              }
+
+              r = (double) rand() / (double) RAND_MAX;
+              if(r < pMutate) {
+                mutate(offspring.first());
+                mutate(offspring.second());
+              }
+              children.push_back(offspring.first());
+              children.push_back(offspring.second());
+           }
+
+           population.swap(children);
         }
 
 
+        void mutate(GAIndividual &individual)
+        {
+            std::srand(std::time(NULL));
+            int position = std::rand() % genomeLength;
+            
+            individual.set(position, Mutate(individual[position]));
+        }
+       
+        std::pair<GAIndividual, GAIndividual>  onePointCrossover(GAIndividual &i1, GAIndividual &i2)
+        {
+           int position =  (rand() / (double) RAND_MAX) * genomeLength;
+
+           for(int k = 0; k < position; k++)
+            {
+                T tmp = i1.genome[k];
+                i1.genome[k] = i2.genome[k];
+                i2.genome[k] = tmp;
+            }
+           return std::pair<GAIndividual, GAIndividual> (i1, i2);
+        }
+        
        public:
         geneticAlgorithm(Q pMutate_, Q pCrossover_) : pMutate(pMutate_), pCrossover(pCrossover_)
         {
@@ -130,13 +174,6 @@ namespace efgy {
             }
         }
 
-        void mutate(GAIndividual &individual)
-        {
-            std::srand(std::time(NULL));
-            int position = rand() % genomeLength;
-            
-            individual.set(position, Mutate(individual[position]));
-        }
 
         
 
