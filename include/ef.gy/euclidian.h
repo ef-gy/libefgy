@@ -222,10 +222,10 @@ namespace efgy
                 return crossProduct<Q>(pV.data[0], pV.data[1]);
             }
 
-            /*
-             typedef space<math::Q,2> Q2;
-             typedef space<math::Q,3> Q3;
-             */
+#if defined(EF_GY_FRACTIONS_H)
+            typedef space<math::Q,2> Q2;
+            typedef space<math::Q,3> Q3;
+#endif
         };
     };
 };
