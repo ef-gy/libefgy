@@ -35,7 +35,8 @@ using namespace std;
 int main (int argc, char **argv)
 {
     Z z = Z(1);
-    vector<string> reference(256);
+
+    vector<string> reference;
 
     reference.push_back("2");
     reference.push_back("4");
@@ -300,7 +301,7 @@ int main (int argc, char **argv)
         if (reference[i] != (string)z)
         {
             cerr << "big integer string conversion mismatch: #" << i << " was '" << (string)z << "'; should have been '" << reference[i] << "'\n";
-            return 1;
+            return -11;
         }
     }
 
