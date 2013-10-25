@@ -39,6 +39,21 @@ namespace efgy
     {
         namespace numeric
         {
+            template <typename Ts = signed long long, typename Tu = unsigned long long, typename cellType = unsigned int, unsigned int cellBitCount = 32>
+            class bigIntegers;
+        };
+    };
+
+    namespace data
+    {
+        template <typename Ts, typename Tu, typename cellType, unsigned int cellBitCount>
+        std::string intToString (math::numeric::bigIntegers<Ts,Tu,cellType,cellBitCount> pNumber, const int pBase = 10);
+    };
+
+    namespace math
+    {
+        namespace numeric
+        {
             template <typename N>
             class fractional;
 
@@ -46,7 +61,7 @@ namespace efgy
             class factorial;
 
             // template <typename Ts = signed long long, typename Tu = unsigned long long, typename cellType = unsigned short, unsigned int cellBitCount = 16>
-            template <typename Ts = signed long long, typename Tu = unsigned long long, typename cellType = unsigned int, unsigned int cellBitCount = 32>
+            template <typename Ts, typename Tu, typename cellType, unsigned int cellBitCount>
             class bigIntegers : public numeric
             {
                 public:
@@ -1190,6 +1205,45 @@ namespace efgy
         };
 
         typedef numeric::bigIntegers<> Z;
+    };
+
+    namespace data
+    {
+        template <typename Ts, typename Tu, typename cellType, unsigned int cellBitCount>
+        std::string intToString (math::numeric::bigIntegers<Ts,Tu,cellType,cellBitCount> pNumber, const int pBase)
+        {
+            bool negative = pNumber < math::numeric::zero();
+            std::string rv = "";
+
+            if (negative)
+            {
+                pNumber = -pNumber;
+            }
+
+            while (pNumber > math::numeric::zero())
+            {
+                const char t[2] = { "0123456789abcdefghijklmnopqrstuvwxyz"
+                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ#,."[(pNumber % math::numeric::bigIntegers<Ts,Tu,cellType,cellBitCount>(pBase)).toInteger()],
+                                    0 };
+                std::string tq(t);
+
+                rv = tq + rv;
+                pNumber /= pBase;
+            }
+
+            if (rv == "")
+            {
+                rv = "0";
+            }
+
+            if (negative)
+            {
+                std::string m("-");
+                rv = m + rv;
+            }
+
+            return rv;
+        }
     };
 };
 
