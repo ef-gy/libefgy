@@ -113,14 +113,14 @@ namespace efgy
 
                     voronoi r = *this;
 
-                    if (r.cells.count > 0)
+                    if (r.cells.data.size() > 0)
                     {
                         int nearestCell = -1;
                         vector nearest;
                         maybe<scalar> nearestDistance;
                         bool haveMatch = false;
 
-                        for (unsigned int i = 0; !haveMatch && (i < r.cells.count); i++)
+                        for (unsigned int i = 0; !haveMatch && (i < r.cells.data.size()); i++)
                         {
                             /*
                             scalar distance = vector(r.cells.data[i].site - v).lengthSquared();
@@ -190,11 +190,11 @@ namespace efgy
 
                             usedCells.insert(nearestCell);
 
-                            while (rC.count > 0)
+                            while (rC.data.size() > 0)
                             {
                                 vector q = rC.data[0];
 
-                                for (unsigned int k = 0; k < r.cells.count; k++)
+                                for (unsigned int k = 0; k < r.cells.data.size(); k++)
                                 {
                                     if (usedCells.count(k) == 1)
                                     {
@@ -237,7 +237,7 @@ namespace efgy
                                                 newCell = newCell + rD;
                                             }
 
-                                            for (unsigned int j = 0; j < rF.count; j++)
+                                            for (unsigned int j = 0; j < rF.data.size(); j++)
                                             {
                                                 rC = rC + rF.data[j];
                                             }

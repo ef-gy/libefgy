@@ -95,7 +95,7 @@ namespace efgy
         {
             std::string r = std::string("<polygon points=\"");
 
-            for (unsigned int i = 0; i < o.count; i++)
+            for (unsigned int i = 0; i < o.data.size(); i++)
             {
                 if (i != 0)
                 {
@@ -131,7 +131,7 @@ namespace efgy
         {
             std::string r;
 
-            for (unsigned int i = 0; i < o.cells.count; i++)
+            for (unsigned int i = 0; i < o.cells.data.size(); i++)
             {
                 r += svg(geometry::polygon<S>(o.cells.data[i]));
             }

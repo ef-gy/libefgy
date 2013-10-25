@@ -94,7 +94,6 @@ namespace efgy
                 {
                     polygon<S> p = polygon<S>();
 
-                    p.count = n;
                     p.data.resize (n);
 
                     for (unsigned int i = 0; i < n; i++)
@@ -244,7 +243,6 @@ namespace efgy
                 typedef typename S::scalar scalar;
 
                 using math::set<vector>::data;
-                using math::set<vector>::count;
 
                 using math::set<vector>::operator =;
                 using math::set<vector>::operator +;
@@ -263,17 +261,17 @@ namespace efgy
                 {
                     vector v = data[0];
 
-                    for (unsigned int i = 1; i < count; i++)
+                    for (unsigned int i = 1; i < data.size(); i++)
                     {
                         v += data[i];
                     }
 
-                    return v / scalar(count);
+                    return v / scalar(data.size());
                 }
 
                 polygon operator + (const polygon &b)
                 {
-                    if (count == 0)
+                    if (data.size() == 0)
                     {
                         return b;
                     }
@@ -287,7 +285,7 @@ namespace efgy
 
                     p = p + l;
 
-                    for (unsigned int i = 1; i < count; i++)
+                    for (unsigned int i = 1; i < data.size(); i++)
                     {
                         const vector &u = data[i];
 
@@ -300,7 +298,7 @@ namespace efgy
                             l = u;
                         }
                     }
-                    for (unsigned int i = 0; i < b.count; i++)
+                    for (unsigned int i = 0; i < b.data.size(); i++)
                     {
                         const vector &u = b.data[i];
 
@@ -314,7 +312,7 @@ namespace efgy
                         }
                     }
 
-                    if (p.count <= 2)
+                    if (p.data.size() <= 2)
                     {
                         return p;
                     }
@@ -324,7 +322,7 @@ namespace efgy
                     start = l;
 
 /*
-                    for (unsigned int i = 0; i < p.count; i++)
+                    for (unsigned int i = 0; i < p.data.size(); i++)
                     {
                         const vector &u = p.data[i];
 
@@ -339,7 +337,7 @@ namespace efgy
                         m = start;
                         h = line<S>(l, m);
 
-                        for (unsigned int i = 0; i < p.count; i++)
+                        for (unsigned int i = 0; i < p.data.size(); i++)
                         {
                             const vector &u = p.data[i];
 
@@ -429,9 +427,9 @@ namespace efgy
             /* for this test, we simply test if the vertex is right of all the lines.
              * this assumes a convex polygon. */
 
-            bool rv = b >= line<euclidian::space<Q,2> >(a.data[(a.count-1)], a.data[0]);
+            bool rv = b >= line<euclidian::space<Q,2> >(a.data[(a.data.size()-1)], a.data[0]);
 
-            for (unsigned int i = 1; rv && (i < a.count); i++)
+            for (unsigned int i = 1; rv && (i < a.data.size()); i++)
             {
                 rv = b >= line<euclidian::space<Q,2> >(a.data[(i-1)], a.data[i]);
             }
@@ -575,7 +573,7 @@ namespace efgy
          * polygon's edges.
          *
          * NOTE: there is no analogous function for ngons, because this
-         * operation may well change the vertex count.
+         * operation may well change the vertex data.size().
          */
         template<typename Q>
         typename math::tuple<3,maybe<polygon<euclidian::space<Q,2> > > > operator / (const polygon<euclidian::space<Q,2> > &a, const ngon<euclidian::space<Q,2>,2> &b)
@@ -586,9 +584,9 @@ namespace efgy
 
             maybe<typename euclidian::space<Q,2>::vector> lastPoint;
 
-            for (unsigned int i = 0; i < a.count; i++)
+            for (unsigned int i = 0; i < a.data.size(); i++)
             {
-                unsigned int r = ((i == 0) ? a.count : i) - 1;
+                unsigned int r = ((i == 0) ? a.data.size() : i) - 1;
 
                 typename math::tuple<2,maybe<ngon<euclidian::space<Q,2>,2> > > s =
                     line<euclidian::space<Q,2> >(a.data[r], a.data[i]) / b;
@@ -602,7 +600,7 @@ namespace efgy
                 }
             }
 
-            switch (p3.count)
+            switch (p3.data.size())
             {
                 case 0: /* no intersections */
                 case 1: /* this ought to be impossible, unless it intersects a vertex */
@@ -618,7 +616,7 @@ namespace efgy
                         polygon<euclidian::space<Q,2> > p1;
                         polygon<euclidian::space<Q,2> > p2;
 
-                        for (unsigned int i = 0; i < a.count; i++)
+                        for (unsigned int i = 0; i < a.data.size(); i++)
                         {
                             const typename euclidian::space<Q,2>::vector &u = a.data[i];
 

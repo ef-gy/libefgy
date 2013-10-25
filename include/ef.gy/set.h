@@ -29,7 +29,7 @@
 #if !defined(EF_GY_SET_H)
 #define EF_GY_SET_H
 
-#include <ef.gy/scratch-pad.h>
+#include <vector>
 
 namespace efgy
 {
@@ -40,11 +40,11 @@ namespace efgy
         {
             public:
                 set()
-                    : data(), count(0)
+                    : data()
                     {}
 
                 set(const T *pData, unsigned int pCount)
-                    : data(pCount), count(pCount)
+                    : data(pCount)
                     {
                         for (unsigned int i = 0; i < pCount; i++)
                         {
@@ -53,24 +53,18 @@ namespace efgy
                     }
 
                 set(const set &pT)
-                    : data(pT.data), count(pT.count)
+                    : data(pT.data)
                     {}
 
                 template<typename U>
                 set(const set<U> &pT)
-                    : data(pT.count), count(pT.count)
-                    {
-                        for (unsigned int i = 0; i < count; i++)
-                        {
-                            data[i] = T(pT.data[i]);
-                        }
-                    }
+                    : data(pT.data)
+                    {}
 
                 set &operator = (const set &b)
                 {
                     if (this != &b)
                     {
-                        count = b.count;
                         data  = b.data;
                     }
 
@@ -79,11 +73,11 @@ namespace efgy
 
                 set operator + (const T &b) const
                 {
-                    if (count > 0)
+                    if (data.size() > 0)
                     {
                         unsigned int i = 0;
 
-                        for (; i < count; i++)
+                        for (; i < data.size(); i++)
                         {
                             if (data[i] == b)
                             {
@@ -93,10 +87,9 @@ namespace efgy
 
                         set rv = *this;
 
-                        rv.count = count + 1;
-                        rv.data.resize (rv.count);
+                        rv.data.resize (data.size() + 1);
 
-                        rv.data[count] = b;
+                        rv.data[data.size()] = b;
 
                         return rv;
                     }
@@ -106,11 +99,11 @@ namespace efgy
 
                 set operator - (const T &b) const
                 {
-                    if (count > 0)
+                    if (data.size() > 0)
                     {
                         unsigned int i = 0, c = 0;
 
-                        for (; i < count; i++)
+                        for (; i < data.size(); i++)
                         {
                             if (data[i] == b)
                             {
@@ -122,16 +115,14 @@ namespace efgy
                         {
                             set rv = set();
 
-                            rv.count = count - c;
+                            rv.data.resize(data.size() - c);
 
-                            if (rv.count == 0)
+                            if (rv.data.size() == 0)
                             {
                                 return rv;
                             }
 
-                            rv.data = data::scratchPad<T>(rv.count);
-
-                            for (c = 0, i = 0; i < count; i++)
+                            for (c = 0, i = 0; i < data.size(); i++)
                             {
                                 if (data[i] != b)
                                 {
@@ -149,12 +140,12 @@ namespace efgy
 
                 bool operator == (const set &b) const
                 {
-                    if (count != b.count)
+                    if (data.size() != b.data.size())
                     {
                         return false;
                     }
 
-                    for (unsigned int i = 0; i < count; i++)
+                    for (unsigned int i = 0; i < data.size(); i++)
                     {
                         if (data[i] != b.data[i])
                         {
@@ -165,8 +156,7 @@ namespace efgy
                     return true;
                 }
 
-                data::scratchPad<T> data;
-                unsigned int count;
+                std::vector<T> data;
         };
     };
 };
