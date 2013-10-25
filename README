@@ -6,6 +6,6 @@ compiler's default include path (typically /usr/include).
 
 If you don't want to copy the files yourself, then run the following command:
 
-$ sudo make PREFIX=/usr install
+    $ sudo make PREFIX=/usr install
 
 Adjust PREFIX as appropriate; substitute sudo when necessary.
