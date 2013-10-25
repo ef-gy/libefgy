@@ -408,7 +408,6 @@ namespace efgy
                         lindices = GLsizei(lineindices.size());
 
                         vertices.clear();
-                        vertexmap.clear();
                         triindices.clear();
                         lineindices.clear();
                         indices = 0;
@@ -511,21 +510,6 @@ namespace efgy
                      const GLfloat &nx, const GLfloat &ny, const GLfloat &nz,
                      const GLfloat &index)
                 {
-                    std::vector<GLfloat> key (7);
-                    key[0] = x;
-                    key[1] = y;
-                    key[2] = z;
-                    key[3] = nx;
-                    key[4] = ny;
-                    key[5] = nz;
-                    key[6] = index;
-
-                    std::map<std::vector<GLfloat>,unsigned int>::iterator it = vertexmap.find(key);
-                    if (it != vertexmap.end())
-                    {
-                        return it->second;
-                    }
-
                     vertices.push_back(x);
                     vertices.push_back(y);
                     vertices.push_back(z);
@@ -539,8 +523,6 @@ namespace efgy
                     unsigned int rv = indices;
 
                     indices++;
-
-                    vertexmap[key] = rv;
 
                     return rv;
                 }
@@ -595,7 +577,6 @@ namespace efgy
                 const geometry::transformation::affine<Q,3> &transformation;
                 const geometry::projection<Q,3> &projection;
                 std::vector<GLfloat> vertices;
-                std::map<std::vector<GLfloat>,unsigned int> vertexmap;
                 std::vector<unsigned int> triindices;
                 std::vector<unsigned int> lineindices;
                 unsigned int indices;

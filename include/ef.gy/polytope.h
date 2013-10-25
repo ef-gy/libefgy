@@ -343,6 +343,65 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
+        class plane : public polytope<Q,d,4,render>
+        {
+            public:
+                typedef polytope<Q,d,4,render> parent;
+
+                plane (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
+                    : parent(pRenderer, pParameter, pMultiplier)
+                    {
+                        calculateObject();
+                    }
+
+                using parent::parameter;
+                using parent::renderSolid;
+                using parent::renderer;
+                using parent::faces;
+
+                using parent::modelDimensionMinimum;
+                static const unsigned int modelDimensionMaximum = 2;
+                using parent::renderDimensionMinimum;
+                using parent::renderDimensionMaximum;
+
+                using parent::faceVertices;
+
+                static unsigned int depth (void) { return od; }
+                static unsigned int renderDepth (void) { return d; }
+                static const char *id (void) { return "plane"; }
+
+                void calculateObject (void)
+                {
+                    const Q s = Q(2);
+                    const Q q = Q(1)/Q(2);
+
+                    faces.clear();
+
+                    for (Q i = -s; i < s; i+=q)
+                    {
+                        for (Q j = -s; j < s; j+=q)
+                        {
+                            math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
+
+                            newFace.data[0].data[0] = i;
+                            newFace.data[0].data[1] = j;
+                            
+                            newFace.data[1].data[0] = i+q;
+                            newFace.data[1].data[1] = j;
+                            
+                            newFace.data[2].data[0] = i+q;
+                            newFace.data[2].data[1] = j+q;
+                            
+                            newFace.data[3].data[0] = i;
+                            newFace.data[3].data[1] = j+q;
+
+                            faces.push_back(newFace);
+                        }
+                    }
+                }
+        };
+
+        template <typename Q, unsigned int od, typename render, unsigned int d = od>
         class sphere : public polytope<Q,d,3,render>
         {
             public:

@@ -314,11 +314,31 @@ namespace efgy
 
         namespace flame
         {
+            /**\brief Random Fractal Flame primitive
+             *
+             * This class template creates random fractal flame-esque geometry
+             * based on the current values of the seed and functions
+             * parameters.
+             *
+             * The geometry created by this class can take all sorts of shapes,
+             * depending on the transformations it creates; here's an example:
+             *
+             * \htmlonly
+             * <iframe width="100%" height="600"
+             *  src="http://www.youtube.com/embed/XzObtC66g3c"
+             *  frameborder="0" allowfullscreen="true"/>
+             * \endhtmlonly
+             *
+             * \tparam Q      The base data type to use for calculations.
+             * \tparam od     The depth of the model.
+             * \tparam render The renderer to use.
+             * \tparam d      The render depth to use.
+             */
             template <typename Q, unsigned int od, typename render, unsigned int d = od>
-            class random : public ifs<Q,od,render,d,cube,2,transformation::flame>
+            class random : public ifs<Q,od,render,d,plane,2,transformation::flame>
             {
                 public:
-                    typedef ifs<Q,od,render,d,cube,2,transformation::flame> parent;
+                    typedef ifs<Q,od,render,d,plane,2,transformation::flame> parent;
 
                     random(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                         : parent(pRenderer, pParameter, pMultiplier)
