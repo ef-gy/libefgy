@@ -1,12 +1,11 @@
-###- INSTALLATION -###########################################################
+## INSTALLATION ##############################################################
 
 This is a header-only C++ template library. As such, installation is rather
 simple: just copy the header files (the include/ef.gy directory) to your
 compiler's default include path (typically /usr/include).
 
-If you don't want to copy the files yourself, then run the following command
-as root:
+If you don't want to copy the files yourself, then run the following command:
 
-# make PREFIX=/usr install
+$ sudo make PREFIX=/usr install
 
-Adjust PREFIX as appropriate.
+Adjust PREFIX as appropriate; substitute sudo when necessary.
