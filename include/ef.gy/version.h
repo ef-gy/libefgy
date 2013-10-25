@@ -33,6 +33,27 @@
  *       to provide much more useful error messages when things don't work out
  *       like they should with templates.
  *
+ * \section libefgy-download Obtaining libefgy
+ * The primary location for this library is the git repository at:
+ * http://git.becquerel.org/jyujin/libefgy.git
+ * ; use this link to browse the source code online, or to download tarballs of
+ * development versions or releases. To check out a working copy with git, run
+ * the following in a shell:
+ *
+ * \code
+ * $ git clone git://git.becquerel.org/jyujin/libefgy.git
+ * \endcode
+ *
+ * The primary location for the library's documentation is:
+ * http://ef.gy/documentation/libefgy
+ * ; please note that the online version has Disqus comments enabled, and that
+ * some pages in all HTML versions of the documentation may include YouTube
+ * videos - if you're uneasy about this for privacy reasons, then feel free to
+ * browse the headers directly in the git repository.
+ *
+ * Also feel free to browse the blog at http://ef.gy/ if you happen to be in
+ * the area :).
+ *
  * \section libefgy-installation Installation
  * Due to its header-only nature, installing libefgy is both easy and,
  * technically, optional. It's perfectly fine to just copy the headers to your
