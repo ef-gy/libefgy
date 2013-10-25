@@ -30,8 +30,8 @@
 #define EF_GY_BIG_INTEGERS_H
 
 #include <ef.gy/numeric.h>
-#include <ef.gy/scratch-pad.h>
 #include <ef.gy/string.h>
+#include <vector>
 
 namespace efgy
 {
@@ -68,12 +68,10 @@ namespace efgy
                     typedef Ts integer;
 
                     bigIntegers ()
-                        : cellCount(cellType(0)),
-                          cell(0), negative (false)
+                        : cell(0), negative (false)
                         {}
                     bigIntegers (Ts pInteger)
                         : negative (pInteger < Ts(0)),
-                          cellCount(cellType(0)),
                           cell(0)
                         {
                             if (pInteger == Ts(0))
@@ -96,7 +94,6 @@ namespace efgy
                                     }
                                 }
 
-                                cellCount = s;
                                 cell.resize(s);
 
                                 for (cellType i = 0; i < s; i++)
@@ -106,8 +103,7 @@ namespace efgy
                             }
                         }
                     bigIntegers (Tu pInteger, bool pNegative)
-                        : cellCount(cellType(0)),
-                          cell(0),
+                        : cell(0),
                           negative ((pInteger == 0) ? false : pNegative)
                         {
                             if (pInteger == Tu(0))
@@ -131,7 +127,6 @@ namespace efgy
                                     }
                                 }
 
-                                cellCount = s;
                                 cell.resize(s);
 
                                 for (cellType i = 0; i < s; i++)
@@ -141,18 +136,10 @@ namespace efgy
                             }
                         }
                     bigIntegers (const bigIntegers &pB)
-                        : cellCount(pB.cellCount),
-                          cell(pB.cellCount),
+                        : cell(pB.cell),
                           negative (pB.negative)
                         {
-                            if (cellCount > 0)
-                            {
-                                for (cellType i = 0; i < cellCount; i++)
-                                {
-                                    cell[i] = pB.cell[i];
-                                }
-                            }
-                            else
+                            if (cell.size() == 0)
                             {
                                 negative = false;
                             }
@@ -163,7 +150,6 @@ namespace efgy
                         if (this != &b)
                         {
                             negative  = b.negative;
-                            cellCount = b.cellCount;
                             cell      = b.cell;
                         }
 
@@ -197,12 +183,12 @@ namespace efgy
                             if (p > q)
                             {
                                 r.doSubtract (p, q);
-                                r.negative = negative && (r.cellCount > 0);
+                                r.negative = negative && (r.cell.size() > 0);
                             }
                             else
                             {
                                 r.doSubtract (q, p);
-                                r.negative = !negative && (r.cellCount > 0);
+                                r.negative = !negative && (r.cell.size() > 0);
                             }
                         }
 
@@ -296,7 +282,7 @@ namespace efgy
                         c.negative = false;
 
                         r.doMultiply (a, c);
-                        r.negative = (r.cellCount > 0) && (negative != b.negative);
+                        r.negative = (r.cell.size() > 0) && (negative != b.negative);
 
                         return r;
                     }
@@ -326,7 +312,7 @@ namespace efgy
                             return zero();
                         }
 
-                        if ((cellCount <= cellsPerLong) && (b.cellCount <= cellsPerLong))
+                        if ((cell.size() <= cellsPerLong) && (b.cell.size() <= cellsPerLong))
                         {
                             return bigIntegers((*this).toInteger() % (b).toInteger(), negative);
                         }
@@ -335,12 +321,12 @@ namespace efgy
                         const bigIntegers &ap =   negative ? -*this : *this;
                         const bigIntegers &bp = b.negative ? -b     : b;
 
-                        if (b.cellCount == 1)
+                        if (b.cell.size() == 1)
                         {
                             r.doModuloHorner(ap,b.cell[0]);
                         }
 /*
-                        else if (b.cellCount < (cellsPerLong - 1))
+                        else if (b.cell.size() < (cellsPerLong - 1))
                         {
                             r.doModuloHorner(ap, bp);
                         }
@@ -389,7 +375,7 @@ namespace efgy
                             return (*this = -*this);
                         }
 
-                        if ((cellCount <= cellsPerLong) && (b.cellCount <= cellsPerLong))
+                        if ((cell.size() <= cellsPerLong) && (b.cell.size() <= cellsPerLong))
                         {
                             *this = bigIntegers((*this).toInteger() / (b).toInteger(), (negative != b.negative));
                             return *this;
@@ -399,7 +385,7 @@ namespace efgy
                         const bigIntegers &aa =   negative ? -*this : *this;
                         const bigIntegers &ba = b.negative ? -b     : b;
                         doDivide (aa, ba);
-                        negative = rnegative && (cellCount > 0);
+                        negative = rnegative && (cell.size() > 0);
                         return *this;
                     }
 
@@ -412,17 +398,17 @@ namespace efgy
 
                         if (!negative && !b.negative)
                         {
-                            if  (cellCount > b.cellCount)
+                            if  (cell.size() > b.cell.size())
                             {
                                 return true;
                             }
 
-                            if  (cellCount < b.cellCount)
+                            if  (cell.size() < b.cell.size())
                             {
                                 return false;
                             }
 
-                            for (cellType j = cellCount; j > 0; j--)
+                            for (cellType j = cell.size(); j > 0; j--)
                             {
                                 const cellType &i = (j-1);
 
@@ -441,17 +427,17 @@ namespace efgy
 
                         if (negative && b.negative)
                         {
-                            if  (cellCount < b.cellCount)
+                            if  (cell.size() < b.cell.size())
                             {
                                 return true;
                             }
 
-                            if  (cellCount > b.cellCount)
+                            if  (cell.size() > b.cell.size())
                             {
                                 return false;
                             }
 
-                            for (cellType j = cellCount; j > 0; j--)
+                            for (cellType j = cell.size(); j > 0; j--)
                             {
                                 const cellType &i = (j-1);
 
@@ -475,13 +461,13 @@ namespace efgy
                     bool operator > (const zero &b) const
                     {
                         return !negative
-                            && (cellCount > 0);
+                            && (cell.size() > 0);
                     }
 
                     bool operator > (const one &b) const
                     {
                         return !negative
-                            && (cellCount >= 1)
+                            && (cell.size() >= 1)
                             && (*this > bigIntegers(1));
                     }
 
@@ -493,7 +479,7 @@ namespace efgy
 
                     bool operator == (const bigIntegers &b) const
                     {
-                        if (cellCount != b.cellCount)
+                        if (cell.size() != b.cell.size())
                         {
                             return false;
                         }
@@ -503,7 +489,7 @@ namespace efgy
                             return false;
                         }
 
-                        for (cellType i = 0; i < cellCount; i++)
+                        for (cellType i = 0; i < cell.size(); i++)
                         {
                             if (cell[i] != b.cell[i])
                             {
@@ -516,20 +502,20 @@ namespace efgy
 
                     bool operator == (const zero &b) const
                     {
-                        return cellCount == 0;
+                        return cell.size() == 0;
                     }
 
                     bool operator == (const one &b) const
                     {
                         return !negative
-                            && (cellCount == 1)
+                            && (cell.size() == 1)
                             && (cell[0] == cellType(1));
                     }
 
                     bool operator == (const negativeOne &b) const
                     {
                         return negative
-                            && (cellCount == 1)
+                            && (cell.size() == 1)
                             && (cell[0] == cellType(1));
                     }
 
@@ -542,12 +528,12 @@ namespace efgy
                     {
                         Tu r = 0;
 
-                        if (cellCount == 0)
+                        if (cell.size() == 0)
                         {
                             return 0;
                         }
 
-                        for (cellType i = 0; i < cellCount; i++)
+                        for (cellType i = 0; i < cell.size(); i++)
                         {
                             r |= Tu(cell[i]) << (i * cellBitCount);
                         }
@@ -559,12 +545,12 @@ namespace efgy
                     {
                         Tu r = 0;
 
-                        if (cellCount == 0)
+                        if (cell.size() == 0)
                         {
                             return 0;
                         }
 
-                        for (cellType i = 0; i < cellCount; i++)
+                        for (cellType i = 0; i < cell.size(); i++)
                         {
                             r |= Tu(cell[i]) << (i * cellBitCount);
                         }
@@ -578,12 +564,12 @@ namespace efgy
                         long double m = Tu(1) << cellBitCount;
                         long double mr = 1;
 
-                        if (cellCount == 0)
+                        if (cell.size() == 0)
                         {
                             return 0;
                         }
 
-                        for (cellType i = 0; i < cellCount; i++)
+                        for (cellType i = 0; i < cell.size(); i++)
                         {
                             r += (long double)(cell[i]) * mr;
                             mr *= m;
@@ -594,12 +580,12 @@ namespace efgy
 
                     bigIntegers operator >> (const cellType &b) const
                     {
-                        if (cellCount == 0)
+                        if (cell.size() == 0)
                         {
                             return *this;
                         }
 
-                        if (cellCount <= cellsPerLong)
+                        if (cell.size() <= cellsPerLong)
                         {
                             return bigIntegers(Tu(*this) >> b, false);
                         }
@@ -614,21 +600,20 @@ namespace efgy
                             q -= cellBitCount;
                         }
 
-                        if (nukeCells >= cellCount)
+                        if (nukeCells >= cell.size())
                         {
                             return bigIntegers();
                         }
 
                         bigIntegers r;
                         
-                        r.cellCount = cellCount - nukeCells;
-                        r.cell.resize(r.cellCount);
+                        r.cell.resize(cell.size() - nukeCells);
 
-                        for (cellType i = 0; i < r.cellCount; i++)
+                        for (cellType i = 0; i < r.cell.size(); i++)
                         {
                             cellType j = i + 1;
 
-                            if (j < r.cellCount)
+                            if (j < r.cell.size())
                             {
                                 r.cell[i] = ((Tu(cell[(j + nukeCells)]) << cellBitCount)
                                           |  (Tu(cell[(i + nukeCells)]))) >> q;
@@ -651,12 +636,12 @@ namespace efgy
 
                     bigIntegers operator << (const cellType &b) const
                     {
-                        if (cellCount == 0)
+                        if (cell.size() == 0)
                         {
                             return *this;
                         }
 
-                        if ((cellCount * cellBitCount + b) <= longBitCount)
+                        if ((cell.size() * cellBitCount + b) <= longBitCount)
                         {
                             return bigIntegers((*this).toInteger() << b, false);
                         }
@@ -675,13 +660,13 @@ namespace efgy
                             const cellType negQ = (cellBitCount - q);
                             const cellType mask = ((1 << q) - 1) << negQ;
 
-                            if ((cell[(cellCount - 1)] & mask) == 0)
+                            if ((cell[(cell.size() - 1)] & mask) == 0)
                             {
                                 /* no additional cells needed */
                                 bigIntegers r = *this;
                                 cellType overflow = 0;
 
-                                for (cellType i = 0; i < cellCount; i++)
+                                for (cellType i = 0; i < cell.size(); i++)
                                 {
                                     cellType newContent = (cell[i] << q) | overflow;
                                     overflow = (cell[i] & mask) >> negQ;
@@ -694,16 +679,15 @@ namespace efgy
 
                         bigIntegers r;
                         
-                        r.cellCount = cellCount + pushCells + 1;
-                        r.cell.resize(r.cellCount);
+                        r.cell.resize(cell.size() + pushCells + 1);
 
-                        for (cellType i = 0; i < r.cellCount; i++)
+                        for (cellType i = 0; i < r.cell.size(); i++)
                         {
                             if (i < pushCells)
                             {
                                 r.cell[i] = 0;
                             }
-                            else if (i == (r.cellCount - 1))
+                            else if (i == (r.cell.size() - 1))
                             {
                                 cellType j = i - 1;
 
@@ -739,7 +723,7 @@ namespace efgy
                             return *this;
                         }
 
-                        if ((cellCount * cellBitCount + b) <= longBitCount)
+                        if ((cell.size() * cellBitCount + b) <= longBitCount)
                         {
                             *this = bigIntegers((*this).toInteger() << b, false);
                             return *this;
@@ -751,12 +735,12 @@ namespace efgy
                             const cellType negQ = (cellBitCount - q);
                             const cellType mask = ((1 << q) - 1) << negQ;
 
-                            if ((cell[(cellCount - 1)] & mask) == 0)
+                            if ((cell[(cell.size() - 1)] & mask) == 0)
                             {
                                 /* no additional cells needed */
                                 cellType overflow = 0;
 
-                                for (cellType i = 0; i < cellCount; i++)
+                                for (cellType i = 0; i < cell.size(); i++)
                                 {
                                     cellType newContent = (cell[i] << q) | overflow;
                                     overflow = (cell[i] & mask) >> negQ;
@@ -778,8 +762,7 @@ namespace efgy
 
                     bool negative;
 
-                    data::scratchPad<cellType> cell;
-                    cellType cellCount;
+                    std::vector<cellType> cell;
 
                 protected:
                     static const Tu overflowMask = (1L << cellBitCount);
@@ -791,14 +774,12 @@ namespace efgy
 
                     void extend (cellType pValue)
                     {
-                        cell.resize (cellCount + 1);
-                        cell[cellCount] = pValue;
-                        cellCount++;
+                        cell.push_back(pValue);
                     }
 
                     void shrink (void)
                     {
-                        cellType i = cellCount;
+                        cellType i = cell.size();
                         cellType rem = 0;
 
                         if (i == 0)
@@ -826,11 +807,9 @@ namespace efgy
                             return;
                         }
 
-                        cellCount = cellCount - rem;
+                        cell.resize (cell.size() - rem);
 
-                        cell.resize (cellCount);
-
-                        if (cellCount == 0)
+                        if (cell.size() == 0)
                         {
                             negative = false;
                         }
@@ -839,7 +818,7 @@ namespace efgy
                     void doAdd (const bigIntegers &a, const bigIntegers &b, bool allocate = true)
                     {
                         /*
-                        if ((a.cellCount <= cellsPerLong) && (b.cellCount <= cellsPerLong))
+                        if ((a.cell.size() <= cellsPerLong) && (b.cell.size() <= cellsPerLong))
                         {
                             *this = bigIntegers(Tu(a) + Tu(b), negative);
                             if ((*this >= a) && (*this >= b))
@@ -853,23 +832,22 @@ namespace efgy
 
                         if (allocate)
                         {
-                            cellCount = (a.cellCount > b.cellCount) ? a.cellCount : b.cellCount;
-                            cell.resize(cellCount);
-                            if (cellCount == 0)
+                            cell.resize((a.cell.size() > b.cell.size()) ? a.cell.size() : b.cell.size());
+                            if (cell.size() == 0)
                             {
                                 return;
                             }
                         }
 
-                        if (cellCount == 0)
+                        if (cell.size() == 0)
                         {
                             return;
                         }
 
-                        for (cellType i = 0; i < cellCount; i++)
+                        for (cellType i = 0; i < cell.size(); i++)
                         {
-                            cellType av = (i < a.cellCount) ? a.cell[i] : 0;
-                            cellType bv = (i < b.cellCount) ? b.cell[i] : 0;
+                            cellType av = (i < a.cell.size()) ? a.cell[i] : 0;
+                            cellType bv = (i < b.cell.size()) ? b.cell[i] : 0;
 
                             if (overflow)
                             {
@@ -891,7 +869,7 @@ namespace efgy
 
                     void doSubtract (const bigIntegers &a, const bigIntegers &b, bool allocate = true)
                     {
-                        if ((a.cellCount <= cellsPerLong) && (b.cellCount <= cellsPerLong))
+                        if ((a.cell.size() <= cellsPerLong) && (b.cell.size() <= cellsPerLong))
                         {
                             *this = bigIntegers((a).toInteger() - (b).toInteger(), negative);
                             return;
@@ -901,24 +879,19 @@ namespace efgy
 
                         if (allocate)
                         {
-                            cellCount = a.cellCount;
+                            cell.resize(a.cell.size());
                         }
 
-                        if (cellCount == 0)
+                        if (cell.size() == 0)
                         {
                             negative = false;
                             return;
                         }
 
-                        if (allocate)
+                        for (cellType i = 0; i < cell.size(); i++)
                         {
-                            cell.resize(cellCount);
-                        }
-
-                        for (cellType i = 0; i < cellCount; i++)
-                        {
-                            cellType av =    (i < a.cellCount) ? a.cell[i] : 0;
-                            cellType bv = ~ ((i < b.cellCount) ? b.cell[i] : 0);
+                            cellType av =    (i < a.cell.size()) ? a.cell[i] : 0;
+                            cellType bv = ~ ((i < b.cell.size()) ? b.cell[i] : 0);
 
                             if (overflow)
                             {
@@ -932,10 +905,10 @@ namespace efgy
                             overflow = overflow || ((cell[i] < av) || (cell[i] < bv));
                         }
 
-                        if (a.cellCount > 0)
+                        if (a.cell.size() > 0)
                         {
-                            cellType &l = cell[(cellCount - 1)];
-                            cellType  o = a.cell[(a.cellCount - 1)];
+                            cellType &l = cell[(cell.size() - 1)];
+                            cellType  o = a.cell[(a.cell.size() - 1)];
 
                             unsigned int j = cellBitCount;
 
@@ -962,12 +935,11 @@ namespace efgy
                     {
                         if ((a == zero()) || (b == zero()))
                         {
-                            cellCount = 0;
                             cell.resize(0);
                             return;
                         }
 
-                        if ((a.cellCount + b.cellCount) <= cellsPerLong)
+                        if ((a.cell.size() + b.cell.size()) <= cellsPerLong)
                         {
                             *this = bigIntegers((a).toInteger() * (b).toInteger(), negative);
                             return;
@@ -975,24 +947,22 @@ namespace efgy
 
                         if (allocate)
                         {
-                            cellCount = a.cellCount + b.cellCount + 1;
-                            cell.resize(cellCount);
+                            cell.resize(a.cell.size() + b.cell.size() + 1);
                         }
 
                         bigIntegers c;
 
-                        c.cellCount = cellCount;
-                        c.cell.resize (cellCount);
+                        c.cell.resize (cell.size());
 
-                        for (cellType k = 0; k < cellCount; k++)
+                        for (cellType k = 0; k < cell.size(); k++)
                         {
                             cell[k] = cellType(0);
                             c.cell[k] = cellType(0);
                         }
 
-                        for (cellType i = 0; i < a.cellCount; i++)
+                        for (cellType i = 0; i < a.cell.size(); i++)
                         {
-                            for (cellType j = 0; j < b.cellCount; j++)
+                            for (cellType j = 0; j < b.cell.size(); j++)
                             {
                                 cellType t = i + j + 1;
 
@@ -1018,7 +988,6 @@ namespace efgy
                     {
                         if (a == zero())
                         {
-                            cellCount = 0;
                             cell.resize(0);
                             return;
                         }
@@ -1026,7 +995,6 @@ namespace efgy
                         if (b == zero())
                         {
                             /* ebil */
-                            cellCount = 0;
                             cell.resize(0);
                             return;
                         }
@@ -1039,17 +1007,15 @@ namespace efgy
 
                         if (b > a)
                         {
-                            cellCount = 0;
                             cell.resize(0);
                             return;
                         }
 
-                        cellCount = 0;
                         cell.resize(0);
 
                         bigIntegers r = bigIntegers();
 
-                        for (cellType i = a.cellCount; i > 0; i--)
+                        for (cellType i = a.cell.size(); i > 0; i--)
                         {
                             cellType ir = i - 1;
                             cellType c = a.cell[ir];
@@ -1061,9 +1027,8 @@ namespace efgy
 
                                 if (c & (1 << jr))
                                 {
-                                    if (r.cellCount == 0)
+                                    if (r.cell.size() == 0)
                                     {
-                                        r.cellCount = 1;
                                         r.cell.resize(1);
                                         r.cell[0] = cellType(1);
                                     }
@@ -1089,7 +1054,7 @@ namespace efgy
                         Tu result = Tu(0);
                         const Tu factor = (Tu(1) << cellBitCount) % modulus;
 
-                        for (cellType i = a.cellCount; i > 0; i--)
+                        for (cellType i = a.cell.size(); i > 0; i--)
                         {
                             result *= factor;
                             result %= modulus;
@@ -1097,8 +1062,7 @@ namespace efgy
                             result %= modulus;
                         }
 
-                        cellCount = 1;
-                        cell.resize(cellCount);
+                        cell.resize(1);
 
                         cell[0] = result;
 
@@ -1107,18 +1071,18 @@ namespace efgy
 
                     void doModuloHorner (const bigIntegers &a, const bigIntegers &b, bool allocate = true)
                     {
-                        cellType q  = a.cellCount / b.cellCount;
-                        cellType qm = a.cellCount % b.cellCount;
+                        cellType q  = a.cell.size() / b.cell.size();
+                        cellType qm = a.cell.size() % b.cell.size();
 
                         Tu modulus = Tu(b.cell[0]);
                         Tu result = Tu(0);
 
-                        for (cellType i = 1; i < b.cellCount; i++)
+                        for (cellType i = 1; i < b.cell.size(); i++)
                         {
                             modulus |= (Tu(b.cell[i]) << (i * cellBitCount));
                         }
 
-                        const Tu factor = (1 << (cellBitCount * b.cellCount)) % modulus;
+                        const Tu factor = (1 << (cellBitCount * b.cell.size())) % modulus;
 
                         for (cellType j = q; j > 0; j--)
                         {
@@ -1126,7 +1090,7 @@ namespace efgy
 
                             if ((j == q) && (qm > 0))
                             {
-                                cellType i = (j - 1) * b.cellCount;
+                                cellType i = (j - 1) * b.cell.size();
                                 value = Tu(a.cell[i]);
 
                                 for (cellType k = 1; k < qm; k++)
@@ -1136,10 +1100,10 @@ namespace efgy
                             }
                             else
                             {
-                                cellType i = (j - 1) * b.cellCount;
+                                cellType i = (j - 1) * b.cell.size();
                                 value = Tu(a.cell[i]);
 
-                                for (cellType k = 1; k < b.cellCount; k++)
+                                for (cellType k = 1; k < b.cell.size(); k++)
                                 {
                                     value |= (Tu(a.cell[(i + k)]) << (k * cellBitCount));
                                 }
@@ -1151,10 +1115,9 @@ namespace efgy
                             result %= modulus;
                         }
 
-                        cellCount = b.cellCount;
-                        cell.resize(cellCount);
+                        cell.resize(b.cell.size());
 
-                        for (cellType i = 0; i < cellCount; i++)
+                        for (cellType i = 0; i < cell.size(); i++)
                         {
                             cell[i] = result & lowMask;
                             result >>= cellBitCount;
@@ -1165,10 +1128,9 @@ namespace efgy
 
                     void doModulo (const bigIntegers &a, const bigIntegers &b, bool allocate = true)
                     {
-                        cellCount = 0;
                         cell.resize(0);
 
-                        for (cellType i = a.cellCount; i > 0; i--)
+                        for (cellType i = a.cell.size(); i > 0; i--)
                         {
                             cellType ir = i - 1;
                             cellType c = a.cell[ir];
@@ -1181,9 +1143,8 @@ namespace efgy
 
                                 if (c & (1 << jr))
                                 {
-                                    if (cellCount == 0)
+                                    if (cell.size() == 0)
                                     {
-                                        cellCount = 1;
                                         cell.resize(1);
                                         cell[0] = cellType(1);
                                     }
