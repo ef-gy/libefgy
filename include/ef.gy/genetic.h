@@ -32,7 +32,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-
+#include <map>
 namespace efgy {
    
    namespace optimise { 
@@ -118,8 +118,12 @@ namespace efgy {
            {
               std::srand(std::time(NULL));
 
-              GAIndividual i1 = parents[rand() % parents.size()];
-              GAIndividual i2 = parents[rand() % parents.size()];
+
+              int p1 = (rand() / (double) RAND_MAX) * parents.size();
+              int p2 = (rand() / (double) RAND_MAX) * parents.size();
+              
+              GAIndividual i1 = parents[p1];
+              GAIndividual i2 = parents[p2];
 
               std::pair<GAIndividual, GAIndividual> offspring;
               double r = (double) rand() / (double) RAND_MAX;
@@ -138,6 +142,7 @@ namespace efgy {
               }
               children.push_back(offspring.first());
               children.push_back(offspring.second());
+
            }
 
            population.swap(children);
@@ -175,7 +180,21 @@ namespace efgy {
         }
 
 
-        
+        GAIndividual start()
+        {
+            while(!hasTerminated())
+              {
+                breedNextGeneration();
+              }
+
+            std::map<Q, GAIndividual> lastGeneration;
+            for(typename std::vector<GAIndividual>::iterator it = population.begin(); it != population.end(); it++)
+            {
+                lastGeneration.insert(std::pair<Q, GAIndividual> (Fitness(*it), *it));
+            }
+
+            return lastGeneration.end().second;            
+        }
 
     };
    }
