@@ -32,6 +32,8 @@
  * in benchmarking, but we'd better not get ahead of ourselves.
  */
 
+#include <ef.gy/test-case.h>
+
 #include <iostream>
 
 #include <ef.gy/big-integers.h>
@@ -46,7 +48,7 @@ using namespace std;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testBigIntegerBitShifts(void)
+int testBigIntegerBitShifts(std::ostream &log)
 {
     Z z = Z(1);
 
@@ -334,7 +336,4 @@ int testBigIntegerBitShifts(void)
     return 0;
 }
 
-int main (int argc, char **argv)
-{
-    return testBigIntegerBitShifts();
-}
+TEST_BATCH(testBigIntegerBitShifts)

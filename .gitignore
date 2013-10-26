@@ -1,6 +1,7 @@
 *.swp
 test-*
 !src/test-*
+!test-*.h
 documentation
 test.svg
 voronoi

@@ -27,12 +27,12 @@ EMXXFLAGS:=$(EMCFLAGS)
 LDFLAGS:=
 
 DATABASE:=
-BINARIES:=$(basename $(notdir $(wildcard src/*.cpp)))
+BINARIES:=$(basename $(notdir $(wildcard src/*.cpp)) $(addprefix test-case-,$(notdir $(wildcard src/test-case/*.cpp))))
 JSBINARIES:=$(addsuffix .js,$(BINARIES))
-TESTBINARIES:=$(filter test-%,$(BINARIES))
+TESTBINARIES:=$(filter test-case-%,$(BINARIES))
 
 IGNOREBINARIES:=
-IBINARIES:=$(addprefix $(BINDIR)/,$(filter-out $(IGNOREBINARIES) test-%,$(BINARIES)))
+IBINARIES:=$(addprefix $(BINDIR)/,$(filter-out $(IGNOREBINARIES) test-case-%,$(BINARIES)))
 IINCLUDES:=$(addprefix $(INCLUDEDIR)/ef.gy/,$(notdir $(wildcard include/ef.gy/*.h)))
 IMANPAGES:=$(addprefix $(MANDIR)/man1/,$(notdir $(wildcard src/*.1)))
 
@@ -63,7 +63,7 @@ js: $(JSBINARIES)
 
 #run unit tests
 test: $(TESTBINARIES)
-	for i in $^; do echo TEST: $$i; ./$$i; done
+	for i in $^; do echo TEST-CASE: $$i; ./$$i; done
 
 # pattern rules to install things
 $(BINDIR)/%: %
@@ -82,6 +82,9 @@ $(MANDIR)/man1/%.1: src/%.1
 # pattern rules for C++ code
 %: src/%.cpp include/*/*.h
 	$(CXX) -std=c++0x -Iinclude/ $(CXXFLAGS) $(PCCFLAGS) $< $(LDFLAGS) $(PCLDFLAGS) -o $@ && ($(DEBUG) || strip -x $@)
+
+test-case-%: src/test-case/%.cpp include/*/*.h
+	$(CXX) -std=c++0x -Iinclude/ -DRUN_TEST_CASES $(CXXFLAGS) $(PCCFLAGS) $< $(LDFLAGS) $(PCLDFLAGS) -o $@ && ($(DEBUG) || strip -x $@)
 
 %.js: src/%.cpp include/*/*.h
 	$(EMXX) -std=c++0x -Iinclude/ -D NOLIBRARIES $(EMXXFLAGS) $< $(LDFLAGS) -o $@
