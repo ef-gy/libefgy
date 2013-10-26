@@ -29,9 +29,9 @@
 #if !defined(EF_GY_GEOMETRY_H)
 #define EF_GY_GEOMETRY_H
 
+#include <ef.gy/fractions.h>
 #include <ef.gy/maybe.h>
 #include <ef.gy/set.h>
-#include <ef.gy/math.h>
 #include <ef.gy/euclidian.h>
 #include <ef.gy/colour-space-hsl.h>
 

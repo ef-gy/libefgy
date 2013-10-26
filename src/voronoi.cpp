@@ -30,7 +30,6 @@
 #include <iostream>
 #include <string>
 
-#include <ef.gy/math.h>
 #include <ef.gy/geometry.h>
 #include <ef.gy/voronoi.h>
 #include <ef.gy/svg.h>
