@@ -24,6 +24,14 @@
  * THE SOFTWARE.
 */
 
+/**\file
+ * \brief Test cases for the BigIntegers template
+ *
+ * This file contains test cases to verify that the bigIntegers template
+ * compiles and works as expected. These test cases could probably also be used
+ * in benchmarking, but we'd better not get ahead of ourselves.
+ */
+
 #include <iostream>
 
 #include <ef.gy/big-integers.h>
@@ -32,7 +40,13 @@
 using namespace efgy::math;
 using namespace std;
 
-int main (int argc, char **argv)
+/**\test Test big integer bit shifts by shifting a big integer '1' a fixed
+ *       number of times to the left and then comparing the result with
+ *       reference data.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
+int testBigIntegerBitShifts(void)
 {
     Z z = Z(1);
 
@@ -301,9 +315,26 @@ int main (int argc, char **argv)
         if (reference[i] != (string)z)
         {
             cerr << "big integer string conversion mismatch: #" << i << " was '" << (string)z << "'; should have been '" << reference[i] << "'\n";
-            return -11;
+            return -1;
         }
     }
 
+/*
+    for (int i = 255; i >= 0; i--)
+    {
+        z >>= 1;
+        if (reference[i] != (string)z)
+        {
+            cerr << "big integer string conversion mismatch: #" << i << " was '" << (string)z << "'; should have been '" << reference[i] << "'\n";
+            return -2;
+        }
+    }
+*/
+
     return 0;
+}
+
+int main (int argc, char **argv)
+{
+    return testBigIntegerBitShifts();
 }
