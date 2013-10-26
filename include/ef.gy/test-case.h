@@ -31,15 +31,32 @@ namespace efgy
 
         int run (int, char **, const std::vector<testCase> &testCases)
         {
-            for (std::vector<testCase>::const_iterator it = testCases.begin();
-                 it != testCases.end();
-                 it++)
+            try
             {
-                int i = (*it)(std::cerr);
-                if (i != 0)
+                for (std::vector<testCase>::const_iterator it = testCases.begin();
+                     it != testCases.end();
+                     it++)
                 {
-                    return i;
+                    std::cerr << "running test case " << (std::distance(testCases.begin(), it) + 1)
+                              << " in batch of " << testCases.size() << ": ";
+                    int res = (*it)(std::cerr);
+                    if (res != 0)
+                    {
+                        std::cerr << "failed; code: " << res << "\n";
+                        return res;
+                    }
+                    std::cerr << "OK\n";
                 }
+            }
+            catch (std::exception &e)
+            {
+                std::cerr << "Exception: " << e.what() << "\n";
+                return -1;
+            }
+            catch (...)
+            {
+                std::cerr << "Unknown Exception\n";
+                return -1;
             }
 
             return 0;
@@ -56,8 +73,8 @@ int main (int argc, char **argv)
 }
 
 #define TEST_BATCH(...)\
-static const efgy::test::testCase test[] = { __VA_ARGS__ };\
-const std::vector<efgy::test::testCase> testCases (test, test + sizeof(test) / sizeof(efgy::test::testCase));
+static const efgy::test::testCase testCasesArray[] = { __VA_ARGS__ };\
+const std::vector<efgy::test::testCase> testCases (testCasesArray, testCasesArray + sizeof(testCasesArray) / sizeof(efgy::test::testCase));
 
 #else
 #define TEST_BATCH(...)

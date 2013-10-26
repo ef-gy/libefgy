@@ -26,77 +26,67 @@
 
 #include <iostream>
 
+#include <ef.gy/test-case.h>
 #include <ef.gy/fractions.h>
 #include <ef.gy/continued-fractions.h>
 
 using namespace efgy::math;
-using namespace std;
+using std::string;
 
-int main (int argc, char **argv)
+int testContinuedFractionArithmetic (std::ostream &log)
 {
-    try
+    numeric::fractional<number> af(6,11), bf(4,5), rf;
+    numeric::continuedFractional<number> a(af), b(bf), r;
+
+    rf = af + bf;
+    log << string(af) << " + " << string(bf) << " = " << string(rf) << "\n";
+
+    r = a + b;
+    rf = r;
+    log << string(a)  << " + " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
+
+    if (rf != r)
     {
-        numeric::fractional<number> af(6,11), bf(4,5), rf;
-        numeric::continuedFractional<number> a(af), b(bf), r;
-
-        rf = af + bf;
-        cerr << string(af) << " + " << string(bf) << " = " << string(rf) << "\n";
-
-        r = a + b;
-        rf = r;
-        cerr << string(a)  << " + " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
-
-        if (rf != r)
-        {
-            return 1;
-        }
-
-        rf = af - bf;
-        cerr << string(af) << " - " << string(bf) << " = " << string(rf) << "\n";
-
-        r = a - b;
-        rf = r;
-        cerr << string(a)  << " - " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
-
-        if (rf != r)
-        {
-            return 2;
-        }
-
-        rf = af * bf;
-        cerr << string(af) << " * " << string(bf) << " = " << string(rf) << "\n";
-
-        r = a * b;
-        rf = r;
-        cerr << string(a)  << " * " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
-
-        if (rf != r)
-        {
-            return 3;
-        }
-
-        rf = af / bf;
-        cerr << string(af) << " / " << string(bf) << " = " << string(rf) << "\n";
-
-        r = a / b;
-        rf = r;
-        cerr << string(a)  << " / " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
-
-        if (rf != r)
-        {
-            return 4;
-        }
+        return 1;
     }
-    catch (exception &e)
+
+    rf = af - bf;
+    log << string(af) << " - " << string(bf) << " = " << string(rf) << "\n";
+
+    r = a - b;
+    rf = r;
+    log << string(a)  << " - " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
+
+    if (rf != r)
     {
-        cerr << "Exception: " << e.what() << "\n";
-        return -1;
+        return 2;
     }
-    catch (...)
+
+    rf = af * bf;
+    log << string(af) << " * " << string(bf) << " = " << string(rf) << "\n";
+
+    r = a * b;
+    rf = r;
+    log << string(a)  << " * " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
+
+    if (rf != r)
     {
-        cerr << "Unknown Exception\n";
-        return -1;
+        return 3;
+    }
+
+    rf = af / bf;
+    log << string(af) << " / " << string(bf) << " = " << string(rf) << "\n";
+
+    r = a / b;
+    rf = r;
+    log << string(a)  << " / " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
+
+    if (rf != r)
+    {
+        return 4;
     }
 
     return 0;
 }
+
+TEST_BATCH(testContinuedFractionArithmetic)

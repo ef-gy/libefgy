@@ -26,18 +26,19 @@
 
 #include <iostream>
 
+#include <ef.gy/test-case.h>
 #include <ef.gy/maybe.h>
 
 using namespace efgy;
 using namespace std;
 
-int main (int argc, char **argv)
+int testMaybe (std::ostream &log)
 {
     maybe<int> nothing;
 
     if (nothing)
     {
-        cerr << "value should have been 'nothing'\n";
+        log << "value should have been 'nothing'\n";
         return 1;
     }
 
@@ -45,13 +46,13 @@ int main (int argc, char **argv)
 
     if (!something)
     {
-        cerr << "value should have been something other than 'nothing'\n";
+        log << "value should have been something other than 'nothing'\n";
         return 2;
     }
 
     if (int(something) != 42)
     {
-        cerr << "value should have been '42', but is '" << int(something) << "'\n";
+        log << "value should have been '42', but is '" << int(something) << "'\n";
         return 3;
     }
 
@@ -59,7 +60,7 @@ int main (int argc, char **argv)
 
     if (something)
     {
-        cerr << "'something' was changed to 'nothing', but still thinks otherwise.\n";
+        log << "'something' was changed to 'nothing', but still thinks otherwise.\n";
         return 4;
     }
 
@@ -67,7 +68,7 @@ int main (int argc, char **argv)
 
     if (somethingElse)
     {
-        cerr << "value should have been 'nothing'\n";
+        log << "value should have been 'nothing'\n";
         return 5;
     }
 
@@ -75,15 +76,17 @@ int main (int argc, char **argv)
 
     if (!somethingElse)
     {
-        cerr << "value should have been something other than 'nothing'\n";
+        log << "value should have been something other than 'nothing'\n";
         return 6;
     }
 
     if (double(somethingElse) != 42)
     {
-        cerr << "value should have been '42', but is '" << double(somethingElse) << "'\n";
+        log << "value should have been '42', but is '" << double(somethingElse) << "'\n";
         return 7;
     }
 
     return 0;
 }
+
+TEST_BATCH(testMaybe)

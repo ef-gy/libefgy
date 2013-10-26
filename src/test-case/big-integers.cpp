@@ -40,7 +40,8 @@
 #include <vector>
 
 using namespace efgy::math;
-using namespace std;
+using std::string;
+using std::vector;
 
 /**\test Test big integer bit shifts by shifting a big integer '1' a fixed
  *       number of times to the left and then comparing the result with
@@ -316,7 +317,7 @@ int testBigIntegerBitShifts(std::ostream &log)
         z <<= 1;
         if (reference[i] != (string)z)
         {
-            cerr << "big integer string conversion mismatch: #" << i << " was '" << (string)z << "'; should have been '" << reference[i] << "'\n";
+            log << "big integer string conversion mismatch: #" << i << " was '" << (string)z << "'; should have been '" << reference[i] << "'\n";
             return -1;
         }
     }
@@ -327,7 +328,7 @@ int testBigIntegerBitShifts(std::ostream &log)
         z >>= 1;
         if (reference[i] != (string)z)
         {
-            cerr << "big integer string conversion mismatch: #" << i << " was '" << (string)z << "'; should have been '" << reference[i] << "'\n";
+            log << "big integer string conversion mismatch: #" << i << " was '" << (string)z << "'; should have been '" << reference[i] << "'\n";
             return -2;
         }
     }

@@ -26,36 +26,39 @@
 
 #include <iostream>
 
+#include <ef.gy/test-case.h>
 #include <ef.gy/primitive.h>
 #include <ef.gy/fractions.h>
 #include <ef.gy/pi.h>
 
 using namespace efgy::math;
-using namespace std;
+using std::string;
 
 typedef primitive<long double, unsigned long long> longDouble;
 
-int main (int argc, char **argv)
+int testPi (std::ostream &log)
 {
     pi<longDouble,1> piD1;
     pi<longDouble,2> piD2;
     pi<longDouble,3> piD3;
     pi<longDouble,4> piD4;
 
-    std::cerr << "pi<1> = " << (long double)longDouble(piD1) << "\n";
-    std::cerr << "pi<2> = " << (long double)longDouble(piD2) << "\n";
-    std::cerr << "pi<3> = " << (long double)longDouble(piD3) << "\n";
-    std::cerr << "pi<4> = " << (long double)longDouble(piD4) << "\n";
+    log << "pi<1> = " << (long double)longDouble(piD1) << "\n";
+    log << "pi<2> = " << (long double)longDouble(piD2) << "\n";
+    log << "pi<3> = " << (long double)longDouble(piD3) << "\n";
+    log << "pi<4> = " << (long double)longDouble(piD4) << "\n";
 
     pi<fraction,1> piQ1;
     pi<fraction,2> piQ2;
     pi<fraction,3> piQ3;
     pi<fraction,4> piQ4;
 
-    std::cerr << "pi<fraction,1> = " << (string)fraction(piQ1) << "\n";
-    std::cerr << "pi<fraction,2> = " << (string)fraction(piQ2) << "\n";
-    std::cerr << "pi<fraction,3> = " << (string)fraction(piQ3) << "\n";
-    std::cerr << "pi<fraction,4> = " << (string)fraction(piQ4) << "\n";
+    log << "pi<fraction,1> = " << (string)fraction(piQ1) << "\n";
+    log << "pi<fraction,2> = " << (string)fraction(piQ2) << "\n";
+    log << "pi<fraction,3> = " << (string)fraction(piQ3) << "\n";
+    log << "pi<fraction,4> = " << (string)fraction(piQ4) << "\n";
 
     return 0;
 }
+
+TEST_BATCH(testPi)
