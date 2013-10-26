@@ -33,44 +33,41 @@
 
 namespace efgy
 {
-    namespace data
+    template<typename T>
+    std::string intToString (T pNumber, const int pBase = 10)
     {
-        template<typename T>
-        std::string intToString (T pNumber, const int pBase = 10)
+        bool negative = pNumber < math::numeric::zero();
+        std::string rv = "";
+
+        if (negative)
         {
-            bool negative = pNumber < math::numeric::zero();
-            std::string rv = "";
-
-            if (negative)
-            {
-                pNumber = -pNumber;
-            }
-
-            while (pNumber > math::numeric::zero())
-            {
-                const char t[2] = { "0123456789abcdefghijklmnopqrstuvwxyz"
-                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ#,."[(pNumber % T(pBase))],
-                                    0 };
-                std::string tq(t);
-
-                rv = tq + rv;
-                pNumber /= pBase;
-            }
-
-            if (rv == "")
-            {
-                rv = "0";
-            }
-
-            if (negative)
-            {
-                std::string m("-");
-                rv = m + rv;
-            }
-
-            return rv;
+            pNumber = -pNumber;
         }
-    };
+
+        while (pNumber > math::numeric::zero())
+        {
+            const char t[2] = { "0123456789abcdefghijklmnopqrstuvwxyz"
+                                "ABCDEFGHIJKLMNOPQRSTUVWXYZ#,."[(pNumber % T(pBase))],
+                                0 };
+            std::string tq(t);
+
+            rv = tq + rv;
+            pNumber /= pBase;
+        }
+
+        if (rv == "")
+        {
+            rv = "0";
+        }
+
+        if (negative)
+        {
+            std::string m("-");
+            rv = m + rv;
+        }
+
+        return rv;
+    }
 };
 
 #endif

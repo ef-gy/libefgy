@@ -302,7 +302,7 @@ namespace efgy
 
                     operator std::string (void) const
                     {
-                        return data::intToString(numerator) + "/" + data::intToString(denominator);
+                        return intToString(numerator) + "/" + intToString(denominator);
                     }
 
                     operator N (void) const

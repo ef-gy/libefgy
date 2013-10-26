@@ -232,15 +232,15 @@ namespace efgy
                         {
                             if (i == N(0))
                             {
-                                r += " " + data::intToString(coefficient[i]);
+                                r += " " + intToString(coefficient[i]);
                             }
                             else if (i == N(1))
                             {
-                                r += "; " + data::intToString(coefficient[i]);
+                                r += "; " + intToString(coefficient[i]);
                             }
                             else
                             {
-                                r += ", " + data::intToString(coefficient[i]);
+                                r += ", " + intToString(coefficient[i]);
                             }
                         }
 

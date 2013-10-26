@@ -44,11 +44,8 @@ namespace efgy
         };
     };
 
-    namespace data
-    {
-        template <typename Ts, typename Tu, typename cellType, unsigned int cellBitCount>
-        std::string intToString (math::numeric::bigIntegers<Ts,Tu,cellType,cellBitCount> pNumber, const int pBase = 10);
-    };
+    template <typename Ts, typename Tu, typename cellType, unsigned int cellBitCount>
+    std::string intToString (math::numeric::bigIntegers<Ts,Tu,cellType,cellBitCount> pNumber, const int pBase = 10);
 
     namespace math
     {
@@ -521,7 +518,7 @@ namespace efgy
 
                     operator std::string (void) const
                     {
-                        return data::intToString((*this));
+                        return intToString((*this));
                     }
 
                     Tu toInteger (void) const
@@ -1168,44 +1165,41 @@ namespace efgy
         typedef numeric::bigIntegers<> Z;
     };
 
-    namespace data
+    template <typename Ts, typename Tu, typename cellType, unsigned int cellBitCount>
+    std::string intToString (math::numeric::bigIntegers<Ts,Tu,cellType,cellBitCount> pNumber, const int pBase)
     {
-        template <typename Ts, typename Tu, typename cellType, unsigned int cellBitCount>
-        std::string intToString (math::numeric::bigIntegers<Ts,Tu,cellType,cellBitCount> pNumber, const int pBase)
+        bool negative = pNumber < math::numeric::zero();
+        std::string rv = "";
+
+        if (negative)
         {
-            bool negative = pNumber < math::numeric::zero();
-            std::string rv = "";
-
-            if (negative)
-            {
-                pNumber = -pNumber;
-            }
-
-            while (pNumber > math::numeric::zero())
-            {
-                const char t[2] = { "0123456789abcdefghijklmnopqrstuvwxyz"
-                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ#,."[(pNumber % math::numeric::bigIntegers<Ts,Tu,cellType,cellBitCount>(pBase)).toInteger()],
-                                    0 };
-                std::string tq(t);
-
-                rv = tq + rv;
-                pNumber /= pBase;
-            }
-
-            if (rv == "")
-            {
-                rv = "0";
-            }
-
-            if (negative)
-            {
-                std::string m("-");
-                rv = m + rv;
-            }
-
-            return rv;
+            pNumber = -pNumber;
         }
-    };
+
+        while (pNumber > math::numeric::zero())
+        {
+            const char t[2] = { "0123456789abcdefghijklmnopqrstuvwxyz"
+                                "ABCDEFGHIJKLMNOPQRSTUVWXYZ#,."[(pNumber % math::numeric::bigIntegers<Ts,Tu,cellType,cellBitCount>(pBase)).toInteger()],
+                                0 };
+            std::string tq(t);
+
+            rv = tq + rv;
+            pNumber /= pBase;
+        }
+
+        if (rv == "")
+        {
+            rv = "0";
+        }
+
+        if (negative)
+        {
+            std::string m("-");
+            rv = m + rv;
+        }
+
+        return rv;
+    }
 };
 
 #endif

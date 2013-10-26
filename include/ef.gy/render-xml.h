@@ -55,17 +55,17 @@ namespace efgy
 
             return std::string("<colour xmlns='http://colouri.se/2012' space='hsl'")
                  + (small ? " type='small'" : "")
-                 + " hue='" + data::intToString(value.hue.numerator) + "'"
+                 + " hue='" + intToString(value.hue.numerator) + "'"
                  + (value.hue.denominator != math::numeric::one()
-                   ? " hueDenominator='" + data::intToString(value.hue.denominator) + "'"
+                   ? " hueDenominator='" + intToString(value.hue.denominator) + "'"
                    : "")
-                 + " saturation='" + data::intToString(value.saturation.numerator) + "'"
+                 + " saturation='" + intToString(value.saturation.numerator) + "'"
                  + (value.saturation.denominator != math::numeric::one()
-                   ? " saturationDenominator='" + data::intToString(value.saturation.denominator) + "'"
+                   ? " saturationDenominator='" + intToString(value.saturation.denominator) + "'"
                    : "")
-                 + " lightness='" + data::intToString(value.lightness.numerator) + "'"
+                 + " lightness='" + intToString(value.lightness.numerator) + "'"
                  + (value.lightness.denominator != math::numeric::one()
-                   ? " lightnessDenominator='" + data::intToString(value.lightness.denominator) + "'"
+                   ? " lightnessDenominator='" + intToString(value.lightness.denominator) + "'"
                    : "")
                  + "/>";
         }
@@ -80,17 +80,17 @@ namespace efgy
 
             return std::string("<colour xmlns='http://colouri.se/2012' space='rgb'")
                  + (small ? " type='small'" : "")
-                 + " red='" + data::intToString(value.red.numerator) + "'"
+                 + " red='" + intToString(value.red.numerator) + "'"
                  + (value.red.denominator != math::numeric::one()
-                   ? " redDenominator='" + data::intToString(value.red.denominator) + "'"
+                   ? " redDenominator='" + intToString(value.red.denominator) + "'"
                    : "")
-                 + " green='" + data::intToString(value.green.numerator) + "'"
+                 + " green='" + intToString(value.green.numerator) + "'"
                  + (value.green.denominator != math::numeric::one()
-                   ? " greenDenominator='" + data::intToString(value.green.denominator) + "'"
+                   ? " greenDenominator='" + intToString(value.green.denominator) + "'"
                    : "")
-                 + " blue='" + data::intToString(value.blue.numerator) + "'"
+                 + " blue='" + intToString(value.blue.numerator) + "'"
                  + (value.blue.denominator != math::numeric::one()
-                   ? " blueDenominator='" + data::intToString(value.blue.denominator) + "'"
+                   ? " blueDenominator='" + intToString(value.blue.denominator) + "'"
                    : "")
                  + "/>";
         }

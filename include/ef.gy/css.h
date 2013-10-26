@@ -44,7 +44,7 @@ namespace efgy
         template <typename T>
         std::string css (const T &o)
         {
-            return std::string("/* unknown object, size=") + data::intToString(sizeof(T)) + std::string(" */");
+            return std::string("/* unknown object, size=") + intToString(sizeof(T)) + std::string(" */");
         }
 
         template <>
