@@ -48,6 +48,8 @@ using std::vector;
  *       the same number of times and the results are again compared to the
  *       reference data.
  *
+ * \param[out] log A stream for test cases to log messages to.
+ *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
 int testBigIntegerBitShifts(std::ostream &log)

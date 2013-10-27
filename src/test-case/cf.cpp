@@ -42,6 +42,8 @@ using std::string;
  * \test Initialises a few regular fractions and a few continued fractions, then
  *       performs arithmetic with both of them and compares the results.
  *
+ * \param[out] log A stream for test cases to log messages to.
+ *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
 int testContinuedFractionArithmetic (std::ostream &log)

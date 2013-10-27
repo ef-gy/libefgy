@@ -1,20 +1,22 @@
-/*
- * This file is part of the libefgy project.
-*/
-
-/*
- * Copyright (c) 2012-2013, ef.gy Project Members
+/**\file
+ * \brief Test cases for the 'pi' template
  *
+ * Test cases for the 'pi' template to make sure instances of that class compile
+ * properly and generate reasonable approximations of 'pi'.
+ *
+ * \copyright
+ * Copyright (c) 2012-2013, ef.gy Project Members
+ * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * \copyright
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * \copyright
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +24,10 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
-*/
+ *
+ * \see Project Documentation: http://ef.gy/documentation/libefgy
+ * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
+ */
 
 #include <iostream>
 
@@ -36,6 +41,15 @@ using std::string;
 
 typedef primitive<long double, unsigned long long> longDouble;
 
+/**\brief 'Pi' initialisation and type cast tests
+ * \test Initialises several instances of the 'pi' template with different base
+ *       types and precisions. The instances are then cast to different types
+ *       and written to the log to verify that the template compiles cleanly.
+ *
+ * \param[out] log A stream for test cases to log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
 int testPi (std::ostream &log)
 {
     pi<longDouble,1> piD1;
