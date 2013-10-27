@@ -33,7 +33,7 @@ documentation from a local source tree by running:
 
 This will create or update the documentation in the directory
 documentation/html, so that you can then just open the file
-documentation/html/index.html in a browser.
+documentation/html/index.xhtml in a browser.
 
 The HTML documentation for the current development version is also available
 online at: http://ef.gy/documentation/libefgy
