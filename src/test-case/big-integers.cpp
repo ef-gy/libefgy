@@ -1,5 +1,10 @@
 /**\file
  * \brief Test cases for the BigIntegers template
+ *
+ * This file contains test cases to verify that the bigIntegers template
+ * compiles and works as expected. These test cases could probably also be used
+ * in benchmarking, but we'd better not get ahead of ourselves.
+ *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
  * \copyright
@@ -21,10 +26,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * This file contains test cases to verify that the bigIntegers template
- * compiles and works as expected. These test cases could probably also be used
- * in benchmarking, but we'd better not get ahead of ourselves.
- *
  * \see Project Documentation: http://ef.gy/documentation/libefgy
  * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
  */
@@ -40,7 +41,8 @@ using namespace efgy::math;
 using std::string;
 using std::vector;
 
-/**\test Test big integer bit shifts by shifting a big integer '1' a fixed
+/**\brief Big integer bit shift tests
+ * \test Test big integer bit shifts by shifting a big integer '1' a fixed
  *       number of times to the left and then comparing the result with
  *       reference data. After that the big integer is shifted to the right
  *       the same number of times and the results are again compared to the
