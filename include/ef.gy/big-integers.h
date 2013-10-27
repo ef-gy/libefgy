@@ -584,7 +584,7 @@ namespace efgy
 
                         if (cell.size() <= cellsPerLong)
                         {
-                            return bigIntegers(Tu(*this) >> b, false);
+                            return bigIntegers(toInteger() >> b, false);
                         }
 
 

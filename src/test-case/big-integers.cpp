@@ -45,6 +45,8 @@ using std::vector;
 
 /**\test Test big integer bit shifts by shifting a big integer '1' a fixed
  *       number of times to the left and then comparing the result with
+ *       reference data. After that the big integer is shifted to the right
+ *       the same number of times and the results are again compared to the
  *       reference data.
  *
  * \return Zero when everything went as expected, nonzero otherwise.
@@ -322,17 +324,15 @@ int testBigIntegerBitShifts(std::ostream &log)
         }
     }
 
-/*
     for (int i = 255; i >= 0; i--)
     {
-        z >>= 1;
         if (reference[i] != (string)z)
         {
             log << "big integer string conversion mismatch: #" << i << " was '" << (string)z << "'; should have been '" << reference[i] << "'\n";
             return -2;
         }
+        z >>= 1;
     }
-*/
 
     return 0;
 }
