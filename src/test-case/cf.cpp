@@ -1,20 +1,22 @@
-/*
- * This file is part of the libefgy project.
-*/
-
-/*
- * Copyright (c) 2012-2013, ef.gy Project Members
+/**\file
+ * \brief Test cases for continued fractions
  *
+ * The test cases in this file test conversions to and from continued fractions
+ * as well as basic arithmetic with those continued fractions.
+ *
+ * \copyright
+ * Copyright (c) 2012-2013, ef.gy Project Members
+ * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * \copyright
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * \copyright
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +24,10 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
-*/
+ *
+ * \see Project Documentation: http://ef.gy/documentation/libefgy
+ * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
+ */
 
 #include <iostream>
 
@@ -33,6 +38,12 @@
 using namespace efgy::math;
 using std::string;
 
+/**\brief Continued fraction arithmetic tests
+ * \test Initialises a few regular fractions and a few continued fractions, then
+ *       performs arithmetic with both of them and compares the results.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
 int testContinuedFractionArithmetic (std::ostream &log)
 {
     numeric::fractional<number> af(6,11), bf(4,5), rf;
