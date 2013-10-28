@@ -563,7 +563,11 @@ namespace efgy
                         colours.push_back(255);
                     }
 
+#if !defined(WEBGL)
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GLsizei(colours.size()/4), 1, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &colours[0]);
+#else
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GLsizei(colours.size()/4), 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &colours[0]);
+#endif
                     
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
