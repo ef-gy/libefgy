@@ -10,6 +10,12 @@ The library is distributed free of charge under a very permissive licence. The
 public GIT repository is at http://git.becquerel.org/jyujin/libefgy.git - see
 the documentation at http://ef.gy/documentation/libefgy for more details.
 
+### MIRRORS ##################################################################
+
+The libefgy source code is mirrored at:
+
+    - https://code.google.com/p/libefgy/
+
 ## INSTALLATION ##############################################################
 
 This is a header-only C++ template library. As such, installation is rather
