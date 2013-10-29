@@ -415,6 +415,9 @@ namespace efgy
 
                     if (fractalFlameColouring)
                     {
+                        const unsigned int width = 2048, height = 2048;
+                        glViewport(0, 0, width, height);
+
                         glUseProgram(programFlameColouring);
                         glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
 
@@ -426,7 +429,11 @@ namespace efgy
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+#if !defined(WEBGL)
                         glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameColouring, 0);
+#else
+                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureFlameColouring, 0);
+#endif
                         glDepthMask(GL_FALSE);
                         glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
                         glDisable(GL_DEPTH_TEST);
@@ -446,7 +453,11 @@ namespace efgy
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+#if !defined(WEBGL)
                         glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameHistogram, 0);
+#else
+                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureFlameHistogram, 0);
+#endif
                          
                         glBlendFunc (GL_ZERO, GL_SRC_ALPHA);
 
@@ -455,6 +466,7 @@ namespace efgy
                         pushFaces();
 
                         glUseProgram(programFlamePostProcess);
+                        glViewport(0, 0, this->width, this->height);
 
                         glUniform1i(uniformScreenFramebuffer, 0);
                         glUniform1i(uniformScreenHistogram, 1);
