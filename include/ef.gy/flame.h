@@ -262,13 +262,16 @@ namespace efgy
             class randomFlame : public flame<Q,d>
             {
                 public:
-                    randomFlame(const parameters<Q> &pParameter)
+                    randomFlame(const parameters<Q> &pParameter, const unsigned long long &pSeed)
+                        : seed(pSeed)
                         {
-                            transformationMatrix = randomAffine<Q,d,od>(pParameter).transformationMatrix;
+                            efgy::random::mersenneTwister<> PRNG (pSeed);
+
+                            transformationMatrix = randomAffine<Q,d,od>(pParameter, 0).transformationMatrix;
 
                             for (unsigned int i = 0; i < coefficients; i++)
                             {
-                                coefficient[i] = Q(std::rand()%10000)/Q(10000);
+                                coefficient[i] = Q(PRNG.rand()%10000)/Q(10000);
                             }
 
                             for (unsigned int nonzero = pParameter.flameCoefficients + 1;
@@ -289,7 +292,7 @@ namespace efgy
                                 
                                 if (nonzero > pParameter.flameCoefficients)
                                 {
-                                    coefficient[(std::rand()%coefficients)] = Q(0.);
+                                    coefficient[(PRNG.rand()%coefficients)] = Q(0.);
                                 }
                             }
                             
@@ -309,6 +312,9 @@ namespace efgy
                     using flame<Q,d>::transformationMatrix;
                     using flame<Q,d>::coefficient;
                     using flame<Q,d>::coefficients;
+
+                protected:
+                    const unsigned long long &seed;
             };
         };
 
@@ -350,13 +356,13 @@ namespace efgy
                         {
                             functions.clear();
 
-                            std::srand(parameter.seed);
+                            efgy::random::mersenneTwister<> PRNG (parameter.seed);
 
                             const unsigned int nfunctions = parameter.functions;
                         
                             for (unsigned int i = 0; i < nfunctions; i++)
                             {
-                                functions.push_back (transformation::randomFlame<Q,d,od>(parameter));
+                                functions.push_back (transformation::randomFlame<Q,d,od>(parameter, PRNG.rand()));
                             }
                         
                             parent::calculateObject();

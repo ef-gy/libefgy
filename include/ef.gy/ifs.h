@@ -31,6 +31,7 @@
 
 #include <ef.gy/polytope.h>
 #include <ef.gy/projection.h>
+#include <ef.gy/random.h>
 #include <vector>
 #include <cstdlib>
 
@@ -259,22 +260,24 @@ namespace efgy
             class randomAffine : public affine<Q,d>
             {
                 public:
-                    randomAffine(const parameters<Q> &pParameter)
-                        : parameter(pParameter)
+                    randomAffine(const parameters<Q> &pParameter, const unsigned long long &pSeed)
+                        : parameter(pParameter), seed(pSeed)
                         {
                             updateMatrix();
                         }
 
                     void updateMatrix (void)
                     {
+                        random::mersenneTwister<> PRNG (seed);
+
                         typename euclidian::space<Q,d>::vector V;
-                        const Q s(Q(std::rand()%6000)/Q(10000)+Q(.2));
-                        const Q r1(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
-                        unsigned int a1 = std::rand() % od;
-                        unsigned int a2 = std::rand() % od;
-                        const Q r2(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
-                        unsigned int a4 = std::rand() % od;
-                        unsigned int a5 = std::rand() % od;
+                        const Q s(Q(PRNG.rand()%6000)/Q(10000)+Q(.2));
+                        const Q r1(Q(PRNG.rand()%20000)/Q(10000)*Q(M_PI));
+                        unsigned int a1 = PRNG.rand() % od;
+                        unsigned int a2 = PRNG.rand() % od;
+                        const Q r2(Q(PRNG.rand()%20000)/Q(10000)*Q(M_PI));
+                        unsigned int a4 = PRNG.rand() % od;
+                        unsigned int a5 = PRNG.rand() % od;
                         
                         if (a1 > a2)
                         {
@@ -286,7 +289,7 @@ namespace efgy
                         {
                             if (a1 == 0)
                             {
-                                a2 = std::rand() % (od-1) + 1;
+                                a2 = PRNG.rand() % (od-1) + 1;
                             }
                             else
                             {
@@ -304,7 +307,7 @@ namespace efgy
                         {
                             if (a4 == 0)
                             {
-                                a5 = std::rand() % (od-1) + 1;
+                                a5 = PRNG.rand() % (od-1) + 1;
                             }
                             else
                             {
@@ -314,7 +317,7 @@ namespace efgy
                         
                         for (unsigned int j = 0; j < od; j++)
                         {
-                            V.data[j] = Q(std::rand()%10000)/Q(5000)-Q(1);
+                            V.data[j] = Q(PRNG.rand()%10000)/Q(5000)-Q(1);
                         }
                         
                         transformationMatrix =
@@ -333,6 +336,7 @@ namespace efgy
 
                 protected:
                     const parameters<Q> &parameter;
+                const unsigned long long &seed;
             };
         };
 
@@ -351,14 +355,14 @@ namespace efgy
                     void calculateObject (void)
                     {
                         functions.clear();
-
-                        std::srand(parameter.seed);
+                        
+                        random::mersenneTwister<> PRNG (parameter.seed);
 
                         const unsigned int nfunctions = parameter.functions;
 
                         for (unsigned int i = 0; i < nfunctions; i++)
                         {
-                            functions.push_back (transformation::randomAffine<Q,d,od>(parameter));
+                            functions.push_back (transformation::randomAffine<Q,d,od>(parameter, PRNG.rand()));
                         }
 
                         parent::calculateObject();
