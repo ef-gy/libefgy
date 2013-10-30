@@ -140,4 +140,92 @@ int testUnitMetric (std::ostream &log)
     return 0;
 }
 
-TEST_BATCH(testUnitMetric)
+/**\brief Test metric multiplier helper class
+ * \test Calculate some metric conversion factors to see if the helper
+ *       providing those is working as expected.
+ *
+ * \param[out] log A stream for test cases to log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
+int testMetricMultipliers (std::ostream &log)
+{
+    if (metricMultiplier<fraction,1,1>::get() != fraction(10))
+    {
+        log << "metric multiplier <1,1> is " << (std::string)metricMultiplier<fraction,1,1>::get() << " but should have been 10/1\n";
+        return -1;
+    }
+
+    if (metricMultiplier<fraction,1,2>::get() != fraction(100))
+    {
+        log << "metric multiplier <1,2> is " << (std::string)metricMultiplier<fraction,1,2>::get() << " but should have been 100/1\n";
+        return -2;
+    }
+
+    if (metricMultiplier<fraction,0,2>::get() != fraction(1))
+    {
+        log << "metric multiplier <0,2> is " << (std::string)metricMultiplier<fraction,0,2>::get() << " but should have been 1/1\n";
+        return -3;
+    }
+
+    if (metricMultiplier<fraction,3,2>::get() != fraction(1000000))
+    {
+        log << "metric multiplier <3,2> is " << (std::string)metricMultiplier<fraction,3,2>::get() << " but should have been 1000000/1\n";
+        return -4;
+    }
+
+    if (metricMultiplier<fraction,3,3>::get() != fraction(1000000000))
+    {
+        log << "metric multiplier <3,3> is " << (std::string)metricMultiplier<fraction,3,3>::get() << " but should have been 1000000000/1\n";
+        return -5;
+    }
+
+    return 0;
+}
+
+/**\brief Test case for exponential metric unit conversions
+ * \test Convert between squared metric units and between inverse squared
+ *       metric units.
+ *
+ * \param[out] log A stream for test cases to log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
+int testUnitEMetric (std::ostream &log)
+{
+    second<fraction,2>::unit s2_5_7 (fraction(5,7));
+
+    if (fraction(5,7) != fraction(s2_5_7))
+    {
+        log << "variable was not initialised to the expected value\n";
+        return -1;
+    }
+
+    second<fraction,2>::milli ms2_5_7 = s2_5_7;
+
+    if (fraction(5000000,7) != ms2_5_7)
+    {
+        log << "variable was not converted to the expected value\n";
+        return -2;
+    }
+
+    second<fraction,-2>::unit si2_5_7 (fraction(5,7));
+
+    if (fraction(5,7) != fraction(si2_5_7))
+    {
+        log << "variable was not initialised to the expected value\n";
+        return -3;
+    }
+
+    second<fraction,-2>::milli msi2_5_7 = si2_5_7;
+
+    if (fraction(5,7000000) != msi2_5_7)
+    {
+        log << "variable was not converted to the expected value\n";
+        return -4;
+    }
+
+    return 0;
+}
+
+TEST_BATCH(testUnitMetric, testMetricMultipliers, testUnitEMetric)
