@@ -29,6 +29,8 @@
 #if !defined(EF_GY_UNITS_H)
 #define EF_GY_UNITS_H
 
+#include <ef.gy/exponential.h>
+
 namespace efgy
 {
     namespace unit
@@ -83,24 +85,28 @@ namespace efgy
                 }
         };
 
-        template<typename Q, int exponent>
-        class exponential
-        {   public: static Q get (const Q &base) { return base * exponential<Q,exponent-1>::get(base); } };
-
-        template<typename Q>
-        class exponential<Q,1>
-        {   public: static Q get (const Q &base) { return base; } };
-
-        template<typename Q>
-        class exponential<Q,0>
-        {   public: static Q get (const Q &base) { return Q(1); } };
-
         template<typename Q, int exponent, int unitExponent>
         class metricMultiplier
-        {   public: static Q get (void) { return exponential<Q,exponent*unitExponent>::get(Q(10)); } };
+        {
+            public:
+                static Q get (void)
+                {
+                    return math::exponential::integral<Q,exponent*unitExponent>::raise(Q(10));
+                }
+        };
 
-        template<typename U, int exponent>
-        class metricScaledUnitValue : public U::base
+        template<typename Q, int exponent, int unitExponent>
+        class binaryMultiplier
+        {
+            public:
+                static Q get (void)
+                {
+                    return math::exponential::integral<Q,exponent*unitExponent>::raise(Q(1024));
+                }
+        };
+
+        template<typename U, int exponent, template<typename, int, int> class multiplier>
+        class exponentialScaledUnitValue : public U::base
         {
             public:
                 typedef typename U::base base;
@@ -109,36 +115,43 @@ namespace efgy
                 static base convert (const base &value)
                 {
                     return ((exponent * unitExponent) <= 0)
-                         ? value * metricMultiplier
+                         ? value * multiplier
                                         <base,
                                          exponent < 0 ? -exponent : exponent,
                                          unitExponent < 0 ? -unitExponent : unitExponent>::get()
-                         : value / metricMultiplier
+                         : value / multiplier
                                         <base,
                                          exponent < 0 ? -exponent : exponent,
                                          unitExponent < 0 ? -unitExponent : unitExponent>::get();
                 }
 
-                metricScaledUnitValue()
+                exponentialScaledUnitValue()
                     : base(0)
                     {}
 
-                explicit metricScaledUnitValue(const base &pV)
+                explicit exponentialScaledUnitValue(const base &pV)
                     : base(pV)
                     {}
 
-                metricScaledUnitValue(const U &pV)
+                exponentialScaledUnitValue(const U &pV)
                     : base(convert(base(pV)))
                     {}
 
                 template<int rExponent>
-                metricScaledUnitValue(const metricScaledUnitValue<U, rExponent> &pV)
-                    : base(metricScaledUnitValue<U,(exponent - rExponent)>::convert(base(pV)))
+                exponentialScaledUnitValue(const exponentialScaledUnitValue<U, rExponent, multiplier> &pV)
+                    : base(exponentialScaledUnitValue<U,(exponent - rExponent), multiplier>::convert(base(pV)))
+                    {}
+
+                template<int rExponent, template<typename, int, int> class rMultiplier>
+                exponentialScaledUnitValue(const exponentialScaledUnitValue<U, rExponent, rMultiplier> &pV)
+                    : base(base(pV)
+                         * exponentialScaledUnitValue<U,  exponent,  multiplier>::convert(base(pV))
+                         / exponentialScaledUnitValue<U, rExponent, rMultiplier>::convert(base(pV)))
                     {}
 
                 operator U (void) const
                 {
-                    return U(metricScaledUnitValue<U,-exponent>::convert(base(*this)));
+                    return U(exponentialScaledUnitValue<U,-exponent,multiplier>::convert(base(*this)));
                 }
         };
 
@@ -152,26 +165,43 @@ namespace efgy
                 typedef scaledUnitValue<unit, unsigned long long, 1, 1000> milli;
                 typedef scaledUnitValue<unit, unsigned long long, 1, 1000000> micro;
                 */
-                typedef metricScaledUnitValue<unit, 24> yotta;
-                typedef metricScaledUnitValue<unit, 21> zetta;
-                typedef metricScaledUnitValue<unit, 18> exa;
-                typedef metricScaledUnitValue<unit, 15> peta;
-                typedef metricScaledUnitValue<unit, 12> tera;
-                typedef metricScaledUnitValue<unit,  9> giga;
-                typedef metricScaledUnitValue<unit,  6> mega;
-                typedef metricScaledUnitValue<unit,  3> kilo;
-                typedef metricScaledUnitValue<unit,  2> hecto;
-                typedef metricScaledUnitValue<unit,  1> deca;
-                typedef metricScaledUnitValue<unit, -1> deci;
-                typedef metricScaledUnitValue<unit, -2> centi;
-                typedef metricScaledUnitValue<unit, -3> milli;
-                typedef metricScaledUnitValue<unit, -6> micro;
-                typedef metricScaledUnitValue<unit, -9> nano;
-                typedef metricScaledUnitValue<unit,-12> pico;
-                typedef metricScaledUnitValue<unit,-15> femto;
-                typedef metricScaledUnitValue<unit,-18> atto;
-                typedef metricScaledUnitValue<unit,-21> zepto;
-                typedef metricScaledUnitValue<unit,-24> yocto;
+                typedef exponentialScaledUnitValue<unit, 24, metricMultiplier> yotta;
+                typedef exponentialScaledUnitValue<unit, 21, metricMultiplier> zetta;
+                typedef exponentialScaledUnitValue<unit, 18, metricMultiplier> exa;
+                typedef exponentialScaledUnitValue<unit, 15, metricMultiplier> peta;
+                typedef exponentialScaledUnitValue<unit, 12, metricMultiplier> tera;
+                typedef exponentialScaledUnitValue<unit,  9, metricMultiplier> giga;
+                typedef exponentialScaledUnitValue<unit,  6, metricMultiplier> mega;
+                typedef exponentialScaledUnitValue<unit,  4, metricMultiplier> myria;
+                typedef exponentialScaledUnitValue<unit,  3, metricMultiplier> kilo;
+                typedef exponentialScaledUnitValue<unit,  2, metricMultiplier> hecto;
+                typedef exponentialScaledUnitValue<unit,  1, metricMultiplier> deca;
+                typedef exponentialScaledUnitValue<unit, -1, metricMultiplier> deci;
+                typedef exponentialScaledUnitValue<unit, -2, metricMultiplier> centi;
+                typedef exponentialScaledUnitValue<unit, -3, metricMultiplier> milli;
+                typedef exponentialScaledUnitValue<unit, -6, metricMultiplier> micro;
+                typedef exponentialScaledUnitValue<unit, -9, metricMultiplier> nano;
+                typedef exponentialScaledUnitValue<unit,-12, metricMultiplier> pico;
+                typedef exponentialScaledUnitValue<unit,-15, metricMultiplier> femto;
+                typedef exponentialScaledUnitValue<unit,-18, metricMultiplier> atto;
+                typedef exponentialScaledUnitValue<unit,-21, metricMultiplier> zepto;
+                typedef exponentialScaledUnitValue<unit,-24, metricMultiplier> yocto;
+        };
+
+        template<typename Q, const char unitSymbol, int unitExponent>
+        class binary : public metric<Q,unitSymbol,unitExponent>
+        {
+            public:
+                typedef typename metric<Q,unitSymbol,unitExponent>::unit unit;
+
+                typedef exponentialScaledUnitValue<unit, 8, binaryMultiplier> yobi;
+                typedef exponentialScaledUnitValue<unit, 7, binaryMultiplier> zebi;
+                typedef exponentialScaledUnitValue<unit, 6, binaryMultiplier> exbi;
+                typedef exponentialScaledUnitValue<unit, 5, binaryMultiplier> pebi;
+                typedef exponentialScaledUnitValue<unit, 4, binaryMultiplier> tebi;
+                typedef exponentialScaledUnitValue<unit, 3, binaryMultiplier> gibi;
+                typedef exponentialScaledUnitValue<unit, 2, binaryMultiplier> mebi;
+                typedef exponentialScaledUnitValue<unit, 1, binaryMultiplier> kibi;
         };
 
         template<typename Q, int unitExponent = 1>
@@ -184,10 +214,10 @@ namespace efgy
         class second : public metric<Q, 's', unitExponent> {};
 
         template<typename Q, int unitExponent = 1>
-        class byte : public metric<Q, 'B', unitExponent> {};
+        class byte : public binary<Q, 'B', unitExponent> {};
 
         template<typename Q, int unitExponent = 1>
-        class bit : public metric<Q, 'b', unitExponent> {};
+        class bit : public binary<Q, 'b', unitExponent> {};
     };
 };
 

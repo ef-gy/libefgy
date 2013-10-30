@@ -228,4 +228,57 @@ int testUnitEMetric (std::ostream &log)
     return 0;
 }
 
-TEST_BATCH(testUnitMetric, testMetricMultipliers, testUnitEMetric)
+/**\brief Test case for binary unit conversions
+ * \test Convert between binary units to verify that these conversions are
+ *       working properly.
+ *
+ * \param[out] log A stream for test cases to log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
+int testUnitBinary (std::ostream &log)
+{
+    byte<fraction>::kibi kib_2 (fraction(2));
+
+    if (fraction(2) != fraction(kib_2))
+    {
+        log << "variable was not initialised to the expected value: " << (std::string)kib_2 << " instead of 2/1\n";
+        return -1;
+    }
+
+    byte<fraction>::unit b_2 = kib_2;
+
+    if (fraction(2048) != b_2)
+    {
+        log << "variable was not converted to the expected value: " << (std::string)b_2 << " instead of 2048/1\n";
+        return -2;
+    }
+
+    byte<fraction>::mebi mib_2 = kib_2;
+
+    if (fraction(1,512) != mib_2)
+    {
+        log << "variable was not converted to the expected value: " << (std::string)mib_2 << " instead of 1/512\n";
+        return -3;
+    }
+
+    byte<fraction>::kilo kb_2 = kib_2;
+
+    if (fraction(256,125) != kb_2)
+    {
+        log << "variable was not converted to the expected value: " << (std::string)kb_2 << " instead of 256/125\n";
+        return -4;
+    }
+
+    byte<fraction>::mega mb_2 = kib_2;
+
+    if (fraction(32,15625) != mb_2)
+    {
+        log << "variable was not converted to the expected value: " << (std::string)mb_2 << " instead of 32/15625\n";
+        return -5;
+    }
+
+    return 0;
+}
+
+TEST_BATCH(testUnitMetric, testMetricMultipliers, testUnitEMetric, testUnitBinary)
