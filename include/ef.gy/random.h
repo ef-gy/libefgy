@@ -152,7 +152,7 @@ namespace efgy
                  * produces 32-bit integers, so this bitmask is used to cut off
                  * any excess bits that might have been produced.
                  */
-                static const T bitmask = ((1L<<32)-1);
+                static const T bitmask = ((1LL<<32)-1);
 
                 /**\brief Current position in the state array
                  *
