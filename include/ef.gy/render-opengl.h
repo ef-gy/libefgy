@@ -1,22 +1,18 @@
-/*
- * This file is part of the ef.gy project.
- * See the appropriate repository at http://ef.gy/.git for exact file
- * modification records.
-*/
-
-/*
- * Copyright (c) 2012-2013, ef.gy Project Members
+/**\file
  *
+ * \copyright
+ * Copyright (c) 2012-2013, ef.gy Project Members
+ * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * \copyright
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * \copyright
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,7 +20,10 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
-*/
+ *
+ * \see Project Documentation: http://ef.gy/documentation/libefgy
+ * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
+ */
 
 #if !defined(EF_GY_RENDER_OPENGL_H)
 #define EF_GY_RENDER_OPENGL_H
@@ -169,6 +168,11 @@ namespace efgy
                 bool setColour (float red, float green, float blue, float alpha, bool wireframe)
                 {
                     return lowerRenderer.setColour(red,green,blue,alpha,wireframe);
+                }
+
+                void setColourMap (void)
+                {
+                    lowerRenderer.setColourMap();
                 }
 
                 bool &fractalFlameColouring;
@@ -429,11 +433,8 @@ namespace efgy
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-#if !defined(WEBGL)
-                        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameColouring, 0);
-#else
                         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureFlameColouring, 0);
-#endif
+
                         glDepthMask(GL_FALSE);
                         glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
                         glDisable(GL_DEPTH_TEST);
@@ -453,12 +454,8 @@ namespace efgy
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-#if !defined(WEBGL)
-                        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFlameHistogram, 0);
-#else
                         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureFlameHistogram, 0);
-#endif
-                         
+                        
                         glBlendFunc (GL_ZERO, GL_SRC_ALPHA);
 
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -561,7 +558,7 @@ namespace efgy
                     }
                     return true;
                 }
-            
+
                 void setColourMap (void)
                 {
                     glBindTexture(GL_TEXTURE_2D, textureFlameColourMap);
@@ -575,11 +572,7 @@ namespace efgy
                         colours.push_back(255);
                     }
 
-#if !defined(WEBGL)
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GLsizei(colours.size()/4), 1, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &colours[0]);
-#else
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GLsizei(colours.size()/4), 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &colours[0]);
-#endif
                     
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
