@@ -33,36 +33,37 @@ namespace efgy
 {
     namespace math
     {
-        template <typename Q>
-        class exponential
+        namespace exponential
         {
-            public:
-                exponential()
-                    : base(Q(0)), factor(Q(1)), exponent(Q(0))
-                    {}
+            template<typename Q, int exponent>
+            class integral
+            {
+                public:
+                    static Q raise (const Q &base)
+                    {
+                        return base * integral<Q,exponent-1>::raise(base);
+                    }
+            };
 
-                exponential(const Q &pBase)
-                    : base(pBase), factor(Q(1)), exponent(Q(0))
-                    {}
+            template<typename Q>
+            class integral<Q,1>
+            {
+                public:
+                    static Q raise (const Q &base)
+                    {
+                        return base;
+                    }
+            };
 
-                exponential(const Q &pBase, const Q &pExponent)
-                    : base(pBase), factor(Q(1)), exponent(pExponent)
-                    {}
-
-                exponential(const Q &pBase, const Q &pExponent, const Q &pFactor)
-                    : base(pBase), factor(pFactor), exponent(pExponent)
-                    {}
-
-                exponential operator + (const exponential &b) const;
-                exponential operator - (const exponential &b) const;
-                exponential operator * (const exponential &b) const;
-                exponential operator / (const exponential &b) const;
-
-                operator Q (void) const;
-
-                Q base;
-                Q factor;
-                Q exponent;
+            template<typename Q>
+            class integral<Q,0>
+            {
+                public:
+                    static Q raise (const Q &base)
+                    {
+                        return Q(1);
+                    }
+            };
         };
     };
 };
