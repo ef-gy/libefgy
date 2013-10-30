@@ -33,17 +33,18 @@ namespace efgy
 {
     namespace unit
     {
-        template<typename Q>
+        template<typename Q, const char unitSymbol>
         class unitValue : public Q
         {
             public:
                 typedef Q base;
+                static const char symbol = unitSymbol;
 
                 unitValue()
                     : base(0)
                     {}
 
-                unitValue(const base &pV)
+                explicit unitValue(const base &pV)
                     : base(pV)
                     {}
         };
@@ -58,44 +59,139 @@ namespace efgy
                     : base(0)
                     {}
 
-                scaledUnitValue(const base &pV)
+                explicit scaledUnitValue(const base &pV)
                     : base(pV)
                     {}
 
                 scaledUnitValue(const U &pV)
-                    : base(base(pV) * base(factor) / base(divisor))
+                    : base(base(pV) * base(divisor) / base(factor))
                     {}
 
-                operator U () const
+                template<I rFactor, I rDivisor>
+                scaledUnitValue(const scaledUnitValue<U, I, rFactor, rDivisor> &pV)
+                    : base(base(pV) * base(divisor) / base(rDivisor) * base(rFactor) / base(factor))
+                    {}
+
+                operator U (void) const
                 {
-                    return U(base(*this) * base(divisor) / base(factor));
+                    return U(base(*this) * base(factor) / base(divisor));
+                }
+        };
+
+        template<typename Q, int exponent>
+        class metricMultiplier
+        {
+            public:
+                static Q get (void)
+                {
+                    return Q(10) * metricMultiplier<Q,exponent-1>::get();
                 }
         };
 
         template<typename Q>
-        class metre : public unitValue<Q>
+        class metricMultiplier<Q, 0>
         {
-            public:
-                typedef typename unitValue<Q>::base base;
-
-                metre() {}
-                metre(const base &pV)
-                    : unitValue<Q>(pV)
-                    {}
+            public: static Q get (void) { return Q(1); }
         };
 
         template<typename Q>
-        class milli : public scaledUnitValue<Q, unsigned long long, 1, 1000>
+        class metricMultiplier<Q, 1>
+        {
+            public: static Q get (void) { return Q(10); }
+        };
+
+        template<typename U, int exponent>
+        class metricScaledUnitValue : public U::base
         {
             public:
-                typedef typename Q::base base;
-                milli() {}
-                milli(const base &pV)
-                    : scaledUnitValue<Q,unsigned long long, 1, 1000>(pV)
+                typedef typename U::base base;
+
+                static base convert (const base &value)
+                {
+                    return (exponent <= 0)
+                         ? value * metricMultiplier<base,exponent < 0 ? -exponent : 0>::get()
+                         : value / metricMultiplier<base,exponent < 0 ? 0 :  exponent>::get();
+                }
+
+                metricScaledUnitValue()
+                    : base(0)
                     {}
-                milli(const Q &pV)
-                    : scaledUnitValue<Q,unsigned long long, 1, 1000>(pV)
+
+                explicit metricScaledUnitValue(const base &pV)
+                    : base(pV)
                     {}
+
+                metricScaledUnitValue(const U &pV)
+                    : base(convert(base(pV)))
+                    {}
+
+                template<int rExponent>
+                metricScaledUnitValue(const metricScaledUnitValue<U, rExponent> &pV)
+                    : base(metricScaledUnitValue<U,(exponent - rExponent)>::convert(base(pV)))
+                    {}
+
+                operator U (void) const
+                {
+                    return U(metricScaledUnitValue<U,-exponent>::convert(base(*this)));
+                }
+        };
+
+        template<typename Q, const char unitSymbol>
+        class metric
+        {
+            public:
+                typedef unitValue<Q, unitSymbol> unit;
+
+/*
+                typedef scaledUnitValue<unit, unsigned long long, 1, 1000> milli;
+                typedef scaledUnitValue<unit, unsigned long long, 1, 1000000> micro;
+                */
+                typedef metricScaledUnitValue<unit, 24> yotta;
+                typedef metricScaledUnitValue<unit, 21> zetta;
+                typedef metricScaledUnitValue<unit, 18> exa;
+                typedef metricScaledUnitValue<unit, 15> peta;
+                typedef metricScaledUnitValue<unit, 12> tera;
+                typedef metricScaledUnitValue<unit,  9> giga;
+                typedef metricScaledUnitValue<unit,  6> mega;
+                typedef metricScaledUnitValue<unit,  3> kilo;
+                typedef metricScaledUnitValue<unit, -3> milli;
+                typedef metricScaledUnitValue<unit, -6> micro;
+                typedef metricScaledUnitValue<unit, -9> nano;
+                typedef metricScaledUnitValue<unit,-12> pico;
+                typedef metricScaledUnitValue<unit,-15> femto;
+                typedef metricScaledUnitValue<unit,-18> atto;
+                typedef metricScaledUnitValue<unit,-21> zepto;
+                typedef metricScaledUnitValue<unit,-24> yocto;
+        };
+
+        template<typename Q>
+        class gramme : public metric<Q, 'g'>
+        {
+            public:
+        };
+
+        template<typename Q>
+        class metre : public metric<Q, 'm'>
+        {
+            public:
+        };
+
+        template<typename Q>
+        class second : public metric<Q, 's'>
+        {
+            public:
+        };
+
+        template<typename Q>
+        class byte : public metric<Q, 'B'>
+        {
+            public:
+        };
+
+        template<typename Q>
+        class bit : public metric<Q, 'b'>
+        {
+            public:
         };
     };
 };
