@@ -1,4 +1,14 @@
 /**\file
+ * \brief Unit conversion helpers
+ *
+ * This file contains templates that help to ensure that values specified using
+ * different units get converted correctly to the units you're expecting. By
+ * using these types instead of regular types, the compiler will know when to
+ * convert values and when to leave them like they are.
+ *
+ * Letting the compiler handle unit conversions automatically eliminates quite
+ * a few types of very nasty errors. Metric vs. imperial length units in
+ * spacecrafts, anyone? ;)
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -32,24 +42,88 @@
 
 namespace efgy
 {
+    /**\brief Unit conversion templates
+     *
+     * Unit conversions and specifications get their own namespace because they
+     * don't really fit in anywhere else.
+     */
     namespace unit
     {
+        /**\brief Unit values
+         *
+         * This class template is used to distinguish between values in
+         * different units without any multiplying prefixes, like metres or
+         * seconds.
+         *
+         * The advantage of this template is that it ensures that you can't
+         * assign quantities of incompatible units to each other - i.e. you
+         * can't assign a value in seconds to one where metres are expected,
+         * and you can't assign a value in square metres to one where cubic
+         * metres are expected.
+         *
+         * \tparam Q            The data type to use.
+         * \tparam unitSymbol   The symbol for this unit, e.g. 'm' or 's'.
+         * \tparam unitExponent The exponent for this unit, e.g. '2' for
+         *                      square metres.
+         */
         template<typename Q, const char unitSymbol, int unitExponent>
         class unitValue : public Q
         {
             public:
+                /**\brief Base datatype
+                 *
+                 * Alias for the base datatype in use. This makes it possible
+                 * for derived classes to figure out the base datatype without
+                 * needing a separate template parameter for that.
+                 */
                 typedef Q base;
+
+                /**\brief Unit symbol
+                 *
+                 * Alias for the unitSymbol template parameter. Intended to be
+                 * used when turning values into strings to present to users.
+                 */
                 static const char   symbol = unitSymbol;
+
+                /**\brief Unit exponent
+                 *
+                 * Alias for the unitExponent template parameter. Used in some
+                 * conversion formulas by derived classes.
+                 */
                 static const int  exponent = unitExponent;
 
+                /**\brief Default constructor
+                 *
+                 * Initialises an instance with a numeric value of zero.
+                 */
                 unitValue()
                     : base(0)
                     {}
 
+                /**\brief Explicit value constructor
+                 *
+                 * Initialises an instance with a specified value.
+                 *
+                 * Explicit so that you can't accidentally assign two unitValue
+                 * instances of different units or with different exponents to
+                 * each other with a silent conversion by the compiler.
+                 *
+                 * \brief[in] pV The value to use.
+                 */
                 explicit unitValue(const base &pV)
                     : base(pV)
                     {}
 
+                /**\brief Copy constructor
+                 *
+                 * Copies a given value of the exact same type.
+                 *
+                 * This is specified separately as a fallback for the explicit
+                 * value constructor so that you don't get any warnings when
+                 * assigning values of the exact same type to each other.
+                 *
+                 * \brief[in] pV The value to copy.
+                 */
                 unitValue(const unitValue<base,symbol,exponent> &pV)
                     : base(base(pV))
                     {}
