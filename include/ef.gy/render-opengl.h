@@ -258,6 +258,8 @@ namespace efgy
                     if(!haveBuffers)
                     {
                         haveBuffers = true;
+                        
+                        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &framebufferOriginalFramebuffer);
 
                         glGenFramebuffers(1, &framebufferFlameColouring);
                         glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
@@ -474,7 +476,7 @@ namespace efgy
 
                         glBlendFunc (GL_ONE, GL_ZERO);
 
-                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferOriginalFramebuffer);
 
 #if !defined(NOVAO)
                         glBindVertexArray(vertexArrayFullscreenQuad);
@@ -498,7 +500,7 @@ namespace efgy
                         glEnable(GL_DEPTH_TEST);
                         glDepthFunc(GL_LEQUAL);
 
-                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferOriginalFramebuffer);
 
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -617,6 +619,7 @@ namespace efgy
                 GLfloat surfaceColour[4];
                 GLuint framebufferFlameColouring;
                 GLuint framebufferFlameHistogram;
+                GLint framebufferOriginalFramebuffer;
                 GLuint textureFlameColouring;
                 GLuint textureFlameHistogram;
                 GLuint textureFlameColourMap;
