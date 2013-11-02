@@ -41,7 +41,6 @@ using namespace efgy::math;
 using namespace efgy::geometry;
 using namespace efgy::geometry::euclidian;
 using namespace efgy::render;
-using namespace efgy::data;
 
 using namespace std;
 
