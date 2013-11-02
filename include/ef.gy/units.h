@@ -129,39 +129,112 @@ namespace efgy
                     {}
         };
 
+        /**\brief Scaled value
+         *
+         * Represents a value in a fixed scale to a unitValue class. This
+         * template is designed for use with non-metric and non-binary
+         * scales.
+         *
+         * \tparam U       A unit type that the scaled values are relative to.
+         *                 Supply an class based on the unitValue template.
+         * \tparam I       The type for the scale values.
+         * \tparam factor  The nominator part of the scale value.
+         * \tparam divisor The denominator part of the scale value.
+         */
         template<typename U, typename I, I factor, I divisor>
         class scaledUnitValue : public U::base
         {
             public:
+                /**\brief Base value type
+                 *
+                 * This is the base value type of the unitValue template; the
+                 * separate typedef here makes it easier to use.
+                 */
                 typedef typename U::base base;
 
+                /**\brief Default constructor
+                 *
+                 * Initialises a class instance to a value of zero.
+                 */
                 scaledUnitValue()
                     : base(0)
                     {}
 
+                /**\brief Explicit value constructor
+                 *
+                 * Initialise an instance of the class with a specific value.
+                 * This constructor is declared explicit so as not to be used
+                 * automatically when assigning values of different scales.
+                 *
+                 * \param[in] pV The value to initialise the instance to.
+                 */
                 explicit scaledUnitValue(const base &pV)
                     : base(pV)
                     {}
 
+                /**\brief Unit value constructor
+                 *
+                 * Scales the value of an instance of the unit type so that its
+                 * value is appropriate for this class.
+                 *
+                 * \param[in] pV The value to initialise the instance to.
+                 */
                 scaledUnitValue(const U &pV)
                     : base(base(pV) * base(divisor) / base(factor))
                     {}
 
+                /**\brief Copy value of different scale
+                 *
+                 * Initialises an instance of the class after scaling a value
+                 * of a different scale. The other value must be of the same
+                 * unit type.
+                 *
+                 * \tparam rFactor  The other value's scale's nominator.
+                 * \tparam rDivisor The other value's scale's denominator.
+                 *
+                 * \paramïin] pV The value to scale and assign.
+                 */
                 template<I rFactor, I rDivisor>
                 scaledUnitValue(const scaledUnitValue<U, I, rFactor, rDivisor> &pV)
                     : base(base(pV) * base(divisor) / base(rDivisor) * base(rFactor) / base(factor))
                     {}
 
+                /**\brief Convert to unit value
+                 *
+                 * Scales the stored value back to the unit type and returns
+                 * it.
+                 *
+                 * \return An instance of the unitType template this class is
+                 *         based on.
+                 */
                 operator U (void) const
                 {
                     return U(base(*this) * base(factor) / base(divisor));
                 }
         };
 
+        /**\brief Calculate metric multipliers
+         *
+         * This class calculates multiplier for metric prefix - kilo-, mega-,
+         * etc. This is used by the exponentialScaledUnitValue template to
+         * convert values between different metric scales.
+         *
+         * \tparam Q            The base type to generate the multiplier in.
+         * \tparam exponent     The exponent to use, e.g. '3' for 'kilo'.
+         * \tparam unitExponent The exponent for the unit value, e.g. '2' for
+         *                      square metres, '3' for cubic metres and so on.
+         */
         template<typename Q, int exponent, int unitExponent>
         class metricMultiplier
         {
             public:
+                /**\brief Calculate scale
+                 *
+                 * This calculates the scale value and returns it. Basically
+                 * 10^(exponent*unitExponent).
+                 *
+                 * \return The calculated scale.
+                 */
                 static Q get (void)
                 {
                     return math::exponential::integral<Q,exponent*unitExponent>::raise(Q(10));
