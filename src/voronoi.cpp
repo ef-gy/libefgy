@@ -49,7 +49,6 @@ using efgy::math::numeric::bigIntegers;
 voronoi<Q2> vor = voronoi<Q2>();
 
 extern "C"
-__attribute__((used))
 void addVoronoiPoint (int xn, int xd, int yn, int yd)
 {
     Q2::scalar s[2];

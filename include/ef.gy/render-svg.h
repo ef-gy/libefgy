@@ -1,4 +1,8 @@
 /**\file
+ * \brief Produce SVG output
+ *
+ * Contains classes that turn polygons in arbitrary-dimensional euclidian
+ * spaces into 2D SVG vector graphics.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -36,10 +40,35 @@ namespace efgy
 {
     namespace render
     {
+        /**\brief Render to SVG
+         *
+         * Converts objects to strings so that an SVG parser can understand and
+         * display them properly.
+         *
+         * \tparam Q The base numeric type you intend to use.
+         * \tparam d The number of dimensions for vectors.
+         */
         template<typename Q, unsigned int d>
         class svg
         {
             public:
+                /**\brief Construct with matrices
+                 *
+                 * Constructs an svg converter with references to a
+                 * transformation matrix, a projection matrix and an additional
+                 * lower-dimensional renderer that values to project are passed
+                 * to.
+                 *
+                 * \param[in]  pTransformation An affine transformation matrix
+                 *    to pre-multiply vectors with when converting them to SVG.
+                 * \param[in]  pProjection A projective transformation that is
+                 *    used to reduce the number of dimensions so the vector can
+                 *    be passed to pLowerRenderer.
+                 * \param[out] pLowerRenderer An instance of this template with
+                 *    one spatial dimension less - used in a chain to get from
+                 *    an arbitrary number of dimensions to 2 dimensions, as
+                 *    SVGs only support 2D graphics.
+                 */
                 svg
                     (const geometry::transformation::affine<Q,d> &pTransformation,
                      const geometry::projection<Q,d> &pProjection,
@@ -47,47 +76,168 @@ namespace efgy
                     : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
                     {}
 
+                /**\brief Begin drawing a new frame
+                 *
+                 * Reset the renderer's state and start drawing a new image.
+                 * Call this before using any drawing commands for the first
+                 * time, or when drawing an entirely new image.
+                 */
                 void frameStart (void)
                 {
                     combined = transformation * projection;
                     lowerRenderer.frameStart();
                 };
+
+                /**\brief End drawing current frame
+                 *
+                 * Finalise the renderer's state. Not used by the SVG renderer.
+                 */
                 void frameEnd (void) const {};
 
+                /**\brief Draw polygon
+                 *
+                 * Draw a polygon with q vertices. The Polygon should be
+                 * convex; if it isn't then you'll get rather strange results.
+                 *
+                 * \tparam q The number of vertices that define the polygon.
+                 *
+                 * \param[in] pV    The vertices that define the polygon.
+                 * \param[in] index Source of the polygon; used when rendering
+                 *                  IFSs to simulate fractal flame colouring,
+                 *                  but currently ignored by the SVG renderer.
+                 */
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index = 0.5) const;
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index = 0.5) const
+                {
+                    math::tuple<q, typename geometry::euclidian::space<Q,d-1>::vector> V;
 
+                    for (unsigned int i = 0; i < q; i++)
+                    {
+                        V.data[i] = combined * pV.data[i];
+                    }
+
+                    lowerRenderer.drawFace(V, index);
+                }
+
+                /**\brief Reset state
+                 *
+                 * Tells the lower-dimensional renderer to reset, so that the
+                 * output buffer gets cleared.
+                 */
                 void reset (void) const
                 {
                     lowerRenderer.reset();
                 }
 
             protected:
+                /**\brief Affine transformation matrix
+                 *
+                 * This is a reference to the affine transformation matrix that
+                 * any vectors are pre-multiplied with.
+                 */
                 const geometry::transformation::affine<Q,d> &transformation;
+
+                /**\brief Projective transformation
+                 *
+                 * This is a reference to the projective transformation that is
+                 * used to decrease any vector's number of dimensions by one,
+                 * so that the lower renderer can do its job.
+                 */
                 const geometry::projection<Q,d> &projection;
+
+                /**\brief Combined projective transformation
+                 *
+                 * Calculated by frameStart() to speed up rendering by merging
+                 * the affine pre-transformation and the projective matrices.
+                 */
                 geometry::transformation::projective<Q,d> combined;
+
+                /**\brief Lower renderer
+                 *
+                 * A reference to the renderer that drawing commands are passed
+                 * to; SVG renderers are chained together so that you can
+                 * render objects with arbitrarily large numbers of spatial
+                 * dimensions, even though SVGs only support 2D output.
+                 */
                 svg<Q,d-1> &lowerRenderer;
         };
 
+        /**\brief Render to SVG
+         *
+         * Converts objects to strings so that an SVG parser can understand and
+         * display them properly. This is the 2D fix point of the
+         * transformation chain, which is defined separately as SVGs are 2D
+         * graphics and so no additional transformations are necessary and this
+         * class can produce actual output.
+         *
+         * \tparam Q The base numeric type you intend to use.
+         */
         template<typename Q>
         class svg<Q,2>
         {
             public:
+                /**\brief Construct with transformation matrix
+                 *
+                 * Unlike the higher-dimensional version of this class, the 2D
+                 * version only takes one 2D affine transformation, as there is
+                 * no need to project the 2D vectors it handles because SVGs
+                 * are themselves 2D vector graphics.
+                 *
+                 * \param[in] pTransformation An affine transformation applied
+                 *    to any vectors rendered with this class before writing
+                 *    them to the output stream.
+                 */
                 svg
                     (const typename geometry::transformation::affine<Q,2> &pTransformation)
                     : transformation(pTransformation)
                     {}
 
+                /**\brief Begin drawing a new frame
+                 *
+                 * Reset the renderer's state and start drawing a new image.
+                 * Not used by the 2D SVG renderer.
+                 */
                 void frameStart (void) const {};
+
+                /**\brief End drawing current frame
+                 *
+                 * Finalise the renderer's state. Not used by the SVG renderer.
+                 */
                 void frameEnd (void) const {};
 
+                /**\brief Draw polygon
+                 *
+                 * Draw a polygon with q vertices. The Polygon should be
+                 * convex; if it isn't then you'll get rather strange results.
+                 *
+                 * The resulting SVG fragment is written to the 'output'
+                 * stream.
+                 *
+                 * \tparam q The number of vertices that define the polygon.
+                 *
+                 * \param[in] pV    The vertices that define the polygon.
+                 * \param[in] index Source of the polygon; used when rendering
+                 *                  IFSs to simulate fractal flame colouring,
+                 *                  but currently ignored by the SVG renderer.
+                 */
                 template<unsigned int q>
                 void drawFace
                     (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV, const Q &index = 0.5);
 
+                /**\brief Output stream
+                 *
+                 * SVG fragments produced by the renderer are written to this
+                 * stream so you can gather all of the data as a string once
+                 * you're done rendering your frame.
+                 */
                 std::stringstream output;
 
+                /**\brief Reset output stream
+                 *
+                 * Reset the output stream and other object state so you can
+                 * start drawing a fresh image.
+                 */
                 void reset()
                 {
                     output.str("");
@@ -96,24 +246,27 @@ namespace efgy
                 }
 
             protected:
+                /**\brief Affine transformation matrix
+                 *
+                 * This is a reference to the affine transformation matrix that
+                 * any vectors are pre-multiplied with.
+                 */
                 const geometry::transformation::affine<Q,2> &transformation;
-                Q previousX, previousY;
+
+                /**\brief Previous X value in polygon
+                 *
+                 * Used when rendering a polygon to minimize the drawing
+                 * commands by using relative substitutes when possible.
+                 */
+                Q previousX;
+
+                /**\brief Previous Y value in polygon
+                 *
+                 * Used when rendering a polygon to minimize the drawing
+                 * commands by using relative substitutes when possible.
+                 */
+                Q previousY;
         };
-
-        template<typename Q, unsigned int d>
-        template<unsigned int q>
-        void svg<Q,d>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index) const
-        {
-            math::tuple<q, typename geometry::euclidian::space<Q,d-1>::vector> V;
-
-            for (unsigned int i = 0; i < q; i++)
-            {
-                V.data[i] = combined * pV.data[i];
-            }
-
-            lowerRenderer.drawFace(V, index);
-        }
 
         template<typename Q>
         template<unsigned int q>
