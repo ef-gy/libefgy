@@ -1,4 +1,9 @@
 /**\file
+ * \brief OpenGL renderer
+ *
+ * Code to render geometric primitives to an OpenGL 3.2/OpenGL ES/WebGL context.
+ * Higher-dimensional primitives will be reduced to 3D and are then passed to
+ * graphics card to render.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -36,24 +41,285 @@
 
 namespace efgy
 {
-    namespace render
+    /**\brief OpenGL helpers
+     *
+     * Templates to handle basic OpenGL tasks, such as compiling and linking
+     * shader programmes.
+     */
+    namespace opengl
     {
-        // Attribute index.
-        enum openGLShaderAttribute
+        /**\brief Shader attributes
+         *
+         * Contains a list of default vertex attributes passed to vertex
+         * shaders.
+         */
+        enum shaderAttribute
         {
             attributePosition,
             attributeNormal,
             attributeIndex
         };
-
-        enum openGLUniforms
+        
+        /**\brief Uniforms
+         *
+         * Contains a list of default uniforms for the shaders.
+         */
+        enum uniforms
         {
             uniformProjectionMatrix,
             uniformNormalMatrix,
             uniformColour,
+            uniformScreenFramebuffer,
+            uniformScreenHistogram,
+            uniformColourMap,
             uniformMax
         };
 
+        /**\brief Shader programme
+         *
+         * Encapsulates an OpenGL shader programme and the state associated with
+         * it.
+         *
+         * \tparam Q Base data type for calculations.
+         */
+        template<typename Q>
+        class programme
+        {
+            public:
+                /**\brief Construct with shaders
+                 *
+                 * Initialises an instance of this class with a copy of a vertex
+                 * and a fragment shader. The programme is not compiled and
+                 * linked before it's used for the first time, so it's OK to
+                 * initialise the class before you have an active OpenGL
+                 * context.
+                 *
+                 * \param[in] pVertexShader   The vertex shader to compile and
+                 *                            link to the programme.
+                 * \param[in] pFragmentShader The fragment shader to compile and
+                 *                            link to the programme.
+                 */
+                programme(const std::string &pVertexShader, const std::string &pFragmentShader)
+                    : programmeID(0), vertexShader(pVertexShader), fragmentShader(pFragmentShader) {}
+            
+                /**\brief Destructor
+                 *
+                 * Erases the programme if it has been compiled and linked; does
+                 * nothing otherwise.
+                 */
+                ~programme()
+                    {
+                        if (programmeID)
+                        {
+                            glDeleteProgram(programmeID);
+                        }
+                    }
+            
+                /**\brief Use programme
+                 *
+                 * This is a wrapper for OpenGL's useProgram() that activates
+                 * the programme; compiles the programme before doing so if it's
+                 * not yet compiled and linked properly.
+                 */
+                bool use(void)
+                {
+                    if (programmeID)
+                    {
+                        glUseProgram(programmeID);
+                        return true;
+                    }
+                    else if (compile() && programmeID)
+                    {
+                        glUseProgram(programmeID);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Default uniforms
+                 *
+                 * Contains the indices of the default uniforms. This array is
+                 * populated after linking the shaders.
+                 */
+                GLint uniforms[uniformMax];
+
+            protected:
+                /**\brief Programme ID
+                 *
+                 * The programme ID as returned by OpenGL; set to zero as long
+                 * as the programme has not been compiled, nonzero afterwards.
+                 */
+                GLuint programmeID;
+            
+                /**\brief Vertex shader programme
+                 *
+                 * This is a copy of the vertex shader's source code; kept
+                 * around so it can be compiled when needed.
+                 */
+                const std::string vertexShader;
+
+                /**\brief Fragment shader programme
+                 *
+                 * This is a copy of the fragment shader's source code; kept
+                 * around so it can be compiled when needed.
+                 */
+                const std::string fragmentShader;
+
+                /**\brief Compile shader programme
+                 *
+                 * Compiles and links the shader programmes together and sets
+                 * the programmeID and loads the default uniform indices.
+                 *
+                 * \return True if the programme linked and compiled correctly,
+                 *         false otherwise.
+                 */
+                bool compile (void)
+                {
+                    GLuint vertShader, fragShader;
+                    
+                    programmeID = glCreateProgram();
+                    
+                    if (!compile(vertShader, GL_VERTEX_SHADER, vertexShader.c_str()))
+                    {
+                        std::cerr << "Failed to compile vertex shader\n";
+                        return false;
+                    }
+                    
+                    if (!compile(fragShader, GL_FRAGMENT_SHADER, fragmentShader.c_str()))
+                    {
+                        std::cerr << "Failed to compile fragment shader\n";
+                        return false;
+                    }
+                    
+                    glAttachShader(programmeID, vertShader);
+                    glAttachShader(programmeID, fragShader);
+                    
+                    glBindAttribLocation(programmeID, attributePosition, "position");
+                    glBindAttribLocation(programmeID, attributeNormal,   "normal");
+                    glBindAttribLocation(programmeID, attributeIndex,    "index");
+                    
+                    if (!link())
+                    {
+                        std::cerr << "Failed to link program: " << programmeID << "\n";
+                        
+                        if (vertShader) {
+                            glDeleteShader(vertShader);
+                            vertShader = 0;
+                        }
+                        if (fragShader) {
+                            glDeleteShader(fragShader);
+                            fragShader = 0;
+                        }
+                        if (programmeID) {
+                            glDeleteProgram(programmeID);
+                            programmeID = 0;
+                        }
+                        
+                        return false;
+                    }
+                    
+                    // Get uniform locations.
+                    uniforms[uniformProjectionMatrix]  = glGetUniformLocation(programmeID, "modelViewProjectionMatrix");
+                    uniforms[uniformNormalMatrix]      = glGetUniformLocation(programmeID, "normalMatrix");
+                    uniforms[uniformColour]            = glGetUniformLocation(programmeID, "colour");
+                    uniforms[uniformScreenFramebuffer] = glGetUniformLocation(programmeID, "screenFramebuffer");
+                    uniforms[uniformScreenHistogram]   = glGetUniformLocation(programmeID, "screenHistogram");
+                    uniforms[uniformColourMap]         = glGetUniformLocation(programmeID, "colourMap");
+
+                    // Release vertex and fragment shaders.
+                    if (vertShader) {
+                        glDetachShader(programmeID, vertShader);
+                        glDeleteShader(vertShader);
+                    }
+                    if (fragShader) {
+                        glDetachShader(programmeID, fragShader);
+                        glDeleteShader(fragShader);
+                    }
+                    
+                    return true;
+                }
+
+                /**\brief Compile a shader
+                 *
+                 * Compiles a shader so it can be linked into a proper OpenGL
+                 * programme.
+                 *
+                 * \param[out] shader The shader ID produced by the compiler.
+                 * \param[in]  type   The type of shader you want to compile.
+                 * \param[in]  data   Source code of the shader to compile.
+                 *
+                 * \return True if the shader compiled correctly, false
+                 *         otherwise.
+                 */
+                bool compile (GLuint &shader, GLenum type, const char *data) const
+                {
+                    GLint status;
+                    const GLchar *source = (const GLchar *)data;
+                    
+                    shader = glCreateShader(type);
+                    glShaderSource(shader, 1, &source, NULL);
+                    glCompileShader(shader);
+                    
+    #if defined(DEBUG)
+                    GLint logLength;
+                    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+                    if (logLength > 0)
+                    {
+                        GLchar *log = new GLchar[logLength];
+                        glGetShaderInfoLog(shader, logLength, &logLength, log);
+                        std::cerr << "Shader compile log:\n" << log << "\n";
+                        delete[] log;
+                    }
+    #endif
+                    
+                    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+                    if (status == 0) {
+                        glDeleteShader(shader);
+                        return false;
+                    }
+                    
+                    return true;
+                }
+            
+                /**\brief Link shader programmes
+                 *
+                 * Links a programme with the currently attached shaders so that
+                 * it can be used by OpenGL.
+                 *
+                 * \return True if the programme was linked successfully, false
+                 *         otherwise.
+                 */
+                bool link () const
+                {
+                    GLint status;
+                    glLinkProgram(programmeID);
+                    
+    #if defined(DEBUG)
+                    GLint logLength;
+                    glGetProgramiv(programmeID, GL_INFO_LOG_LENGTH, &logLength);
+                    if (logLength > 0)
+                    {
+                        GLchar *log = new GLchar[logLength];
+                        glGetProgramInfoLog(programmeID, logLength, &logLength, log);
+                        std::cerr << "Program link log:\n" << log << "\n";
+                        delete[] log;
+                    }
+    #endif
+                    
+                    glGetProgramiv(programmeID, GL_LINK_STATUS, &status);
+                    if (status == 0)
+                    {
+                        return false;
+                    }
+                    
+                    return true;
+                }
+            };
+    };
+
+    namespace render
+    {
         static inline std::string getVertexShader (const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
         {
             std::stringstream output ("");
@@ -199,9 +465,12 @@ namespace efgy
                      const opengl<Q,2> &)
                     : transformation(pTransformation), projection(pProjection),
                       haveBuffers(false), prepared(false),
-                      programRegular(0), programFlameColouring(0), programFlameHistogram(0), programFlamePostProcess(0),
                       framebufferFlameColouring(0), framebufferFlameHistogram(0),
-                      textureFlameColouring(0), textureFlameHistogram(0), textureFlameColourMap(0)
+                      textureFlameColouring(0), textureFlameHistogram(0), textureFlameColourMap(0),
+                      regular(getVertexShader(false, false, false), getFragmentShader(false, false, false)),
+                      flameColouring(getVertexShader(true, false, false), getFragmentShader(true, false, false)),
+                      flameHistogram(getVertexShader(true, false, true), getFragmentShader(true, false, true)),
+                      flamePostProcess(getVertexShader(true, true, false), getFragmentShader(true, true, false))
                     {
                     }
 
@@ -215,22 +484,6 @@ namespace efgy
                             glDeleteBuffers(1, &linebuffer);
                         }
 
-                        if (programRegular)
-                        {
-                            glDeleteProgram(programRegular);
-                        }
-                        if (programFlameColouring)
-                        {
-                            glDeleteProgram(programFlameColouring);
-                        }
-                        if (programFlameHistogram)
-                        {
-                            glDeleteProgram(programFlameHistogram);
-                        }
-                        if (programFlamePostProcess)
-                        {
-                            glDeleteProgram(programFlamePostProcess);
-                        }
                         if (framebufferFlameHistogram)
                         {
                             glDeleteFramebuffers(1, &framebufferFlameHistogram);
@@ -271,11 +524,6 @@ namespace efgy
 
                         glGenTextures(1, &textureFlameColourMap);
 
-                        loadShaders(programRegular, false, false, false);
-                        loadShaders(programFlameColouring, true, false, false);
-                        loadShaders(programFlameHistogram, true, false, true);
-                        loadShaders(programFlamePostProcess, true, true, false);
-
 #if !defined(NOVAO)
                         glGenVertexArrays(1, &vertexArrayFullscreenQuad);
                         glBindVertexArray(vertexArrayFullscreenQuad);
@@ -295,8 +543,8 @@ namespace efgy
                         
                         glBufferData(GL_ARRAY_BUFFER, sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData, GL_STATIC_DRAW);
 #if !defined(NOVAO)
-                        glEnableVertexAttribArray(attributePosition);
-                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+                        glEnableVertexAttribArray(efgy::opengl::attributePosition);
+                        glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 #endif
                         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -357,27 +605,27 @@ namespace efgy
 
                     if (fractalFlameColouring)
                     {
-                        glUseProgram(programFlameHistogram);
-                        glUniformMatrix4fv(uniformsFlameHistogram[efgy::render::uniformProjectionMatrix], 1, 0, mat);
-                        glUniformMatrix3fv(uniformsFlameHistogram[efgy::render::uniformNormalMatrix], 1, 0, matn);
+                        flameHistogram.use();
+                        glUniformMatrix4fv(flameHistogram.uniforms[efgy::opengl::uniformProjectionMatrix], 1, 0, mat);
+                        glUniformMatrix3fv(flameHistogram.uniforms[efgy::opengl::uniformNormalMatrix], 1, 0, matn);
 
-                        glUseProgram(programFlameColouring);
-                        for (unsigned int i = 0; i < uniformMax; i++)
+                        flameColouring.use();
+                        for (unsigned int i = 0; i < efgy::opengl::uniformMax; i++)
                         {
-                            uniforms[i] = uniformsFlameColouring[i];
+                            uniforms[i] = flameColouring.uniforms[i];
                         }
                     }
                     else
                     {
-                        glUseProgram(programRegular);
-                        for (unsigned int i = 0; i < uniformMax; i++)
+                        regular.use();
+                        for (unsigned int i = 0; i < efgy::opengl::uniformMax; i++)
                         {
-                            uniforms[i] = uniformsRegular[i];
+                            uniforms[i] = regular.uniforms[i];
                         }
                     }
 
-                    glUniformMatrix4fv(uniforms[efgy::render::uniformProjectionMatrix], 1, 0, mat);
-                    glUniformMatrix3fv(uniforms[efgy::render::uniformNormalMatrix], 1, 0, matn);
+                    glUniformMatrix4fv(uniforms[efgy::opengl::uniformProjectionMatrix], 1, 0, mat);
+                    glUniformMatrix3fv(uniforms[efgy::opengl::uniformNormalMatrix], 1, 0, matn);
                 };
 
                 void frameEnd (void)
@@ -396,12 +644,12 @@ namespace efgy
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);
 #if !defined(NOVAO)
-                        glEnableVertexAttribArray(attributePosition);
-                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
-                        glEnableVertexAttribArray(attributeNormal);
-                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-                        glEnableVertexAttribArray(attributeIndex);
-                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(efgy::opengl::attributePosition);
+                        glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
+                        glEnableVertexAttribArray(efgy::opengl::attributeNormal);
+                        glVertexAttribPointer(efgy::opengl::attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(efgy::opengl::attributeIndex);
+                        glVertexAttribPointer(efgy::opengl::attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
 #endif
 
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -424,7 +672,7 @@ namespace efgy
                         const unsigned int width = 2048, height = 2048;
                         glViewport(0, 0, width, height);
 
-                        glUseProgram(programFlameColouring);
+                        flameColouring.use();
                         glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
 
                         glActiveTexture(GL_TEXTURE0 + 0);
@@ -445,7 +693,7 @@ namespace efgy
 
                         pushFaces();
 
-                        glUseProgram(programFlameHistogram);
+                        flameHistogram.use();
                         glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
 
                         glActiveTexture(GL_TEXTURE0 + 1);
@@ -464,15 +712,15 @@ namespace efgy
  
                         pushFaces();
 
-                        glUseProgram(programFlamePostProcess);
+                        flamePostProcess.use();
                         glViewport(0, 0, this->width, this->height);
 
-                        glUniform1i(uniformScreenFramebuffer, 0);
-                        glUniform1i(uniformScreenHistogram, 1);
+                        glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformScreenFramebuffer], 0);
+                        glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformScreenHistogram], 1);
 
                         glActiveTexture(GL_TEXTURE0 + 2);
                         glBindTexture(GL_TEXTURE_2D, textureFlameColourMap);
-                        glUniform1i(uniformColourMap, 2);
+                        glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformColourMap], 2);
 
                         glBlendFunc (GL_ONE, GL_ZERO);
 
@@ -494,7 +742,7 @@ namespace efgy
                     }
                     else
                     {
-                        glUseProgram(programRegular);
+                        regular.use();
                         glDepthMask(GL_TRUE);
                         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                         glEnable(GL_DEPTH_TEST);
@@ -603,14 +851,7 @@ namespace efgy
                 GLuint vertexbufferFullscreenQuad;
                 GLuint elementbuffer;
                 GLuint linebuffer;
-                GLuint programRegular;
-                GLuint programFlameColouring;
-                GLuint programFlameHistogram;
-                GLuint programFlamePostProcess;
-                GLint uniforms[uniformMax];
-                GLint uniformsRegular[uniformMax];
-                GLint uniformsFlameColouring[uniformMax];
-                GLint uniformsFlameHistogram[uniformMax];
+                GLint uniforms[efgy::opengl::uniformMax];
                 bool linesEnabled;
                 bool facesEnabled;
                 bool lineDepthMask;
@@ -623,159 +864,16 @@ namespace efgy
                 GLuint textureFlameColouring;
                 GLuint textureFlameHistogram;
                 GLuint textureFlameColourMap;
-                GLuint uniformScreenFramebuffer;
-                GLuint uniformScreenHistogram;
-                GLuint uniformColourMap;
-
-                bool compileShader (GLuint &shader, GLenum type, const char *data)
-                {
-                    GLint status;
-                    const GLchar *source = (const GLchar *)data;
-                    
-                    shader = glCreateShader(type);
-                    glShaderSource(shader, 1, &source, NULL);
-                    glCompileShader(shader);
-                    
-#if defined(DEBUG)
-                    GLint logLength;
-                    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
-                    if (logLength > 0)
-                    {
-                        GLchar *log = new GLchar[logLength];
-                        glGetShaderInfoLog(shader, logLength, &logLength, log);
-                        std::cerr << "Shader compile log:\n" << log << "\n";
-                        delete[] log;
-                    }
-#endif
-                    
-                    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-                    if (status == 0) {
-                        glDeleteShader(shader);
-                        return false;
-                    }
-                    
-                    return true;
-                }
-
-                bool linkProgram (GLuint prog)
-                {
-                    GLint status;
-                    glLinkProgram(prog);
-                    
-#if defined(DEBUG)
-                    GLint logLength;
-                    glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
-                    if (logLength > 0)
-                    {
-                        GLchar *log = new GLchar[logLength];
-                        glGetProgramInfoLog(prog, logLength, &logLength, log);
-                        std::cerr << "Program link log:\n" << log << "\n";
-                        delete[] log;
-                    }
-#endif
-                    
-                    glGetProgramiv(prog, GL_LINK_STATUS, &status);
-                    if (status == 0)
-                    {
-                        return false;
-                    }
-                    
-                    return true;
-                }
-
-                bool loadShaders (GLuint &program, const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
-                {
-                    GLuint vertShader, fragShader;
-                    
-                    program = glCreateProgram();
-                    
-                    if (!compileShader(vertShader, GL_VERTEX_SHADER, getVertexShader(fractalFlameColouring, postProcess, renderHistogram).c_str()))
-                    {
-                        std::cerr << "Failed to compile vertex shader\n";
-                        return false;
-                    }
-                    
-                    if (!compileShader(fragShader, GL_FRAGMENT_SHADER, getFragmentShader(fractalFlameColouring, postProcess, renderHistogram).c_str()))
-                    {
-                        std::cerr << "Failed to compile fragment shader\n";
-                        return false;
-                    }
-                    
-                    glAttachShader(program, vertShader);
-                    
-                    glAttachShader(program, fragShader);
-                    
-                    glBindAttribLocation(program, attributePosition, "position");
-                    glBindAttribLocation(program, attributeNormal,   "normal");
-                    glBindAttribLocation(program, attributeIndex,    "index");
-                    
-                    if (!linkProgram(program))
-                    {
-                        std::cerr << "Failed to link program: " << program << "\n";
-                        
-                        if (vertShader) {
-                            glDeleteShader(vertShader);
-                            vertShader = 0;
-                        }
-                        if (fragShader) {
-                            glDeleteShader(fragShader);
-                            fragShader = 0;
-                        }
-                        if (program) {
-                            glDeleteProgram(program);
-                            program = 0;
-                        }
-                        
-                        return false;
-                    }
-                    
-                    // Get uniform locations.
-                    if (!postProcess)
-                    {
-                        if (renderHistogram)
-                        {
-                            uniformsFlameHistogram[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
-                            uniformsFlameHistogram[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
-                            uniformsFlameHistogram[uniformColour]           = glGetUniformLocation(program, "colour");
-                        }
-                        else if (fractalFlameColouring)
-                        {
-                            uniformsFlameColouring[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
-                            uniformsFlameColouring[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
-                            uniformsFlameColouring[uniformColour]           = glGetUniformLocation(program, "colour");
-                        }
-                        else
-                        {
-                            uniformsRegular[uniformProjectionMatrix] = glGetUniformLocation(program, "modelViewProjectionMatrix");
-                            uniformsRegular[uniformNormalMatrix]     = glGetUniformLocation(program, "normalMatrix");
-                            uniformsRegular[uniformColour]           = glGetUniformLocation(program, "colour");
-                        }
-                    }
-                    else
-                    {
-                        uniformScreenFramebuffer = glGetUniformLocation(program, "screenFramebuffer");
-                        uniformScreenHistogram   = glGetUniformLocation(program, "screenHistogram");
-                        uniformColourMap         = glGetUniformLocation(program, "colourMap");
-                    }
-                    
-                    // Release vertex and fragment shaders.
-                    if (vertShader) {
-                        glDetachShader(program, vertShader);
-                        glDeleteShader(vertShader);
-                    }
-                    if (fragShader) {
-                        glDetachShader(program, fragShader);
-                        glDeleteShader(fragShader);
-                    }
-                    
-                    return true;
-                }
+                efgy::opengl::programme<Q> regular;
+                efgy::opengl::programme<Q> flameColouring;
+                efgy::opengl::programme<Q> flameHistogram;
+                efgy::opengl::programme<Q> flamePostProcess;
 
                 void pushLines (void) const
                 {
                     if (prepared && linesEnabled && !fractalFlameColouring)
                     {
-                        glUniform4f(uniforms[uniformColour], wireframeColour[0], wireframeColour[1], wireframeColour[2], wireframeColour[3]);
+                        glUniform4f(uniforms[efgy::opengl::uniformColour], wireframeColour[0], wireframeColour[1], wireframeColour[2], wireframeColour[3]);
 
                         glDepthMask (lineDepthMask ? GL_TRUE : GL_FALSE);
 
@@ -808,7 +906,7 @@ namespace efgy
                 {
                     if (prepared && (facesEnabled || fractalFlameColouring))
                     {
-                        glUniform4f(uniforms[uniformColour], surfaceColour[0], surfaceColour[1], surfaceColour[2], surfaceColour[3]);
+                        glUniform4f(uniforms[efgy::opengl::uniformColour], surfaceColour[0], surfaceColour[1], surfaceColour[2], surfaceColour[3]);
 
                         glDepthMask (faceDepthMask ? GL_TRUE : GL_FALSE);
 
