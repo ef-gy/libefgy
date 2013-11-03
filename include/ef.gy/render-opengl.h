@@ -352,7 +352,7 @@ namespace efgy
 
                 /**\brief Use framebuffer
                  *
-                 * Enables the framebuffer for this class; if the framebuffer
+                 * Enables the framebuffer for this object; if the framebuffer
                  * object has not been created yet, it will be created when you
                  * call this method.
                  *
@@ -408,6 +408,76 @@ namespace efgy
                  * framebuffer ID if we just copied it with copy().
                  */
                 bool framebufferIDcopied;
+        };
+
+        /**\brief Framebuffer object
+         *
+         * Encapsulates an OpenGL texture object and the state associated
+         * with it.
+         *
+         * \tparam Q Base data type for calculations.
+         */
+        template<typename Q>
+        class texture
+        {
+            public:
+                /**\brief Default constructor
+                 *
+                 * Initialises the object; this does not yet create a
+                 * texture object, the use() method does that the first
+                 * time you call it.
+                 */
+                texture (void)
+                    : textureID(0) {}
+
+                /**\brief Destructor
+                 *
+                 * Erases the texture object if it has been created; does
+                 * nothing otherwise.
+                 */
+                ~texture (void)
+                    {
+                        if (textureID)
+                        {
+                            glDeleteTextures(1, &textureID);
+                        }
+                    }
+
+                /**\brief Bind texture
+                 *
+                 * Binds the texture for this object; if the texture object has
+                 * not been created yet, it will be created when you call this
+                 * method.
+                 *
+                 * \param[in] target The texture target to bind to.
+                 *
+                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml
+                 *      for the possible values of the target parameter.
+                 */
+                bool bind (const GLenum &target)
+                {
+                    if (!textureID)
+                    {
+                        glGenTextures(1, &textureID);
+                    }
+
+                    if (textureID)
+                    {
+                        glBindTexture(target, textureID);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+
+                /**\brief Texture ID
+                 *
+                 * The texture ID as returned by OpenGL; set to zero as long
+                 * as the texture has not been created, nonzero afterwards.
+                 */
+                GLuint textureID;
+
+            protected:
         };
     };
 
@@ -558,7 +628,6 @@ namespace efgy
                      const opengl<Q,2> &)
                     : transformation(pTransformation), projection(pProjection),
                       haveBuffers(false), prepared(false),
-                      textureFlameColouring(0), textureFlameHistogram(0), textureFlameColourMap(0),
                       regular(getVertexShader(false, false, false), getFragmentShader(false, false, false)),
                       flameColouring(getVertexShader(true, false, false), getFragmentShader(true, false, false)),
                       flameHistogram(getVertexShader(true, false, true), getFragmentShader(true, false, true)),
@@ -575,19 +644,6 @@ namespace efgy
                             glDeleteBuffers(1, &elementbuffer);
                             glDeleteBuffers(1, &linebuffer);
                         }
-
-                        if (textureFlameColouring)
-                        {
-                            glDeleteTextures(1, &textureFlameColouring);
-                        }
-                        if (textureFlameHistogram)
-                        {
-                            glDeleteTextures(1, &textureFlameHistogram);
-                        }
-                        if (textureFlameColourMap)
-                        {
-                            glDeleteTextures(1, &textureFlameColourMap);
-                        }
                     }
 
                 void frameStart (void)
@@ -599,12 +655,7 @@ namespace efgy
                         framebufferOriginal.copy();
 
                         framebufferFlameColouring.use();
-                        glGenTextures(1, &textureFlameColouring);
-
                         framebufferFlameHistogram.use();
-                        glGenTextures(1, &textureFlameHistogram);
-
-                        glGenTextures(1, &textureFlameColourMap);
 
 #if !defined(NOVAO)
                         glGenVertexArrays(1, &vertexArrayFullscreenQuad);
@@ -759,13 +810,13 @@ namespace efgy
 
                         glActiveTexture(GL_TEXTURE0 + 0);
 
-                        glBindTexture(GL_TEXTURE_2D, textureFlameColouring);
+                        textureFlameColouring.bind(GL_TEXTURE_2D);
                         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
                         
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureFlameColouring, 0);
+                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureFlameColouring.textureID, 0);
 
                         glDepthMask(GL_FALSE);
                         glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
@@ -780,13 +831,13 @@ namespace efgy
 
                         glActiveTexture(GL_TEXTURE0 + 1);
 
-                        glBindTexture(GL_TEXTURE_2D, textureFlameHistogram);
+                        textureFlameHistogram.bind(GL_TEXTURE_2D);
                         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
                          
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureFlameHistogram, 0);
+                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureFlameHistogram.textureID, 0);
                         
                         glBlendFunc (GL_ZERO, GL_SRC_ALPHA);
 
@@ -801,7 +852,7 @@ namespace efgy
                         glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformScreenHistogram], 1);
 
                         glActiveTexture(GL_TEXTURE0 + 2);
-                        glBindTexture(GL_TEXTURE_2D, textureFlameColourMap);
+                        textureFlameColourMap.bind(GL_TEXTURE_2D);
                         glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformColourMap], 2);
 
                         glBlendFunc (GL_ONE, GL_ZERO);
@@ -893,7 +944,7 @@ namespace efgy
 
                 void setColourMap (void)
                 {
-                    glBindTexture(GL_TEXTURE_2D, textureFlameColourMap);
+                    textureFlameColourMap.bind(GL_TEXTURE_2D);
                     std::vector<unsigned char> colours;
                     
                     for (unsigned int i = 0; i < 8; i++)
@@ -943,9 +994,9 @@ namespace efgy
                 efgy::opengl::framebuffer<Q> framebufferFlameColouring;
                 efgy::opengl::framebuffer<Q> framebufferFlameHistogram;
                 efgy::opengl::framebuffer<Q> framebufferOriginal;
-                GLuint textureFlameColouring;
-                GLuint textureFlameHistogram;
-                GLuint textureFlameColourMap;
+                efgy::opengl::texture<Q> textureFlameColouring;
+                efgy::opengl::texture<Q> textureFlameHistogram;
+                efgy::opengl::texture<Q> textureFlameColourMap;
                 efgy::opengl::programme<Q> regular;
                 efgy::opengl::programme<Q> flameColouring;
                 efgy::opengl::programme<Q> flameHistogram;
