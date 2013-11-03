@@ -3,7 +3,7 @@
  *
  * Code to render geometric primitives to an OpenGL 3.2/OpenGL ES/WebGL context.
  * Higher-dimensional primitives will be reduced to 3D and are then passed to
- * graphics card to render.
+ * the graphics card to render.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -99,7 +99,7 @@ namespace efgy
                  * \param[in] pFragmentShader The fragment shader to compile and
                  *                            link to the programme.
                  */
-                programme(const std::string &pVertexShader, const std::string &pFragmentShader)
+                programme (const std::string &pVertexShader, const std::string &pFragmentShader)
                     : programmeID(0), vertexShader(pVertexShader), fragmentShader(pFragmentShader) {}
             
                 /**\brief Destructor
@@ -107,7 +107,7 @@ namespace efgy
                  * Erases the programme if it has been compiled and linked; does
                  * nothing otherwise.
                  */
-                ~programme()
+                ~programme (void)
                     {
                         if (programmeID)
                         {
@@ -121,7 +121,7 @@ namespace efgy
                  * the programme; compiles the programme before doing so if it's
                  * not yet compiled and linked properly.
                  */
-                bool use(void)
+                bool use (void)
                 {
                     if (programmeID)
                     {
@@ -316,6 +316,99 @@ namespace efgy
                     return true;
                 }
             };
+
+        /**\brief Framebuffer object
+         *
+         * Encapsulates an OpenGL framebuffer object and the state associated
+         * with it.
+         *
+         * \tparam Q Base data type for calculations.
+         */
+        template<typename Q>
+        class framebuffer
+        {
+            public:
+                /**\brief Default constructor
+                 *
+                 * Initialises the object; this does not yet create a
+                 * framebuffer object, the use() method does that the first
+                 * time you call it.
+                 */
+                framebuffer (void)
+                    : framebufferID(0), framebufferIDcopied(false) {}
+
+                /**\brief Destructor
+                 *
+                 * Erases the framebuffer object if it has been created; does
+                 * nothing otherwise.
+                 */
+                ~framebuffer (void)
+                    {
+                        if (!framebufferIDcopied && framebufferID)
+                        {
+                            glDeleteFramebuffers(1, &framebufferID);
+                        }
+                    }
+
+                /**\brief Use framebuffer
+                 *
+                 * Enables the framebuffer for this class; if the framebuffer
+                 * object has not been created yet, it will be created when you
+                 * call this method.
+                 *
+                 * \param[in] target The type of framebuffer to set.
+                 *
+                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindFramebuffer.xml
+                 *      for the possible values of the target parameter.
+                 */
+                bool use (const GLenum &target = GL_FRAMEBUFFER)
+                {
+                    if (!framebufferID && !framebufferIDcopied)
+                    {
+                        glGenFramebuffers(1, &framebufferID);
+                    }
+
+                    if (framebufferID || framebufferIDcopied)
+                    {
+                        glBindFramebuffer(target, framebufferID);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Copy framebuffer ID
+                 *
+                 * Assign the internal framebuffer ID the currently bound
+                 * framebuffer.
+                 *
+                 * \param[in] target The type of the framebuffer whose binding
+                 *                   should be used.
+                 */
+                bool copy (const GLenum &target = GL_FRAMEBUFFER_BINDING)
+                {
+                    glGetIntegerv(target, (GLint*)&framebufferID);
+                    framebufferIDcopied = true;
+
+                    return true;
+                }
+
+            protected:
+                /**\brief Framebuffer ID
+                 *
+                 * The framebuffer ID as returned by OpenGL; set to zero as long
+                 * as the framebuffer has not been created, nonzero afterwards.
+                 */
+                GLuint framebufferID;
+
+                /**\brief Did we copy the framebuffer ID?
+                 *
+                 * Set to true after copying a framebuffer ID; this is kept
+                 * track of separately so that we don't delete someone else's
+                 * framebuffer ID if we just copied it with copy().
+                 */
+                bool framebufferIDcopied;
+        };
     };
 
     namespace render
@@ -465,7 +558,6 @@ namespace efgy
                      const opengl<Q,2> &)
                     : transformation(pTransformation), projection(pProjection),
                       haveBuffers(false), prepared(false),
-                      framebufferFlameColouring(0), framebufferFlameHistogram(0),
                       textureFlameColouring(0), textureFlameHistogram(0), textureFlameColourMap(0),
                       regular(getVertexShader(false, false, false), getFragmentShader(false, false, false)),
                       flameColouring(getVertexShader(true, false, false), getFragmentShader(true, false, false)),
@@ -484,14 +576,6 @@ namespace efgy
                             glDeleteBuffers(1, &linebuffer);
                         }
 
-                        if (framebufferFlameHistogram)
-                        {
-                            glDeleteFramebuffers(1, &framebufferFlameHistogram);
-                        }
-                        if (framebufferFlameColouring)
-                        {
-                            glDeleteFramebuffers(1, &framebufferFlameColouring);
-                        }
                         if (textureFlameColouring)
                         {
                             glDeleteTextures(1, &textureFlameColouring);
@@ -512,14 +596,12 @@ namespace efgy
                     {
                         haveBuffers = true;
                         
-                        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &framebufferOriginalFramebuffer);
+                        framebufferOriginal.copy();
 
-                        glGenFramebuffers(1, &framebufferFlameColouring);
-                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
+                        framebufferFlameColouring.use();
                         glGenTextures(1, &textureFlameColouring);
 
-                        glGenFramebuffers(1, &framebufferFlameHistogram);
-                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
+                        framebufferFlameHistogram.use();
                         glGenTextures(1, &textureFlameHistogram);
 
                         glGenTextures(1, &textureFlameColourMap);
@@ -673,7 +755,7 @@ namespace efgy
                         glViewport(0, 0, width, height);
 
                         flameColouring.use();
-                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameColouring);
+                        framebufferFlameColouring.use();
 
                         glActiveTexture(GL_TEXTURE0 + 0);
 
@@ -694,7 +776,7 @@ namespace efgy
                         pushFaces();
 
                         flameHistogram.use();
-                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferFlameHistogram);
+                        framebufferFlameHistogram.use();
 
                         glActiveTexture(GL_TEXTURE0 + 1);
 
@@ -724,7 +806,7 @@ namespace efgy
 
                         glBlendFunc (GL_ONE, GL_ZERO);
 
-                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferOriginalFramebuffer);
+                        framebufferOriginal.use();
 
 #if !defined(NOVAO)
                         glBindVertexArray(vertexArrayFullscreenQuad);
@@ -748,7 +830,7 @@ namespace efgy
                         glEnable(GL_DEPTH_TEST);
                         glDepthFunc(GL_LEQUAL);
 
-                        glBindFramebuffer(GL_FRAMEBUFFER, framebufferOriginalFramebuffer);
+                        framebufferOriginal.use();
 
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -858,9 +940,9 @@ namespace efgy
                 bool faceDepthMask;
                 GLfloat wireframeColour[4];
                 GLfloat surfaceColour[4];
-                GLuint framebufferFlameColouring;
-                GLuint framebufferFlameHistogram;
-                GLint framebufferOriginalFramebuffer;
+                efgy::opengl::framebuffer<Q> framebufferFlameColouring;
+                efgy::opengl::framebuffer<Q> framebufferFlameHistogram;
+                efgy::opengl::framebuffer<Q> framebufferOriginal;
                 GLuint textureFlameColouring;
                 GLuint textureFlameHistogram;
                 GLuint textureFlameColourMap;
