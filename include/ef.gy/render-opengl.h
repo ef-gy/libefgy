@@ -358,6 +358,8 @@ namespace efgy
                  *
                  * \param[in] target The type of framebuffer to set.
                  *
+                 * \return True on success, false otherwise.
+                 *
                  * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindFramebuffer.xml
                  *      for the possible values of the target parameter.
                  */
@@ -384,6 +386,8 @@ namespace efgy
                  *
                  * \param[in] target The type of the framebuffer whose binding
                  *                   should be used.
+                 *
+                 * \return True on success, false otherwise.
                  */
                 bool copy (const GLenum &target = GL_FRAMEBUFFER_BINDING)
                 {
@@ -428,7 +432,7 @@ namespace efgy
                  * time you call it.
                  */
                 texture (void)
-                    : textureID(0) {}
+                    : textureID(0), target(0) {}
 
                 /**\brief Destructor
                  *
@@ -451,14 +455,18 @@ namespace efgy
                  *
                  * \param[in] target The texture target to bind to.
                  *
+                 * \return True on success, false otherwise.
+                 *
                  * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml
                  *      for the possible values of the target parameter.
                  */
-                bool bind (const GLenum &target)
+                bool bind (const GLenum &target = GL_TEXTURE_2D)
                 {
                     if (!textureID)
                     {
                         glGenTextures(1, &textureID);
+                        width = 0;
+                        height = 0;
                     }
 
                     if (textureID)
@@ -470,6 +478,57 @@ namespace efgy
                     return false;
                 }
 
+                /**\brief Bind and load texture
+                 *
+                 * Binds a texture and then uses glTexImage2D to set its
+                 * parameters and - optionally - load its data as specified.
+                 *
+                 * The texture is only loaded or created explicity if any of the
+                 * parameters is different from what the class thinks the
+                 * current parameters ought to be.
+                 *
+                 * \param[in] pWidth  Width of the texture to load or create.
+                 * \param[in] pHeight Height of the texture to load or create.
+                 * \param[in] pFormat Format of the texture to load or create.
+                 * \param[in] pType   Type of the texture to load.
+                 * \param[in] data    Raw memory data of the texture to load;
+                 *                    use zero if you only want to create a
+                 *                    texture and not load one from memory.
+                 * \param[in] pTarget The texture target to bind to.
+                 *
+                 * \return True on success, false otherwise.
+                 *
+                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml
+                 *      for the possible values of the GLenum parameters.
+                 */
+                bool load (const GLuint &pWidth, const GLuint &pHeight,
+                           const GLenum &pFormat = GL_RGB,
+                           const GLenum &pType = GL_UNSIGNED_BYTE,
+                           const void *data = 0,
+                           const GLenum &pTarget = GL_TEXTURE_2D)
+                {
+                    if (bind(pTarget))
+                    {
+                        if (   (pWidth != width) || (pHeight != height)
+                            || (format != pFormat) || (type != pType)
+                            || (pTarget != target) || (data != 0))
+                        {
+                            width  = pWidth;
+                            height = pHeight;
+                            target = pTarget;
+                            format = pFormat;
+                            type   = pType;
+
+                            glTexImage2D
+                                (target, 0, format,
+                                 width, height, 0, format, type, data);
+                        }
+
+                        return true;
+                    }
+                    return false;
+                }
+
                 /**\brief Texture ID
                  *
                  * The texture ID as returned by OpenGL; set to zero as long
@@ -478,6 +537,68 @@ namespace efgy
                 GLuint textureID;
 
             protected:
+                /**\brief Last texture target
+                 *
+                 * This is the texture target that was passed to the load()
+                 * method the last time it was used.
+                 *
+                 * Used to figure out if the texture needs to be recreated if
+                 * you use the load() method.
+                 *
+                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml
+                 *      for possible values of this enum.
+                 */
+                GLenum target;
+
+                /**\brief Current texture format
+                 *
+                 * This is the internal and external texture format that was
+                 * passed to the load() method the last time it was used.
+                 *
+                 * Used to figure out if the texture needs to be recreated if
+                 * you use the load() method.
+                 *
+                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml
+                 *      for possible values of this enum.
+                 */
+                GLenum format;
+
+                /**\brief Texture type
+                 *
+                 * The texture type that was used to load the last texture with
+                 * load().
+                 *
+                 * Used to figure out if the texture needs to be recreated if
+                 * you use the load() method.
+                 *
+                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml
+                 *      for possible values of this enum.
+                 */
+                GLenum type;
+
+                /**\brief Texture width
+                 *
+                 * The width of the texture that was loaded or created with the
+                 * load() method; zero if the texture has been created with
+                 * glGenTextures() but has not had any of its settings set with
+                 * the load() method.
+                 *
+                 * Used to figure out if the texture needs to be recreated if
+                 * you use the load() method.
+                 */
+                GLuint width;
+
+                /**\brief Texture height
+                 *
+                 * The height of the texture that was loaded or created with the
+                 * load() method; zero if the texture has been created with
+                 * glGenTextures() but has not had any of its settings set with
+                 * the load() method.
+                 *
+                 * Used to figure out if the texture needs to be recreated if
+                 * you use the load() method.
+                 */
+                GLuint height;
         };
     };
 
@@ -810,8 +931,7 @@ namespace efgy
 
                         glActiveTexture(GL_TEXTURE0 + 0);
 
-                        textureFlameColouring.bind(GL_TEXTURE_2D);
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+                        textureFlameColouring.load(width, height);
                         
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -831,9 +951,8 @@ namespace efgy
 
                         glActiveTexture(GL_TEXTURE0 + 1);
 
-                        textureFlameHistogram.bind(GL_TEXTURE_2D);
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-                         
+                        textureFlameHistogram.load(width, height);
+                        
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
@@ -944,7 +1063,6 @@ namespace efgy
 
                 void setColourMap (void)
                 {
-                    textureFlameColourMap.bind(GL_TEXTURE_2D);
                     std::vector<unsigned char> colours;
                     
                     for (unsigned int i = 0; i < 8; i++)
@@ -955,7 +1073,7 @@ namespace efgy
                         colours.push_back(255);
                     }
 
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GLsizei(colours.size()/4), 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &colours[0]);
+                    textureFlameColourMap.load(GLsizei(colours.size()/4), 1, GL_RGBA, GL_UNSIGNED_BYTE, &colours[0]);
                     
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
