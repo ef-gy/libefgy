@@ -1,4 +1,9 @@
 /**\file
+ * \brief Calculate 'pi'
+ *
+ * This file contains a template class to calculate arbitrarily accurate
+ * approximations of 'pi' based on the algorithm described by Bailey et al in
+ * 1997.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -27,14 +32,6 @@
 
 #if !defined(EF_GY_PI_H)
 #define EF_GY_PI_H
-
-/**\file
- * \brief Calculate 'pi'
- *
- * This file contains a template class to calculate arbitrarily accurate
- * approximations of 'pi' based on the algorithm described by Bailey et al in
- * 1997.
- */
 
 namespace efgy
 {
@@ -80,6 +77,8 @@ namespace efgy
         {
             public:
                 /**\brief The base data type's integer type
+                 *
+                 * Used to make sure that type casts work as intended.
                  */
                 typedef typename Q::integer integer;
 
@@ -128,8 +127,12 @@ namespace efgy
                  * Bailey's algorithm uses a sequence that converges to pi
                  * fairly quickly. This function generates the individual
                  * sequence members.
+                 *
+                 * \param[in] n Which sequence member to return.
+                 *
+                 * \return The requested sequence member.
                  */
-                Q getSequenceMemberAt (unsigned int n) const
+                Q getSequenceMemberAt (const unsigned int &n) const
                 {
                     const Q one = integer(1);
                     const Q two = integer(2);
