@@ -600,6 +600,53 @@ namespace efgy
                  */
                 GLuint height;
         };
+
+        /**\brief Framebuffer with associated texture
+         *
+         * Associates a texture with a framebuffer so the two are always used
+         * together.
+         *
+         * \tparam Q Base data type for calculations.
+         */
+        template<typename Q>
+        class framebufferTexture : public framebuffer<Q>, public texture<Q>
+        {
+            public:
+                /**\brief Default constructor
+                 *
+                 * Initialises a new framebuffer texture object; neither the
+                 * framebuffer nor the texture are created or bound
+                 * automatically, that's performed by the use() method.
+                 */
+                framebufferTexture (void)
+                    : framebuffer<Q>(), texture<Q>() {}
+
+                /**\brief Bind framebuffer and texture
+                 *
+                 * Binds the framebuffer and texture objects for this instance.
+                 * The texture is bound to the GL_TEXTURE_2D target. Creates
+                 * the framebuffer or the texture if they don't exist yet.
+                 *
+                 * \param[in] pWidth  Width of the texture to load or create.
+                 * \param[in] pHeight Height of the texture to load or create.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool use (const GLuint &width, const GLuint &height)
+                {
+                    if (framebuffer<Q>::use() && texture<Q>::load(width, height))
+                    {
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture<Q>::textureID, 0);
+
+                        return true;
+                    }
+
+                    return false;
+                }
+        };
     };
 
     namespace render
@@ -775,9 +822,6 @@ namespace efgy
                         
                         framebufferOriginal.copy();
 
-                        framebufferFlameColouring.use();
-                        framebufferFlameHistogram.use();
-
 #if !defined(NOVAO)
                         glGenVertexArrays(1, &vertexArrayFullscreenQuad);
                         glBindVertexArray(vertexArrayFullscreenQuad);
@@ -927,16 +971,10 @@ namespace efgy
                         glViewport(0, 0, width, height);
 
                         flameColouring.use();
-                        framebufferFlameColouring.use();
 
                         glActiveTexture(GL_TEXTURE0 + 0);
 
-                        textureFlameColouring.load(width, height);
-                        
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureFlameColouring.textureID, 0);
+                        framebufferFlameColouring.use(width, height);
 
                         glDepthMask(GL_FALSE);
                         glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
@@ -947,17 +985,11 @@ namespace efgy
                         pushFaces();
 
                         flameHistogram.use();
-                        framebufferFlameHistogram.use();
 
                         glActiveTexture(GL_TEXTURE0 + 1);
 
-                        textureFlameHistogram.load(width, height);
-                        
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                        framebufferFlameHistogram.use(width, height);
 
-                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureFlameHistogram.textureID, 0);
-                        
                         glBlendFunc (GL_ZERO, GL_SRC_ALPHA);
 
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1109,11 +1141,9 @@ namespace efgy
                 bool faceDepthMask;
                 GLfloat wireframeColour[4];
                 GLfloat surfaceColour[4];
-                efgy::opengl::framebuffer<Q> framebufferFlameColouring;
-                efgy::opengl::framebuffer<Q> framebufferFlameHistogram;
                 efgy::opengl::framebuffer<Q> framebufferOriginal;
-                efgy::opengl::texture<Q> textureFlameColouring;
-                efgy::opengl::texture<Q> textureFlameHistogram;
+                efgy::opengl::framebufferTexture<Q> framebufferFlameColouring;
+                efgy::opengl::framebufferTexture<Q> framebufferFlameHistogram;
                 efgy::opengl::texture<Q> textureFlameColourMap;
                 efgy::opengl::programme<Q> regular;
                 efgy::opengl::programme<Q> flameColouring;
