@@ -776,7 +776,7 @@ namespace efgy
          * An OpenGL buffer object that encapsulates a specific type of buffer
          * used by OpenGL.
          *
-         * \tparam[in] target The type of buffer object to encapsulate.
+         * \tparam target The type of buffer object to encapsulate.
          *
          * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindBuffer.xml for
          *      possible values to use for the target parameter.
