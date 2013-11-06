@@ -612,15 +612,6 @@ namespace efgy
         class framebufferTexture : public framebuffer<Q>, public texture<Q>
         {
             public:
-                /**\brief Default constructor
-                 *
-                 * Initialises a new framebuffer texture object; neither the
-                 * framebuffer nor the texture are created or bound
-                 * automatically, that's performed by the use() method.
-                 */
-                framebufferTexture (void)
-                    : framebuffer<Q>(), texture<Q>() {}
-
                 /**\brief Bind framebuffer and texture
                  *
                  * Binds the framebuffer and texture objects for this instance.
@@ -646,6 +637,67 @@ namespace efgy
 
                     return false;
                 }
+        };
+
+        /**\brief OpenGL programme to render to a texture
+         *
+         * Associates an OpenGL programme with a framebuffer and a texture to
+         * easily render grab the output of a render pass.
+         *
+         * \tparam Q Base data type for calculations.
+         */
+        template<typename Q>
+        class renderToTextureProgramme : public programme<Q>, public framebufferTexture<Q>
+        {
+            public:
+                /**\brief Construct with shaders
+                 *
+                 * Initialises an instance of this class with a copy of a vertex
+                 * and a fragment shader. The programme is not compiled and
+                 * linked before it's used for the first time, so it's OK to
+                 * initialise the class before you have an active OpenGL
+                 * context.
+                 *
+                 * The framebuffer and texture objects are similarly initialised
+                 * with their default constructor; they're not created or bound
+                 * automatically either, only when the use() method is called.
+                 *
+                 * \param[in] pVertexShader   The vertex shader to compile and
+                 *                            link to the programme.
+                 * \param[in] pFragmentShader The fragment shader to compile and
+                 *                            link to the programme.
+                 */
+                renderToTextureProgramme (const std::string &pVertexShader, const std::string &pFragmentShader)
+                    : programme<Q>(pVertexShader, pFragmentShader),  framebufferTexture<Q>() {}
+
+                /**\brief Use programme and render to associated texture
+                 *
+                 * Enables or compiles the programme described in the shaders
+                 * passed to the constructor, then binds or creates a
+                 * framebuffer and texture as needed.
+                 *
+                 * If compiling the programme and binding the framebuffer and
+                 * texture succeed then the viewport is set to write to the
+                 * whole texture.
+                 *
+                 * \param[in] width  Width of the texture to load or create.
+                 * \param[in] height Height of the texture to load or create.
+                 */
+                bool use (const GLuint &width, const GLuint &height, const unsigned int &textureUnit = 0)
+                {
+                    glActiveTexture (GL_TEXTURE0 + textureUnit);
+
+                    if (programme<Q>::use() && framebufferTexture<Q>::use(width, height))
+                    {
+                        glViewport (0, 0, width, height);
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+            protected:
         };
     };
 
@@ -903,11 +955,11 @@ namespace efgy
 
                     if (fractalFlameColouring)
                     {
-                        flameHistogram.use();
+                        flameHistogram.template programme<Q>::use();
                         glUniformMatrix4fv(flameHistogram.uniforms[efgy::opengl::uniformProjectionMatrix], 1, 0, mat);
                         glUniformMatrix3fv(flameHistogram.uniforms[efgy::opengl::uniformNormalMatrix], 1, 0, matn);
 
-                        flameColouring.use();
+                        flameColouring.template programme<Q>::use();
                         for (unsigned int i = 0; i < efgy::opengl::uniformMax; i++)
                         {
                             uniforms[i] = flameColouring.uniforms[i];
@@ -968,13 +1020,8 @@ namespace efgy
                     if (fractalFlameColouring)
                     {
                         const unsigned int width = 2048, height = 2048;
-                        glViewport(0, 0, width, height);
 
-                        flameColouring.use();
-
-                        glActiveTexture(GL_TEXTURE0 + 0);
-
-                        framebufferFlameColouring.use(width, height);
+                        flameColouring.use(width, height, 0);
 
                         glDepthMask(GL_FALSE);
                         glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
@@ -984,11 +1031,7 @@ namespace efgy
 
                         pushFaces();
 
-                        flameHistogram.use();
-
-                        glActiveTexture(GL_TEXTURE0 + 1);
-
-                        framebufferFlameHistogram.use(width, height);
+                        flameHistogram.use(width, height, 1);
 
                         glBlendFunc (GL_ZERO, GL_SRC_ALPHA);
 
@@ -1209,12 +1252,10 @@ namespace efgy
                 GLfloat wireframeColour[4];
                 GLfloat surfaceColour[4];
                 efgy::opengl::framebuffer<Q> framebufferOriginal;
-                efgy::opengl::framebufferTexture<Q> framebufferFlameColouring;
-                efgy::opengl::framebufferTexture<Q> framebufferFlameHistogram;
                 efgy::opengl::texture<Q> textureFlameColourMap;
                 efgy::opengl::programme<Q> regular;
-                efgy::opengl::programme<Q> flameColouring;
-                efgy::opengl::programme<Q> flameHistogram;
+                efgy::opengl::renderToTextureProgramme<Q> flameColouring;
+                efgy::opengl::renderToTextureProgramme<Q> flameHistogram;
                 efgy::opengl::programme<Q> flamePostProcess;
 
                 void pushLines (void) const
