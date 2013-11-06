@@ -685,6 +685,8 @@ namespace efgy
                  * \param[in] height      Height of the texture to load or
                  *                        create.
                  * \param[in] textureUnit The texture unit to bind to.
+                 *
+                 * \return True on success, false otherwise.
                  */
                 bool use (const GLuint &width, const GLuint &height, const int &textureUnit = -1)
                 {
@@ -750,6 +752,8 @@ namespace efgy
                  *
                  * \param[in] width  Width of the viewport to set.
                  * \param[in] height Height of the viewport to set.
+                 *
+                 * \return True on success, false otherwise.
                  */
                 bool use (const GLuint &width, const GLuint &height)
                 {
@@ -766,6 +770,123 @@ namespace efgy
                 using programme<Q>::use;
                 using framebuffer<Q>::copy;
         };
+
+        /**\brief Buffer object
+         *
+         * An OpenGL buffer object that encapsulates a specific type of buffer
+         * used by OpenGL.
+         *
+         * \tparam[in] target The type of buffer object to encapsulate.
+         *
+         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindBuffer.xml for
+         *      possible values to use for the target parameter.
+         */
+        template<GLenum target>
+        class buffer
+        {
+            public:
+                /**\brief Default constructor
+                 *
+                 * Initialises an empty instance of this class. The OpenGL
+                 * buffer object is not created right away, but rather when
+                 * using the bind() function for the first time.
+                 */
+                buffer (void)
+                    : bufferID(0) {}
+
+                /**\brief Clean up created buffer
+                 *
+                 * Deletes the buffer this object is encapsulating, but only if
+                 * it has been created in the first place.
+                 */
+                ~buffer (void)
+                    {
+                        if (bufferID)
+                        {
+                            glDeleteBuffers (1, &bufferID);
+                        }
+                    }
+
+                /**\brief Bind buffer object
+                 *
+                 * Binds the buffer object in the current OpenGL context to the
+                 * target specified as a template argument. If the object has
+                 * not been created yet, then this function will do so before
+                 * trying to bind the buffer.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool bind (void)
+                {
+                    if (!bufferID)
+                    {
+                        glGenBuffers (1, &bufferID);
+                    }
+
+                    if (bufferID)
+                    {
+                        glBindBuffer(target, bufferID);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Bind but do not create buffer object
+                 *
+                 * Binds the buffer object in the current OpenGL context to the
+                 * target specified as a template argument. If the object has
+                 * not been created yet, then this function fails.
+                 *
+                 * This is in contrast to the non-const version of this
+                 * function, which would create an OpenGL buffer object instead.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool bind (void) const
+                {
+                    if (bufferID)
+                    {
+                        glBindBuffer(target, bufferID);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+
+            protected:
+                /**\brief OpenGL buffer ID
+                 *
+                 * This is the buffer ID as assigned by OpenGL when binding the
+                 * buffer for the first time.
+                 */
+                GLuint bufferID;
+        };
+
+        /**\brief Vertex buffer object
+         *
+         * A vertex buffer in OpenGL is used to store vertex data, such as
+         * positions, normals or colours of vertices. As such it is a simple
+         * specialisation of the regular buffer objects with the GL_ARRAY_BUFFER
+         * target.
+         *
+         * Having this as a separate typedef helps keeping the code readable.
+         */
+        typedef buffer<GL_ARRAY_BUFFER> vertexBuffer;
+
+        /**\brief Index buffer object
+         *
+         * When drawing primitives in OpenGL it is often best to reuse vertices
+         * when possible, as vertex data can get rather big compared to simple
+         * indices. When drawing objects it is thus possible to provide two
+         * buffers: a GL_ARRAY_BUFFER with vertex data, and a
+         * GL_ELEMENT_ARRAY_BUFFER with indices into this 'vertex buffer'.
+         *
+         * This typedef helps keeping the code legible in spite of the
+         * misleading OpenGL naming scheme by calling this type of buffer what
+         * it is: an index buffer.
+         */
+        typedef buffer<GL_ELEMENT_ARRAY_BUFFER> indexBuffer;
     };
 
     namespace render
@@ -945,6 +1066,23 @@ namespace efgy
         class opengl<Q,3>
         {
             public:
+                /**\brief Construct with matrices
+                 *
+                 * Constructs an OpenGL renderer with references to a
+                 * transformation matrix, a projection matrix and an additional
+                 * lower-dimensional renderer that values to project are passed
+                 * to.
+                 *
+                 * \param[in]  pTransformation An affine transformation matrix
+                 *    to pre-multiply vectors with when feeding them to OpenGL.
+                 * \param[in]  pProjection A projective transformation that is
+                 *    used to reduce the number of dimensions so the vector can
+                 *    be passed to pLowerRenderer.
+                 * \param[out] pLowerRenderer An instance of this template with
+                 *    one spatial dimension less - used in a chain to get from
+                 *    an arbitrary number of dimensions to 3 dimensions, as
+                 *    OpenGL natively supports 3D graphics.
+                 */
                 opengl
                     (const geometry::transformation::affine<Q,3> &pTransformation,
                      const geometry::projection<Q,3> &pProjection,
@@ -956,17 +1094,6 @@ namespace efgy
                       flameHistogram(getVertexShader(true, false, true), getFragmentShader(true, false, true)),
                       flamePostProcess(getVertexShader(true, true, false), getFragmentShader(true, true, false))
                     {
-                    }
-
-                ~opengl (void)
-                    {
-                        if (haveBuffers)
-                        {
-                            glDeleteBuffers(1, &vertexbufferFullscreenQuad);
-                            glDeleteBuffers(1, &vertexbuffer);
-                            glDeleteBuffers(1, &elementbuffer);
-                            glDeleteBuffers(1, &linebuffer);
-                        }
                     }
 
                 void frameStart (void)
@@ -982,8 +1109,7 @@ namespace efgy
                         glGenVertexArrays(1, &vertexArrayFullscreenQuad);
                         glBindVertexArray(vertexArrayFullscreenQuad);
 #endif
-                        glGenBuffers(1, &vertexbufferFullscreenQuad);
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbufferFullscreenQuad);
+                        vertexbufferFullscreenQuad.bind();
 
                         static const GLfloat fullscreenQuadBufferData[] =
                         {
@@ -1005,9 +1131,6 @@ namespace efgy
 #if !defined(NOVAO)
                         glGenVertexArrays(1, &vertexArrayModel);
 #endif
-                        glGenBuffers(1, &vertexbuffer);
-                        glGenBuffers(1, &elementbuffer);
-                        glGenBuffers(1, &linebuffer);
 
                         setColourMap();
                     }
@@ -1091,11 +1214,11 @@ namespace efgy
 #if !defined(NOVAO)
                         glBindVertexArray(vertexArrayModel);
 #endif
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+                        vertexbuffer.bind();
                         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+                        elementbuffer.bind();
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, triindices.size() * sizeof(unsigned int), &triindices[0], GL_STATIC_DRAW);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
+                        linebuffer.bind();
                         glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);
 #if !defined(NOVAO)
                         glEnableVertexAttribArray(efgy::opengl::attributePosition);
@@ -1157,7 +1280,7 @@ namespace efgy
 #if !defined(NOVAO)
                         glBindVertexArray(vertexArrayFullscreenQuad);
 #endif
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbufferFullscreenQuad);
+                        vertexbufferFullscreenQuad.bind();
 
 #if defined(NOVAO)
                         glEnableVertexAttribArray(attributePosition);
@@ -1339,10 +1462,11 @@ namespace efgy
                 GLuint vertexArrayModel;
                 GLuint vertexArrayFullscreenQuad;
 #endif
-                GLuint vertexbuffer;
-                GLuint vertexbufferFullscreenQuad;
-                GLuint elementbuffer;
-                GLuint linebuffer;
+                efgy::opengl::vertexBuffer vertexbuffer;
+                efgy::opengl::vertexBuffer vertexbufferFullscreenQuad;
+                efgy::opengl::indexBuffer elementbuffer;
+                efgy::opengl::indexBuffer linebuffer;
+
                 GLint uniforms[efgy::opengl::uniformMax];
                 bool linesEnabled;
                 bool facesEnabled;
@@ -1367,8 +1491,8 @@ namespace efgy
 #if !defined(NOVAO)
                         glBindVertexArray(vertexArrayModel);
 #endif
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linebuffer);
+                        vertexbuffer.bind();
+                        linebuffer.bind();
 
 #if defined(NOVAO)
                         glEnableVertexAttribArray(attributePosition);
@@ -1400,8 +1524,8 @@ namespace efgy
 #if !defined(NOVAO)
                         glBindVertexArray(vertexArrayModel);
 #endif
-                        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+                        vertexbuffer.bind();
+                        elementbuffer.bind();
 
 #if defined(NOVAO)
                         glEnableVertexAttribArray(attributePosition);
