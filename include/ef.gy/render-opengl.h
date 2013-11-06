@@ -680,12 +680,18 @@ namespace efgy
                  * texture succeed then the viewport is set to write to the
                  * whole texture.
                  *
-                 * \param[in] width  Width of the texture to load or create.
-                 * \param[in] height Height of the texture to load or create.
+                 * \param[in] width       Width of the texture to load or
+                 *                        create.
+                 * \param[in] height      Height of the texture to load or
+                 *                        create.
+                 * \param[in] textureUnit The texture unit to bind to.
                  */
-                bool use (const GLuint &width, const GLuint &height, const unsigned int &textureUnit = 0)
+                bool use (const GLuint &width, const GLuint &height, const int &textureUnit = -1)
                 {
-                    glActiveTexture (GL_TEXTURE0 + textureUnit);
+                    if (textureUnit >= 0)
+                    {
+                        glActiveTexture (GL_TEXTURE0 + textureUnit);
+                    }
 
                     if (programme<Q>::use() && framebufferTexture<Q>::use(width, height))
                     {
@@ -697,7 +703,68 @@ namespace efgy
                     return false;
                 }
 
-            protected:
+                using programme<Q>::use;
+        };
+
+        /**\brief OpenGL programme to render to a generic framebuffer
+         *
+         * Associates an OpenGL programme with a framebuffer but not with a
+         * texture; this makes it easy to render things and have the correct
+         * framebuffer and viewport selected.
+         *
+         * \tparam Q Base data type for calculations.
+         */
+        template<typename Q>
+        class renderToFramebufferProgramme : public programme<Q>, public framebuffer<Q>
+        {
+            public:
+                /**\brief Construct with shaders
+                 *
+                 * Initialises an instance of this class with a copy of a vertex
+                 * and a fragment shader. The programme is not compiled and
+                 * linked before it's used for the first time, so it's OK to
+                 * initialise the class before you have an active OpenGL
+                 * context.
+                 *
+                 * The framebuffer object is similarly initialised with its
+                 * default constructor; it's not created or bound automatically
+                 * either, only when the use() method is called.
+                 *
+                 * \param[in] pVertexShader   The vertex shader to compile and
+                 *                            link to the programme.
+                 * \param[in] pFragmentShader The fragment shader to compile and
+                 *                            link to the programme.
+                 */
+                renderToFramebufferProgramme (const std::string &pVertexShader, const std::string &pFragmentShader)
+                    : programme<Q>(pVertexShader, pFragmentShader),  framebuffer<Q>() {}
+
+                /**\brief Use programme and render to associated framebuffer
+                 *
+                 * Enables or compiles the programme described in the shaders
+                 * passed to the constructor, then binds or creates a
+                 * framebuffer as needed.
+                 *
+                 * If compiling the programme and binding the framebuffer
+                 * succeed then the viewport is set to write to the size passed
+                 * as parameters.
+                 *
+                 * \param[in] width  Width of the viewport to set.
+                 * \param[in] height Height of the viewport to set.
+                 */
+                bool use (const GLuint &width, const GLuint &height)
+                {
+                    if (programme<Q>::use() && framebuffer<Q>::use())
+                    {
+                        glViewport (0, 0, width, height);
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                using programme<Q>::use;
+                using framebuffer<Q>::copy;
         };
     };
 
@@ -872,7 +939,8 @@ namespace efgy
                     {
                         haveBuffers = true;
                         
-                        framebufferOriginal.copy();
+                        regular.copy();
+                        flamePostProcess.copy();
 
 #if !defined(NOVAO)
                         glGenVertexArrays(1, &vertexArrayFullscreenQuad);
@@ -955,11 +1023,11 @@ namespace efgy
 
                     if (fractalFlameColouring)
                     {
-                        flameHistogram.template programme<Q>::use();
+                        flameHistogram.use();
                         glUniformMatrix4fv(flameHistogram.uniforms[efgy::opengl::uniformProjectionMatrix], 1, 0, mat);
                         glUniformMatrix3fv(flameHistogram.uniforms[efgy::opengl::uniformNormalMatrix], 1, 0, matn);
 
-                        flameColouring.template programme<Q>::use();
+                        flameColouring.use();
                         for (unsigned int i = 0; i < efgy::opengl::uniformMax; i++)
                         {
                             uniforms[i] = flameColouring.uniforms[i];
@@ -1039,8 +1107,7 @@ namespace efgy
  
                         pushFaces();
 
-                        flamePostProcess.use();
-                        glViewport(0, 0, this->width, this->height);
+                        flamePostProcess.use(this->width, this->height);
 
                         glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformScreenFramebuffer], 0);
                         glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformScreenHistogram], 1);
@@ -1050,8 +1117,6 @@ namespace efgy
                         glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformColourMap], 2);
 
                         glBlendFunc (GL_ONE, GL_ZERO);
-
-                        framebufferOriginal.use();
 
 #if !defined(NOVAO)
                         glBindVertexArray(vertexArrayFullscreenQuad);
@@ -1069,13 +1134,11 @@ namespace efgy
                     }
                     else
                     {
-                        regular.use();
+                        regular.use(width, height);
                         glDepthMask(GL_TRUE);
                         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                         glEnable(GL_DEPTH_TEST);
                         glDepthFunc(GL_LEQUAL);
-
-                        framebufferOriginal.use();
 
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -1251,12 +1314,11 @@ namespace efgy
                 bool faceDepthMask;
                 GLfloat wireframeColour[4];
                 GLfloat surfaceColour[4];
-                efgy::opengl::framebuffer<Q> framebufferOriginal;
                 efgy::opengl::texture<Q> textureFlameColourMap;
-                efgy::opengl::programme<Q> regular;
+                efgy::opengl::renderToFramebufferProgramme<Q> regular;
                 efgy::opengl::renderToTextureProgramme<Q> flameColouring;
                 efgy::opengl::renderToTextureProgramme<Q> flameHistogram;
-                efgy::opengl::programme<Q> flamePostProcess;
+                efgy::opengl::renderToFramebufferProgramme<Q> flamePostProcess;
 
                 void pushLines (void) const
                 {
