@@ -627,8 +627,8 @@ namespace efgy
                  * The texture is bound to the GL_TEXTURE_2D target. Creates
                  * the framebuffer or the texture if they don't exist yet.
                  *
-                 * \param[in] pWidth  Width of the texture to load or create.
-                 * \param[in] pHeight Height of the texture to load or create.
+                 * \param[in] width  Width of the texture to load or create.
+                 * \param[in] height Height of the texture to load or create.
                  *
                  * \return True on success, false otherwise.
                  */
@@ -1043,7 +1043,74 @@ namespace efgy
 
                 template<unsigned int q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV, const Q &index = 0.5);
+                    (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV, const Q &index = 0.5)
+                {
+                    if (isPrepared()) return;
+
+                    typename geometry::euclidian::space<Q,3>::vector R
+                        = geometry::euclidian::normalise<Q,3>
+                            (geometry::euclidian::crossProduct<Q>
+                                (pV.data[1] - pV.data[0], pV.data[2] - pV.data[0]));
+
+                    typename geometry::euclidian::space<Q,3>::vector RN
+                        = geometry::euclidian::normalise<Q,3>
+                            (geometry::euclidian::crossProduct<Q>
+                        (pV.data[2] - pV.data[0], pV.data[1] - pV.data[0]));
+
+                    triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
+                                                   GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                    unsigned int nstartf = triindices.back();
+                    lineindices.push_back(nstartf);
+                    triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
+                                                   GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                    lineindices.push_back(triindices.back());
+                    lineindices.push_back(triindices.back());
+                    triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
+                                                   GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                    unsigned int nendf = triindices.back();
+                    lineindices.push_back(nendf);
+
+                    triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
+                                                   GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                    unsigned int nendb = triindices.back();
+                    lineindices.push_back(nendb);
+                    triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
+                                                   GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                    lineindices.push_back(triindices.back());
+                    lineindices.push_back(triindices.back());
+                    triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
+                                                   GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                    unsigned int nstartb = triindices.back();
+                    lineindices.push_back(nstartb);
+
+                    for (unsigned int j = 3; j < q; j++)
+                    {
+                        triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
+                                                       GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                        triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
+                                                       GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                        lineindices.push_back(triindices.back());
+                        triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
+                                                       GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                        lineindices.push_back(triindices.back());
+                        nendf = triindices.back();
+
+                        triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
+                                                       GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                        nendb = triindices.back();
+                        lineindices.push_back(triindices.back());
+                        triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
+                                                       GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                        lineindices.push_back(triindices.back());
+                        triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
+                                                       GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                    }
+
+                    lineindices.push_back(nendf);
+                    lineindices.push_back(nstartf);
+                    lineindices.push_back(nstartb);
+                    lineindices.push_back(nendb);
+                }
 
                 void reset (void) { prepared = false; }
                 const bool isPrepared (void) const { return prepared; }
@@ -1217,84 +1284,28 @@ namespace efgy
                 }
         };
 
+        /**\brief 2D fix point for the OpenGL renderer
+         *
+         * This is the 2D fix point for the OpenGL. Having this template makes
+         * the code a bit more symmetric and easier to use, because the other
+         * renderers all have a 2D fix point as well. OpenGL would have a 3D
+         * fix point instead, which would require separate 2D and 3D handlers
+         * depending on what type of output you're trying to produce.
+         *
+         * \tparam Q The data type to use for calculations.
+         */
         template<typename Q>
         class opengl<Q,2>
         {
             public:
+                /**\brief Construct with affine transformation
+                 *
+                 * Initialise an object instance with an affine transformation
+                 * matrix. This matrix is actually ignored, as the 'real' fix
+                 * point for the OpenGL renderer is in 3D, not 2D.
+                 */
                 opengl (const geometry::transformation::affine<Q,2> &) {}
         };
-
-        template<typename Q>
-        template<unsigned int q>
-        void opengl<Q,3>::drawFace
-            (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV, const Q &index)
-        {
-            if (isPrepared()) return;
-
-            typename geometry::euclidian::space<Q,3>::vector R
-                = geometry::euclidian::normalise<Q,3>
-                    (geometry::euclidian::crossProduct<Q>
-                        (pV.data[1] - pV.data[0], pV.data[2] - pV.data[0]));
-
-            typename geometry::euclidian::space<Q,3>::vector RN
-                = geometry::euclidian::normalise<Q,3>
-                    (geometry::euclidian::crossProduct<Q>
-                        (pV.data[2] - pV.data[0], pV.data[1] - pV.data[0]));
-
-            triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
-            unsigned int nstartf = triindices.back();
-            lineindices.push_back(nstartf);
-            triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
-                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
-            lineindices.push_back(triindices.back());
-            lineindices.push_back(triindices.back());
-            triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
-                                           GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
-            unsigned int nendf = triindices.back();
-            lineindices.push_back(nendf);
-
-            triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
-                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
-            unsigned int nendb = triindices.back();
-            lineindices.push_back(nendb);
-            triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
-                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
-            lineindices.push_back(triindices.back());
-            lineindices.push_back(triindices.back());
-            triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                           GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
-            unsigned int nstartb = triindices.back();
-            lineindices.push_back(nstartb);
-
-            for (unsigned int j = 3; j < q; j++)
-            {
-                triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
-                triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
-                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
-                lineindices.push_back(triindices.back());
-                triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
-                                               GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
-                lineindices.push_back(triindices.back());
-                nendf = triindices.back();
-
-                triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
-                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
-                nendb = triindices.back();
-                lineindices.push_back(triindices.back());
-                triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
-                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
-                lineindices.push_back(triindices.back());
-                triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                               GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
-            }
-
-            lineindices.push_back(nendf);
-            lineindices.push_back(nstartf);
-            lineindices.push_back(nstartb);
-            lineindices.push_back(nendb);
-        }
     };
 };
 
