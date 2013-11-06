@@ -843,10 +843,37 @@ namespace efgy
             return output.str();
         }
 
+        /**\brief OpenGL renderer
+         *
+         * Transforms object to a format that OpenGL can understand and then
+         * renders it in an active OpenGL context. Constructs in more than 3
+         * dimensions are projected into 3-space and then processed by a
+         * dedicated 3D renderer.
+         *
+         * \tparam Q The base numeric type you intend to use.
+         * \tparam d The number of dimensions for vectors.
+         */
         template<typename Q, unsigned int d>
         class opengl
         {
             public:
+                /**\brief Construct with matrices
+                 *
+                 * Constructs an OpenGL renderer with references to a
+                 * transformation matrix, a projection matrix and an additional
+                 * lower-dimensional renderer that values to project are passed
+                 * to.
+                 *
+                 * \param[in]  pTransformation An affine transformation matrix
+                 *    to pre-multiply vectors with when feeding them to OpenGL.
+                 * \param[in]  pProjection A projective transformation that is
+                 *    used to reduce the number of dimensions so the vector can
+                 *    be passed to pLowerRenderer.
+                 * \param[out] pLowerRenderer An instance of this template with
+                 *    one spatial dimension less - used in a chain to get from
+                 *    an arbitrary number of dimensions to 3 dimensions, as
+                 *    OpenGL natively supports 3D graphics.
+                 */
                 opengl
                     (const geometry::transformation::affine<Q,d> &pTransformation,
                      const geometry::projection<Q,d> &pProjection,
@@ -905,6 +932,15 @@ namespace efgy
                 void pushFaces (void) const { lowerRenderer.pushFaces(); };
         };
 
+        /**\brief OpenGL renderer (3D fix point)
+         *
+         * This is the 3D fix point for the OpenGL renderer. 3D is the natural
+         * render depth for OpenGL, so whenever things are rendered in 3D the
+         * rendering can be passed directly to OpenGL, which is what this class
+         * does.
+         *
+         * \tparam Q The data type to use for calculations.
+         */
         template<typename Q>
         class opengl<Q,3>
         {
@@ -1387,7 +1423,7 @@ namespace efgy
                 }
         };
 
-        /**\brief 2D fix point for the OpenGL renderer
+        /**\brief OpenGL renderer (2D fix point)
          *
          * This is the 2D fix point for the OpenGL. Having this template makes
          * the code a bit more symmetric and easier to use, because the other
