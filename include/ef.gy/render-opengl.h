@@ -48,6 +48,30 @@ namespace efgy
      */
     namespace opengl
     {
+        /**\brief Rounds up to the nearest power of two
+         *
+         * This function uses one of the infamous Bit Twiddling Hacks to round a
+         * number up to the nearest power of two. We do this because graphics
+         * cards prefer their textures to be powers of two.
+         *
+         * \see http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+         *      for this and other bit hacks to do neat things rather swiftly.
+         *      This particular hack was devised by Sean Anderson, so kudos to
+         *      him.
+         */
+        static inline GLuint roundToPowerOf2 (GLuint value)
+        {
+            value--;
+            value |= value >> 1;
+            value |= value >> 2;
+            value |= value >> 4;
+            value |= value >> 8;
+            value |= value >> 16;
+            value++;
+            
+            return value;
+        }
+
         /**\brief Shader attributes
          *
          * Contains a list of default vertex attributes passed to vertex
@@ -120,6 +144,9 @@ namespace efgy
                  * This is a wrapper for OpenGL's useProgram() that activates
                  * the programme; compiles the programme before doing so if it's
                  * not yet compiled and linked properly.
+                 *
+                 * \return True if the programme was bound correctly, false
+                 *         otherwise.
                  */
                 bool use (void)
                 {
@@ -131,6 +158,122 @@ namespace efgy
                     else if (compile() && programmeID)
                     {
                         glUseProgram(programmeID);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Load uniform 4x4 matrix
+                 *
+                 * Activate the programme and upload a 4x4 uniform variable to
+                 * the specified uniform index. The index array that is used to
+                 * look up the actual uniform variable ID is obtained during the
+                 * compilation process of the shader porgramme.
+                 *
+                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] matrix The 4x4 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const enum uniforms &index, const math::matrix<Q,4,4> &matrix)
+                {
+                    if (use())
+                    {
+                        GLfloat mat[16] =
+                          { GLfloat(matrix.data[0][0]),
+                            GLfloat(matrix.data[0][1]),
+                            GLfloat(matrix.data[0][2]),
+                            GLfloat(matrix.data[0][3]),
+                            GLfloat(matrix.data[1][0]),
+                            GLfloat(matrix.data[1][1]),
+                            GLfloat(matrix.data[1][2]),
+                            GLfloat(matrix.data[1][3]),
+                            GLfloat(matrix.data[2][0]),
+                            GLfloat(matrix.data[2][1]),
+                            GLfloat(matrix.data[2][2]),
+                            GLfloat(matrix.data[2][3]),
+                            GLfloat(matrix.data[3][0]),
+                            GLfloat(matrix.data[3][1]),
+                            GLfloat(matrix.data[3][2]),
+                            GLfloat(matrix.data[3][3]) };
+
+                        glUniformMatrix4fv(uniforms[index], 1, GL_FALSE, mat);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Load uniform 3x3 matrix
+                 *
+                 * Activate the programme and upload a 3x3 uniform variable to
+                 * the specified uniform index. The index array that is used to
+                 * look up the actual uniform variable ID is obtained during the
+                 * compilation process of the shader porgramme.
+                 *
+                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] matrix The 3x3 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const enum uniforms &index, const math::matrix<Q,3,3> &matrix)
+                {
+                    if (use())
+                    {
+                        GLfloat mat[9] =
+                          { GLfloat(matrix.data[0][0]),
+                            GLfloat(matrix.data[0][1]),
+                            GLfloat(matrix.data[0][2]),
+                            GLfloat(matrix.data[1][0]),
+                            GLfloat(matrix.data[1][1]),
+                            GLfloat(matrix.data[1][2]),
+                            GLfloat(matrix.data[2][0]),
+                            GLfloat(matrix.data[2][1]),
+                            GLfloat(matrix.data[2][2]) };
+
+                        glUniformMatrix3fv(uniforms[index], 1, GL_FALSE, mat);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Load uniform 2x2 matrix
+                 *
+                 * Activate the programme and upload a 2x2 uniform variable to
+                 * the specified uniform index. The index array that is used to
+                 * look up the actual uniform variable ID is obtained during the
+                 * compilation process of the shader porgramme.
+                 *
+                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] matrix The 2x2 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const enum uniforms &index, const math::matrix<Q,2,2> &matrix)
+                {
+                    if (use())
+                    {
+                        GLfloat mat[4] =
+                          { GLfloat(matrix.data[0][0]),
+                            GLfloat(matrix.data[0][1]),
+                            GLfloat(matrix.data[1][0]),
+                            GLfloat(matrix.data[1][1]) };
+
+                        glUniformMatrix2fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
                     }
 
@@ -261,7 +404,7 @@ namespace efgy
                     glShaderSource(shader, 1, &source, NULL);
                     glCompileShader(shader);
                     
-    #if defined(DEBUG)
+#if defined(DEBUG)
                     GLint logLength;
                     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
                     if (logLength > 0)
@@ -271,7 +414,7 @@ namespace efgy
                         std::cerr << "Shader compile log:\n" << log << "\n";
                         delete[] log;
                     }
-    #endif
+#endif
                     
                     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
                     if (status == 0) {
@@ -295,7 +438,7 @@ namespace efgy
                     GLint status;
                     glLinkProgram(programmeID);
                     
-    #if defined(DEBUG)
+#if defined(DEBUG)
                     GLint logLength;
                     glGetProgramiv(programmeID, GL_INFO_LOG_LENGTH, &logLength);
                     if (logLength > 0)
@@ -305,7 +448,7 @@ namespace efgy
                         std::cerr << "Program link log:\n" << log << "\n";
                         delete[] log;
                     }
-    #endif
+#endif
                     
                     glGetProgramiv(programmeID, GL_LINK_STATUS, &status);
                     if (status == 0)
@@ -414,14 +557,17 @@ namespace efgy
                 bool framebufferIDcopied;
         };
 
-        /**\brief Framebuffer object
+        /**\brief Texture object
          *
          * Encapsulates an OpenGL texture object and the state associated
          * with it.
          *
-         * \tparam Q Base data type for calculations.
+         * \tparam target The texture target to bind to.
+         *
+         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml for
+         *      the possible values of the target parameter.
          */
-        template<typename Q>
+        template<GLenum target>
         class texture
         {
             public:
@@ -432,7 +578,7 @@ namespace efgy
                  * time you call it.
                  */
                 texture (void)
-                    : textureID(0), target(0) {}
+                    : textureID(0) {}
 
                 /**\brief Destructor
                  *
@@ -453,14 +599,9 @@ namespace efgy
                  * not been created yet, it will be created when you call this
                  * method.
                  *
-                 * \param[in] target The texture target to bind to.
-                 *
                  * \return True on success, false otherwise.
-                 *
-                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml
-                 *      for the possible values of the target parameter.
                  */
-                bool bind (const GLenum &target = GL_TEXTURE_2D)
+                bool bind (void)
                 {
                     if (!textureID)
                     {
@@ -494,7 +635,6 @@ namespace efgy
                  * \param[in] data    Raw memory data of the texture to load;
                  *                    use zero if you only want to create a
                  *                    texture and not load one from memory.
-                 * \param[in] pTarget The texture target to bind to.
                  *
                  * \return True on success, false otherwise.
                  *
@@ -504,18 +644,16 @@ namespace efgy
                 bool load (const GLuint &pWidth, const GLuint &pHeight,
                            const GLenum &pFormat = GL_RGB,
                            const GLenum &pType = GL_UNSIGNED_BYTE,
-                           const void *data = 0,
-                           const GLenum &pTarget = GL_TEXTURE_2D)
+                           const void *data = 0)
                 {
-                    if (bind(pTarget))
+                    if (bind())
                     {
                         if (   (pWidth != width) || (pHeight != height)
                             || (format != pFormat) || (type != pType)
-                            || (pTarget != target) || (data != 0))
+                            || (data != 0))
                         {
-                            width  = pWidth;
-                            height = pHeight;
-                            target = pTarget;
+                            width  = roundToPowerOf2(pWidth);
+                            height = roundToPowerOf2(pHeight);
                             format = pFormat;
                             type   = pType;
 
@@ -526,6 +664,7 @@ namespace efgy
 
                         return true;
                     }
+
                     return false;
                 }
 
@@ -537,19 +676,6 @@ namespace efgy
                 GLuint textureID;
 
             protected:
-                /**\brief Last texture target
-                 *
-                 * This is the texture target that was passed to the load()
-                 * method the last time it was used.
-                 *
-                 * Used to figure out if the texture needs to be recreated if
-                 * you use the load() method.
-                 *
-                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml
-                 *      for possible values of this enum.
-                 */
-                GLenum target;
-
                 /**\brief Current texture format
                  *
                  * This is the internal and external texture format that was
@@ -601,22 +727,33 @@ namespace efgy
                 GLuint height;
         };
 
+        /**\brief 2D texture object
+         *
+         * Specialisation of the texture template with the GL_TEXTURE_2D target.
+         * This is probably the most common texture target, thus the typedef.
+         */
+        typedef texture<GL_TEXTURE_2D> texture2D;
+
         /**\brief Framebuffer with associated texture
          *
          * Associates a texture with a framebuffer so the two are always used
          * together.
          *
          * \tparam Q Base data type for calculations.
+         * \tparam target The texture target to bind to.
+         *
+         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml for
+         *      the possible values of the target parameter.
          */
-        template<typename Q>
-        class framebufferTexture : public framebuffer<Q>, public texture<Q>
+        template<typename Q, GLenum target = GL_TEXTURE_2D>
+        class framebufferTexture : public framebuffer<Q>, public texture<target>
         {
             public:
                 /**\brief Bind framebuffer and texture
                  *
                  * Binds the framebuffer and texture objects for this instance.
-                 * The texture is bound to the GL_TEXTURE_2D target. Creates
-                 * the framebuffer or the texture if they don't exist yet.
+                 * The texture is bound to the specified target. Creates the
+                 * framebuffer or the texture if they don't exist yet.
                  *
                  * \param[in] width  Width of the texture to load or create.
                  * \param[in] height Height of the texture to load or create.
@@ -625,12 +762,12 @@ namespace efgy
                  */
                 bool use (const GLuint &width, const GLuint &height)
                 {
-                    if (framebuffer<Q>::use() && texture<Q>::load(width, height))
+                    if (framebuffer<Q>::use() && texture<target>::load(width, height))
                     {
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture<Q>::textureID, 0);
+                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, texture<target>::textureID, 0);
 
                         return true;
                     }
@@ -697,7 +834,7 @@ namespace efgy
 
                     if (programme<Q>::use() && framebufferTexture<Q>::use(width, height))
                     {
-                        glViewport (0, 0, width, height);
+                        glViewport (0, 0, roundToPowerOf2(width), roundToPowerOf2(height));
 
                         return true;
                     }
@@ -851,6 +988,32 @@ namespace efgy
                         return true;
                     }
                     
+                    return false;
+                }
+
+                /**\brief Bind and load data
+                 *
+                 * This function binds and loads data to a buffer object. If the
+                 * buffer object does not exist yet then it is created first.
+                 *
+                 * \param[in] size Number of bytes to copy from data into the
+                 *                 buffer object.
+                 * \param[in] data Pointer to the first byte to copy.
+                 *
+                 * \return True on success, false otherwise.
+                 *
+                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glBufferData.xml
+                 *      for possible values of the usage parameter.
+                 */
+                template<GLenum usage = GL_STATIC_DRAW>
+                bool load (const GLsizeiptr &size, const GLvoid *data)
+                {
+                    if (bind())
+                    {
+                        glBufferData(target, size, data, usage);
+                        return true;
+                    }
+
                     return false;
                 }
 
@@ -1086,13 +1249,14 @@ namespace efgy
                 opengl
                     (const geometry::transformation::affine<Q,3> &pTransformation,
                      const geometry::projection<Q,3> &pProjection,
-                     const opengl<Q,2> &)
+                     opengl<Q,2> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection),
                       haveBuffers(false), prepared(false),
                       regular(getVertexShader(false, false, false), getFragmentShader(false, false, false)),
                       flameColouring(getVertexShader(true, false, false), getFragmentShader(true, false, false)),
                       flameHistogram(getVertexShader(true, false, true), getFragmentShader(true, false, true)),
-                      flamePostProcess(getVertexShader(true, true, false), getFragmentShader(true, true, false))
+                      flamePostProcess(getVertexShader(true, true, false), getFragmentShader(true, true, false)),
+                      width(pLowerRenderer.width), height(pLowerRenderer.height)
                     {
                     }
 
@@ -1109,7 +1273,6 @@ namespace efgy
                         glGenVertexArrays(1, &vertexArrayFullscreenQuad);
                         glBindVertexArray(vertexArrayFullscreenQuad);
 #endif
-                        vertexbufferFullscreenQuad.bind();
 
                         static const GLfloat fullscreenQuadBufferData[] =
                         {
@@ -1120,13 +1283,13 @@ namespace efgy
                              1.0f, -1.0f,  0.0f,
                              1.0f,  1.0f,  0.0f
                         };
-                        
-                        glBufferData(GL_ARRAY_BUFFER, sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData, GL_STATIC_DRAW);
+
+                        vertexbufferFullscreenQuad.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
+
 #if !defined(NOVAO)
                         glEnableVertexAttribArray(efgy::opengl::attributePosition);
                         glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 #endif
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 #if !defined(NOVAO)
                         glGenVertexArrays(1, &vertexArrayModel);
@@ -1135,58 +1298,17 @@ namespace efgy
                         setColourMap();
                     }
 
-                    glViewport(0, 0, width, height);
-
                     const geometry::transformation::projective<Q,3> combined = transformation * projection;
-
-                    GLfloat mat[16] =
-                      { GLfloat(combined.transformationMatrix.data[0][0]),
-                        GLfloat(combined.transformationMatrix.data[0][1]),
-                        GLfloat(combined.transformationMatrix.data[0][2]),
-                        GLfloat(combined.transformationMatrix.data[0][3]),
-                        GLfloat(combined.transformationMatrix.data[1][0]),
-                        GLfloat(combined.transformationMatrix.data[1][1]),
-                        GLfloat(combined.transformationMatrix.data[1][2]),
-                        GLfloat(combined.transformationMatrix.data[1][3]),
-                        GLfloat(combined.transformationMatrix.data[2][0]),
-                        GLfloat(combined.transformationMatrix.data[2][1]),
-                        GLfloat(combined.transformationMatrix.data[2][2]),
-                        GLfloat(combined.transformationMatrix.data[2][3]),
-                        GLfloat(combined.transformationMatrix.data[3][0]),
-                        GLfloat(combined.transformationMatrix.data[3][1]),
-                        GLfloat(combined.transformationMatrix.data[3][2]),
-                        GLfloat(combined.transformationMatrix.data[3][3]) };
-
-                    math::matrix<Q,3,3> normalMatrix;
-
-                    for (unsigned int i = 0; i < 3; i++)
-                    {
-                        for (unsigned int j = 0; j < 3; j++)
-                        {
-                            normalMatrix.data[i][j] = transformation.transformationMatrix.data[i][j];
-                        }
-                    }
-
-                    normalMatrix = math::transpose(math::invert(math::transpose(normalMatrix)));
-
-                    GLfloat matn[9] =
-                      { GLfloat(normalMatrix.data[0][0]),
-                        GLfloat(normalMatrix.data[0][1]),
-                        GLfloat(normalMatrix.data[0][2]),
-                        GLfloat(normalMatrix.data[1][0]),
-                        GLfloat(normalMatrix.data[1][1]),
-                        GLfloat(normalMatrix.data[1][2]),
-                        GLfloat(normalMatrix.data[2][0]),
-                        GLfloat(normalMatrix.data[2][1]),
-                        GLfloat(normalMatrix.data[2][2]) };
+                    const math::matrix<Q,3,3> normalMatrix = math::transpose(math::invert(math::transpose(math::matrix<Q,3,3>(transformation.transformationMatrix))));
 
                     if (fractalFlameColouring)
                     {
-                        flameHistogram.use();
-                        glUniformMatrix4fv(flameHistogram.uniforms[efgy::opengl::uniformProjectionMatrix], 1, 0, mat);
-                        glUniformMatrix3fv(flameHistogram.uniforms[efgy::opengl::uniformNormalMatrix], 1, 0, matn);
+                        flameHistogram.uniform(efgy::opengl::uniformProjectionMatrix, combined.transformationMatrix);
+                        flameHistogram.uniform(efgy::opengl::uniformNormalMatrix, normalMatrix);
 
-                        flameColouring.use();
+                        flameColouring.uniform(efgy::opengl::uniformProjectionMatrix, combined.transformationMatrix);
+                        flameColouring.uniform(efgy::opengl::uniformNormalMatrix, normalMatrix);
+
                         for (unsigned int i = 0; i < efgy::opengl::uniformMax; i++)
                         {
                             uniforms[i] = flameColouring.uniforms[i];
@@ -1194,15 +1316,14 @@ namespace efgy
                     }
                     else
                     {
-                        regular.use();
+                        regular.uniform(efgy::opengl::uniformProjectionMatrix, combined.transformationMatrix);
+                        regular.uniform(efgy::opengl::uniformNormalMatrix, normalMatrix);
+
                         for (unsigned int i = 0; i < efgy::opengl::uniformMax; i++)
                         {
                             uniforms[i] = regular.uniforms[i];
                         }
                     }
-
-                    glUniformMatrix4fv(uniforms[efgy::opengl::uniformProjectionMatrix], 1, 0, mat);
-                    glUniformMatrix3fv(uniforms[efgy::opengl::uniformNormalMatrix], 1, 0, matn);
                 };
 
                 void frameEnd (void)
@@ -1214,12 +1335,9 @@ namespace efgy
 #if !defined(NOVAO)
                         glBindVertexArray(vertexArrayModel);
 #endif
-                        vertexbuffer.bind();
-                        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
-                        elementbuffer.bind();
-                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, triindices.size() * sizeof(unsigned int), &triindices[0], GL_STATIC_DRAW);
-                        linebuffer.bind();
-                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineindices.size() * sizeof(unsigned int), &lineindices[0], GL_STATIC_DRAW);
+                        vertexbuffer.load(vertices.size() * sizeof(GLfloat), &vertices[0]);
+                        elementbuffer.load(triindices.size() * sizeof(unsigned int), &triindices[0]);
+                        linebuffer.load(lineindices.size() * sizeof(unsigned int), &lineindices[0]);
 #if !defined(NOVAO)
                         glEnableVertexAttribArray(efgy::opengl::attributePosition);
                         glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
@@ -1227,12 +1345,6 @@ namespace efgy
                         glVertexAttribPointer(efgy::opengl::attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
                         glEnableVertexAttribArray(efgy::opengl::attributeIndex);
                         glVertexAttribPointer(efgy::opengl::attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
-#endif
-
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-#if !defined(NOVAO)
-                        glBindVertexArray(0);
 #endif
 
                         tindices = GLsizei(triindices.size());
@@ -1246,8 +1358,6 @@ namespace efgy
 
                     if (fractalFlameColouring)
                     {
-                        const unsigned int width = 2048, height = 2048;
-
                         flameColouring.use(width, height, 0);
 
                         glDepthMask(GL_FALSE);
@@ -1266,13 +1376,13 @@ namespace efgy
  
                         pushFaces();
 
-                        flamePostProcess.use(this->width, this->height);
+                        flamePostProcess.use(width, height);
 
                         glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformScreenFramebuffer], 0);
                         glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformScreenHistogram], 1);
 
                         glActiveTexture(GL_TEXTURE0 + 2);
-                        textureFlameColourMap.bind(GL_TEXTURE_2D);
+                        textureFlameColourMap.bind();
                         glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformColourMap], 2);
 
                         glBlendFunc (GL_ONE, GL_ZERO);
@@ -1288,8 +1398,6 @@ namespace efgy
 #endif
 
                         glDrawArrays(GL_TRIANGLES, 0, 6);
-
-                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
                     }
                     else
                     {
@@ -1444,8 +1552,8 @@ namespace efgy
                 }
 
                 bool fractalFlameColouring;
-                GLuint width;
-                GLuint height;
+                GLuint &width;
+                GLuint &height;
 
             protected:
                 const geometry::transformation::affine<Q,3> &transformation;
@@ -1474,7 +1582,7 @@ namespace efgy
                 bool faceDepthMask;
                 GLfloat wireframeColour[4];
                 GLfloat surfaceColour[4];
-                efgy::opengl::texture<Q> textureFlameColourMap;
+                efgy::opengl::texture2D textureFlameColourMap;
                 efgy::opengl::renderToFramebufferProgramme<Q> regular;
                 efgy::opengl::renderToTextureProgramme<Q> flameColouring;
                 efgy::opengl::renderToTextureProgramme<Q> flameHistogram;
@@ -1504,12 +1612,6 @@ namespace efgy
 #endif
 
                         glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
-                        
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#if !defined(NOVAO)
-                        glBindVertexArray(0);
-#endif
                     }
                 }
             
@@ -1537,12 +1639,6 @@ namespace efgy
 #endif
 
                         glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
-                        
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#if !defined(NOVAO)
-                        glBindVertexArray(0);
-#endif
                     }
                 }
         };
@@ -1568,6 +1664,9 @@ namespace efgy
                  * point for the OpenGL renderer is in 3D, not 2D.
                  */
                 opengl (const geometry::transformation::affine<Q,2> &) {}
+
+                GLuint width;
+                GLuint height;
         };
     };
 };

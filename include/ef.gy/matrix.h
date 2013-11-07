@@ -1,4 +1,9 @@
 /**\file
+ * \brief Matrix handling
+ *
+ * Defines a template to hold matrices with cells of arbitrary data types and
+ * functions to calculate with matrices of different sizes. The sizes are set at
+ * compile time.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -32,20 +37,41 @@ namespace efgy
 {
     namespace math
     {
+        /**\brief Matrix with fixed size.
+         *
+         * This template is used to store and calculate with matrices of
+         * arbitrary but fixed and finite sizes.
+         *
+         * \tparam Q The data type for individual matrix cells.
+         * \tparam n Number of rows in the matrix.
+         * \tparam m Number of columns in the matrix.
+         */
         template <typename Q, unsigned int n, unsigned int m>
         class matrix
         {
             public:
-                matrix ()
-                    {}
+                /**\brief Default constructor
+                 *
+                 * This is the default constructor that does not explicitly
+                 * initialise the matrix to anything.
+                 */
+                matrix (void) {}
 
-                matrix (const matrix<Q,n,m> &b)
+                template<unsigned int rn, unsigned int rm>
+                matrix (const matrix<Q,rn,rm> &b)
                     {
                         for (unsigned int i = 0; i < n; i++)
                         {
                             for (unsigned int j = 0; j < m; j++)
                             {
-                                data[i][j] = b.data[i][j];
+                                if ((i < rn) && (j < rm))
+                                {
+                                    data[i][j] = b.data[i][j];
+                                }
+                                else
+                                {
+                                    data[i][j] = Q();
+                                }
                             }
                         }
                     }
