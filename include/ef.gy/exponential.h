@@ -44,7 +44,7 @@ namespace efgy
          * The templates in this namespace can be used to raise numbers to
          * specified powers.
          */
-        namespace exponential
+        namespace exponentiate
         {
             /**\brief Integral, compile-time constant power
              *

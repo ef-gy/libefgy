@@ -237,7 +237,7 @@ namespace efgy
                  */
                 static Q get (void)
                 {
-                    return math::exponential::integral<Q,exponent*unitExponent>::raise(Q(10));
+                    return math::exponentiate::integral<Q,exponent*unitExponent>::raise(Q(10));
                 }
         };
 
@@ -265,7 +265,7 @@ namespace efgy
                  */
                 static Q get (void)
                 {
-                    return math::exponential::integral<Q,exponent*unitExponent>::raise(Q(1024));
+                    return math::exponentiate::integral<Q,exponent*unitExponent>::raise(Q(1024));
                 }
         };
 
