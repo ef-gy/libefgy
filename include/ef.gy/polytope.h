@@ -1,4 +1,13 @@
 /**\file
+ * \brief Basic primitives
+ *
+ * This file contains code to create the meshes for basic primitives and to
+ * present the results with the renderers provided by this library.
+ *
+ * 'Basic' primitives includes cubes, simplices, planes and spheres.
+ *
+ * \see parametric.h, ifs.h and flame.h for more complicated shapes, some of
+ *      which are based on these primitives.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -36,6 +45,13 @@ namespace efgy
 {
     namespace geometry
     {
+        /**\brief Geometry parameters
+         *
+         * Contains parameters used by the shape-creating templates. You need
+         * to have at least one of these for each data type you intend to use.
+         *
+         * \tparam Q Base data type for calculations.
+         */
         template <typename Q>
         class parameters
         {
@@ -371,14 +387,14 @@ namespace efgy
 
                 void calculateObject (void)
                 {
-                    const Q s = Q(2);
-                    const Q q = Q(1)/Q(2);
+                    const Q s = parameter.polarRadius * Q(2);
+                    const Q q = s/parameter.polarPrecision;
 
                     faces.clear();
 
-                    for (Q i = -s; i < s; i+=q)
+                    for (Q i = -s; i <= s; i+=q)
                     {
-                        for (Q j = -s; j < s; j+=q)
+                        for (Q j = -s; j <= s; j+=q)
                         {
                             math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
 
