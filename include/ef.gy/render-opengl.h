@@ -1283,8 +1283,8 @@ namespace efgy
                         vertexbufferFullscreenQuad.bind();
 
 #if defined(NOVAO)
-                        glEnableVertexAttribArray(attributePosition);
-                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+                        glEnableVertexAttribArray(efgy::opengl::attributePosition);
+                        glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 #endif
 
                         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1495,12 +1495,12 @@ namespace efgy
                         linebuffer.bind();
 
 #if defined(NOVAO)
-                        glEnableVertexAttribArray(attributePosition);
-                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
-                        glEnableVertexAttribArray(attributeNormal);
-                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-                        glEnableVertexAttribArray(attributeIndex);
-                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(efgy::opengl::attributePosition);
+                        glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
+                        glEnableVertexAttribArray(efgy::opengl::attributeNormal);
+                        glVertexAttribPointer(efgy::opengl::attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(efgy::opengl::attributeIndex);
+                        glVertexAttribPointer(efgy::opengl::attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
 #endif
 
                         glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
@@ -1528,12 +1528,12 @@ namespace efgy
                         elementbuffer.bind();
 
 #if defined(NOVAO)
-                        glEnableVertexAttribArray(attributePosition);
-                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
-                        glEnableVertexAttribArray(attributeNormal);
-                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-                        glEnableVertexAttribArray(attributeIndex);
-                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(efgy::opengl::attributePosition);
+                        glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
+                        glEnableVertexAttribArray(efgy::opengl::attributeNormal);
+                        glVertexAttribPointer(efgy::opengl::attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(efgy::opengl::attributeIndex);
+                        glVertexAttribPointer(efgy::opengl::attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
 #endif
 
                         glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
