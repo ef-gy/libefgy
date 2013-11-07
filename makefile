@@ -62,8 +62,12 @@ documentation: doxyfile include/*/* xslt/doxy*
 js: $(JSBINARIES)
 
 #run unit tests
-test: $(TESTBINARIES)
-	for i in $^; do echo TEST-CASE: $$i; ./$$i; done
+test: $(addprefix run-,$(TESTBINARIES))
+
+run-test-case-%: test-case-%
+	@echo TEST BATCH: $*
+	@./$^
+	@echo PASSED
 
 # pattern rules to install things
 $(BINDIR)/%: %
