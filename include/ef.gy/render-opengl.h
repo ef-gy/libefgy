@@ -631,6 +631,7 @@ namespace efgy
                  * \param[in] pWidth  Width of the texture to load or create.
                  * \param[in] pHeight Height of the texture to load or create.
                  * \param[in] pFormat Format of the texture to load or create.
+                 * \param[in] pFormatExternal External texture format.
                  * \param[in] pType   Type of the texture to load.
                  * \param[in] data    Raw memory data of the texture to load;
                  *                    use zero if you only want to create a
@@ -643,6 +644,7 @@ namespace efgy
                  */
                 bool load (const GLuint &pWidth, const GLuint &pHeight,
                            const GLenum &pFormat = GL_RGB,
+                           const GLenum &pFormatExternal = GL_RGB,
                            const GLenum &pType = GL_UNSIGNED_BYTE,
                            const void *data = 0)
                 {
@@ -659,7 +661,7 @@ namespace efgy
 
                             glTexImage2D
                                 (target, 0, format,
-                                 width, height, 0, format, type, data);
+                                 width, height, 0, pFormatExternal, type, data);
                         }
 
                         return true;
@@ -762,7 +764,7 @@ namespace efgy
                  */
                 bool use (const GLuint &width, const GLuint &height)
                 {
-                    if (framebuffer<Q>::use() && texture<target>::load(width, height))
+                    if (framebuffer<Q>::use() && texture<target>::load(width, height, GL_RGB16F, GL_RGB, GL_FLOAT))
                     {
                         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -1119,7 +1121,7 @@ namespace efgy
                     "void main() {\n"
                 << (fractalFlameColouring
                       ? (renderHistogram
-                            ? "gl_FragColor = vec4(1,1,1,0.992);\n"
+                            ? "gl_FragColor = vec4(0.995,0.995,0.995,0.995);\n"
                             : "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,0.5);\n")
                       : "gl_FragColor = colorVarying;\n")
                 <<  "}\n";
@@ -1370,7 +1372,7 @@ namespace efgy
 
                         flameHistogram.use(width, height, 1);
 
-                        glBlendFunc (GL_ZERO, GL_SRC_ALPHA);
+                        glBlendFunc (GL_ZERO, GL_SRC_COLOR);
 
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
@@ -1545,7 +1547,7 @@ namespace efgy
                         colours.push_back(255);
                     }
 
-                    textureFlameColourMap.load(GLsizei(colours.size()/4), 1, GL_RGBA, GL_UNSIGNED_BYTE, &colours[0]);
+                    textureFlameColourMap.load(GLsizei(colours.size()/4), 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, &colours[0]);
                     
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
