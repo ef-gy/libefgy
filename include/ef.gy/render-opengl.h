@@ -164,6 +164,26 @@ namespace efgy
                     return false;
                 }
 
+                /**\brief Use but do not compile programme
+                 *
+                 * This is a wrapper for OpenGL's useProgram() that activates
+                 * the programme; if the programme has not been compiled yet
+                 * then this method simply fails.
+                 *
+                 * \return True if the programme was bound correctly, false
+                 *         otherwise.
+                 */
+                bool use (void) const
+                {
+                    if (programmeID)
+                    {
+                        glUseProgram(programmeID);
+                        return true;
+                    }
+
+                    return false;
+                }
+
                 /**\brief Load uniform 4x4 matrix
                  *
                  * Activate the programme and upload a 4x4 uniform variable to
@@ -280,6 +300,223 @@ namespace efgy
                     return false;
                 }
 
+                /**\brief Load integer uniform
+                 *
+                 * Activate the programme and upload an integer uniform variable
+                 * to the specified uniform index. The index array that is used
+                 * to look up the actual uniform variable ID is obtained during
+                 * the compilation process of the shader porgramme.
+                 *
+                 * \param[in] index The index into the uniform ID array to use.
+                 * \param[in] value The integer value to load.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const enum uniforms &index, const GLint &value)
+                {
+                    if (use())
+                    {
+                        glUniform1i(uniforms[index], value);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Load uniform floating point vector
+                 *
+                 * Activate the programme and upload a uniform float vector
+                 * to the specified uniform index. The index array that is used
+                 * to look up the actual uniform variable ID is obtained during
+                 * the compilation process of the shader porgramme.
+                 *
+                 * \param[in] index The index into the uniform ID array to use.
+                 * \param[in] value The floating point vector to load.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const enum uniforms &index, const GLfloat value[4])
+                {
+                    if (use())
+                    {
+                        glUniform4f(uniforms[index], value[0], value[1], value[2], value[3]);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Load uniform 4x4 matrix
+                 *
+                 * Activate the programme and upload a 4x4 uniform variable to
+                 * the specified uniform index. The index array that is used to
+                 * look up the actual uniform variable ID is obtained during the
+                 * compilation process of the shader porgramme.
+                 *
+                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] matrix The 4x4 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const enum uniforms &index, const math::matrix<Q,4,4> &matrix) const
+                {
+                    if (use())
+                    {
+                        GLfloat mat[16] =
+                          { GLfloat(matrix.data[0][0]),
+                            GLfloat(matrix.data[0][1]),
+                            GLfloat(matrix.data[0][2]),
+                            GLfloat(matrix.data[0][3]),
+                            GLfloat(matrix.data[1][0]),
+                            GLfloat(matrix.data[1][1]),
+                            GLfloat(matrix.data[1][2]),
+                            GLfloat(matrix.data[1][3]),
+                            GLfloat(matrix.data[2][0]),
+                            GLfloat(matrix.data[2][1]),
+                            GLfloat(matrix.data[2][2]),
+                            GLfloat(matrix.data[2][3]),
+                            GLfloat(matrix.data[3][0]),
+                            GLfloat(matrix.data[3][1]),
+                            GLfloat(matrix.data[3][2]),
+                            GLfloat(matrix.data[3][3]) };
+
+                        glUniformMatrix4fv(uniforms[index], 1, GL_FALSE, mat);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Load uniform 3x3 matrix
+                 *
+                 * Activate the programme and upload a 3x3 uniform variable to
+                 * the specified uniform index. The index array that is used to
+                 * look up the actual uniform variable ID is obtained during the
+                 * compilation process of the shader porgramme.
+                 *
+                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] matrix The 3x3 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const enum uniforms &index, const math::matrix<Q,3,3> &matrix) const
+                {
+                    if (use())
+                    {
+                        GLfloat mat[9] =
+                          { GLfloat(matrix.data[0][0]),
+                            GLfloat(matrix.data[0][1]),
+                            GLfloat(matrix.data[0][2]),
+                            GLfloat(matrix.data[1][0]),
+                            GLfloat(matrix.data[1][1]),
+                            GLfloat(matrix.data[1][2]),
+                            GLfloat(matrix.data[2][0]),
+                            GLfloat(matrix.data[2][1]),
+                            GLfloat(matrix.data[2][2]) };
+
+                        glUniformMatrix3fv(uniforms[index], 1, GL_FALSE, mat);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Load uniform 2x2 matrix
+                 *
+                 * Activate the programme and upload a 2x2 uniform variable to
+                 * the specified uniform index. The index array that is used to
+                 * look up the actual uniform variable ID is obtained during the
+                 * compilation process of the shader porgramme.
+                 *
+                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] matrix The 2x2 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const enum uniforms &index, const math::matrix<Q,2,2> &matrix) const
+                {
+                    if (use())
+                    {
+                        GLfloat mat[4] =
+                          { GLfloat(matrix.data[0][0]),
+                            GLfloat(matrix.data[0][1]),
+                            GLfloat(matrix.data[1][0]),
+                            GLfloat(matrix.data[1][1]) };
+
+                        glUniformMatrix2fv(uniforms[index], 1, GL_FALSE, mat);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Load integer uniform
+                 *
+                 * Activate the programme and upload an integer uniform variable
+                 * to the specified uniform index. The index array that is used
+                 * to look up the actual uniform variable ID is obtained during
+                 * the compilation process of the shader porgramme.
+                 *
+                 * \param[in] index The index into the uniform ID array to use.
+                 * \param[in] value The integer value to load.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const enum uniforms &index, const GLint &value) const
+                {
+                    if (use())
+                    {
+                        glUniform1i(uniforms[index], value);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**\brief Load uniform floating point vector
+                 *
+                 * Activate the programme and upload a uniform float vector
+                 * to the specified uniform index. The index array that is used
+                 * to look up the actual uniform variable ID is obtained during
+                 * the compilation process of the shader porgramme.
+                 *
+                 * \param[in] index The index into the uniform ID array to use.
+                 * \param[in] value The floating point vector to load.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const enum uniforms &index, const GLfloat value[4]) const
+                {
+                    if (use())
+                    {
+                        glUniform4f(uniforms[index], value[0], value[1], value[2], value[3]);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+            protected:
                 /**\brief Default uniforms
                  *
                  * Contains the indices of the default uniforms. This array is
@@ -287,7 +524,6 @@ namespace efgy
                  */
                 GLint uniforms[uniformMax];
 
-            protected:
                 /**\brief Programme ID
                  *
                  * The programme ID as returned by OpenGL; set to zero as long
@@ -1288,21 +1524,11 @@ namespace efgy
 
                         flameColouring.uniform(efgy::opengl::uniformProjectionMatrix, combined.transformationMatrix);
                         flameColouring.uniform(efgy::opengl::uniformNormalMatrix, normalMatrix);
-
-                        for (unsigned int i = 0; i < efgy::opengl::uniformMax; i++)
-                        {
-                            uniforms[i] = flameColouring.uniforms[i];
-                        }
                     }
                     else
                     {
                         regular.uniform(efgy::opengl::uniformProjectionMatrix, combined.transformationMatrix);
                         regular.uniform(efgy::opengl::uniformNormalMatrix, normalMatrix);
-
-                        for (unsigned int i = 0; i < efgy::opengl::uniformMax; i++)
-                        {
-                            uniforms[i] = regular.uniforms[i];
-                        }
                     }
                 };
 
@@ -1362,12 +1588,12 @@ namespace efgy
 
                         flamePostProcess.use(width, height);
 
-                        glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformScreenFramebuffer], 0);
-                        glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformScreenHistogram], 1);
+                        flamePostProcess.uniform(efgy::opengl::uniformScreenFramebuffer, 0);
+                        flamePostProcess.uniform(efgy::opengl::uniformScreenHistogram, 1);
 
                         glActiveTexture(GL_TEXTURE0 + 2);
                         textureFlameColourMap.bind();
-                        glUniform1i(flamePostProcess.uniforms[efgy::opengl::uniformColourMap], 2);
+                        flamePostProcess.uniform(efgy::opengl::uniformColourMap, 2);
 
                         glBlendFunc (GL_ONE, GL_ZERO);
 
@@ -1558,7 +1784,6 @@ namespace efgy
                 efgy::opengl::indexBuffer elementbuffer;
                 efgy::opengl::indexBuffer linebuffer;
 
-                GLint uniforms[efgy::opengl::uniformMax];
                 bool linesEnabled;
                 bool facesEnabled;
                 bool lineDepthMask;
@@ -1575,7 +1800,7 @@ namespace efgy
                 {
                     if (prepared && linesEnabled && !fractalFlameColouring)
                     {
-                        glUniform4f(uniforms[efgy::opengl::uniformColour], wireframeColour[0], wireframeColour[1], wireframeColour[2], wireframeColour[3]);
+                        regular.uniform(efgy::opengl::uniformColour, wireframeColour);
 
                         glDepthMask (lineDepthMask ? GL_TRUE : GL_FALSE);
 
@@ -1602,7 +1827,10 @@ namespace efgy
                 {
                     if (prepared && (facesEnabled || fractalFlameColouring))
                     {
-                        glUniform4f(uniforms[efgy::opengl::uniformColour], surfaceColour[0], surfaceColour[1], surfaceColour[2], surfaceColour[3]);
+                        if (!fractalFlameColouring)
+                        {
+                            regular.uniform(efgy::opengl::uniformColour, surfaceColour);
+                        }
 
                         glDepthMask (faceDepthMask ? GL_TRUE : GL_FALSE);
 
