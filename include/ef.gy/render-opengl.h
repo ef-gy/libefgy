@@ -1108,7 +1108,7 @@ namespace efgy
                     "uniform sampler2D screenHistogram;\n"
                     "uniform sampler2D colourMap;\n"
                     "void main() {\n"
-                        "highp float intensity = 1.0 - texture2D(screenHistogram, UV).x;\n"
+                        "highp float intensity = (texture2D(screenHistogram, UV).x)/250.0;\n"
                         "highp float index     = texture2D(screenFramebuffer, UV).x;\n"
                         "gl_FragColor = texture2D(colourMap, vec2(index,0.0)) * intensity;\n"
                     "}\n";
@@ -1121,7 +1121,7 @@ namespace efgy
                     "void main() {\n"
                 << (fractalFlameColouring
                       ? (renderHistogram
-                            ? "gl_FragColor = vec4(0.995,0.995,0.995,0.995);\n"
+                            ? "gl_FragColor = vec4(1,1,1,1);\n"
                             : "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,0.5);\n")
                       : "gl_FragColor = colorVarying;\n")
                 <<  "}\n";
@@ -1360,6 +1360,8 @@ namespace efgy
 
                     if (fractalFlameColouring)
                     {
+                        glClearColor(1,1,1,1);
+
                         flameColouring.use(width, height, 0);
 
                         glDepthMask(GL_FALSE);
@@ -1372,9 +1374,10 @@ namespace efgy
 
                         flameHistogram.use(width, height, 1);
 
-                        glBlendFunc (GL_ZERO, GL_SRC_COLOR);
-
+                        glClearColor(0,0,0,1);
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                        glBlendFunc (GL_ONE, GL_ONE);
  
                         pushFaces();
 
