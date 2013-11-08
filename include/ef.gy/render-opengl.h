@@ -563,11 +563,15 @@ namespace efgy
          * with it.
          *
          * \tparam target The texture target to bind to.
+         * \tparam format Format of the texture to load or create.
+         * \tparam baseFormat External texture format.
+         * \tparam type   Type of the texture to load.
          *
-         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml for
-         *      the possible values of the target parameter.
+         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml and
+         *      http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml for
+         *      the possible values of the target, format and type parameters.
          */
-        template<GLenum target>
+        template<GLenum target, GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE>
         class texture
         {
             public:
@@ -630,38 +634,26 @@ namespace efgy
                  *
                  * \param[in] pWidth  Width of the texture to load or create.
                  * \param[in] pHeight Height of the texture to load or create.
-                 * \param[in] pFormat Format of the texture to load or create.
-                 * \param[in] pFormatExternal External texture format.
-                 * \param[in] pType   Type of the texture to load.
                  * \param[in] data    Raw memory data of the texture to load;
                  *                    use zero if you only want to create a
                  *                    texture and not load one from memory.
                  *
                  * \return True on success, false otherwise.
-                 *
-                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml
-                 *      for the possible values of the GLenum parameters.
                  */
                 bool load (const GLuint &pWidth, const GLuint &pHeight,
-                           const GLenum &pFormat = GL_RGB,
-                           const GLenum &pFormatExternal = GL_RGB,
-                           const GLenum &pType = GL_UNSIGNED_BYTE,
                            const void *data = 0)
                 {
                     if (bind())
                     {
                         if (   (pWidth != width) || (pHeight != height)
-                            || (format != pFormat) || (type != pType)
                             || (data != 0))
                         {
                             width  = roundToPowerOf2(pWidth);
                             height = roundToPowerOf2(pHeight);
-                            format = pFormat;
-                            type   = pType;
 
                             glTexImage2D
                                 (target, 0, format,
-                                 width, height, 0, pFormatExternal, type, data);
+                                 width, height, 0, baseFormat, type, data);
                         }
 
                         return true;
@@ -678,32 +670,6 @@ namespace efgy
                 GLuint textureID;
 
             protected:
-                /**\brief Current texture format
-                 *
-                 * This is the internal and external texture format that was
-                 * passed to the load() method the last time it was used.
-                 *
-                 * Used to figure out if the texture needs to be recreated if
-                 * you use the load() method.
-                 *
-                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml
-                 *      for possible values of this enum.
-                 */
-                GLenum format;
-
-                /**\brief Texture type
-                 *
-                 * The texture type that was used to load the last texture with
-                 * load().
-                 *
-                 * Used to figure out if the texture needs to be recreated if
-                 * you use the load() method.
-                 *
-                 * \see http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml
-                 *      for possible values of this enum.
-                 */
-                GLenum type;
-
                 /**\brief Texture width
                  *
                  * The width of the texture that was loaded or created with the
@@ -742,13 +708,17 @@ namespace efgy
          * together.
          *
          * \tparam Q Base data type for calculations.
+         * \tparam format Format of the texture to load or create.
+         * \tparam baseFormat External texture format.
+         * \tparam type   Type of the texture to load.
          * \tparam target The texture target to bind to.
          *
-         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml for
-         *      the possible values of the target parameter.
+         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml and
+         *      http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml for
+         *      the possible values of the target, format and type parameters.
          */
-        template<typename Q, GLenum target = GL_TEXTURE_2D>
-        class framebufferTexture : public framebuffer<Q>, public texture<target>
+        template<typename Q, GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D>
+        class framebufferTexture : public framebuffer<Q>, public texture<target, format, baseFormat, type>
         {
             public:
                 /**\brief Bind framebuffer and texture
@@ -764,12 +734,12 @@ namespace efgy
                  */
                 bool use (const GLuint &width, const GLuint &height)
                 {
-                    if (framebuffer<Q>::use() && texture<target>::load(width, height))
+                    if (framebuffer<Q>::use() && texture<target,format,baseFormat,type>::load(width, height))
                     {
                         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, texture<target>::textureID, 0);
+                        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, texture<target,format,baseFormat,type>::textureID, 0);
 
                         return true;
                     }
@@ -784,9 +754,17 @@ namespace efgy
          * easily render grab the output of a render pass.
          *
          * \tparam Q Base data type for calculations.
+         * \tparam format Format of the texture to load or create.
+         * \tparam baseFormat External texture format.
+         * \tparam type   Type of the texture to load.
+         * \tparam target The texture target to bind to.
+         *
+         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml and
+         *      http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml for
+         *      the possible values of the target, format and type parameters.
          */
-        template<typename Q>
-        class renderToTextureProgramme : public programme<Q>, public framebufferTexture<Q>
+        template<typename Q, GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D>
+        class renderToTextureProgramme : public programme<Q>, public framebufferTexture<Q,format,baseFormat,type,target>
         {
             public:
                 /**\brief Construct with shaders
@@ -807,7 +785,7 @@ namespace efgy
                  *                            link to the programme.
                  */
                 renderToTextureProgramme (const std::string &pVertexShader, const std::string &pFragmentShader)
-                    : programme<Q>(pVertexShader, pFragmentShader),  framebufferTexture<Q>() {}
+                    : programme<Q>(pVertexShader, pFragmentShader), framebufferTexture<Q,format,baseFormat,type,target>() {}
 
                 /**\brief Use programme and render to associated texture
                  *
@@ -834,7 +812,7 @@ namespace efgy
                         glActiveTexture (GL_TEXTURE0 + textureUnit);
                     }
 
-                    if (programme<Q>::use() && framebufferTexture<Q>::use(width, height))
+                    if (programme<Q>::use() && framebufferTexture<Q,format,baseFormat,type,target>::use(width, height))
                     {
                         glViewport (0, 0, roundToPowerOf2(width), roundToPowerOf2(height));
 
@@ -1360,6 +1338,8 @@ namespace efgy
 
                     if (fractalFlameColouring)
                     {
+                        glClearColor(1,1,1,1);
+
                         flameColouring.use(width, height, 0);
 
                         glDepthMask(GL_FALSE);
@@ -1372,9 +1352,11 @@ namespace efgy
 
                         flameHistogram.use(width, height, 1);
 
-                        glBlendFunc (GL_ZERO, GL_SRC_COLOR);
-
+//                        glClearColor(0,0,0,1);
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+//                        glBlendFunc (GL_ONE, GL_ONE);
+                        glBlendFunc (GL_ZERO, GL_SRC_COLOR);
  
                         pushFaces();
 
@@ -1544,10 +1526,9 @@ namespace efgy
                         colours.push_back(std::rand()%255);
                         colours.push_back(std::rand()%255);
                         colours.push_back(std::rand()%255);
-                        colours.push_back(255);
                     }
 
-                    textureFlameColourMap.load(GLsizei(colours.size()/4), 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, &colours[0]);
+                    textureFlameColourMap.load(GLsizei(colours.size()/3), 1, &colours[0]);
                     
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
