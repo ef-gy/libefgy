@@ -1266,6 +1266,97 @@ namespace efgy
          * it is: an index buffer.
          */
         typedef buffer<GL_ELEMENT_ARRAY_BUFFER> indexBuffer;
+
+        /**\brief Vertex array object
+         *
+         * Wrapper for OpenGL vertex array objects and the associated state.
+         *
+         * \tparam Q Base data type for calculations.
+         */
+        template<typename Q>
+        class vertexArray
+        {
+            public:
+                /**\brief Default constructor
+                 *
+                 * Initialise an empty instance of this class. The actual OpenGL
+                 * vertex array object is not created yet, this is done with the
+                 * use() method.
+                 */
+                vertexArray(void)
+                    : vertexArrayID(0) {}
+
+#if !defined(NOVAO)
+                /**\brief Destructor
+                 *
+                 * Deletes the OpenGL vertex array object if it has been
+                 * created; does nothing otherwise.
+                 */
+                ~vertexArray (void)
+                {
+                    if (vertexArrayID)
+                    {
+                        glDeleteVertexArrays(1, &vertexArrayID);
+                    }
+                }
+#endif
+
+                /**\brief Use vertex array object
+                 *
+                 * Binds the vertex array object in the current OpenGL context.
+                 * If the vertex array object does not exist yet then it is
+                 * created, first.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool use (void)
+                {
+#if !defined(NOVAO)
+                    if (!vertexArrayID)
+                    {
+                        glGenVertexArrays(1, &vertexArrayID);
+                    }
+
+                    if (vertexArrayID)
+                    {
+                        glBindVertexArray(vertexArrayID);
+                        return true;
+                    }
+#endif
+
+                    return false;
+                }
+
+                /**\brief Use but do not create vertex array object
+                 *
+                 * Binds the vertex array object in the current OpenGL context.
+                 * If the vertex array object does not exist yet then it is not
+                 * created either, the function simply fails.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool use (void) const
+                {
+#if !defined(NOVAO)
+                    if (vertexArrayID)
+                    {
+                        glBindVertexArray(vertexArrayID);
+                        return true;
+                    }
+#endif
+
+                    return false;
+                }
+
+            protected:
+                /**\brief Vertex array ID
+                 *
+                 * This is the vertex array ID as assigned by OpenGL. If the
+                 * vertex array object has not been created yet then this
+                 * variable is set to zero.
+                 */
+                GLuint vertexArrayID;
+        };
     };
 
     namespace render
@@ -1485,11 +1576,6 @@ namespace efgy
                         regular.copy();
                         flamePostProcess.copy();
 
-#if !defined(NOVAO)
-                        glGenVertexArrays(1, &vertexArrayFullscreenQuad);
-                        glBindVertexArray(vertexArrayFullscreenQuad);
-#endif
-
                         static const GLfloat fullscreenQuadBufferData[] =
                         {
                             -1.0f, -1.0f,  0.0f,
@@ -1502,13 +1588,10 @@ namespace efgy
 
                         vertexbufferFullscreenQuad.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
 
+                        vertexArrayFullscreenQuad.use();
 #if !defined(NOVAO)
                         glEnableVertexAttribArray(efgy::opengl::attributePosition);
                         glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-#endif
-
-#if !defined(NOVAO)
-                        glGenVertexArrays(1, &vertexArrayModel);
 #endif
 
                         setColourMap();
@@ -1538,9 +1621,7 @@ namespace efgy
                     {
                         prepared = true;
 
-#if !defined(NOVAO)
-                        glBindVertexArray(vertexArrayModel);
-#endif
+                        vertexArrayModel.use();
                         vertexbuffer.load(vertices.size() * sizeof(GLfloat), &vertices[0]);
                         elementbuffer.load(triindices.size() * sizeof(unsigned int), &triindices[0]);
                         linebuffer.load(lineindices.size() * sizeof(unsigned int), &lineindices[0]);
@@ -1597,9 +1678,7 @@ namespace efgy
 
                         glBlendFunc (GL_ONE, GL_ZERO);
 
-#if !defined(NOVAO)
-                        glBindVertexArray(vertexArrayFullscreenQuad);
-#endif
+                        vertexArrayFullscreenQuad.use();
                         vertexbufferFullscreenQuad.bind();
 
 #if defined(NOVAO)
@@ -1775,10 +1854,10 @@ namespace efgy
                 GLsizei lindices;
                 bool haveBuffers;
                 bool prepared;
-#if !defined(NOVAO)
-                GLuint vertexArrayModel;
-                GLuint vertexArrayFullscreenQuad;
-#endif
+
+                efgy::opengl::vertexArray<Q> vertexArrayModel;
+                efgy::opengl::vertexArray<Q> vertexArrayFullscreenQuad;
+
                 efgy::opengl::vertexBuffer vertexbuffer;
                 efgy::opengl::vertexBuffer vertexbufferFullscreenQuad;
                 efgy::opengl::indexBuffer elementbuffer;
@@ -1804,9 +1883,7 @@ namespace efgy
 
                         glDepthMask (lineDepthMask ? GL_TRUE : GL_FALSE);
 
-#if !defined(NOVAO)
-                        glBindVertexArray(vertexArrayModel);
-#endif
+                        vertexArrayModel.use();
                         vertexbuffer.bind();
                         linebuffer.bind();
 
@@ -1834,9 +1911,7 @@ namespace efgy
 
                         glDepthMask (faceDepthMask ? GL_TRUE : GL_FALSE);
 
-#if !defined(NOVAO)
-                        glBindVertexArray(vertexArrayModel);
-#endif
+                        vertexArrayModel.use();
                         vertexbuffer.bind();
                         elementbuffer.bind();
 
