@@ -1357,6 +1357,136 @@ namespace efgy
                  */
                 GLuint vertexArrayID;
         };
+
+        /**\brief Minimal vertex array object
+         *
+         * Wrapper for a minimal vertex array object. 'Minimal' in this case
+         * means that the vertex data only contains spatial information in 3D.
+         *
+         * \tparam Q Base data type for calculations.
+         */
+        template<typename Q>
+        class vertexArrayMinimal : public vertexArray<Q>
+        {
+            public:
+                /**\brief Use vertex array object
+                 *
+                 * Uses the vertexArray<Q>::use() method to bind or create a
+                 * vertex array object. If the object could not be created - for
+                 * example because the NOVAO macro is set - or if the object has
+                 * been bound for the first time, it will modify the internal
+                 * state so that a call to setup() will enable all the
+                 * appropriate vertex array attributes as necessary.
+                 */
+                bool use (void)
+                {
+                    hadID = vertexArray<Q>::vertexArrayID != 0;
+                    hasBound = vertexArray<Q>::use();
+
+                    return hasBound;
+                }
+
+                /**\brief Setup vertex array attributes
+                 *
+                 * Enables the necessary vertex array attribute and pointer data
+                 * for this vertex array object.
+                 */
+                bool setup (void) const
+                {
+                    if (!hasBound || !hadID)
+                    {
+                        glEnableVertexAttribArray(attributePosition);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+                        glDisableVertexAttribArray(attributeNormal);
+                        glDisableVertexAttribArray(attributeIndex);
+                    }
+
+                    return true;
+                }
+
+            protected:
+                bool hadID;
+                bool hasBound;
+        };
+
+        /**\brief Extended vertex array object
+         *
+         * Wrapper for an extended vertex array object; i.e. one with 3D spatial
+         * and normal data and an IFS function index.
+         *
+         * \tparam Q Base data type for calculations.
+         */
+        template<typename Q>
+        class vertexArrayExtended : public vertexArray<Q>
+        {
+            public:
+                /**\brief Use vertex array object
+                 *
+                 * Uses the vertexArray<Q>::use() method to bind or create a
+                 * vertex array object. If the object could not be created - for
+                 * example because the NOVAO macro is set - or if the object has
+                 * been bound for the first time, it will modify the internal
+                 * state so that a call to setup() will enable all the
+                 * appropriate vertex array attributes as necessary.
+                 */
+                bool use (void)
+                {
+                    hadID = vertexArray<Q>::vertexArrayID != 0;
+                    hasBound = vertexArray<Q>::use();
+                    
+q                    return hasBound;
+                }
+
+                using vertexArray<Q>::use;
+
+                /**\brief Setup vertex array attributes
+                 *
+                 * Enables the necessary vertex array attribute and pointer data
+                 * for this vertex array object.
+                 */
+                bool setup (void)
+                {
+                    if (!hasBound || !hadID)
+                    {
+                        
+                        glEnableVertexAttribArray(attributePosition);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
+                        glEnableVertexAttribArray(attributeNormal);
+                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(attributeIndex);
+                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+
+                        hasBound = true;
+                        hadID = false;
+                    }
+
+                    return true;
+                }
+
+                /**\brief Setup vertex array attributes
+                 *
+                 * Enables the necessary vertex array attribute and pointer data
+                 * for this vertex array object.
+                 */
+                bool setup (void) const
+                {
+                    if (!hasBound || !hadID)
+                    {
+                        glEnableVertexAttribArray(attributePosition);
+                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
+                        glEnableVertexAttribArray(attributeNormal);
+                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glEnableVertexAttribArray(attributeIndex);
+                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+                    }
+                    
+                    return true;
+                }
+
+            protected:
+                bool hadID;
+                bool hasBound;
+        };
     };
 
     namespace render
@@ -1586,13 +1716,9 @@ namespace efgy
                              1.0f,  1.0f,  0.0f
                         };
 
-                        vertexbufferFullscreenQuad.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
-
                         vertexArrayFullscreenQuad.use();
-#if !defined(NOVAO)
-                        glEnableVertexAttribArray(efgy::opengl::attributePosition);
-                        glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-#endif
+                        vertexbufferFullscreenQuad.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
+                        vertexArrayFullscreenQuad.setup();
 
                         setColourMap();
                     }
@@ -1625,14 +1751,7 @@ namespace efgy
                         vertexbuffer.load(vertices.size() * sizeof(GLfloat), &vertices[0]);
                         elementbuffer.load(triindices.size() * sizeof(unsigned int), &triindices[0]);
                         linebuffer.load(lineindices.size() * sizeof(unsigned int), &lineindices[0]);
-#if !defined(NOVAO)
-                        glEnableVertexAttribArray(efgy::opengl::attributePosition);
-                        glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
-                        glEnableVertexAttribArray(efgy::opengl::attributeNormal);
-                        glVertexAttribPointer(efgy::opengl::attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-                        glEnableVertexAttribArray(efgy::opengl::attributeIndex);
-                        glVertexAttribPointer(efgy::opengl::attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
-#endif
+                        vertexArrayModel.setup();
 
                         tindices = GLsizei(triindices.size());
                         lindices = GLsizei(lineindices.size());
@@ -1680,11 +1799,7 @@ namespace efgy
 
                         vertexArrayFullscreenQuad.use();
                         vertexbufferFullscreenQuad.bind();
-
-#if defined(NOVAO)
-                        glEnableVertexAttribArray(efgy::opengl::attributePosition);
-                        glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-#endif
+                        vertexArrayFullscreenQuad.setup();
 
                         glDrawArrays(GL_TRIANGLES, 0, 6);
                     }
@@ -1855,8 +1970,8 @@ namespace efgy
                 bool haveBuffers;
                 bool prepared;
 
-                efgy::opengl::vertexArray<Q> vertexArrayModel;
-                efgy::opengl::vertexArray<Q> vertexArrayFullscreenQuad;
+                efgy::opengl::vertexArrayExtended<Q> vertexArrayModel;
+                efgy::opengl::vertexArrayMinimal<Q> vertexArrayFullscreenQuad;
 
                 efgy::opengl::vertexBuffer vertexbuffer;
                 efgy::opengl::vertexBuffer vertexbufferFullscreenQuad;
@@ -1886,15 +2001,7 @@ namespace efgy
                         vertexArrayModel.use();
                         vertexbuffer.bind();
                         linebuffer.bind();
-
-#if defined(NOVAO)
-                        glEnableVertexAttribArray(efgy::opengl::attributePosition);
-                        glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
-                        glEnableVertexAttribArray(efgy::opengl::attributeNormal);
-                        glVertexAttribPointer(efgy::opengl::attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-                        glEnableVertexAttribArray(efgy::opengl::attributeIndex);
-                        glVertexAttribPointer(efgy::opengl::attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
-#endif
+                        vertexArrayModel.setup();
 
                         glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
                     }
@@ -1914,15 +2021,7 @@ namespace efgy
                         vertexArrayModel.use();
                         vertexbuffer.bind();
                         elementbuffer.bind();
-
-#if defined(NOVAO)
-                        glEnableVertexAttribArray(efgy::opengl::attributePosition);
-                        glVertexAttribPointer(efgy::opengl::attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
-                        glEnableVertexAttribArray(efgy::opengl::attributeNormal);
-                        glVertexAttribPointer(efgy::opengl::attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-                        glEnableVertexAttribArray(efgy::opengl::attributeIndex);
-                        glVertexAttribPointer(efgy::opengl::attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
-#endif
+                        vertexArrayModel.setup();
 
                         glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
                     }
