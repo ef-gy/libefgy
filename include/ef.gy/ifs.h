@@ -71,9 +71,14 @@ namespace efgy
                     primitive<Q,pd,render,d> source(parent::renderer, parameter, parent::precisionMultiplier);
 
                     faces = source.faces;
+                    while (faces.size() > indices.size())
+                    {
+                        indices.push_back(Q(0.5));
+                    }
 
                     for (unsigned int i = 0; i < parameter.iterations; i++)
                     {
+                        std::vector<Q> rindices = indices;
                         indices.clear();
                         std::vector<math::tuple<faceVertices,typename euclidian::space<Q,d>::vector> > rfaces;
 
@@ -82,9 +87,10 @@ namespace efgy
                             for (unsigned int j = 0; j < functions.size(); j++)
                             {
                                 rfaces.push_back(apply(j,faces.back()));
-                                indices.push_back(Q(j)/Q(functions.size()));
+                                indices.push_back(((Q(j)/Q(functions.size()))+rindices.back())/Q(2));
                             }
                             faces.pop_back();
+                            rindices.pop_back();
                         }
                         
                         faces = rfaces;

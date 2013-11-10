@@ -1405,7 +1405,24 @@ namespace efgy
                 }
 
             protected:
+                /**\brief Whether the vertexArrayID existed before calling use()
+                 *
+                 * The use() method checks whether an ID existed before calling
+                 * the vertexArray<Q>::use() method. The setup() method needs to
+                 * know this in case binding the vertex array object succeeded
+                 * for the first time, so it can set up the vertex array buffer
+                 * as necessary.
+                 */
                 bool hadID;
+                
+                /**\brief Whether the parent use() method succeeded
+                 *
+                 * The use() method sets this flag to false in case the parent's
+                 * use() method was unable to bind a vertex array object. In
+                 * that case the setup() method will always set up the vertex
+                 * attributes, regardless of whether the vertex array object
+                 * was bound for the first time.
+                 */
                 bool hasBound;
         };
 
@@ -1434,7 +1451,7 @@ namespace efgy
                     hadID = vertexArray<Q>::vertexArrayID != 0;
                     hasBound = vertexArray<Q>::use();
                     
-q                    return hasBound;
+                    return hasBound;
                 }
 
                 using vertexArray<Q>::use;
@@ -1484,7 +1501,24 @@ q                    return hasBound;
                 }
 
             protected:
+                /**\brief Whether the vertexArrayID existed before calling use()
+                 * 
+                 * The use() method checks whether an ID existed before calling
+                 * the vertexArray<Q>::use() method. The setup() method needs to
+                 * know this in case binding the vertex array object succeeded
+                 * for the first time, so it can set up the vertex array buffer
+                 * as necessary.
+                 */
                 bool hadID;
+
+                /**\brief Whether the parent use() method succeeded
+                 *
+                 * The use() method sets this flag to false in case the parent's
+                 * use() method was unable to bind a vertex array object. In
+                 * that case the setup() method will always set up the vertex
+                 * attributes, regardless of whether the vertex array object
+                 * was bound for the first time.
+                 */
                 bool hasBound;
         };
     };
