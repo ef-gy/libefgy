@@ -44,27 +44,29 @@ namespace efgy {
         This class contains the entire population of the GA; individual genomes are 
         represented as GAIndividual<T, genomeLength>. 
 
-        The template parameter Fitness is assumed to have a _static_ overloaded () operator that accepts
+        \tparam Fitness is assumed to have a _static_ overloaded () operator that accepts
         a GAIndividual and returns a value of type Q.
 
-        Q is assumed to be a type that represents rational numbers; the default is double,
+        \tparam Q is assumed to be a type that represents rational numbers; the default is double,
         but one might want to use long doubles, fractions, or other rational data types instead.
         Since values of type Q are used to represent probabilities, please bear in mind
         that Q should be able to represent values between 0 and 1, so integers are not a good choice.
 
-        Mutate is assumed to overload the () operator, accept an argument of type T and return
+        \tparam Mutate is assumed to be a functor with a static overloaded () operator that accepts an argument of type T and return
         a value of type T. The functor may either mutate its argument explicitly (for example, apply
         the NOT operator to a boolean) or simply return a random value of type T, but users of this class
         should assume that the functor does not return its argument unchanged.
 
-        hasTerminated is assumed to be a functor which takes no arguments and returns a boolean value that 
+        \tparam hasTerminated is assumed to be a functor with a static overloaded () operator 
+         which takes no arguments and returns a boolean value that 
         indicates whether the genetic algorithm should terminate.
 
-        Select is assumed to be a functor that takes the target population size and a vector of GAIndividual
-        as its arguments, and returns a vector of GAIndividual as the new population, implementing a selection
+        \tparam Select is assumed to be a functor with a static overloaded () operator that takes the target population size,
+        a vector of GAIndividual and the Fitness functor as its arguments, 
+        and returns a vector of GAIndividual as the new population, implementing a selection
         method of the user's choice.
 
-        Initialise is assumed to be a functor that takes an array of T
+        \tparam Initialise is assumed to be a functor that takes an array of T
         and its length, initialising each element of the array
         to some kind of value of type T. A likely choice is to just
         initialise each element with a random value.
@@ -111,7 +113,7 @@ namespace efgy {
 
         void breedNextGeneration()
         {
-           std::vector<GAIndividual> parents = Select(populationSize, population);
+           std::vector<GAIndividual> parents = Select(populationSize, population, Fitness);
            
            std::vector<GAIndividual> children;
            while(children.size() < populationSize)
@@ -197,6 +199,44 @@ namespace efgy {
         }
 
     };
+
+    class MutateFloat
+    {
+        public:
+            float operator () (float x) {
+                return ((float) rand() / (float) RAND_MAX); 
+            }
+
+            
+    };
+
+
+    
+    /* Implements the roulette wheel selection method for genetic algorithms.
+
+    */
+    class SelectRouletteWheel
+    {
+        public:
+            vector<GAIndividual> operator() (int targetSize, vector<GAIndividual> population, Fitness f)
+            {
+               int count = 0;
+               
+               std::map<Q, GAIndividual> current;
+               for(typename std::vector<GAIndividual>::iterator it = population.begin(); it != population.end(); it++)
+               {
+                    current.insert(std::pair<Q, GAIndividual> (Fitness(*it), *it));
+               }
+
+               for(
+               while (count < targetSize)
+               {
+                    double r = (rand() / (double) RAND_MAX);
+
+                    
+               }
+            }
+    }
    }
 }
 

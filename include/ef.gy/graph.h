@@ -31,6 +31,7 @@
 #define EF_GY_GRAPH_H
 
 #include <vector>
+#include <set>
 
 namespace efgy
 {
@@ -192,6 +193,7 @@ namespace efgy
                         found = (a != i) && adjacency[i][a] && pathExists(a, k);
                         a++;
                    }
+                   return found;
                 }
             }
 
@@ -203,11 +205,53 @@ namespace efgy
         class node
         {
             public:
+                node(T _data) : data(_data), adjacentNodes(std::set());
+                node(T _data, std::set< node<T>* > nodes) : data(_data), adjacentNodes(nodes);
+                ~node();
+                node(node that)
+                {
+                    data = that.data;
+                    nodes = std::set(that.nodes);
+                }
+                
+                /// connects nodes this and that
+                void connect(node<T>* that)
+                {
+                    adjacentNodes.insert(that);
+                }
 
+                /// constructs new node from data that is connected to the current node 
+                void insert(T data)
+                {
+                    node<T> *other = new node(data);
+                    this.connect(other);
+                }
+
+                bool connectedTo(node<T>* that)
+                {
+                    return (adjacentNodes.find(that) != adjacentNodes.end);
+                }
+
+                void deleteConnection(node<T>* that)
+                {
+                    adjacentNodes.erase(that);
+                }
+
+                bool pathExists(node<T>* that)
+                {
+                    bool found = connectedTo(that);
+                    std::set<node<T>* >::iterator it = adjacentNodes.begin();
+                    while(it != adjacentNodes.end())
+                    {
+                        found = found || pathExists(*it);
+                    }
+                    return found;
+                }
 
             private:
                 T data;
-                std::vector<node<T>* 
+                std::set< node<T>* > adjacentNodes;
+
                 
 
         };

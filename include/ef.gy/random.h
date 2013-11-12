@@ -29,6 +29,8 @@
 #if !defined(EF_GY_RANDOM_H)
 #define EF_GY_RANDOM_H
 
+#include <limits>
+
 /*
     for now this class implements a 32-bit Mersenne Twister RNG;
 
@@ -82,6 +84,7 @@ class MersenneTwister
 
             return (T) scaled;
         }
+
 
         void generateNumbers()
         {
