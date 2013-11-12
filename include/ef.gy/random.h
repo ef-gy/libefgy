@@ -33,13 +33,6 @@
 
 #include <limits>
 
-/*
-    for now this class implements a 32-bit Mersenne Twister RNG;
-
-    implementation follows the pseudocode found at http://en.wikipedia.org/wiki/Mersenne_twister.
-*/
-template <typename T = unsigned long long>
-class MersenneTwister
 namespace efgy
 {
     /**\brief Random Numbers
@@ -129,15 +122,13 @@ namespace efgy
                     return (T) scaled;
                 }
 
+               /**\brief returns maximum value of type T
+               */
+                T max()
+                {
+                    return std::numeric_limits<T>::max();
+                }
 
-        void generateNumbers()
-        {
-            for (int i = 0; i < 624; i++)
-            {
-                T y = (MT[i] & 0x80000000) + (MT[(i + 1) % 624] & 0x7fffffff);
-                MT[i] = MT[(i + 397) % 624] ^ (y >> 1);
-                if((y % 2) != 0) {
-                    MT[i] = MT[i] ^ 0x9908b0df;
             protected:
                 /**\brief Repopulate state array
                  *
