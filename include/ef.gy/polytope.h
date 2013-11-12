@@ -1,22 +1,27 @@
-/*
- * This file is part of the ef.gy project.
- * See the appropriate repository at http://ef.gy/.git for exact file
- * modification records.
-*/
-
-/*
- * Copyright (c) 2012-2013, ef.gy Project Members
+/**\file
+ * \brief Basic primitives
  *
+ * This file contains code to create the meshes for basic primitives and to
+ * present the results with the renderers provided by this library.
+ *
+ * 'Basic' primitives includes cubes, simplices, planes and spheres.
+ *
+ * \see parametric.h, ifs.h and flame.h for more complicated shapes, some of
+ *      which are based on these primitives.
+ *
+ * \copyright
+ * Copyright (c) 2012-2013, ef.gy Project Members
+ * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * \copyright
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * \copyright
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,7 +29,10 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
-*/
+ *
+ * \see Project Documentation: http://ef.gy/documentation/libefgy
+ * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
+ */
 
 #if !defined(EF_GY_POLYTOPE_H)
 #define EF_GY_POLYTOPE_H
@@ -37,6 +45,13 @@ namespace efgy
 {
     namespace geometry
     {
+        /**\brief Geometry parameters
+         *
+         * Contains parameters used by the shape-creating templates. You need
+         * to have at least one of these for each data type you intend to use.
+         *
+         * \tparam Q Base data type for calculations.
+         */
         template <typename Q>
         class parameters
         {
@@ -372,14 +387,14 @@ namespace efgy
 
                 void calculateObject (void)
                 {
-                    const Q s = Q(2);
-                    const Q q = Q(1)/Q(2);
+                    const Q s = parameter.polarRadius * Q(2);
+                    const Q q = s/parameter.polarPrecision;
 
                     faces.clear();
 
-                    for (Q i = -s; i < s; i+=q)
+                    for (Q i = -s; i <= s; i+=q)
                     {
-                        for (Q j = -s; j < s; j+=q)
+                        for (Q j = -s; j <= s; j+=q)
                         {
                             math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
 

@@ -1,22 +1,18 @@
-/*
- * This file is part of the ef.gy project.
- * See the appropriate repository at http://ef.gy/.git for exact file
- * modification records.
-*/
-
-/*
- * Copyright (c) 2012-2013, ef.gy Project Members
+/**\file
  *
+ * \copyright
+ * Copyright (c) 2012-2013, ef.gy Project Members
+ * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * \copyright
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * \copyright
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,13 +20,17 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
-*/
+ *
+ * \see Project Documentation: http://ef.gy/documentation/libefgy
+ * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
+ */
 
 #if !defined(EF_GY_IFS_H)
 #define EF_GY_IFS_H
 
 #include <ef.gy/polytope.h>
 #include <ef.gy/projection.h>
+#include <ef.gy/random.h>
 #include <vector>
 #include <cstdlib>
 
@@ -71,9 +71,14 @@ namespace efgy
                     primitive<Q,pd,render,d> source(parent::renderer, parameter, parent::precisionMultiplier);
 
                     faces = source.faces;
+                    while (faces.size() > indices.size())
+                    {
+                        indices.push_back(Q(0.5));
+                    }
 
                     for (unsigned int i = 0; i < parameter.iterations; i++)
                     {
+                        std::vector<Q> rindices = indices;
                         indices.clear();
                         std::vector<math::tuple<faceVertices,typename euclidian::space<Q,d>::vector> > rfaces;
 
@@ -82,9 +87,10 @@ namespace efgy
                             for (unsigned int j = 0; j < functions.size(); j++)
                             {
                                 rfaces.push_back(apply(j,faces.back()));
-                                indices.push_back(Q(j)/Q(functions.size()));
+                                indices.push_back(((Q(j)/Q(functions.size()))+rindices.back())/Q(2));
                             }
                             faces.pop_back();
+                            rindices.pop_back();
                         }
                         
                         faces = rfaces;
@@ -259,22 +265,24 @@ namespace efgy
             class randomAffine : public affine<Q,d>
             {
                 public:
-                    randomAffine(const parameters<Q> &pParameter)
-                        : parameter(pParameter)
+                    randomAffine(const parameters<Q> &pParameter, const unsigned long long &pSeed)
+                        : parameter(pParameter), seed(pSeed)
                         {
                             updateMatrix();
                         }
 
                     void updateMatrix (void)
                     {
+                        random::mersenneTwister<> PRNG (seed);
+
                         typename euclidian::space<Q,d>::vector V;
-                        const Q s(Q(std::rand()%6000)/Q(10000)+Q(.2));
-                        const Q r1(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
-                        unsigned int a1 = std::rand() % od;
-                        unsigned int a2 = std::rand() % od;
-                        const Q r2(Q(std::rand()%20000)/Q(10000)*Q(M_PI));
-                        unsigned int a4 = std::rand() % od;
-                        unsigned int a5 = std::rand() % od;
+                        const Q s(Q(PRNG.rand()%6000)/Q(10000)+Q(.2));
+                        const Q r1(Q(PRNG.rand()%20000)/Q(10000)*Q(M_PI));
+                        unsigned int a1 = PRNG.rand() % od;
+                        unsigned int a2 = PRNG.rand() % od;
+                        const Q r2(Q(PRNG.rand()%20000)/Q(10000)*Q(M_PI));
+                        unsigned int a4 = PRNG.rand() % od;
+                        unsigned int a5 = PRNG.rand() % od;
                         
                         if (a1 > a2)
                         {
@@ -286,7 +294,7 @@ namespace efgy
                         {
                             if (a1 == 0)
                             {
-                                a2 = std::rand() % (od-1) + 1;
+                                a2 = PRNG.rand() % (od-1) + 1;
                             }
                             else
                             {
@@ -304,7 +312,7 @@ namespace efgy
                         {
                             if (a4 == 0)
                             {
-                                a5 = std::rand() % (od-1) + 1;
+                                a5 = PRNG.rand() % (od-1) + 1;
                             }
                             else
                             {
@@ -314,7 +322,7 @@ namespace efgy
                         
                         for (unsigned int j = 0; j < od; j++)
                         {
-                            V.data[j] = Q(std::rand()%10000)/Q(5000)-Q(1);
+                            V.data[j] = Q(PRNG.rand()%10000)/Q(5000)-Q(1);
                         }
                         
                         transformationMatrix =
@@ -333,6 +341,7 @@ namespace efgy
 
                 protected:
                     const parameters<Q> &parameter;
+                const unsigned long long &seed;
             };
         };
 
@@ -351,14 +360,14 @@ namespace efgy
                     void calculateObject (void)
                     {
                         functions.clear();
-
-                        std::srand(parameter.seed);
+                        
+                        random::mersenneTwister<> PRNG (parameter.seed);
 
                         const unsigned int nfunctions = parameter.functions;
 
                         for (unsigned int i = 0; i < nfunctions; i++)
                         {
-                            functions.push_back (transformation::randomAffine<Q,d,od>(parameter));
+                            functions.push_back (transformation::randomAffine<Q,d,od>(parameter, PRNG.rand()));
                         }
 
                         parent::calculateObject();

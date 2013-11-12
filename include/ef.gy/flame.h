@@ -1,22 +1,18 @@
-/*
- * This file is part of the ef.gy project.
- * See the appropriate repository at http://ef.gy/.git for exact file
- * modification records.
-*/
-
-/*
- * Copyright (c) 2012-2013, ef.gy Project Members
+/**\file
  *
+ * \copyright
+ * Copyright (c) 2012-2013, ef.gy Project Members
+ * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * \copyright
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * \copyright
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,7 +20,10 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
-*/
+ *
+ * \see Project Documentation: http://ef.gy/documentation/libefgy
+ * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
+ */
 
 #if !defined(EF_GY_FLAME_H)
 #define EF_GY_FLAME_H
@@ -262,13 +261,16 @@ namespace efgy
             class randomFlame : public flame<Q,d>
             {
                 public:
-                    randomFlame(const parameters<Q> &pParameter)
+                    randomFlame(const parameters<Q> &pParameter, const unsigned long long &pSeed)
+                        : seed(pSeed)
                         {
-                            transformationMatrix = randomAffine<Q,d,od>(pParameter).transformationMatrix;
+                            efgy::random::mersenneTwister<> PRNG (pSeed);
+
+                            transformationMatrix = randomAffine<Q,d,od>(pParameter, 0).transformationMatrix;
 
                             for (unsigned int i = 0; i < coefficients; i++)
                             {
-                                coefficient[i] = Q(std::rand()%10000)/Q(10000);
+                                coefficient[i] = Q(PRNG.rand()%10000)/Q(10000);
                             }
 
                             for (unsigned int nonzero = pParameter.flameCoefficients + 1;
@@ -289,7 +291,7 @@ namespace efgy
                                 
                                 if (nonzero > pParameter.flameCoefficients)
                                 {
-                                    coefficient[(std::rand()%coefficients)] = Q(0.);
+                                    coefficient[(PRNG.rand()%coefficients)] = Q(0.);
                                 }
                             }
                             
@@ -309,6 +311,9 @@ namespace efgy
                     using flame<Q,d>::transformationMatrix;
                     using flame<Q,d>::coefficient;
                     using flame<Q,d>::coefficients;
+
+                protected:
+                    const unsigned long long &seed;
             };
         };
 
@@ -350,13 +355,13 @@ namespace efgy
                         {
                             functions.clear();
 
-                            std::srand(parameter.seed);
+                            efgy::random::mersenneTwister<> PRNG (parameter.seed);
 
                             const unsigned int nfunctions = parameter.functions;
                         
                             for (unsigned int i = 0; i < nfunctions; i++)
                             {
-                                functions.push_back (transformation::randomFlame<Q,d,od>(parameter));
+                                functions.push_back (transformation::randomFlame<Q,d,od>(parameter, PRNG.rand()));
                             }
                         
                             parent::calculateObject();

@@ -5,7 +5,7 @@ INCLUDEDIR:=$(DESTDIR)$(PREFIX)/include
 MANDIR:=$(DESTDIR)$(PREFIX)/share/man
 
 NAME:=libefgy
-VERSION:=3
+VERSION:=4
 
 CC:=clang
 CXX:=clang++
@@ -62,8 +62,12 @@ documentation: doxyfile include/*/* xslt/doxy*
 js: $(JSBINARIES)
 
 #run unit tests
-test: $(TESTBINARIES)
-	for i in $^; do echo TEST-CASE: $$i; ./$$i; done
+test: $(addprefix run-,$(TESTBINARIES))
+
+run-test-case-%: test-case-%
+	@echo TEST BATCH: $*
+	@./$^
+	@echo PASSED
 
 # pattern rules to install things
 $(BINDIR)/%: %
