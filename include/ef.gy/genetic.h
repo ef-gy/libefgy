@@ -70,7 +70,8 @@ namespace efgy
         \tparam Select is assumed to be a functor with a static overloaded () operator that takes the target population size,
         a vector of GAIndividual and the Fitness functor as its arguments, 
         and returns a vector of GAIndividual as the new population, implementing a selection
-        method of the user's choice.
+        method of the user's choice. Its template argument is an instance of type geneticAlgorithm,
+        usually the this pointer.
 
         \tparam Initialise is assumed to be a functor that takes an array of T
         and its length, initialising each element of the array
@@ -92,6 +93,7 @@ namespace efgy
            public:
              GAIndividual()
              {
+                Initialise(&genome, genomeLength);
              }
             
             private:
@@ -297,6 +299,48 @@ namespace efgy
             }
         private:
             int current;
+    };
+
+    /** \brief Functor that initialises an array of float with randomly generated numbers between 0 and 1.
+    
+    */
+   class initialiseFloatsRandomly
+   {
+        public:
+            initialiseFloatsRandomly() {
+               
+            };
+
+            void operator() (float* array, int length) 
+            {
+                    
+               random::mersenneTwister<unsigned long long> rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
+               
+               for(int i = 0; i < length; i++) {
+                 float r = (float) rng.rand() / (float) rng.max();  
+                 array[i] = r;
+               }
+            }
+
+
+   };
+
+    /** \brief Functor that initialises an array of booleans randomly..*/
+    class initialiseBooleansRandomly
+    {
+        public:
+            initialiseBooleansRandomly() {};
+
+            void operator() (bool *array, int length)
+            {
+
+               random::mersenneTwister<unsigned long long> rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
+               for(int i = 0; i < length; i++) {
+                  bool r = (rng.rand() % 2) == 0;
+                  array [i] = r; 
+               }
+               
+            }
     };
 
    }
