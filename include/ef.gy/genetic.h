@@ -32,11 +32,18 @@
 #include <cstdlib>
 #include <ctime>
 #include <map>
-
+#include "../ef.gy/random.h"
 namespace efgy
 {
     namespace optimise
     {
+       template<typename T, int genomeLength, typename Fitness, typename Mutate, typename hasTerminated, template <typename S> class Select, typename Initialise, int populationSize=1000, typename Q=double>
+       class geneticAlgorithm;
+
+       /* \brief a Select functor that does nothing */
+       template<typename S>
+       class selectNull;
+       
     /*
         A class that handles classic genetic algorithms. 
 
@@ -71,22 +78,23 @@ namespace efgy
         initialise each element with a random value.
 
     */
-    template<typename T, int genomeLength, typename Fitness, typename Mutate, typename hasTerminated, typename Select, typename Initialise, int populationSize=1000, typename Q=double>
+    template<typename T, int genomeLength, typename Fitness, typename Mutate, typename hasTerminated, template <typename S> class Select, typename Initialise, int populationSize, typename Q>
     class geneticAlgorithm
     {
+       
 
+       protected:
+        typedef Fitness FitnessFunctor;
 
-       private:
-        /// an individual for genetic algorithms
-    
+       /// an individual for genetic algorithms
         class GAIndividual
         {
            public:
              GAIndividual()
              {
-                Initialise(genome, genomeLength);
              }
             
+            private:
              void set(int position, T newValue)
              {
                 if((0 <= position) && (position <= genomeLength))
@@ -96,13 +104,11 @@ namespace efgy
              }
              
             T genome[genomeLength];
-             
+            
     
         };
-
-       protected:
         /// population
-        std::vector<GAIndividual> population;
+        std::vector<GAIndividual > population;
 
         /// mutation probability
         Q pMutate;
@@ -110,33 +116,35 @@ namespace efgy
         /// onePointCrossover probability
         Q pCrossover;
 
+        random::mersenneTwister<unsigned long long> rng;
+
         void breedNextGeneration()
         {
-           std::vector<GAIndividual> parents = Select(populationSize, population, Fitness);
+           Select<geneticAlgorithm<T, genomeLength, Fitness, Mutate,  hasTerminated, selectNull, Initialise, populationSize, Q > > sel(&this);
+           std::vector<GAIndividual > parents = sel(populationSize, population);
            
-           std::vector<GAIndividual> children;
+           std::vector<GAIndividual > children;
            while(children.size() < populationSize)
            {
               std::srand(std::time(NULL));
 
-
-              int p1 = (rand() / (double) RAND_MAX) * parents.size();
-              int p2 = (rand() / (double) RAND_MAX) * parents.size();
+              int p1 = rng.rand(0, parents.size());
+              int p2 = rng.rand(0, parents.size());
               
-              GAIndividual i1 = parents[p1];
-              GAIndividual i2 = parents[p2];
+              GAIndividual  i1 = parents[p1];
+              GAIndividual  i2 = parents[p2];
 
-              std::pair<GAIndividual, GAIndividual> offspring;
-              double r = (double) rand() / (double) RAND_MAX;
+              std::pair<GAIndividual , GAIndividual> offspring;
+              double r = (double) rng.rand() / (double) rng.max();
               if(r < pCrossover) {
                 offspring = onePointCrossover(i1, i2);
               }
               else
               {
-                offspring = std::pair<GAIndividual, GAIndividual>(i1, i2);
+                offspring = std::pair<GAIndividual , GAIndividual>(i1, i2);
               }
 
-              r = (double) rand() / (double) RAND_MAX;
+              r = (double) rng.rand() / (double) rng.max();
               if(r < pMutate) {
                 mutate(offspring.first());
                 mutate(offspring.second());
@@ -150,17 +158,16 @@ namespace efgy
         }
 
 
-        void mutate(GAIndividual &individual)
+        void mutate(GAIndividual  &individual)
         {
-            std::srand(std::time(NULL));
-            int position = std::rand() % genomeLength;
+            int position = rng.rand(0, genomeLength);
             
             individual.set(position, Mutate(individual[position]));
         }
        
-        std::pair<GAIndividual, GAIndividual>  onePointCrossover(GAIndividual &i1, GAIndividual &i2)
+        std::pair<GAIndividual , GAIndividual>  onePointCrossover(GAIndividual &i1, GAIndividual &i2)
         {
-           int position =  (rand() / (double) RAND_MAX) * genomeLength;
+           int position =  rng.rand(0, genomeLength);
 
            for(int k = 0; k < position; k++)
             {
@@ -168,7 +175,7 @@ namespace efgy
                 i1.genome[k] = i2.genome[k];
                 i2.genome[k] = tmp;
             }
-           return std::pair<GAIndividual, GAIndividual> (i1, i2);
+           return std::pair<GAIndividual , GAIndividual> (i1, i2);
         }
         
        public:
@@ -176,22 +183,23 @@ namespace efgy
         {
             for(int i = 0; i < populationSize; i++)
             {
-                population.push_back(GAIndividual());
+                population.push_back(GAIndividual ());
             }
+            rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
         }
 
 
-        GAIndividual start()
+        GAIndividual  start()
         {
             while(!hasTerminated())
               {
                 breedNextGeneration();
               }
 
-            std::map<Q, GAIndividual> lastGeneration;
-            for(typename std::vector<GAIndividual>::iterator it = population.begin(); it != population.end(); it++)
+            std::map<Q, GAIndividual > lastGeneration;
+            for(typename std::vector<GAIndividual >::iterator it = population.begin(); it != population.end(); it++)
             {
-                lastGeneration.insert(std::pair<Q, GAIndividual> (Fitness(*it), *it));
+                lastGeneration.insert(std::pair<Q, GAIndividual > (Fitness(*it), *it));
             }
 
             return lastGeneration.end().second;            
@@ -199,11 +207,15 @@ namespace efgy
 
     };
 
+   
+
+    /** \brief Functor that returns a random float between 0 and 1 */
     class MutateFloat
     {
         public:
             float operator () (float x) {
-                return ((float) rand() / (float) RAND_MAX); 
+               random::mersenneTwister<unsigned long long> rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
+                return ((float) rng.rand() / (float) RAND_MAX); 
             }
 
             
@@ -211,31 +223,82 @@ namespace efgy
 
 
     
-    /* Implements the roulette wheel selection method for genetic algorithms.
+    /** \brief Implements the tournament selection method for genetic algorithms.
 
     */
-    class SelectRouletteWheel
+    template<typename S, int tournamentSize>
+    class SelectTournament
     {
         public:
-            vector<GAIndividual> operator() (int targetSize, vector<GAIndividual> population, Fitness f)
+            SelectTournament(S &s_) : GA(s_) 
             {
-               int count = 0;
-               
-               std::map<Q, GAIndividual> current;
-               for(typename std::vector<GAIndividual>::iterator it = population.begin(); it != population.end(); it++)
-               {
-                    current.insert(std::pair<Q, GAIndividual> (Fitness(*it), *it));
-               }
-
-               for(
-               while (count < targetSize)
-               {
-                    double r = (rand() / (double) RAND_MAX);
-
-                    
-               }
             }
-    }
+
+            std::vector<typename S::GAIndividual > operator() (int targetSize, std::vector<typename S::GAIndividual > population)
+            {
+               random::mersenneTwister<unsigned long long> rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
+               
+               std::map<typename S::Q, typename S::GAIndividual > current;
+               for(typename std::vector<typename S::GAIndividual >::iterator it = population.begin(); it != population.end(); it++)
+               {
+                    current.insert(std::pair<typename S::Q, typename S::GAIndividual > (typename S::FitnessFunctor(*it), *it));
+               }
+               
+               std::vector<typename S::GAIndividual > newPopulation; 
+
+               while (newPopulation.size () < targetSize)
+               {
+                    std::map<typename S::Q, typename S::GAIndividual > tournament;
+                    for(int i = 0; i < tournamentSize; i++)
+                    {
+                        int r = rng.rand(0, tournament.size());
+                    {
+                        typename std::map<typename S::Q, typename S::GAIndividual >::iterator it = current.begin();
+                        for(int k = 0;
+                            (it != current.end) && (k < r);
+                            k++, it++)
+                        {
+                            std::pair<typename S::Q, typename S::GAIndividual> p = *it;
+                            tournament.insert(p);
+                        }
+                    }
+
+                    for(int i = 0; i < tournamentSize; i++)
+                    {
+                        typename std::map<typename S::Q, typename S::GAIndividual >::iterator it;
+                        it = tournament.upper_bound(std::numeric_limits<typename S::Q>::max());
+                        if(newPopulation.size < targetSize)
+                        {
+                            newPopulation.push_back(it->second);
+                        }
+                    }
+               }
+
+            }
+            GA.population.swap(newPopulation);
+           }
+
+            private:
+                S& GA;
+    };
+
+    /** \brief Implements GA termination after N generations.
+
+        \tparam N is the number of generations after which the GA should terminate. 
+    */
+    template <int N>
+    class terminateGenerations
+    {
+        public:
+            terminateGenerations() : current(0) {};
+            bool operator() (void)
+            {
+                return (++current > N); 
+            }
+        private:
+            int current;
+    };
+
    }
 }
 
