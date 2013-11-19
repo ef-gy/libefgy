@@ -1676,7 +1676,7 @@ namespace efgy
                 output
                 <<  "attribute vec4 position;\n"
                     "attribute vec3 normal;\n"
-                    "attribute float index;\n"
+                    "attribute highp float index;\n"
                     "varying lowp vec4 colorVarying;\n"
                     "varying lowp float indexVarying;\n"
                     "uniform mat4 modelViewProjectionMatrix;\n"
