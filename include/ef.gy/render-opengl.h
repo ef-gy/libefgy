@@ -938,6 +938,137 @@ namespace efgy
          */
         typedef texture<GL_TEXTURE_2D> texture2D;
 
+        /**\brief Renderbuffer object
+         *
+         * Encapsulates an OpenGL renderbuffer object and the state associated
+         * with it.
+         *
+         * \note The format and target parameters are reversed compared to the
+         *       texture template, because you shouldn't ever need to change the
+         *       renderbuffer target.
+         *
+         * \tparam format Texture format to use.
+         * \tparam target Renderbuffer target to bind to.
+         *
+         * \see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glRenderbufferStorage.xml
+         *      for the possible values of the format and target parameters.
+         */
+        template<GLenum format, GLenum target = GL_RENDERBUFFER>
+        class renderbuffer
+        {
+            public:
+                /**\brief Default constructor
+                 *
+                 * Initialises the object; this does not yet create a
+                 * renderbuffer object, the use() method does that the first
+                 * time you call it.
+                 */
+                renderbuffer (void)
+                    : renderbufferID(0) {}
+                
+                /**\brief Destructor
+                 *
+                 * Erases the renderbuffer object if it has been created; does
+                 * nothing otherwise.
+                 */
+                ~renderbuffer (void)
+                {
+                    if (renderbufferID)
+                    {
+                        glDeleteTextures(1, &renderbufferID);
+                    }
+                }
+
+                /**\brief Bind renderbuffer
+                 *
+                 * Binds the renderbuffer for this object; if the renderbuffer
+                 * object has not been created yet, it will be created when you
+                 * call this method.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool bind (void)
+                {
+                    if (!renderbufferID)
+                    {
+                        glGenRenderbuffers(1, &renderbufferID);
+                        width = 0;
+                        height = 0;
+                    }
+                    
+                    if (renderbufferID)
+                    {
+                        glBindRenderbuffer(target, renderbufferID);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+
+                /**\brief Bind and load renderbuffer
+                 *
+                 * Binds a renderbuffer and then sets its width and height if
+                 * necessary.
+                 *
+                 * The renderbuffer is created if it doesn't exist yet.
+                 *
+                 * \param[in] pWidth  Width of the renderbuffer to bind.
+                 * \param[in] pHeight Height of the renderbuffer to bind.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool load (const GLuint &pWidth, const GLuint &pHeight)
+                {
+                    if (bind())
+                    {
+                        if ((pWidth != width) || (pHeight != height))
+                        {
+                            width  = roundToPowerOf2(pWidth);
+                            height = roundToPowerOf2(pHeight);
+
+                            glRenderbufferStorage(target, format, width, height);
+                        }
+                        
+                        return true;
+                    }
+                    
+                    return false;
+                }
+
+                /**\brief Renderbuffer ID
+                 *
+                 * The renderbuffer ID as returned by OpenGL; set to zero as
+                 * long as the texture has not been created, nonzero afterwards.
+                 */
+                GLuint renderbufferID;
+                
+            protected:
+                /**\brief Renderbuffer width
+                 *
+                 * The width of the buffer that was created with the use()
+                 * method; zero if the buffer has been created with
+                 * glGenRenderbuffers() but has not had any storage attached
+                 * with the use() method.
+                 *
+                 * Used to figure out if the buffer needs to be recreated if
+                 * you use the use() method.
+                 */
+                GLuint width;
+
+                /**\brief Renderbuffer height
+                 *
+                 * The height of the buffer that was created with the use()
+                 * method; zero if the buffer has been created with
+                 * glGenRenderbuffers() but has not had any storage attached
+                 * with the use() method.
+                 *
+                 * Used to figure out if the buffer needs to be recreated if
+                 * you use the use() method.
+                 */
+                GLuint height;
+        };
+
+
         /**\brief Framebuffer with associated texture
          *
          * Associates a texture with a framebuffer so the two are always used
@@ -1591,7 +1722,7 @@ namespace efgy
                 << (fractalFlameColouring
                       ? (renderHistogram
                             ? "gl_FragColor = vec4(0.995,0.995,0.995,0.995);\n"
-                            : "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,0.5);\n")
+                            : "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,1);\n")
                       : "gl_FragColor = colorVarying;\n")
                 <<  "}\n";
             }
@@ -1802,9 +1933,11 @@ namespace efgy
 
                         flameColouring.use(width, height, 0);
 
-                        glDepthMask(GL_FALSE);
-                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
-                        glDisable(GL_DEPTH_TEST);
+                        glDepthMask(GL_TRUE);
+                        glBlendFunc (GL_ONE, GL_ZERO);
+                        glEnable(GL_DEPTH_TEST);
+                        glDepthFunc(GL_LEQUAL);
+                        glDisable(GL_BLEND);
 
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -1812,12 +1945,16 @@ namespace efgy
 
                         flameHistogram.use(width, height, 1);
 
+                        glDepthMask(GL_FALSE);
+                        glDisable(GL_DEPTH_TEST);
+
 //                        glClearColor(0,0,0,1);
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                        glEnable(GL_BLEND);
 
 //                        glBlendFunc (GL_ONE, GL_ONE);
                         glBlendFunc (GL_ZERO, GL_SRC_COLOR);
- 
+
                         pushFaces();
 
                         flamePostProcess.use(width, height);
