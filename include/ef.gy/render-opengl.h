@@ -1068,7 +1068,6 @@ namespace efgy
                 GLuint height;
         };
 
-
         /**\brief Framebuffer with associated texture
          *
          * Associates a texture with a framebuffer so the two are always used
@@ -1107,6 +1106,54 @@ namespace efgy
                         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
                         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, texture<target,format,baseFormat,type>::textureID, 0);
+
+                        return true;
+                    }
+
+                    return false;
+                }
+        };
+
+        /**\brief Framebuffer with associated texture and depth buffer
+         *
+         * Associates a texture with a framebuffer so the two are always used
+         * together. Also adds a renderbuffer used as a depth buffer.
+         *
+         * \tparam Q Base data type for calculations.
+         * \tparam format Format of the texture to load or create.
+         * \tparam baseFormat External texture format.
+         * \tparam type   Type of the texture to load.
+         * \tparam target The texture target to bind to.
+         * \tparam depthFormat Internal texture format of the depth buffer.
+         *
+         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml and
+         *      http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml for
+         *      the possible values of the target, format and type parameters.
+         * \see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glRenderbufferStorage.xml
+         *      for possible values of the depthFormat parameter.
+         */
+        template<typename Q, GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D, GLenum depthFormat = GL_DEPTH_COMPONENT16>
+        class framebufferTextureDepth : public framebufferTexture<Q, format, baseFormat, type, target>, public renderbuffer<depthFormat>
+        {
+            public:
+                /**\brief Bind framebuffer, texture and depth renderbuffer
+                 *
+                 * Binds the framebuffer, texture object and depth renderbuffer
+                 * for this instance. The texture is bound to the specified
+                 * target. Creates the framebuffer, texture or renderbuffer if
+                 * they don't exist yet.
+                 *
+                 * \param[in] width  Width of the texture to load or create.
+                 * \param[in] height Height of the texture to load or create.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool use (const GLuint &width, const GLuint &height)
+                {
+                    if (   framebufferTexture<Q, format, baseFormat, type, target>::load(width, height)
+                        && renderbuffer<depthFormat>::load(width, height))
+                    {
+                        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer<depthFormat>::renderbufferID);
 
                         return true;
                     }
@@ -1186,6 +1233,91 @@ namespace efgy
                         return true;
                     }
 
+                    return false;
+                }
+
+                using programme<Q>::use;
+        };
+
+        /**\brief OpenGL programme to render to a texture with depth buffer
+         *
+         * Associates an OpenGL programme with a framebuffer, a texture and a
+         * renderbuffer for the depth component to easily render grab the output
+         * of a render pass.
+         *
+         * \tparam Q Base data type for calculations.
+         * \tparam format Format of the texture to load or create.
+         * \tparam baseFormat External texture format.
+         * \tparam type   Type of the texture to load.
+         * \tparam target The texture target to bind to.
+         * \tparam depthFormat Internal texture format of the depth buffer.
+         *
+         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml and
+         *      http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml for
+         *      the possible values of the target, format and type parameters.
+         * \see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glRenderbufferStorage.xml
+         *      for possible values of the depthFormat parameter.
+         */
+        template<typename Q, GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D, GLenum depthFormat = GL_DEPTH_COMPONENT16>
+        class renderToTextureDepthProgramme : public programme<Q>, public framebufferTextureDepth<Q,format,baseFormat,type,target,depthFormat>
+        {
+            public:
+                /**\brief Construct with shaders
+                 *
+                 * Initialises an instance of this class with a copy of a vertex
+                 * and a fragment shader. The programme is not compiled and
+                 * linked before it's used for the first time, so it's OK to
+                 * initialise the class before you have an active OpenGL
+                 * context.
+                 *
+                 * The framebuffer, texture and renderbuffer objects are
+                 * similarly initialised with their default constructor; they're
+                 * not created or bound automatically either, only when the
+                 * use() method is called.
+                 *
+                 * \param[in] pVertexShader   The vertex shader to compile and
+                 *                            link to the programme.
+                 * \param[in] pFragmentShader The fragment shader to compile and
+                 *                            link to the programme.
+                 */
+                renderToTextureDepthProgramme (const std::string &pVertexShader, const std::string &pFragmentShader)
+                    : programme<Q>(pVertexShader, pFragmentShader), framebufferTextureDepth<Q,format,baseFormat,type,target,depthFormat>() {}
+                
+                /**\brief Use programme and render to associated texture
+                 *
+                 * Enables or compiles the programme described in the shaders
+                 * passed to the constructor, then binds or creates a
+                 * framebuffer, texture and depth buffer as needed.
+                 *
+                 * If compiling the programme and binding the framebuffer,
+                 * texture and depth buffer succeed then the viewport is set to
+                 * write to the whole texture.
+                 *
+                 * \param[in] width       Width of the texture to load or
+                 *                        create.
+                 * \param[in] height      Height of the texture to load or
+                 *                        create.
+                 * \param[in] textureUnit The texture unit to bind to.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool use (const GLuint &width, const GLuint &height, const int &textureUnit = -1)
+                {
+                    const GLuint swidth  = roundToPowerOf2(width);
+                    const GLuint sheight = roundToPowerOf2(height);
+
+                    if (textureUnit >= 0)
+                    {
+                        glActiveTexture (GL_TEXTURE0 + textureUnit);
+                    }
+                    
+                    if (programme<Q>::use() && framebufferTextureDepth<Q,format,baseFormat,type,target>::use(swidth, sheight))
+                    {
+                        glViewport (0, 0, swidth, sheight);
+                        
+                        return true;
+                    }
+                    
                     return false;
                 }
 
@@ -2157,7 +2289,7 @@ namespace efgy
                 GLfloat surfaceColour[4];
                 efgy::opengl::texture2D textureFlameColourMap;
                 efgy::opengl::renderToFramebufferProgramme<Q> regular;
-                efgy::opengl::renderToTextureProgramme<Q> flameColouring;
+                efgy::opengl::renderToTextureDepthProgramme<Q> flameColouring;
                 efgy::opengl::renderToTextureProgramme<Q> flameHistogram;
                 efgy::opengl::renderToFramebufferProgramme<Q> flamePostProcess;
 
