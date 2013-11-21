@@ -2120,7 +2120,7 @@ namespace efgy
                     }
                 };
 
-                template<unsigned int q>
+                template<std::size_t q>
                 void drawFace
                     (const std::array<typename geometry::euclidian::space<Q,3>::vector,q> &pV, const Q &index = 0.5)
                 {
