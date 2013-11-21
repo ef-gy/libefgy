@@ -1854,7 +1854,7 @@ namespace efgy
                 << (fractalFlameColouring
                       ? (renderHistogram
                             ? "gl_FragColor = vec4(0.995,0.995,0.995,0.995);\n"
-                            : "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,1);\n")
+                            : "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,0.5);\n")
                       : "gl_FragColor = colorVarying;\n")
                 <<  "}\n";
             }
@@ -2069,9 +2069,9 @@ namespace efgy
                         glBlendFunc (GL_ONE, GL_ZERO);
                         glEnable(GL_DEPTH_TEST);
                         glDepthFunc(GL_LEQUAL);
-                        glDisable(GL_BLEND);
 
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
 
                         pushFaces();
 
@@ -2082,7 +2082,6 @@ namespace efgy
 
 //                        glClearColor(0,0,0,1);
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                        glEnable(GL_BLEND);
 
 //                        glBlendFunc (GL_ONE, GL_ONE);
                         glBlendFunc (GL_ZERO, GL_SRC_COLOR);
@@ -2289,7 +2288,7 @@ namespace efgy
                 GLfloat surfaceColour[4];
                 efgy::opengl::texture2D textureFlameColourMap;
                 efgy::opengl::renderToFramebufferProgramme<Q> regular;
-                efgy::opengl::renderToTextureDepthProgramme<Q> flameColouring;
+                efgy::opengl::renderToTextureProgramme<Q> flameColouring;
                 efgy::opengl::renderToTextureProgramme<Q> flameHistogram;
                 efgy::opengl::renderToFramebufferProgramme<Q> flamePostProcess;
 
