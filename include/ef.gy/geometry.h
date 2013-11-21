@@ -289,9 +289,9 @@ namespace efgy
 
                         p = p + u;
 
-                        if ((u.data[0] < l.data[0]) ||
-                            ((u.data[0] == l.data[0]) &&
-                             (u.data[1] < l.data[1])))
+                        if ((u[0] < l[0]) ||
+                            ((u[0] == l[0]) &&
+                             (u[1] < l[1])))
                         {
                             l = u;
                         }
@@ -302,9 +302,9 @@ namespace efgy
 
                         p = p + u;
 
-                        if ((u.data[0] < l.data[0]) ||
-                            ((u.data[0] == l.data[0]) &&
-                             (u.data[1] < l.data[1])))
+                        if ((u[0] < l[0]) ||
+                            ((u[0] == l[0]) &&
+                             (u[1] < l[1])))
                         {
                             l = u;
                         }
@@ -453,8 +453,8 @@ namespace efgy
         template<typename Q>
         bool operator <= (const typename euclidian::space<Q,2>::vector &a, const ngon<euclidian::space<Q,2>,2> &b)
         {
-            Q r = (b[1].data[0]-b[0].data[0])*(a.data[1]-b[0].data[1])
-                - (b[1].data[1]-b[0].data[1])*(a.data[0]-b[0].data[0]);
+            Q r = (b[1][0]-b[0][0])*(a[1]-b[0][1])
+                - (b[1][1]-b[0][1])*(a[0]-b[0][0]);
 
             return r <= math::numeric::zero();
         }
@@ -463,8 +463,8 @@ namespace efgy
         template<typename Q>
         bool operator >= (const typename euclidian::space<Q,2>::vector &a, const ngon<euclidian::space<Q,2>,2> &b)
         {
-            Q r = (b[1].data[0]-b[0].data[0])*(a.data[1]-b[0].data[1])
-                - (b[1].data[1]-b[0].data[1])*(a.data[0]-b[0].data[0]);
+            Q r = (b[1][0]-b[0][0])*(a[1]-b[0][1])
+                - (b[1][1]-b[0][1])*(a[0]-b[0][0]);
 
             return r >= math::numeric::zero();
         }
@@ -473,8 +473,8 @@ namespace efgy
         template<typename Q>
         bool operator && (const typename euclidian::space<Q,2>::vector &a, const ngon<euclidian::space<Q,2>,2> &b)
         {
-            Q r = (b[1].data[0]-b[0].data[0])*(a.data[1]-b[0].data[1])
-                - (b[1].data[1]-b[0].data[1])*(a.data[0]-b[0].data[0]);
+            Q r = (b[1][0]-b[0][0])*(a[1]-b[0][1])
+                - (b[1][1]-b[0][1])*(a[0]-b[0][0]);
 
             return r == math::numeric::zero();
         }
@@ -521,18 +521,18 @@ namespace efgy
         typename std::array<maybe<ngon<euclidian::space<Q,2>,2> >,2> operator / (const ngon<euclidian::space<Q,2>,2> &a, const ngon<euclidian::space<Q,2>,2> &b)
         {
             typename euclidian::space<Q,2>::scalar d
-                = (a[1].data[0] - a[0].data[0])
-                * (b[1].data[1] - b[0].data[1])
-                - (a[1].data[1] - a[0].data[1])
-                * (b[1].data[0] - b[0].data[0]);
+                = (a[1][0] - a[0][0])
+                * (b[1][1] - b[0][1])
+                - (a[1][1] - a[0][1])
+                * (b[1][0] - b[0][0]);
 
             if (d != typename euclidian::space<Q,2>::scalar(0))
             {
                 typename euclidian::space<Q,2>::scalar p
-                    = ((a[0].data[1] - b[0].data[1])
-                     * (b[1].data[0] - b[0].data[0])
-                     - (a[0].data[0] - b[0].data[0])
-                     * (b[1].data[1] - b[0].data[1]))
+                    = ((a[0][1] - b[0][1])
+                     * (b[1][0] - b[0][0])
+                     - (a[0][0] - b[0][0])
+                     * (b[1][1] - b[0][1]))
                     / d;
 
                 /* ignore intersection if it's not on the first line segment */

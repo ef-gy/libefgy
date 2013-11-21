@@ -46,7 +46,7 @@ namespace efgy
                         {
                             for (unsigned int j = 0; j < d; j++)
                             {
-                                orthogonalVector[i].data[j] = (((i+1) == j) ? 1 : 0);
+                                orthogonalVector[i][j] = (((i+1) == j) ? 1 : 0);
                             }
                         }
                         updateMatrix();
@@ -94,7 +94,7 @@ namespace efgy
                         {
                             if ((i < d) && (j < d))
                             {
-                                transformationMatrix.data[i][j] = columns[j].data[i];
+                                transformationMatrix.data[i][j] = columns[j][i];
                             }
                             else if (i == j)
                             {

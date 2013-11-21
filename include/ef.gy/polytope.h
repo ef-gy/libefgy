@@ -150,9 +150,9 @@ namespace efgy
                     {
                         const int q = r-1;
 
-                        v.data[r] = 0;
+                        v[r] = 0;
                         recurse (q, v, points);
-                        v.data[r] = Q(M_PI)/Q(1.5);
+                        v[r] = Q(M_PI)/Q(1.5);
                         recurse (q, v, points);
                     }
                 }
@@ -166,16 +166,16 @@ namespace efgy
                     std::vector<typename euclidian::space<Q,d>::vector> points;
 
                     typename polar::space<Q,d>::vector v;
-                    v.data[0] = radius;
+                    v[0] = radius;
                     
                     const int r = od-1;
                     const int q = r-1;
 
-                    v.data[r] = Q(-M_PI)/Q(1.5);
+                    v[r] = Q(-M_PI)/Q(1.5);
                     recurse (q, v, points);
-                    v.data[r] = 0;
+                    v[r] = 0;
                     recurse (q, v, points);
-                    v.data[r] = Q(M_PI)/Q(1.5);
+                    v[r] = Q(M_PI)/Q(1.5);
                     recurse (q, v, points);
 
                     std::vector<typename euclidian::space<Q,d>::vector> points2;
@@ -287,13 +287,13 @@ namespace efgy
                         for (typename std::vector<std::array<typename euclidian::space<Q,d>::vector,2> >::iterator it = lines.begin();
                              it != lines.end(); it++)
                         {
-                            (*it)[0].data[i] = -diameter;
-                            (*it)[1].data[i] = -diameter;
+                            (*it)[0][i] = -diameter;
+                            (*it)[1][i] = -diameter;
 
                             std::array<typename euclidian::space<Q,d>::vector,2> newLine = *it;
 
-                            newLine[0].data[i] = diameter;
-                            newLine[1].data[i] = diameter;
+                            newLine[0][i] = diameter;
+                            newLine[1][i] = diameter;
 
                             newLines.push_back(newLine);
                             newFaces.push_back({{newLine[0], newLine[1], (*it)[1], (*it)[0]}});
@@ -302,16 +302,16 @@ namespace efgy
                         for (typename std::vector<std::array<typename euclidian::space<Q,d>::vector,4> >::iterator it = faces.begin();
                              it != faces.end(); it++)
                         {
-                            (*it)[0].data[i] = -diameter;
-                            (*it)[1].data[i] = -diameter;
-                            (*it)[2].data[i] = -diameter;
-                            (*it)[3].data[i] = -diameter;
+                            (*it)[0][i] = -diameter;
+                            (*it)[1][i] = -diameter;
+                            (*it)[2][i] = -diameter;
+                            (*it)[3][i] = -diameter;
                             
                             std::array<typename euclidian::space<Q,d>::vector,4> newFace = *it;
-                            newFace[0].data[i] = diameter;
-                            newFace[1].data[i] = diameter;
-                            newFace[2].data[i] = diameter;
-                            newFace[3].data[i] = diameter;
+                            newFace[0][i] = diameter;
+                            newFace[1][i] = diameter;
+                            newFace[2][i] = diameter;
+                            newFace[3][i] = diameter;
                             newFaces.push_back(newFace);
                         }
                         
@@ -320,11 +320,11 @@ namespace efgy
                         {
                             std::array<typename euclidian::space<Q,d>::vector,2> newLine;
                             
-                            it->data[i] = -diameter;
+                            (*it)[i] = -diameter;
                             
                             newLine[0] = *it;
                             newLine[1] = *it;
-                            newLine[1].data[i] = diameter;
+                            newLine[1][i] = diameter;
                             
                             newPoints.push_back(newLine[1]);
                             
@@ -379,17 +379,17 @@ namespace efgy
                         {
                             std::array<typename euclidian::space<Q,d>::vector,4> newFace;
 
-                            newFace[0].data[0] = i;
-                            newFace[0].data[1] = j;
+                            newFace[0][0] = i;
+                            newFace[0][1] = j;
                             
-                            newFace[1].data[0] = i+q;
-                            newFace[1].data[1] = j;
+                            newFace[1][0] = i+q;
+                            newFace[1][1] = j;
                             
-                            newFace[2].data[0] = i+q;
-                            newFace[2].data[1] = j+q;
+                            newFace[2][0] = i+q;
+                            newFace[2][1] = j+q;
                             
-                            newFace[3].data[0] = i;
-                            newFace[3].data[1] = j+q;
+                            newFace[3][0] = i;
+                            newFace[3][1] = j+q;
 
                             faces.push_back(newFace);
                         }
@@ -437,7 +437,7 @@ namespace efgy
                         {
                             typename polar::space<Q,d>::vector v1 = v;
 
-                            v1.data[i] += step;
+                            v1[i] += step;
 
                             const typename euclidian::space<Q,d>::vector B = v1;
 
@@ -448,7 +448,7 @@ namespace efgy
                                 if (i != j)
                                 {
                                     v1 = v;
-                                    v1.data[j] -= step;
+                                    v1[j] -= step;
 
                                     const typename euclidian::space<Q,d>::vector C = v1;
                                     newFace[2] = C;
@@ -464,7 +464,7 @@ namespace efgy
 
                         for (Q i = Q(-M_PI); i < Q(M_PI); i+= step)
                         {
-                            v.data[r] = i;
+                            v[r] = i;
                             recurse (q, v);
                         }
                     }
@@ -480,14 +480,14 @@ namespace efgy
                     faces.clear();
 
                     typename polar::space<Q,d>::vector v;
-                    v.data[0] = radius;
+                    v[0] = radius;
 
                     const int r = od;
                     const int q = r-1;
 
                     for (Q i = Q(-M_PI); i < Q(M_PI); i+= step)
                     {
-                        v.data[r] = i;
+                        v[r] = i;
                         recurse (q, v);
                     }
                 }

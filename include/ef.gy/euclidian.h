@@ -50,7 +50,7 @@ namespace efgy
                         public:
                             vector () : math::coordinateSpace<F,n>::vector() {}
                             vector (const scalar t[n]) : math::coordinateSpace<F,n>::vector(t) {}
-                            vector (const math::tuple<n, scalar> &t) : math::coordinateSpace<F,n>::vector(t) {}
+                            vector (const std::array<scalar, n> &t) : math::coordinateSpace<F,n>::vector(t) {}
                             explicit vector (const typename math::coordinateSpace<F,n>::vector &t) : math::coordinateSpace<F,n>::vector(t) {}
 
                             using math::coordinateSpace<F,n>::vector::data;
@@ -61,11 +61,11 @@ namespace efgy
                                 typename space<F,nd>::vector rv;
                                 for (unsigned int i = 0; (i < n) && (i < nd); i++)
                                 {
-                                    rv.data[i] = data[i];
+                                    rv[i] = (*this)[i];
                                 }
                                 for (unsigned int i = n; (i < nd); i++)
                                 {
-                                    rv.data[i] = typename space<F,nd>::scalar();
+                                    rv[i] = typename space<F,nd>::scalar();
                                 }
                                 return rv;
                             }
@@ -80,7 +80,7 @@ namespace efgy
 
                 for (int i = 0; i < n; i++)
                 {
-                    rv = rv + (pV.data[i] * pV.data[i]);
+                    rv = rv + (pV[i] * pV[i]);
                 }
 
                 return rv;
@@ -96,7 +96,7 @@ namespace efgy
 
                 for (unsigned int i = 0; i < n; i++)
                 {
-                    rv.data[i] = pV.data[i] / l;
+                    rv[i] = pV[i] / l;
                 }
 
                 return rv;
@@ -122,9 +122,9 @@ namespace efgy
             {
                 typename space<F,3>::vector rv;
 
-                rv.data[0] = a.data[1] * b.data[2] - a.data[2] * b.data[1]; 
-                rv.data[1] = a.data[2] * b.data[0] - a.data[0] * b.data[2]; 
-                rv.data[2] = a.data[0] * b.data[1] - a.data[1] * b.data[0]; 
+                rv[0] = a[1] * b[2] - a[2] * b[1]; 
+                rv[1] = a[2] * b[0] - a[0] * b[2]; 
+                rv[2] = a[0] * b[1] - a[1] * b[0]; 
 
                 return rv;
             }
@@ -135,8 +135,8 @@ namespace efgy
             {
                 typename space<Q,2>::vector r;
                 
-                r.data[0] = v.data[1] * Q(-1);
-                r.data[1] = v.data[0];
+                r[0] = v[1] * Q(-1);
+                r[1] = v[0];
 
                 return r;
             }
@@ -153,25 +153,25 @@ namespace efgy
                 (const typename std::array<typename space<Q,d>::vector,d-1> &pV)
             {
                 math::matrix<Q,d,d> pM;
-                typename math::tuple<d,typename space<Q,d>::vector> baseVectors;
+                typename std::array<typename space<Q,d>::vector,d> baseVectors;
 
                 for (unsigned int i = 0; i < (d-1); i++)
                 {
                     for (unsigned int j = 0; j < d; j++)
                     {
-                        pM.data[i][j] = pV[i].data[j];
-                        baseVectors.data[i].data[j] = ((i == j) ? 1 : 0);
+                        pM.data[i][j] = pV[i][j];
+                        baseVectors[i][j] = ((i == j) ? 1 : 0);
                     }
                 }
 
                 for (unsigned int j = 0; j < d; j++)
                 {
                     const unsigned int i = d-1;
-                    baseVectors.data[i].data[j] = ((i == j) ? 1 : 0);
+                    baseVectors[i][j] = ((i == j) ? 1 : 0);
                 }
 
                 typename space<Q,d>::vector rv = typename space<Q,d>::vector();
-                
+
                 for (unsigned int i = 0; i < d; i++)
                 {
                     math::matrix<Q,d-1,d-1> pS;
@@ -184,35 +184,24 @@ namespace efgy
                             {
                                 continue;
                             }
-                            
+
                             pS.data[r][c] = pM.data[j][k];
-                            
+
                             c++;
                         }
                     }
                     
                     if ((i % 2) == 0)
                     {
-                        rv += baseVectors.data[i] * math::determinant(pS);
+                        rv += baseVectors[i] * math::determinant(pS);
                     }
                     else
                     {
-                        rv -= baseVectors.data[i] * math::determinant(pS);
+                        rv -= baseVectors[i] * math::determinant(pS);
                     }
                 }
 
                 return rv;
-
-                /*
-                if ((d % 2) == 0)
-                {
-                    return rv * Q(-1);
-                }
-                else
-                {
-                    return rv;
-                }
-                 */
             }
 
             template <typename Q>

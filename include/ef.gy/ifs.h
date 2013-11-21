@@ -134,18 +134,18 @@ namespace efgy
                             const unsigned int nfunctions = (1<<(od-1))+1;
                             std::array<typename euclidian::space<Q,d>::vector,nfunctions> translations;
 
-                            translations[0].data[0] = Q(0.25);
+                            translations[0][0] = Q(0.25);
 
                             for (unsigned int i = 1; i < nfunctions; i++)
                             {
-                                translations[i].data[0] = Q(-0.25);
+                                translations[i][0] = Q(-0.25);
                                 for (unsigned int j = 1; j < od; j++)
                                 {
                                     const unsigned int k = i-1;
                                     const unsigned int l = j-1;
                                     const unsigned int b = 1 << l;
                                     const bool s = k & b;
-                                    translations[i].data[j] = Q(s ? -0.25 : 0.25);
+                                    translations[i][j] = Q(s ? -0.25 : 0.25);
                                 }
                             }
 
@@ -191,43 +191,43 @@ namespace efgy
 
                             if (od > 1)
                             {
-                                translations[0].data[0] = Q(-1)/Q(3);
-                                translations[0].data[1] = Q(-1)/Q(3);
-                                translations[1].data[0] = Q(-1)/Q(3);
-                                translations[1].data[1] = Q(0);
-                                translations[2].data[0] = Q(-1)/Q(3);
-                                translations[2].data[1] = Q(1)/Q(3);
-                                translations[3].data[0] = Q(1)/Q(3);
-                                translations[3].data[1] = Q(-1)/Q(3);
-                                translations[4].data[0] = Q(1)/Q(3);
-                                translations[4].data[1] = Q(0);
-                                translations[5].data[0] = Q(1)/Q(3);
-                                translations[5].data[1] = Q(1)/Q(3);
-                                translations[6].data[0] = Q(0);
-                                translations[6].data[1] = Q(-1)/Q(3);
-                                translations[7].data[0] = Q(0);
-                                translations[7].data[1] = Q(1)/Q(3);
+                                translations[0][0] = Q(-1)/Q(3);
+                                translations[0][1] = Q(-1)/Q(3);
+                                translations[1][0] = Q(-1)/Q(3);
+                                translations[1][1] = Q(0);
+                                translations[2][0] = Q(-1)/Q(3);
+                                translations[2][1] = Q(1)/Q(3);
+                                translations[3][0] = Q(1)/Q(3);
+                                translations[3][1] = Q(-1)/Q(3);
+                                translations[4][0] = Q(1)/Q(3);
+                                translations[4][1] = Q(0);
+                                translations[5][0] = Q(1)/Q(3);
+                                translations[5][1] = Q(1)/Q(3);
+                                translations[6][0] = Q(0);
+                                translations[6][1] = Q(-1)/Q(3);
+                                translations[7][0] = Q(0);
+                                translations[7][1] = Q(1)/Q(3);
                             }
                             if (od > 2)
                             {
                                 for (int i = 0; i < 8; i++)
                                 {
                                     translations[(i+8)] = translations[i];
-                                    translations[i].data[2] = Q(-1)/Q(3);
-                                    translations[(i+8)].data[2] = Q(1)/Q(3);
+                                    translations[i][2] = Q(-1)/Q(3);
+                                    translations[(i+8)][2] = Q(1)/Q(3);
                                 }
 
-                                translations[16].data[0] = Q(1)/Q(3);
-                                translations[16].data[1] = Q(1)/Q(3);
+                                translations[16][0] = Q(1)/Q(3);
+                                translations[16][1] = Q(1)/Q(3);
 
-                                translations[17].data[0] = Q(-1)/Q(3);
-                                translations[17].data[1] = Q(1)/Q(3);
+                                translations[17][0] = Q(-1)/Q(3);
+                                translations[17][1] = Q(1)/Q(3);
 
-                                translations[18].data[0] = Q(1)/Q(3);
-                                translations[18].data[1] = Q(-1)/Q(3);
+                                translations[18][0] = Q(1)/Q(3);
+                                translations[18][1] = Q(-1)/Q(3);
 
-                                translations[19].data[0] = Q(-1)/Q(3);
-                                translations[19].data[1] = Q(-1)/Q(3);
+                                translations[19][0] = Q(-1)/Q(3);
+                                translations[19][1] = Q(-1)/Q(3);
                             }
 
                             for (unsigned int i = 0; i < nfunctions; i++)
@@ -322,7 +322,7 @@ namespace efgy
                         
                         for (unsigned int j = 0; j < od; j++)
                         {
-                            V.data[j] = Q(PRNG.rand()%10000)/Q(5000)-Q(1);
+                            V[j] = Q(PRNG.rand()%10000)/Q(5000)-Q(1);
                         }
                         
                         transformationMatrix =

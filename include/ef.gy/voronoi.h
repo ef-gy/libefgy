@@ -254,17 +254,17 @@ namespace efgy
                     {
                         ngon<S,4> g = ngon<S,4>();
 
-                        g[0].data[0] = v.data[0] - scalar(boundingBoxSize);
-                        g[0].data[1] = v.data[1] - scalar(boundingBoxSize);
+                        g[0][0] = v[0] - scalar(boundingBoxSize);
+                        g[0][1] = v[1] - scalar(boundingBoxSize);
 
-                        g[1].data[0] = v.data[0] + scalar(boundingBoxSize);
-                        g[1].data[1] = v.data[1] - scalar(boundingBoxSize);
+                        g[1][0] = v[0] + scalar(boundingBoxSize);
+                        g[1][1] = v[1] - scalar(boundingBoxSize);
 
-                        g[2].data[0] = v.data[0] + scalar(boundingBoxSize);
-                        g[2].data[1] = v.data[1] + scalar(boundingBoxSize);
+                        g[2][0] = v[0] + scalar(boundingBoxSize);
+                        g[2][1] = v[1] + scalar(boundingBoxSize);
 
-                        g[3].data[0] = v.data[0] - scalar(boundingBoxSize);
-                        g[3].data[1] = v.data[1] + scalar(boundingBoxSize);
+                        g[3][0] = v[0] - scalar(boundingBoxSize);
+                        g[3][1] = v[1] + scalar(boundingBoxSize);
 
                         r.cells = r.cells + cell(v, g, colour); 
                     }

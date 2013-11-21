@@ -143,9 +143,9 @@ namespace efgy
                 {
                     typename euclidian::space<Q,d>::vector res;
 
-                    res.data[0] = getCoordinate(0, r, u, v);
-                    res.data[1] = getCoordinate(1, r, u, v);
-                    res.data[2] = getCoordinate(2, r, u, v);
+                    res[0] = getCoordinate(0, r, u, v);
+                    res[1] = getCoordinate(1, r, u, v);
+                    res[2] = getCoordinate(2, r, u, v);
 
                     return res;
                 }
@@ -239,9 +239,9 @@ namespace efgy
                 {
                     typename euclidian::space<Q,d>::vector res;
 
-                    res.data[0] = getCoordinate(0, r, u, v);
-                    res.data[1] = getCoordinate(1, r, u, v);
-                    res.data[2] = getCoordinate(2, r, u, v);
+                    res[0] = getCoordinate(0, r, u, v);
+                    res[1] = getCoordinate(1, r, u, v);
+                    res[2] = getCoordinate(2, r, u, v);
 
                     return res;
                 }

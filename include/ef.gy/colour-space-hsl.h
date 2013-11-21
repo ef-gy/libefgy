@@ -48,19 +48,18 @@ namespace efgy
                 {
                     public:
                         typedef typename HSL<Q>::scalar scalar;
-                        using space<Q,3>::value::data;
 
                         value ()
                             : space<Q,3>::value(),
-                              hue(data[0]), saturation(data[1]), lightness(data[2])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {}
                         value (const scalar s[3])
                             : space<Q,3>::value(s),
-                              hue(data[0]), saturation(data[1]), lightness(data[2])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {}
                         value (const typename HSL<Q>::value &v)
                             : space<Q,3>::value(),
-                              hue(data[0]), saturation(data[1]), lightness(data[2])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {
                                 hue        = v.hue;
                                 saturation = v.saturation;
@@ -68,7 +67,7 @@ namespace efgy
                             }
                         value (const typename HSLA<Q>::value &v)
                             : space<Q,3>::value(),
-                              hue(data[0]), saturation(data[1]), lightness(data[2])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {
                                 hue        = v.hue        * v.alpha;
                                 saturation = v.saturation * v.alpha;
@@ -76,7 +75,7 @@ namespace efgy
                             }
                         value (const scalar &pHue, const scalar &pSaturation, const scalar &pLightness)
                             : space<Q,3>::value(),
-                              hue(data[0]), saturation(data[1]), lightness(data[2])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {
                                 hue        = pHue;
                                 saturation = pSaturation;
@@ -89,7 +88,7 @@ namespace efgy
 
                         value (const typename RGB<Q>::value &v)
                             : space<Q,3>::value(),
-                              hue(data[0]), saturation(data[1]), lightness(data[2])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {
                                 scalar min = v.red;
                                 scalar max = v.red;
@@ -205,19 +204,18 @@ namespace efgy
                 {
                     public:
                         typedef typename HSLA<Q>::scalar scalar;
-                        using space<Q,4>::vector::data;
 
                         value ()
                             : space<Q,4>::value(),
-                              hue(data[0]), saturation(data[1]), lightness(data[2]), alpha(data[3])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {}
                         value (const scalar s[4])
                             : space<Q,4>::value(s),
-                              hue(data[0]), saturation(data[1]), lightness(data[2]), alpha(data[3])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {}
                         value (const typename HSL<Q>::value &v)
                             : space<Q,4>::value(),
-                              hue(data[0]), saturation(data[1]), lightness(data[2]), alpha(data[3])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {
                                 hue        = v.hue;
                                 saturation = v.saturation;
@@ -226,7 +224,7 @@ namespace efgy
                             }
                         value (const scalar &pHue, const scalar &pSaturation, const scalar &pLightness)
                             : space<Q,4>::value(),
-                              hue(data[0]), saturation(data[1]), lightness(data[2]), alpha(data[3])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {
                                 hue        = pHue;
                                 saturation = pSaturation;
@@ -235,7 +233,7 @@ namespace efgy
                             }
                         value (const scalar &pHue, const scalar &pSaturation, const scalar &pLightness, const scalar &pAlpha)
                             : space<Q,4>::value(),
-                              hue(data[0]), saturation(data[1]), lightness(data[2]), alpha(data[3])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {
                                 hue        = pHue;
                                 saturation = pSaturation;
@@ -244,7 +242,7 @@ namespace efgy
                             }
                         value (const value &pV)
                             : space<Q,4>::value(pV),
-                              hue(data[0]), saturation(data[1]), lightness(data[2]), alpha(data[3])
+                              hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {
                             /*
                                 hue        = pV.hue;

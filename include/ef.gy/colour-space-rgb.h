@@ -52,15 +52,15 @@ namespace efgy
 
                         value ()
                             : space<Q,3>::value(),
-                              red(data[0]), green(data[1]), blue(data[2])
+                              red((*this)[0]), green((*this)[1]), blue((*this)[2])
                             {}
                         value (const scalar s[3])
                             : space<Q,3>::value(s),
-                              red(data[0]), green(data[1]), blue(data[2])
+                              red((*this)[0]), green((*this)[1]), blue((*this)[2])
                             {}
                         value (const typename RGB<Q>::value &v)
                             : space<Q,3>::value(),
-                              red(data[0]), green(data[1]), blue(data[2])
+                              red((*this)[0]), green((*this)[1]), blue((*this)[2])
                             {
                                 red   = v.red;
                                 green = v.green;
@@ -68,7 +68,7 @@ namespace efgy
                             }
                         value (const typename RGBA<Q>::value &v)
                             : space<Q,3>::value(),
-                              red(data[0]), green(data[1]), blue(data[2])
+                              red((*this)[0]), green((*this)[1]), blue((*this)[2])
                             {
                                 red   = v.red   * v.alpha;
                                 green = v.green * v.alpha;
@@ -76,7 +76,7 @@ namespace efgy
                             }
                         value (const scalar &pRed, const scalar &pGreen, const scalar &pBlue)
                             : space<Q,3>::value(),
-                              red(data[0]), green(data[1]), blue(data[2])
+                              red((*this)[0]), green((*this)[1]), blue((*this)[2])
                             {
                                 red   = pRed;
                                 green = pGreen;
@@ -104,15 +104,15 @@ namespace efgy
 
                         value ()
                             : space<Q,4>::value(),
-                              red(data[0]), green(data[1]), blue(data[2]), alpha(data[3])
+                              red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                             {}
                         value (const scalar s[4])
                             : space<Q,4>::value(s),
-                              red(data[0]), green(data[1]), blue(data[2]), alpha(data[3])
+                              red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                             {}
                         value (const typename RGB<Q>::value &v)
                             : space<Q,4>::value(),
-                              red(data[0]), green(data[1]), blue(data[2]), alpha(data[3])
+                              red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                             {
                                 red   = v.red;
                                 green = v.green;
@@ -121,7 +121,7 @@ namespace efgy
                             }
                         value (const scalar &pRed, const scalar &pGreen, const scalar &pBlue)
                             : space<Q,4>::value(),
-                              red(data[0]), green(data[1]), blue(data[2]), alpha(data[3])
+                              red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                             {
                                 red   = pRed;
                                 green = pGreen;
@@ -130,7 +130,7 @@ namespace efgy
                             }
                         value (const scalar &pRed, const scalar &pGreen, const scalar &pBlue, const scalar &pAlpha)
                             : space<Q,4>::value(),
-                              red(data[0]), green(data[1]), blue(data[2]), alpha(data[3])
+                              red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                             {
                                 red   = pRed;
                                 green = pGreen;

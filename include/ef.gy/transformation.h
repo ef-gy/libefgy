@@ -145,7 +145,7 @@ namespace efgy
 
                         for (unsigned int i = 0; i < d; i++)
                         {
-                            vectorMatrix.data[0][i] = pV.data[i];
+                            vectorMatrix.data[0][i] = pV[i];
                         }
 
                         vectorMatrix.data[0][d] = 1;
@@ -156,7 +156,7 @@ namespace efgy
 
                         for (unsigned int i = 0; i < d; i++)
                         {
-                            rv.data[i] = vectorMatrix.data[0][i] / vectorMatrix.data[0][d];
+                            rv[i] = vectorMatrix.data[0][i] / vectorMatrix.data[0][d];
                         }
 
                         return rv;
@@ -196,11 +196,11 @@ namespace efgy
                     
                         typename euclidian::space<Q,d>::vector R = affine<Q,d>(*this) * pP;
                     
-                        Q S = 1 / R.data[(d-1)];
+                        Q S = 1 / R[(d-1)];
                     
                         for (unsigned int i = 0; i < (d-1); i++)
                         {
-                            result.data[i] = S * R.data[i];
+                            result[i] = S * R[i];
                         }
                     
                         return result;
@@ -322,9 +322,9 @@ namespace efgy
                     {
                         if (d == 3)
                         {
-                            transformationMatrix.data[3][0] = from.data[0];
-                            transformationMatrix.data[3][1] = from.data[1];
-                            transformationMatrix.data[3][2] = from.data[2];
+                            transformationMatrix.data[3][0] = from[0];
+                            transformationMatrix.data[3][1] = from[1];
+                            transformationMatrix.data[3][2] = from[2];
                         }
                         else for (unsigned int i = 0; i <= d; i++)
                         {
@@ -332,7 +332,7 @@ namespace efgy
                             {
                                 if ((i == d) && (j < d))
                                 {
-                                    transformationMatrix.data[i][j] = from.data[j];
+                                    transformationMatrix.data[i][j] = from[j];
                                 }
                                 else if (i == j)
                                 {

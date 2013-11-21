@@ -233,8 +233,8 @@ namespace efgy
                         
                         const typename geometry::euclidian::space<Q,2>::vector V = transformation * pV[i];
                         
-                        const double a0 =  Q(V.data[0]);
-                        const double a1 = -Q(V.data[1]);
+                        const double a0 =  Q(V[0]);
+                        const double a1 = -Q(V[1]);
                         
                         if (i == 0)
                         {
@@ -245,15 +245,15 @@ namespace efgy
                         {
                             const typename geometry::euclidian::space<Q,2>::vector V1 = transformation * pV[(i-1)];
                             
-                            const double a0r = a0 - Q(V1.data[0]);
-                            const double a1r = a1 + Q(V1.data[1]);
+                            const double a0r = a0 - Q(V1[0]);
+                            const double a1r = a1 + Q(V1[1]);
                             
-                            if (pV[i].data[1] == V1.data[1])
+                            if (pV[i][1] == V1[1])
                             {
                                 sbuf1 << "H" << a0;
                                 sbuf2 << "h" << a0r;
                             }
-                            else if (pV[i].data[0] == -V1.data[0])
+                            else if (pV[i][0] == -V1[0])
                             {
                                 sbuf1 << "V" << a1;
                                 sbuf2 << "v" << a1r;
