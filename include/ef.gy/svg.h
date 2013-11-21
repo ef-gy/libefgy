@@ -72,14 +72,14 @@ namespace efgy
         template<>
         std::string svg (const geometry::euclidian::Q2::vector &o)
         {
-            return std::string("<circle cx=\"") + svg(o.data[0]) + std::string("\" cy=\"") + svg(o.data[1]) + std::string("\" r=\"4\" stroke=\"black\" fill=\"pink\"/>");
+            return std::string("<circle cx=\"") + svg(o[0]) + std::string("\" cy=\"") + svg(o[1]) + std::string("\" r=\"4\" stroke=\"black\" fill=\"pink\"/>");
         }
 
         template<>
         std::string svg (const geometry::line<geometry::euclidian::Q2> &o)
         {
-            return std::string("<line x1=\"") + svg(o.A.data[0]) + std::string("\" y1=\"") + svg(o.A.data[1])
-                 + std::string("x2=\"")       + svg(o.B.data[0]) + std::string("\" y2=\"") + svg(o.B.data[1])
+            return std::string("<line x1=\"") + svg(o.A[0]) + std::string("\" y1=\"") + svg(o.A[1])
+                 + std::string("x2=\"")       + svg(o.B[0]) + std::string("\" y2=\"") + svg(o.B[1])
                  + std::string("\" stroke=\"black\" fill=\"none\"/>");
         }
 
@@ -101,7 +101,7 @@ namespace efgy
                     r += std::string(" ");
                 }
 
-                r += svg(o.data[i].data[0]) + std::string(",") + svg(o.data[i].data[1]);
+                r += svg(o.data[i][0]) + std::string(",") + svg(o.data[i][1]);
             }
 
             return r + std::string("\" stroke=\"black\" fill=\"") + svg(o.colour) + std::string("\"/>");

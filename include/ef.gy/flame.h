@@ -75,8 +75,8 @@ namespace efgy
                             return rv;
                         }
 
-                        const Q theta = atan(V.data[0]/V.data[1]);
-                        const Q phi   = atan(V.data[1]/V.data[0]);
+                        const Q theta = atan(V[0]/V[1]);
+                        const Q phi   = atan(V[1]/V[0]);
                         const Q r2    = euclidian::lengthSquared<Q,d>(V);
                         const Q r     = sqrt(r2);
                         const Q omega = Q(std::rand() % 2) * Q(M_PI);
@@ -90,7 +90,7 @@ namespace efgy
                                 break;
                             case 1: // "sinusoidal"
                                 for (unsigned int i = 0; i < d; i++)
-                                    rv.data[i] = sin(V.data[i]);
+                                    rv[i] = sin(V[i]);
                                 break;
                             case 2: // "spherical"
                                 rv = V / r2;
@@ -101,30 +101,30 @@ namespace efgy
                                 const Q cosrsq = cos(r2);
                                 for (unsigned int i = 0; i < d; i++)
                                     if ((i % 2 == 0) && (i < (d-1)))
-                                        rv.data[i] = V.data[i] * sinrsq - V.data[(i+1)] * cosrsq;
+                                        rv[i] = V[i] * sinrsq - V[(i+1)] * cosrsq;
                                     else
-                                        rv.data[i] = V.data[(i-1)] * cosrsq + V.data[i] * sinrsq;
+                                        rv[i] = V[(i-1)] * cosrsq + V[i] * sinrsq;
                             }
                                 break;
                             case 4: // "horseshoe"
                                 rv = V;
-                                rv.data[0] = (V.data[0]-V.data[1])*(V.data[0]+V.data[1]);
-                                rv.data[1] = Q(2) * V.data[0] * V.data[1];
+                                rv[0] = (V[0]-V[1])*(V[0]+V[1]);
+                                rv[1] = Q(2) * V[0] * V[1];
                                 rv = rv / r;
                                 break;
                             case 5: // "polar"
                                 rv = V;
-                                rv.data[0] = theta/Q(M_PI);
-                                rv.data[1] = sqrt(euclidian::lengthSquared<Q,d>(V)) - Q(1);
+                                rv[0] = theta/Q(M_PI);
+                                rv[1] = sqrt(euclidian::lengthSquared<Q,d>(V)) - Q(1);
                                 break;
                             case 6: // "handkerchief"
                                 for (unsigned int i = 0; i < d; i++)
                                     switch (i % 4)
                                     {
-                                        case 0: rv.data[i] = sin(theta + r);
-                                        case 1: rv.data[i] = cos(theta - r);
-                                        case 3: rv.data[i] = sin(theta - r);
-                                        case 4: rv.data[i] = cos(theta + r);
+                                        case 0: rv[i] = sin(theta + r);
+                                        case 1: rv[i] = cos(theta - r);
+                                        case 3: rv[i] = sin(theta - r);
+                                        case 4: rv[i] = cos(theta + r);
                                     }
                                 rv = rv * r;
                                 break;
@@ -132,10 +132,10 @@ namespace efgy
                                 for (unsigned int i = 0; i < d; i++)
                                     switch (i % 4)
                                     {
-                                        case 0: rv.data[i] =  sin(theta * r); break;
-                                        case 1: rv.data[i] = -cos(theta * r); break;
-                                        case 2: rv.data[i] = -sin(theta * r); break;
-                                        case 3: rv.data[i] =  cos(theta * r); break;
+                                        case 0: rv[i] =  sin(theta * r); break;
+                                        case 1: rv[i] = -cos(theta * r); break;
+                                        case 2: rv[i] = -sin(theta * r); break;
+                                        case 3: rv[i] =  cos(theta * r); break;
                                     }
                                 rv = rv * r;
                                 break;
@@ -143,8 +143,8 @@ namespace efgy
                                 for (unsigned int i = 0; i < d; i++)
                                     switch (i % 2)
                                     {
-                                        case 0: rv.data[i] = sin(Q(M_PI) * r); break;
-                                        case 1: rv.data[i] = cos(Q(M_PI) * r); break;
+                                        case 0: rv[i] = sin(Q(M_PI) * r); break;
+                                        case 1: rv[i] = cos(Q(M_PI) * r); break;
                                     }
                                 rv = rv * theta / Q(M_PI);
                                 break;
@@ -152,10 +152,10 @@ namespace efgy
                                 for (unsigned int i = 0; i < d; i++)
                                     switch (i % 4)
                                     {
-                                        case 0: rv.data[i] = cos(theta) + sin(r); break;
-                                        case 1: rv.data[i] = sin(theta) - cos(r); break;
-                                        case 2: rv.data[i] = cos(theta) - sin(r); break;
-                                        case 3: rv.data[i] = sin(theta) + cos(r); break;
+                                        case 0: rv[i] = cos(theta) + sin(r); break;
+                                        case 1: rv[i] = sin(theta) - cos(r); break;
+                                        case 2: rv[i] = cos(theta) - sin(r); break;
+                                        case 3: rv[i] = sin(theta) + cos(r); break;
                                     }
                                 rv = rv / r;
                                 break;
@@ -163,18 +163,18 @@ namespace efgy
                                 for (unsigned int i = 0; i < d; i++)
                                     switch (i % 4)
                                     {
-                                        case 0: rv.data[i] = sin(theta) / r; break;
-                                        case 1: rv.data[i] = cos(theta) * r; break;
-                                        case 2: rv.data[i] = sin(theta) * r; break;
-                                        case 3: rv.data[i] = cos(theta) / r; break;
+                                        case 0: rv[i] = sin(theta) / r; break;
+                                        case 1: rv[i] = cos(theta) * r; break;
+                                        case 2: rv[i] = sin(theta) * r; break;
+                                        case 3: rv[i] = cos(theta) / r; break;
                                     }
                                 break;
                             case 11: // "diamond"
                                 for (unsigned int i = 0; i < d; i++)
                                     switch (i % 2)
                                     {
-                                        case 0: rv.data[i] = sin(theta) * cos(r); break;
-                                        case 1: rv.data[i] = cos(theta) * sin(r); break;
+                                        case 0: rv[i] = sin(theta) * cos(r); break;
+                                        case 1: rv[i] = cos(theta) * sin(r); break;
                                     }
                                 break;
                             case 12: // "ex"
@@ -186,10 +186,10 @@ namespace efgy
                                 for (unsigned int i = 0; i < d; i++)
                                     switch (i % 4)
                                     {
-                                        case 0: rv.data[i] = p0*p0*p0 + p1*p1*p1; break;
-                                        case 1: rv.data[i] = p0*p0*p0 - p1*p1*p1; break;
-                                        case 2: rv.data[i] = p2*p2*p2 + p3*p3*p3; break;
-                                        case 3: rv.data[i] = p2*p2*p2 - p3*p3*p3; break;
+                                        case 0: rv[i] = p0*p0*p0 + p1*p1*p1; break;
+                                        case 1: rv[i] = p0*p0*p0 - p1*p1*p1; break;
+                                        case 2: rv[i] = p2*p2*p2 + p3*p3*p3; break;
+                                        case 3: rv[i] = p2*p2*p2 - p3*p3*p3; break;
                                     }
                                 rv = rv / r;
                             }
@@ -200,54 +200,54 @@ namespace efgy
                                 for (unsigned int i = 0; i < d; i++)
                                     switch (i % 2)
                                     {
-                                        case 0: rv.data[i] = cos(thpo); break;
-                                        case 1: rv.data[i] = sin(thpo); break;
+                                        case 0: rv[i] = cos(thpo); break;
+                                        case 1: rv[i] = sin(thpo); break;
                                     }
                                 rv = rv * sqrt(r);
                             }
                                 break;
                             case 14: // "bent"
                                 for (unsigned int i = 0; i < d; i++)
-                                    switch ((i % 2) + ((V.data[0] < Q(0)) << 1) + ((V.data[1] < Q(0)) << 2))
+                                    switch ((i % 2) + ((V[0] < Q(0)) << 1) + ((V[1] < Q(0)) << 2))
                                     {
-                                        case 0: rv.data[i] = V.data[i];        break;
-                                        case 1: rv.data[i] = V.data[i];        break;
-                                        case 2: rv.data[i] = V.data[i] * Q(2); break;
-                                        case 3: rv.data[i] = V.data[i];        break;
-                                        case 4: rv.data[i] = V.data[i];        break;
-                                        case 5: rv.data[i] = V.data[i] / Q(2); break;
-                                        case 6: rv.data[i] = V.data[i] * Q(2); break;
-                                        case 7: rv.data[i] = V.data[i] / Q(2); break;
+                                        case 0: rv[i] = V[i];        break;
+                                        case 1: rv[i] = V[i];        break;
+                                        case 2: rv[i] = V[i] * Q(2); break;
+                                        case 3: rv[i] = V[i];        break;
+                                        case 4: rv[i] = V[i];        break;
+                                        case 5: rv[i] = V[i] / Q(2); break;
+                                        case 6: rv[i] = V[i] * Q(2); break;
+                                        case 7: rv[i] = V[i] / Q(2); break;
                                     }
                                 break;
                             case 15: // "waves"
                                 for (unsigned int i = 0; i < d; i++)
                                     if (i < (d-1))
-                                        rv.data[i] = V.data[i]
+                                        rv[i] = V[i]
                                                    * transformationMatrix.data[i][0]
-                                                   * sin(V.data[(i+1)] / (transformationMatrix.data[d][i] * transformationMatrix.data[d][i]));
+                                                   * sin(V[(i+1)] / (transformationMatrix.data[d][i] * transformationMatrix.data[d][i]));
                                     else
-                                        rv.data[i] = V.data[i]
+                                        rv[i] = V[i]
                                                    * transformationMatrix.data[i][0]
-                                                   * sin(V.data[0] / (transformationMatrix.data[d][i] * transformationMatrix.data[d][i]));
+                                                   * sin(V[0] / (transformationMatrix.data[d][i] * transformationMatrix.data[d][i]));
                                 break;
                             case 16: // "fisheye"
                                 for (unsigned int i = 0; i < d; i++)
-                                    rv.data[i] = V.data[(d-i)];
+                                    rv[i] = V[(d-i)];
                                 rv = rv * Q(2) / (r + Q(1));
                                 break;
                             case 17: // "popcorn"
                                 for (unsigned int i = 0; i < d; i++)
-                                    rv.data[i] = V.data[i] + transformationMatrix.data[d][i] * sin(tan(Q(3)*V.data[i]));
+                                    rv[i] = V[i] + transformationMatrix.data[d][i] * sin(tan(Q(3)*V[i]));
                                 break;
                             case 18: // "exponential"
                                 for (unsigned int i = 0; i < d; i++)
                                     switch (i % 2)
                                     {
-                                        case 0: rv.data[i] = cos(M_PI*V.data[1]); break;
-                                        case 1: rv.data[i] = sin(M_PI*V.data[1]); break;
+                                        case 0: rv[i] = cos(M_PI*V[1]); break;
+                                        case 1: rv[i] = sin(M_PI*V[1]); break;
                                     }
-                                rv = rv * exp(V.data[0]-Q(1));
+                                rv = rv * exp(V[0]-Q(1));
                                 break;
                             default:
                                return rv;

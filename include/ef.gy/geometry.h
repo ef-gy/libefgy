@@ -33,6 +33,7 @@
 #include <ef.gy/set.h>
 #include <ef.gy/euclidian.h>
 #include <ef.gy/colour-space-hsl.h>
+#include <array>
 
 namespace efgy
 {
@@ -42,30 +43,28 @@ namespace efgy
         class polygon;
 
         template <typename S, unsigned int n>
-        class ngon : public math::tuple<n, typename S::vector>
+        class ngon : public std::array<typename S::vector, n>
         {
             public:
                 typedef typename S::base base;
                 typedef typename S::vector vector;
                 typedef typename S::scalar scalar;
 
-                using math::tuple<n, vector>::data;
-
                 ngon ()
-                    : math::tuple<n, vector>()
+                    : std::array<typename S::vector, n>()
                     {}
 
                 ngon (const vector pV[n])
-                    : math::tuple<n, vector>(pV)
+                    : std::array<typename S::vector, n>(pV)
                     {}
 
                 vector midpoint (void) const
                 {
-                    vector v = data[0];
+                    vector v = (*this)[0];
 
                     for (unsigned int i = 1; i < n; i++)
                     {
-                        v += data[i];
+                        v += (*this)[i];
                     }
 
                     return v / scalar(n);
@@ -75,7 +74,7 @@ namespace efgy
                 {
                     for (unsigned int i = 0; i < n; i++)
                     {
-                        if (data[i] != b.data[i])
+                        if ((*this)[i] != b[i])
                         {
                             return false;
                         }
@@ -97,7 +96,7 @@ namespace efgy
 
                     for (unsigned int i = 0; i < n; i++)
                     {
-                        p.data[i] = data[i];
+                        p.data[i] = (*this)[i];
                     }
 
                     p.colour = colour;
@@ -119,45 +118,45 @@ namespace efgy
                 using ngon<S,2>::data;
 
                 line ()
-                    : ngon<S,2>(), A(data[0]), B(data[1])
+                    : ngon<S,2>(), A((*this)[0]), B((*this)[1])
                     {}
 
                 line (const vector pV[2])
-                    : ngon<S,2>(pV), A(data[0]), B(data[1])
+                    : ngon<S,2>(pV), A((*this)[0]), B((*this)[1])
                     {}
 
                 line (const vector &pA, const vector &pB)
-                    : A(data[0]), B(data[1])
+                    : A((*this)[0]), B((*this)[1])
                     {
-                        data[0] = pA;
-                        data[1] = pB;
+                        (*this)[0] = pA;
+                        (*this)[1] = pB;
                     }
 
                 line (const line &pL)
-                    : A(data[0]), B(data[1])
+                    : A((*this)[0]), B((*this)[1])
                     {
-                        data[0] = pL.A;
-                        data[1] = pL.B;
+                        (*this)[0] = pL.A;
+                        (*this)[1] = pL.B;
                     }
 
                 line (const ngon<S,2> &pL)
-                    : A(data[0]), B(data[1])
+                    : A((*this)[0]), B((*this)[1])
                     {
-                        data[0] = pL.data[0];
-                        data[1] = pL.data[1];
+                        (*this)[0] = pL[0];
+                        (*this)[1] = pL[1];
                     }
 
                 line &operator = (const line &pL)
                     {
-                        data[0] = pL.data[0];
-                        data[1] = pL.data[1];
+                        (*this)[0] = pL[0];
+                        (*this)[1] = pL[1];
                         return *this;
                     }
 
                 line &operator = (const ngon<S,2> &pL)
                     {
-                        data[0] = pL.data[0];
-                        data[1] = pL.data[1];
+                        (*this)[0] = pL[0];
+                        (*this)[1] = pL[1];
                         return *this;
                     }
 
@@ -290,9 +289,9 @@ namespace efgy
 
                         p = p + u;
 
-                        if ((u.data[0] < l.data[0]) ||
-                            ((u.data[0] == l.data[0]) &&
-                             (u.data[1] < l.data[1])))
+                        if ((u[0] < l[0]) ||
+                            ((u[0] == l[0]) &&
+                             (u[1] < l[1])))
                         {
                             l = u;
                         }
@@ -303,9 +302,9 @@ namespace efgy
 
                         p = p + u;
 
-                        if ((u.data[0] < l.data[0]) ||
-                            ((u.data[0] == l.data[0]) &&
-                             (u.data[1] < l.data[1])))
+                        if ((u[0] < l[0]) ||
+                            ((u[0] == l[0]) &&
+                             (u[1] < l[1])))
                         {
                             l = u;
                         }
@@ -454,8 +453,8 @@ namespace efgy
         template<typename Q>
         bool operator <= (const typename euclidian::space<Q,2>::vector &a, const ngon<euclidian::space<Q,2>,2> &b)
         {
-            Q r = (b.data[1].data[0]-b.data[0].data[0])*(a.data[1]-b.data[0].data[1])
-                - (b.data[1].data[1]-b.data[0].data[1])*(a.data[0]-b.data[0].data[0]);
+            Q r = (b[1][0]-b[0][0])*(a[1]-b[0][1])
+                - (b[1][1]-b[0][1])*(a[0]-b[0][0]);
 
             return r <= math::numeric::zero();
         }
@@ -464,8 +463,8 @@ namespace efgy
         template<typename Q>
         bool operator >= (const typename euclidian::space<Q,2>::vector &a, const ngon<euclidian::space<Q,2>,2> &b)
         {
-            Q r = (b.data[1].data[0]-b.data[0].data[0])*(a.data[1]-b.data[0].data[1])
-                - (b.data[1].data[1]-b.data[0].data[1])*(a.data[0]-b.data[0].data[0]);
+            Q r = (b[1][0]-b[0][0])*(a[1]-b[0][1])
+                - (b[1][1]-b[0][1])*(a[0]-b[0][0]);
 
             return r >= math::numeric::zero();
         }
@@ -474,8 +473,8 @@ namespace efgy
         template<typename Q>
         bool operator && (const typename euclidian::space<Q,2>::vector &a, const ngon<euclidian::space<Q,2>,2> &b)
         {
-            Q r = (b.data[1].data[0]-b.data[0].data[0])*(a.data[1]-b.data[0].data[1])
-                - (b.data[1].data[1]-b.data[0].data[1])*(a.data[0]-b.data[0].data[0]);
+            Q r = (b[1][0]-b[0][0])*(a[1]-b[0][1])
+                - (b[1][1]-b[0][1])*(a[0]-b[0][0]);
 
             return r == math::numeric::zero();
         }
@@ -519,23 +518,21 @@ namespace efgy
          * the second line is considered "infinite", i.e.
          * not a line segment. */
         template<typename Q>
-        typename math::tuple<2,maybe<ngon<euclidian::space<Q,2>,2> > > operator / (const ngon<euclidian::space<Q,2>,2> &a, const ngon<euclidian::space<Q,2>,2> &b)
+        typename std::array<maybe<ngon<euclidian::space<Q,2>,2> >,2> operator / (const ngon<euclidian::space<Q,2>,2> &a, const ngon<euclidian::space<Q,2>,2> &b)
         {
-            maybe<ngon<euclidian::space<Q,2>,2> > r[2];
-
             typename euclidian::space<Q,2>::scalar d
-                = (a.data[1].data[0] - a.data[0].data[0])
-                * (b.data[1].data[1] - b.data[0].data[1])
-                - (a.data[1].data[1] - a.data[0].data[1])
-                * (b.data[1].data[0] - b.data[0].data[0]);
+                = (a[1][0] - a[0][0])
+                * (b[1][1] - b[0][1])
+                - (a[1][1] - a[0][1])
+                * (b[1][0] - b[0][0]);
 
             if (d != typename euclidian::space<Q,2>::scalar(0))
             {
                 typename euclidian::space<Q,2>::scalar p
-                    = ((a.data[0].data[1] - b.data[0].data[1])
-                     * (b.data[1].data[0] - b.data[0].data[0])
-                     - (a.data[0].data[0] - b.data[0].data[0])
-                     * (b.data[1].data[1] - b.data[0].data[1]))
+                    = ((a[0][1] - b[0][1])
+                     * (b[1][0] - b[0][0])
+                     - (a[0][0] - b[0][0])
+                     * (b[1][1] - b[0][1]))
                     / d;
 
                 /* ignore intersection if it's not on the first line segment */
@@ -543,23 +540,18 @@ namespace efgy
                     (p <= typename euclidian::space<Q,2>::scalar(1)))
                 {
                     typename euclidian::space<Q,2>::vector v
-                        = a.data[0] + p*(a.data[1] - a.data[0]);
+                        = a[0] + p*(a[1] - a[0]);
                     ngon<euclidian::space<Q,2>,2> A = a;
                     ngon<euclidian::space<Q,2>,2> B = a;
 
-                    A.data[1] = v;
-                    B.data[0] = v;
+                    A[1] = v;
+                    B[0] = v;
 
-                    r[0] = A;
-                    r[1] = B;
-
-                    return math::tuple<2,maybe<ngon<euclidian::space<Q,2>,2> > > (r);
+                    return {{A, B}};
                 }
             }
 
-            r[0] = a;
-
-            return math::tuple<2,maybe<ngon<euclidian::space<Q,2>,2> > > (r);
+            return {{a}};
         }
 
         /* split a polygon in two parts given a line to intersect with.
@@ -575,11 +567,9 @@ namespace efgy
          * operation may well change the vertex data.size().
          */
         template<typename Q>
-        typename math::tuple<3,maybe<polygon<euclidian::space<Q,2> > > > operator / (const polygon<euclidian::space<Q,2> > &a, const ngon<euclidian::space<Q,2>,2> &b)
+        typename std::array<maybe<polygon<euclidian::space<Q,2> > >,3> operator / (const polygon<euclidian::space<Q,2> > &a, const ngon<euclidian::space<Q,2>,2> &b)
         {
             polygon<euclidian::space<Q,2> > p3;
-
-            typename math::tuple<3,maybe<polygon<euclidian::space<Q,2> > > > rv;
 
             maybe<typename euclidian::space<Q,2>::vector> lastPoint;
 
@@ -587,26 +577,24 @@ namespace efgy
             {
                 unsigned int r = ((i == 0) ? a.data.size() : i) - 1;
 
-                typename math::tuple<2,maybe<ngon<euclidian::space<Q,2>,2> > > s =
+                typename std::array<maybe<ngon<euclidian::space<Q,2>,2> >,2> s =
                     line<euclidian::space<Q,2> >(a.data[r], a.data[i]) / b;
 
-                if (s.data[0] && s.data[1])
+                if (s[0] && s[1])
                 {
-                    ngon<euclidian::space<Q,2>,2> A = s.data[0];
-                    ngon<euclidian::space<Q,2>,2> B = s.data[1];
+                    ngon<euclidian::space<Q,2>,2> A = s[0];
+                    ngon<euclidian::space<Q,2>,2> B = s[1];
 
-                    p3 = p3 + A.data[1];
+                    p3 = p3 + A[1];
                 }
             }
 
             switch (p3.data.size())
             {
                 case 0: /* no intersections */
+                    return {{}};
                 case 1: /* this ought to be impossible, unless it intersects a vertex */
-                    rv.data[0] = maybe<polygon<euclidian::space<Q,2> > >(a);
-                    rv.data[1] = maybe<polygon<euclidian::space<Q,2> > >();
-                    rv.data[2] = maybe<polygon<euclidian::space<Q,2> > >();
-                    break;
+                    return {{ maybe<polygon<euclidian::space<Q,2> > >(a) }};
                 default: /* more intersections (probably two of them, more's kinda bad) */
                     {
                         line<euclidian::space<Q,2> > dv =
@@ -630,14 +618,14 @@ namespace efgy
                             }
                         }
 
-                        rv.data[0] = maybe<polygon<euclidian::space<Q,2> > >(p3 + p1);
-                        rv.data[1] = maybe<polygon<euclidian::space<Q,2> > >(p3 + p2);
-                        rv.data[2] = p3;
+                        return {{ maybe<polygon<euclidian::space<Q,2> > >(p3 + p1),
+                                  maybe<polygon<euclidian::space<Q,2> > >(p3 + p2),
+                                  p3}};
                     }
                     break;
             }
 
-            return rv;
+            return {{}};
         }
     };
 };

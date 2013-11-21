@@ -29,7 +29,7 @@
 #define EF_GY_PROJECTION_H
 
 #include <ef.gy/transformation.h>
-#include <ef.gy/tuple.h>
+#include <array>
 
 namespace efgy
 {
@@ -46,7 +46,7 @@ namespace efgy
                         {
                             for (unsigned int j = 0; j < d; j++)
                             {
-                                orthogonalVector.data[i].data[j] = (((i+1) == j) ? 1 : 0);
+                                orthogonalVector[i][j] = (((i+1) == j) ? 1 : 0);
                             }
                         }
                         updateMatrix();
@@ -57,34 +57,34 @@ namespace efgy
                  */
                 void updateMatrix (void)
                 {
-                    columns.data[(d-1)] = to - from;
-                    columns.data[(d-1)] = euclidian::normalise<Q,d>(columns.data[(d-1)]);
+                    columns[(d-1)] = to - from;
+                    columns[(d-1)] = euclidian::normalise<Q,d>(columns[(d-1)]);
 
                     for (int i = 0; i < (d-1); i++)
                     {
-                        math::tuple<d-1,typename euclidian::space<Q,d>::vector> crossVectors;
+                        std::array<typename euclidian::space<Q,d>::vector,d-1> crossVectors;
 
                         for (int j = i - (d - 2), c = 0; c < (d-1); j++, c++)
                         {
                             if (j < 0)
                             {
-                                crossVectors.data[c] = orthogonalVector.data[(j + (d - 2))];
+                                crossVectors[c] = orthogonalVector[(j + (d - 2))];
                             }
                             else if (j == 0)
                             {
-                                crossVectors.data[c] = columns.data[(d-1)];
+                                crossVectors[c] = columns[(d-1)];
                             }
                             else
                             {
-                                crossVectors.data[c] = columns.data[(j-1)];
+                                crossVectors[c] = columns[(j-1)];
                             }
                         }
 
-                        columns.data[i] = euclidian::getNormal<Q,d>(crossVectors);
+                        columns[i] = euclidian::getNormal<Q,d>(crossVectors);
 
                         if (i != (d-2))
                         {
-                            columns.data[i] = euclidian::normalise<Q,d>(columns.data[i]);
+                            columns[i] = euclidian::normalise<Q,d>(columns[i]);
                         }
                     }
 
@@ -94,7 +94,7 @@ namespace efgy
                         {
                             if ((i < d) && (j < d))
                             {
-                                transformationMatrix.data[i][j] = columns.data[j].data[i];
+                                transformationMatrix.data[i][j] = columns[j][i];
                             }
                             else if (i == j)
                             {
@@ -108,7 +108,7 @@ namespace efgy
                     }
                 }
 
-                math::tuple<d,typename euclidian::space<Q,d>::vector> columns;
+                std::array<typename euclidian::space<Q,d>::vector,d> columns;
 
                 using transformation::affine<Q,d>::transformationMatrix;
 
@@ -116,7 +116,7 @@ namespace efgy
                 typename euclidian::space<Q,d>::vector from;
                 typename euclidian::space<Q,d>::vector to;
 
-                math::tuple<d-2, typename euclidian::space<Q,d>::vector> orthogonalVector;
+                std::array<typename euclidian::space<Q,d>::vector,d-2> orthogonalVector;
         };
 
         template <typename Q, unsigned int d>

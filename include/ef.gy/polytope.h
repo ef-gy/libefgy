@@ -40,6 +40,7 @@
 #include <ef.gy/euclidian.h>
 #include <ef.gy/polar.h>
 #include <vector>
+#include <array>
 
 namespace efgy
 {
@@ -76,7 +77,7 @@ namespace efgy
 
                 void renderSolid () const
                 {
-                    typename std::vector<math::tuple<f,typename euclidian::space<Q,d>::vector> >::const_iterator it = faces.begin();
+                    typename std::vector<std::array<typename euclidian::space<Q,d>::vector,f> >::const_iterator it = faces.begin();
                     typename std::vector<Q>::const_iterator itIndex = indices.begin();
 
                     while (it != faces.end())
@@ -106,7 +107,7 @@ namespace efgy
                 const parameters<Q> &parameter;
                 const Q &precisionMultiplier;
 
-                std::vector<math::tuple<f,typename euclidian::space<Q,d>::vector> > faces;
+                std::vector<std::array<typename euclidian::space<Q,d>::vector,f> > faces;
                 std::vector<Q> indices;
         };
 
@@ -149,9 +150,9 @@ namespace efgy
                     {
                         const int q = r-1;
 
-                        v.data[r] = 0;
+                        v[r] = 0;
                         recurse (q, v, points);
-                        v.data[r] = Q(M_PI)/Q(1.5);
+                        v[r] = Q(M_PI)/Q(1.5);
                         recurse (q, v, points);
                     }
                 }
@@ -160,21 +161,21 @@ namespace efgy
                 {
                     Q radius = parameter.polarRadius;
 
-                    faces = std::vector<math::tuple<3,typename euclidian::space<Q,d>::vector> >();
+                    faces.clear();
 
                     std::vector<typename euclidian::space<Q,d>::vector> points;
 
                     typename polar::space<Q,d>::vector v;
-                    v.data[0] = radius;
+                    v[0] = radius;
                     
                     const int r = od-1;
                     const int q = r-1;
 
-                    v.data[r] = Q(-M_PI)/Q(1.5);
+                    v[r] = Q(-M_PI)/Q(1.5);
                     recurse (q, v, points);
-                    v.data[r] = 0;
+                    v[r] = 0;
                     recurse (q, v, points);
-                    v.data[r] = Q(M_PI)/Q(1.5);
+                    v[r] = Q(M_PI)/Q(1.5);
                     recurse (q, v, points);
 
                     std::vector<typename euclidian::space<Q,d>::vector> points2;
@@ -221,10 +222,10 @@ namespace efgy
                             {
                                 const typename euclidian::space<Q,d>::vector C = *it3;
 
-                                math::tuple<3,typename euclidian::space<Q,d>::vector> newTriangle;
-                                newTriangle.data[0] = A;
-                                newTriangle.data[1] = B;
-                                newTriangle.data[2] = C;
+                                std::array<typename euclidian::space<Q,d>::vector,3> newTriangle;
+                                newTriangle[0] = A;
+                                newTriangle[1] = B;
+                                newTriangle[2] = C;
                                 faces.push_back(newTriangle);
                             }
 
@@ -268,91 +269,71 @@ namespace efgy
                 {
                     Q diameter = parameter.polarRadius * Q(0.5);
                     
-                    std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> > lines;
-                    faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
+                    std::vector<std::array<typename euclidian::space<Q,d>::vector,2> > lines;
+                    faces.clear();
                     
                     std::vector<typename euclidian::space<Q,d>::vector> points;
                     
                     typename euclidian::space<Q,d>::vector A;
                     
                     points.push_back (A);
-                    
+
                     for (unsigned int i = 0; i < od; i++)
                     {
                         std::vector<typename euclidian::space<Q,d>::vector> newPoints;
-                        std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> > newLines;
-                        std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> > newFaces;
+                        std::vector<std::array<typename euclidian::space<Q,d>::vector,2> > newLines;
+                        std::vector<std::array<typename euclidian::space<Q,d>::vector,4> > newFaces;
                         
-                        for (typename std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >::iterator it = lines.begin();
+                        for (typename std::vector<std::array<typename euclidian::space<Q,d>::vector,2> >::iterator it = lines.begin();
                              it != lines.end(); it++)
                         {
-                            it->data[0].data[i] = -diameter;
-                            it->data[1].data[i] = -diameter;
-                            
-                            math::tuple<2,typename euclidian::space<Q,d>::vector> newLine = *it;
-                            
-                            newLine.data[0].data[i] = diameter;
-                            newLine.data[1].data[i] = diameter;
-                            
+                            (*it)[0][i] = -diameter;
+                            (*it)[1][i] = -diameter;
+
+                            std::array<typename euclidian::space<Q,d>::vector,2> newLine = *it;
+
+                            newLine[0][i] = diameter;
+                            newLine[1][i] = diameter;
+
                             newLines.push_back(newLine);
-                            
-                            math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
-                            newFace.data[0] = newLine.data [0];
-                            newFace.data[1] = newLine.data [1];
-                            newFace.data[2] = it->data     [1];
-                            newFace.data[3] = it->data     [0];
-                            newFaces.push_back(newFace);
+                            newFaces.push_back({{newLine[0], newLine[1], (*it)[1], (*it)[0]}});
                         }
                         
-                        for (typename std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >::iterator it = faces.begin();
+                        for (typename std::vector<std::array<typename euclidian::space<Q,d>::vector,4> >::iterator it = faces.begin();
                              it != faces.end(); it++)
                         {
-                            it->data[0].data[i] = -diameter;
-                            it->data[1].data[i] = -diameter;
-                            it->data[2].data[i] = -diameter;
-                            it->data[3].data[i] = -diameter;
+                            (*it)[0][i] = -diameter;
+                            (*it)[1][i] = -diameter;
+                            (*it)[2][i] = -diameter;
+                            (*it)[3][i] = -diameter;
                             
-                            math::tuple<4,typename euclidian::space<Q,d>::vector> newFace = *it;
-                            newFace.data[0].data[i] = diameter;
-                            newFace.data[1].data[i] = diameter;
-                            newFace.data[2].data[i] = diameter;
-                            newFace.data[3].data[i] = diameter;
+                            std::array<typename euclidian::space<Q,d>::vector,4> newFace = *it;
+                            newFace[0][i] = diameter;
+                            newFace[1][i] = diameter;
+                            newFace[2][i] = diameter;
+                            newFace[3][i] = diameter;
                             newFaces.push_back(newFace);
                         }
                         
                         for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it = points.begin();
                              it != points.end(); it++)
                         {
-                            math::tuple<2,typename euclidian::space<Q,d>::vector> newLine;
+                            std::array<typename euclidian::space<Q,d>::vector,2> newLine;
                             
-                            it->data[i] = -diameter;
+                            (*it)[i] = -diameter;
                             
-                            newLine.data[0] = *it;
-                            newLine.data[1] = *it;
-                            newLine.data[1].data[i] = diameter;
+                            newLine[0] = *it;
+                            newLine[1] = *it;
+                            newLine[1][i] = diameter;
                             
-                            newPoints.push_back(newLine.data[1]);
+                            newPoints.push_back(newLine[1]);
                             
                             lines.push_back(newLine);
                         }
-                        
-                        for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it = newPoints.begin();
-                             it != newPoints.end(); it++)
-                        {
-                            points.push_back(*it);
-                        }
-                        
-                        for (typename std::vector<math::tuple<2,typename euclidian::space<Q,d>::vector> >::iterator it = newLines.begin();
-                             it != newLines.end(); it++)
-                        {
-                            lines.push_back(*it);
-                        }
-                        
-                        for (typename std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >::iterator it = newFaces.begin();
-                             it != newFaces.end(); it++)
-                        {
-                            faces.push_back(*it);
-                        }
+
+                        points.insert(points.end(), newPoints.begin(), newPoints.end());
+                        lines.insert(lines.end(), newLines.begin(), newLines.end());
+                        faces.insert(faces.end(), newFaces.begin(), newFaces.end());
                     }
                 }
         };
@@ -396,19 +377,19 @@ namespace efgy
                     {
                         for (Q j = -s; j <= s; j+=q)
                         {
-                            math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
+                            std::array<typename euclidian::space<Q,d>::vector,4> newFace;
 
-                            newFace.data[0].data[0] = i;
-                            newFace.data[0].data[1] = j;
+                            newFace[0][0] = i;
+                            newFace[0][1] = j;
                             
-                            newFace.data[1].data[0] = i+q;
-                            newFace.data[1].data[1] = j;
+                            newFace[1][0] = i+q;
+                            newFace[1][1] = j;
                             
-                            newFace.data[2].data[0] = i+q;
-                            newFace.data[2].data[1] = j+q;
+                            newFace[2][0] = i+q;
+                            newFace[2][1] = j+q;
                             
-                            newFace.data[3].data[0] = i;
-                            newFace.data[3].data[1] = j+q;
+                            newFace[3][0] = i;
+                            newFace[3][1] = j+q;
 
                             faces.push_back(newFace);
                         }
@@ -456,24 +437,21 @@ namespace efgy
                         {
                             typename polar::space<Q,d>::vector v1 = v;
 
-                            v1.data[i] += step;
+                            v1[i] += step;
 
                             const typename euclidian::space<Q,d>::vector B = v1;
 
-                            math::tuple<3,typename euclidian::space<Q,d>::vector> newFace;
-
-                            newFace.data[0] = A;
-                            newFace.data[1] = B;
+                            std::array<typename euclidian::space<Q,d>::vector,3> newFace {{A, B}};
 
                             for (unsigned int j = 1; j <= od; j++)
                             {
                                 if (i != j)
                                 {
                                     v1 = v;
-                                    v1.data[j] -= step;
+                                    v1[j] -= step;
 
                                     const typename euclidian::space<Q,d>::vector C = v1;
-                                    newFace.data[2] = C;
+                                    newFace[2] = C;
 
                                     faces.push_back(newFace);
                                 }
@@ -486,7 +464,7 @@ namespace efgy
 
                         for (Q i = Q(-M_PI); i < Q(M_PI); i+= step)
                         {
-                            v.data[r] = i;
+                            v[r] = i;
                             recurse (q, v);
                         }
                     }
@@ -499,17 +477,17 @@ namespace efgy
 
                     Q usedRadius = radius;
 
-                    faces = std::vector<math::tuple<3,typename euclidian::space<Q,d>::vector> >();
+                    faces.clear();
 
                     typename polar::space<Q,d>::vector v;
-                    v.data[0] = radius;
+                    v[0] = radius;
 
                     const int r = od;
                     const int q = r-1;
 
                     for (Q i = Q(-M_PI); i < Q(M_PI); i+= step)
                     {
-                        v.data[r] = i;
+                        v[r] = i;
                         recurse (q, v);
                     }
                 }
