@@ -277,7 +277,7 @@ namespace efgy
                     typename euclidian::space<Q,d>::vector A;
                     
                     points.push_back (A);
-                    
+
                     for (unsigned int i = 0; i < od; i++)
                     {
                         std::vector<typename euclidian::space<Q,d>::vector> newPoints;
@@ -294,15 +294,9 @@ namespace efgy
 
                             newLine[0].data[i] = diameter;
                             newLine[1].data[i] = diameter;
-                            
+
                             newLines.push_back(newLine);
-                            
-                            std::array<typename euclidian::space<Q,d>::vector,4> newFace;
-                            newFace[0] = newLine [0];
-                            newFace[1] = newLine [1];
-                            newFace[2] = (*it)   [1];
-                            newFace[3] = (*it)   [0];
-                            newFaces.push_back(newFace);
+                            newFaces.push_back({{newLine[0], newLine[1], (*it)[1], (*it)[0]}});
                         }
                         
                         for (typename std::vector<std::array<typename euclidian::space<Q,d>::vector,4> >::iterator it = faces.begin();
@@ -336,24 +330,10 @@ namespace efgy
                             
                             lines.push_back(newLine);
                         }
-                        
-                        for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it = newPoints.begin();
-                             it != newPoints.end(); it++)
-                        {
-                            points.push_back(*it);
-                        }
-                        
-                        for (typename std::vector<std::array<typename euclidian::space<Q,d>::vector,2> >::iterator it = newLines.begin();
-                             it != newLines.end(); it++)
-                        {
-                            lines.push_back(*it);
-                        }
-                        
-                        for (typename std::vector<std::array<typename euclidian::space<Q,d>::vector,4> >::iterator it = newFaces.begin();
-                             it != newFaces.end(); it++)
-                        {
-                            faces.push_back(*it);
-                        }
+
+                        points.insert(points.end(), newPoints.begin(), newPoints.end());
+                        lines.insert(lines.end(), newLines.begin(), newLines.end());
+                        faces.insert(faces.end(), newFaces.begin(), newFaces.end());
                     }
                 }
         };
@@ -461,10 +441,7 @@ namespace efgy
 
                             const typename euclidian::space<Q,d>::vector B = v1;
 
-                            std::array<typename euclidian::space<Q,d>::vector,3> newFace;
-
-                            newFace[0] = A;
-                            newFace[1] = B;
+                            std::array<typename euclidian::space<Q,d>::vector,3> newFace {{A, B}};
 
                             for (unsigned int j = 1; j <= od; j++)
                             {
