@@ -99,7 +99,7 @@ namespace efgy
                     const Q stepU = Q(M_PI/(precision*Q(2)));
                     const Q stepV = Q((2*radius)/precision);
 
-                    faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
+                    faces.clear();
 
                     for (Q u = 0; u < Q(2*M_PI); u += stepU)
                     {
@@ -113,12 +113,12 @@ namespace efgy
                             const typename euclidian::space<Q,d>::vector C = getCoordinates(radius, u, vn);
                             const typename euclidian::space<Q,d>::vector D = getCoordinates(radius, un, vn);
 
-                            math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
+                            std::array<typename euclidian::space<Q,d>::vector,4> newFace;
 
-                            newFace.data[0] = A;
-                            newFace.data[1] = B;
-                            newFace.data[2] = D;
-                            newFace.data[3] = C;
+                            newFace[0] = A;
+                            newFace[1] = B;
+                            newFace[2] = D;
+                            newFace[3] = C;
 
                             faces.push_back(newFace);
                         }
@@ -195,7 +195,7 @@ namespace efgy
                     const Q stepU = Q(M_PI/(precision));
                     const Q stepV = stepU;
 
-                    faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
+                    faces.clear();
 
                     for (Q u = 0; u < Q(2*M_PI); u += stepU)
                     {
@@ -209,12 +209,12 @@ namespace efgy
                             const typename euclidian::space<Q,d>::vector C = getCoordinates(radius, u, vn);
                             const typename euclidian::space<Q,d>::vector D = getCoordinates(radius, un, vn);
 
-                            math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
+                            std::array<typename euclidian::space<Q,d>::vector,4> newFace;
 
-                            newFace.data[0] = A;
-                            newFace.data[1] = B;
-                            newFace.data[2] = D;
-                            newFace.data[3] = C;
+                            newFace[0] = A;
+                            newFace[1] = B;
+                            newFace[2] = D;
+                            newFace[3] = C;
 
                             faces.push_back(newFace);
                         }

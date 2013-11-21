@@ -106,15 +106,15 @@ namespace efgy
                  *                  IFSs to simulate fractal flame colouring,
                  *                  but currently ignored by the SVG renderer.
                  */
-                template<unsigned int q>
+                template<std::size_t q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index = 0.5) const
+                    (const std::array<typename geometry::euclidian::space<Q,d>::vector,q> &pV, const Q &index = 0.5) const
                 {
-                    math::tuple<q, typename geometry::euclidian::space<Q,d-1>::vector> V;
+                    std::array<typename geometry::euclidian::space<Q,d-1>::vector,q> V;
 
                     for (unsigned int i = 0; i < q; i++)
                     {
-                        V.data[i] = combined * pV.data[i];
+                        V[i] = combined * pV[i];
                     }
 
                     lowerRenderer.drawFace(V, index);
@@ -221,9 +221,9 @@ namespace efgy
                  *                  IFSs to simulate fractal flame colouring,
                  *                  but currently ignored by the SVG renderer.
                  */
-                template<unsigned int q>
+                template<std::size_t q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,2>::vector> &pV, const Q &index = 0.5)
+                    (const std::array<typename geometry::euclidian::space<Q,2>::vector,q> &pV, const Q &index = 0.5)
                 {
                     output << "<path d='";
                     for (unsigned int i = 0; i < q; i++)
@@ -231,7 +231,7 @@ namespace efgy
                         std::stringstream sbuf1;
                         std::stringstream sbuf2;
                         
-                        const typename geometry::euclidian::space<Q,2>::vector V = transformation * pV.data[i];
+                        const typename geometry::euclidian::space<Q,2>::vector V = transformation * pV[i];
                         
                         const double a0 =  Q(V.data[0]);
                         const double a1 = -Q(V.data[1]);
@@ -243,17 +243,17 @@ namespace efgy
                         }
                         else
                         {
-                            const typename geometry::euclidian::space<Q,2>::vector V1 = transformation * pV.data[(i-1)];
+                            const typename geometry::euclidian::space<Q,2>::vector V1 = transformation * pV[(i-1)];
                             
                             const double a0r = a0 - Q(V1.data[0]);
                             const double a1r = a1 + Q(V1.data[1]);
                             
-                            if (pV.data[i].data[1] == V1.data[1])
+                            if (pV[i].data[1] == V1.data[1])
                             {
                                 sbuf1 << "H" << a0;
                                 sbuf2 << "h" << a0r;
                             }
-                            else if (pV.data[i].data[0] == -V1.data[0])
+                            else if (pV[i].data[0] == -V1.data[0])
                             {
                                 sbuf1 << "V" << a1;
                                 sbuf2 << "v" << a1r;

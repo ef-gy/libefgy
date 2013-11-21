@@ -80,7 +80,7 @@ namespace efgy
                     {
                         std::vector<Q> rindices = indices;
                         indices.clear();
-                        std::vector<math::tuple<faceVertices,typename euclidian::space<Q,d>::vector> > rfaces;
+                        std::vector<std::array<typename euclidian::space<Q,d>::vector,faceVertices> > rfaces;
 
                         while (faces.size() > 0)
                         {
@@ -104,16 +104,16 @@ namespace efgy
                     return functions[f] * v;
                 }
             
-                template<unsigned int fdim>
-                math::tuple<fdim,typename euclidian::space<Q,d>::vector> apply
+                template<std::size_t fdim>
+                std::array<typename euclidian::space<Q,d>::vector,fdim> apply
                     (const unsigned int &f,
-                     const math::tuple<fdim,typename euclidian::space<Q,d>::vector> &l)
+                     const std::array<typename euclidian::space<Q,d>::vector,fdim> &l)
                 {
-                    math::tuple<fdim,typename euclidian::space<Q,d>::vector> r;
-                    
+                    std::array<typename euclidian::space<Q,d>::vector,fdim> r;
+
                     for (int i = 0; i < fdim; i++)
                     {
-                        r.data[i] = apply (f, l.data[i]);
+                        r[i] = apply (f, l[i]);
                     }
                     
                     return r;
@@ -132,26 +132,26 @@ namespace efgy
                         : parent(pRenderer, pParameter, pMultiplier)
                         {
                             const unsigned int nfunctions = (1<<(od-1))+1;
-                            math::tuple<nfunctions, typename euclidian::space<Q,d>::vector> translations;
+                            std::array<typename euclidian::space<Q,d>::vector,nfunctions> translations;
 
-                            translations.data[0].data[0] = Q(0.25);
+                            translations[0].data[0] = Q(0.25);
 
                             for (unsigned int i = 1; i < nfunctions; i++)
                             {
-                                translations.data[i].data[0] = Q(-0.25);
+                                translations[i].data[0] = Q(-0.25);
                                 for (unsigned int j = 1; j < od; j++)
                                 {
                                     const unsigned int k = i-1;
                                     const unsigned int l = j-1;
                                     const unsigned int b = 1 << l;
                                     const bool s = k & b;
-                                    translations.data[i].data[j] = Q(s ? -0.25 : 0.25);
+                                    translations[i].data[j] = Q(s ? -0.25 : 0.25);
                                 }
                             }
 
                             for (unsigned int i = 0; i < nfunctions; i++)
                             {
-                                functions.push_back(transformation::scale<Q,d>(0.5) * transformation::translation<Q,d>(translations.data[i]));
+                                functions.push_back(transformation::scale<Q,d>(0.5) * transformation::translation<Q,d>(translations[i]));
                             }
 
                             calculateObject();
@@ -187,52 +187,52 @@ namespace efgy
                         : parent(pRenderer, pParameter, pMultiplier)
                         {
                             const unsigned int nfunctions = od == 2 ? 8 : 20;
-                            math::tuple<nfunctions, typename euclidian::space<Q,d>::vector> translations;
+                            std::array<typename euclidian::space<Q,d>::vector,nfunctions> translations;
 
                             if (od > 1)
                             {
-                                translations.data[0].data[0] = Q(-1)/Q(3);
-                                translations.data[0].data[1] = Q(-1)/Q(3);
-                                translations.data[1].data[0] = Q(-1)/Q(3);
-                                translations.data[1].data[1] = Q(0);
-                                translations.data[2].data[0] = Q(-1)/Q(3);
-                                translations.data[2].data[1] = Q(1)/Q(3);
-                                translations.data[3].data[0] = Q(1)/Q(3);
-                                translations.data[3].data[1] = Q(-1)/Q(3);
-                                translations.data[4].data[0] = Q(1)/Q(3);
-                                translations.data[4].data[1] = Q(0);
-                                translations.data[5].data[0] = Q(1)/Q(3);
-                                translations.data[5].data[1] = Q(1)/Q(3);
-                                translations.data[6].data[0] = Q(0);
-                                translations.data[6].data[1] = Q(-1)/Q(3);
-                                translations.data[7].data[0] = Q(0);
-                                translations.data[7].data[1] = Q(1)/Q(3);
+                                translations[0].data[0] = Q(-1)/Q(3);
+                                translations[0].data[1] = Q(-1)/Q(3);
+                                translations[1].data[0] = Q(-1)/Q(3);
+                                translations[1].data[1] = Q(0);
+                                translations[2].data[0] = Q(-1)/Q(3);
+                                translations[2].data[1] = Q(1)/Q(3);
+                                translations[3].data[0] = Q(1)/Q(3);
+                                translations[3].data[1] = Q(-1)/Q(3);
+                                translations[4].data[0] = Q(1)/Q(3);
+                                translations[4].data[1] = Q(0);
+                                translations[5].data[0] = Q(1)/Q(3);
+                                translations[5].data[1] = Q(1)/Q(3);
+                                translations[6].data[0] = Q(0);
+                                translations[6].data[1] = Q(-1)/Q(3);
+                                translations[7].data[0] = Q(0);
+                                translations[7].data[1] = Q(1)/Q(3);
                             }
                             if (od > 2)
                             {
                                 for (int i = 0; i < 8; i++)
                                 {
-                                    translations.data[(i+8)] = translations.data[i];
-                                    translations.data[i].data[2] = Q(-1)/Q(3);
-                                    translations.data[(i+8)].data[2] = Q(1)/Q(3);
+                                    translations[(i+8)] = translations[i];
+                                    translations[i].data[2] = Q(-1)/Q(3);
+                                    translations[(i+8)].data[2] = Q(1)/Q(3);
                                 }
 
-                                translations.data[16].data[0] = Q(1)/Q(3);
-                                translations.data[16].data[1] = Q(1)/Q(3);
+                                translations[16].data[0] = Q(1)/Q(3);
+                                translations[16].data[1] = Q(1)/Q(3);
 
-                                translations.data[17].data[0] = Q(-1)/Q(3);
-                                translations.data[17].data[1] = Q(1)/Q(3);
+                                translations[17].data[0] = Q(-1)/Q(3);
+                                translations[17].data[1] = Q(1)/Q(3);
 
-                                translations.data[18].data[0] = Q(1)/Q(3);
-                                translations.data[18].data[1] = Q(-1)/Q(3);
+                                translations[18].data[0] = Q(1)/Q(3);
+                                translations[18].data[1] = Q(-1)/Q(3);
 
-                                translations.data[19].data[0] = Q(-1)/Q(3);
-                                translations.data[19].data[1] = Q(-1)/Q(3);
+                                translations[19].data[0] = Q(-1)/Q(3);
+                                translations[19].data[1] = Q(-1)/Q(3);
                             }
 
                             for (unsigned int i = 0; i < nfunctions; i++)
                             {
-                                functions.push_back(transformation::scale<Q,d>(Q(1)/Q(3)) * transformation::translation<Q,d>(translations.data[i]));
+                                functions.push_back(transformation::scale<Q,d>(Q(1)/Q(3)) * transformation::translation<Q,d>(translations[i]));
                             }
 
                             calculateObject();
