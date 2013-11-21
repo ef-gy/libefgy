@@ -30,6 +30,7 @@
 
 #include <ef.gy/coordinate-space.h>
 #include <ef.gy/matrix.h>
+#include <array>
 
 namespace efgy
 {
@@ -149,7 +150,7 @@ namespace efgy
 
             template <typename Q, unsigned int d>
             typename space <Q,d>::vector getNormal
-                (const typename math::tuple<d-1,typename space<Q,d>::vector> &pV)
+                (const typename std::array<typename space<Q,d>::vector,d-1> &pV)
             {
                 math::matrix<Q,d,d> pM;
                 typename math::tuple<d,typename space<Q,d>::vector> baseVectors;
@@ -158,7 +159,7 @@ namespace efgy
                 {
                     for (unsigned int j = 0; j < d; j++)
                     {
-                        pM.data[i][j] = pV.data[i].data[j];
+                        pM.data[i][j] = pV[i].data[j];
                         baseVectors.data[i].data[j] = ((i == j) ? 1 : 0);
                     }
                 }
@@ -216,9 +217,9 @@ namespace efgy
 
             template <typename Q>
             typename space <Q,3>::vector getNormal
-                (const typename math::tuple<2,typename space<Q,3>::vector> &pV)
+                (const typename std::array<typename space<Q,3>::vector,2> &pV)
             {
-                return crossProduct<Q>(pV.data[0], pV.data[1]);
+                return crossProduct<Q>(pV[0], pV[1]);
             }
 
 #if defined(EF_GY_FRACTIONS_H)
