@@ -272,50 +272,46 @@ namespace efgy
                         std::vector<std::array<typename euclidian::space<Q,d>::vector,2> > newLines;
                         std::vector<std::array<typename euclidian::space<Q,d>::vector,4> > newFaces;
                         
-                        for (typename std::vector<std::array<typename euclidian::space<Q,d>::vector,2> >::iterator it = lines.begin();
-                             it != lines.end(); it++)
-                        {
-                            (*it)[0][i] = -diameter;
-                            (*it)[1][i] = -diameter;
+                        std::for_each (lines.begin(), lines.end(), [&] (std::array<typename euclidian::space<Q,d>::vector,2> &line) {
+                            line[0][i] = -diameter;
+                            line[1][i] = -diameter;
 
-                            std::array<typename euclidian::space<Q,d>::vector,2> newLine = *it;
+                            std::array<typename euclidian::space<Q,d>::vector,2> newLine = line;
 
                             newLine[0][i] = diameter;
                             newLine[1][i] = diameter;
 
                             newLines.push_back(newLine);
-                            newFaces.push_back({{newLine[0], newLine[1], (*it)[1], (*it)[0]}});
-                        }
-                        
-                        for (typename std::vector<std::array<typename euclidian::space<Q,d>::vector,4> >::iterator it = faces.begin();
-                             it != faces.end(); it++)
+                            newFaces.push_back({{newLine[0], newLine[1], line[1], line[0]}});
+                        });
+
+                        std::for_each (faces.begin(), faces.end(), [&] (typename parent::face &face)
                         {
-                            (*it)[0][i] = -diameter;
-                            (*it)[1][i] = -diameter;
-                            (*it)[2][i] = -diameter;
-                            (*it)[3][i] = -diameter;
-                            
-                            std::array<typename euclidian::space<Q,d>::vector,4> newFace = *it;
+                            face[0][i] = -diameter;
+                            face[1][i] = -diameter;
+                            face[2][i] = -diameter;
+                            face[3][i] = -diameter;
+
+                            auto newFace = face;
                             newFace[0][i] = diameter;
                             newFace[1][i] = diameter;
                             newFace[2][i] = diameter;
                             newFace[3][i] = diameter;
                             newFaces.push_back(newFace);
-                        }
-                        
-                        for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it = points.begin();
-                             it != points.end(); it++)
-                        {
-                            (*it)[i] = -diameter;
+                        });
 
-                            std::array<typename euclidian::space<Q,d>::vector,2> newLine {{ *it, *it }};
+                        std::for_each (points.begin(), points.end(), [&] (typename euclidian::space<Q,d>::vector &v)
+                        {
+                            v[i] = -diameter;
+
+                            std::array<typename euclidian::space<Q,d>::vector,2> newLine {{ v, v }};
 
                             newLine[1][i] = diameter;
                             
                             newPoints.push_back(newLine[1]);
                             
                             lines.push_back(newLine);
-                        }
+                        });
 
                         points.insert(points.end(), newPoints.begin(), newPoints.end());
                         lines.insert(lines.end(), newLines.begin(), newLines.end());
