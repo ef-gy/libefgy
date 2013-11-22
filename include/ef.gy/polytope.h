@@ -78,20 +78,23 @@ namespace efgy
 
                 void renderSolid () const
                 {
-                    typename std::vector<Q>::const_iterator itIndex = indices.begin();
-
-                    std::for_each (faces.begin(), faces.end(), [&] (const face &p)
+                    if (faces.size() != indices.size())
                     {
-                        if (itIndex == indices.end())
+                        std::for_each (faces.begin(), faces.end(), [&] (const face &p)
                         {
-                            renderer.drawFace (p);
-                        }
-                        else
+                            renderer.drawFace(p);
+                        });
+                    }
+                    else
+                    {
+                        typename std::vector<Q>::const_iterator itIndex = indices.begin();
+
+                        std::for_each (faces.begin(), faces.end(), [&] (const face &p)
                         {
                             renderer.drawFace (p, *itIndex);
                             itIndex++;
-                        }
-                    });
+                        });
+                    }
                 }
 
                 static const unsigned int modelDimensionMinimum  = 2;
@@ -250,10 +253,8 @@ namespace efgy
                     faces.clear();
                     
                     std::vector<typename euclidian::space<Q,d>::vector> points;
-                    
-                    typename euclidian::space<Q,d>::vector A;
-                    
-                    points.push_back (A);
+
+                    points.push_back (typename euclidian::space<Q,d>::vector());
 
                     for (unsigned int i = 0; i < od; i++)
                     {
