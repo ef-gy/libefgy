@@ -185,18 +185,7 @@ namespace efgy
 
                     std::for_each (points.begin(), points.end(), [&] (const typename euclidian::space<Q,d>::vector &point)
                     {
-                        bool pointInSet = false;
-
-                        for (const typename euclidian::space<Q,d>::vector &point2 : points2)
-                        {
-                            if (point == point2)
-                            {
-                                pointInSet = true;
-                                break;
-                            }
-                        }
-
-                        if (!pointInSet)
+                        if (std::find (points2.begin(), points2.end(), point) == points2.end())
                         {
                             points2.push_back (point);
                         }
