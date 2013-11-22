@@ -224,12 +224,12 @@ namespace efgy
                                 for (unsigned int i = 0; i < d; i++)
                                     if (i < (d-1))
                                         rv[i] = V[i]
-                                                   * transformationMatrix.data[i][0]
-                                                   * sin(V[(i+1)] / (transformationMatrix.data[d][i] * transformationMatrix.data[d][i]));
+                                                   * transformationMatrix[i][0]
+                                                   * sin(V[(i+1)] / (transformationMatrix[d][i] * transformationMatrix[d][i]));
                                     else
                                         rv[i] = V[i]
-                                                   * transformationMatrix.data[i][0]
-                                                   * sin(V[0] / (transformationMatrix.data[d][i] * transformationMatrix.data[d][i]));
+                                                   * transformationMatrix[i][0]
+                                                   * sin(V[0] / (transformationMatrix[d][i] * transformationMatrix[d][i]));
                                 break;
                             case 16: // "fisheye"
                                 for (unsigned int i = 0; i < d; i++)
@@ -238,7 +238,7 @@ namespace efgy
                                 break;
                             case 17: // "popcorn"
                                 for (unsigned int i = 0; i < d; i++)
-                                    rv[i] = V[i] + transformationMatrix.data[d][i] * sin(tan(Q(3)*V[i]));
+                                    rv[i] = V[i] + transformationMatrix[d][i] * sin(tan(Q(3)*V[i]));
                                 break;
                             case 18: // "exponential"
                                 for (unsigned int i = 0; i < d; i++)

@@ -33,6 +33,8 @@
 #if !defined(EF_GY_MATRIX_H)
 #define EF_GY_MATRIX_H
 
+#include <array>
+
 namespace efgy
 {
     namespace math
@@ -47,7 +49,7 @@ namespace efgy
          * \tparam m Number of columns in the matrix.
          */
         template <typename Q, unsigned int n, unsigned int m>
-        class matrix
+        class matrix : public std::array<std::array<Q,m>,n>
         {
             public:
                 /**\brief Default constructor
@@ -66,11 +68,11 @@ namespace efgy
                             {
                                 if ((i < rn) && (j < rm))
                                 {
-                                    data[i][j] = b.data[i][j];
+                                    (*this)[i][j] = b[i][j];
                                 }
                                 else
                                 {
-                                    data[i][j] = Q();
+                                    (*this)[i][j] = Q();
                                 }
                             }
                         }
@@ -82,7 +84,7 @@ namespace efgy
                     {
                         for (unsigned int j = 0; j < m; j++)
                         {
-                            data[i][j] = b.data[i][j];
+                            (*this)[i][j] = b[i][j];
                         }
                     }
 
@@ -97,7 +99,7 @@ namespace efgy
                     {
                         for (unsigned int j = 0; j < m; j++)
                         {
-                            r.data[i][j] = data[i][j] + b.data[i][j];
+                            r[i][j] = (*this)[i][j] + b[i][j];
                         }
                     }
 
@@ -112,7 +114,7 @@ namespace efgy
                     {
                         for (unsigned int j = 0; j < m; j++)
                         {
-                            r.data[i][j] = data[i][j] - b.data[i][j];
+                            r[i][j] = (*this)[i][j] - b[i][j];
                         }
                     }
 
@@ -128,11 +130,11 @@ namespace efgy
                     {
                         for (unsigned int j = 0; j < p; j++)
                         {
-                            r.data[i][j] = 0;
+                            r[i][j] = 0;
                             
                             for (unsigned int k = 0; k < m; k++)
                             {
-                                r.data[i][j] += data[i][k] * b.data[k][j];
+                                r[i][j] += (*this)[i][k] * b[k][j];
                             }
                         }
                     }
@@ -148,7 +150,7 @@ namespace efgy
                     {
                         for (unsigned int j = 0; j < m; j++)
                         {
-                            r.data[i][j] = data[i][j] + b;
+                            r[i][j] = (*this)[i][j] + b;
                         }
                     }
                     
@@ -163,7 +165,7 @@ namespace efgy
                     {
                         for (unsigned int j = 0; j < m; j++)
                         {
-                            r.data[i][j] = data[i][j] - b;
+                            r[i][j] = (*this)[i][j] - b;
                         }
                     }
                     
@@ -178,7 +180,7 @@ namespace efgy
                     {
                         for (unsigned int j = 0; j < m; j++)
                         {
-                            r.data[i][j] = data[i][j] * b;
+                            r[i][j] = (*this)[i][j] * b;
                         }
                     }
                     
@@ -193,14 +195,12 @@ namespace efgy
                     {
                         for (unsigned int j = 0; j < m; j++)
                         {
-                            r.data[i][j] = data[i][j] / b;
+                            r[i][j] = (*this)[i][j] / b;
                         }
                     }
                     
                     return r;
                 }
-
-                Q data[n][m];
         };
 
         template <typename Q, unsigned int d>
@@ -221,7 +221,7 @@ namespace efgy
                             continue;
                         }
 
-                        pS.data[r][c] = pM.data[j][k];
+                        pS[r][c] = pM[j][k];
 
                         c++;
                     }
@@ -229,11 +229,11 @@ namespace efgy
 
                 if ((i % 2) == 0)
                 {
-                    rv += pM.data[0][i] * determinant(pS);
+                    rv += pM[0][i] * determinant(pS);
                 }
                 else
                 {
-                    rv -= pM.data[0][i] * determinant(pS);
+                    rv -= pM[0][i] * determinant(pS);
                 }
             }
 
@@ -243,13 +243,13 @@ namespace efgy
         template <typename Q>
         Q determinant (const matrix<Q,2,2> &pM)
         {
-            return pM.data[0][0] * pM.data[1][1] - pM.data[1][0] * pM.data[0][1];
+            return pM[0][0] * pM[1][1] - pM[1][0] * pM[0][1];
         }
 
         template <typename Q>
         Q determinant (const matrix<Q,1,1> &pM)
         {
-            return pM.data[0][0];
+            return pM[0][0];
         }
 
         template <typename Q, unsigned int d>
@@ -259,7 +259,7 @@ namespace efgy
             {
                 for (unsigned int j = 0; j < d; j++)
                 {
-                    if (pM.data[i][j] != (i == j ? Q(1) : Q(0)))
+                    if (pM[i][j] != (i == j ? Q(1) : Q(0)))
                     {
                         return false;
                     }
@@ -278,7 +278,7 @@ namespace efgy
             {
                 for (unsigned int j = 0; j < m; j++)
                 {
-                    rv.data[j][i] = pM.data[i][j];
+                    rv[j][i] = pM[i][j];
                 }
             }
 
@@ -290,25 +290,25 @@ namespace efgy
         {
             matrix<Q,3,3> rv;
 
-            const Q &a = pM.data[0][0];
-            const Q &b = pM.data[0][1];
-            const Q &c = pM.data[0][2];
-            const Q &d = pM.data[1][0];
-            const Q &e = pM.data[1][1];
-            const Q &f = pM.data[1][2];
-            const Q &g = pM.data[2][0];
-            const Q &h = pM.data[2][1];
-            const Q &i = pM.data[2][2];
+            const Q &a = pM[0][0];
+            const Q &b = pM[0][1];
+            const Q &c = pM[0][2];
+            const Q &d = pM[1][0];
+            const Q &e = pM[1][1];
+            const Q &f = pM[1][2];
+            const Q &g = pM[2][0];
+            const Q &h = pM[2][1];
+            const Q &i = pM[2][2];
 
-            rv.data[0][0] =   e * i - f * h;
-            rv.data[0][1] = -(d * i - f * g);
-            rv.data[0][2] =   d * h - e * g;
-            rv.data[1][0] = -(b * i - c * h);
-            rv.data[1][1] =   a * i - c * g;
-            rv.data[1][2] = -(a * h - b * g);
-            rv.data[2][0] =   b * f - c * e;
-            rv.data[2][1] = -(a * f - c * d);
-            rv.data[2][2] =   a * e - b * d;
+            rv[0][0] =   e * i - f * h;
+            rv[0][1] = -(d * i - f * g);
+            rv[0][2] =   d * h - e * g;
+            rv[1][0] = -(b * i - c * h);
+            rv[1][1] =   a * i - c * g;
+            rv[1][2] = -(a * h - b * g);
+            rv[2][0] =   b * f - c * e;
+            rv[2][1] = -(a * f - c * d);
+            rv[2][2] =   a * e - b * d;
 
             return rv / determinant(pM);
         }

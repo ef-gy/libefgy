@@ -51,8 +51,6 @@ namespace efgy
                             vector (const std::array<scalar, n> &t) : math::coordinateSpace<F,n>::vector(t) {}
                             explicit vector (const typename math::coordinateSpace<F,n>::vector &t) : math::coordinateSpace<F,n>::vector(t) {}
 
-                            using math::coordinateSpace<F,n>::vector::data;
-
                             operator typename euclidian::space<F,n>::vector () const
                             {
                                 typename euclidian::space<F,n>::vector v;

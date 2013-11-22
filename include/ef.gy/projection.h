@@ -94,15 +94,15 @@ namespace efgy
                         {
                             if ((i < d) && (j < d))
                             {
-                                transformationMatrix.data[i][j] = columns[j][i];
+                                transformationMatrix[i][j] = columns[j][i];
                             }
                             else if (i == j)
                             {
-                                transformationMatrix.data[i][j] = 1;
+                                transformationMatrix[i][j] = 1;
                             }
                             else
                             {
-                                transformationMatrix.data[i][j] = 0;
+                                transformationMatrix[i][j] = 0;
                             }
                         }
                     }
@@ -138,12 +138,12 @@ namespace efgy
 
                     if (d == 3)
                     {
-                        transformationMatrix.data[0][0] = f/aspect;
-                        transformationMatrix.data[1][1] = f;
-                        transformationMatrix.data[2][2] = (far+near)/(near-far);
-                        transformationMatrix.data[3][2] = Q(-2)*far*near/(near-far);
-                        transformationMatrix.data[2][3] = Q(-1);
-                        transformationMatrix.data[3][3] = Q(0);
+                        transformationMatrix[0][0] = f/aspect;
+                        transformationMatrix[1][1] = f;
+                        transformationMatrix[2][2] = (far+near)/(near-far);
+                        transformationMatrix[3][2] = Q(-2)*far*near/(near-far);
+                        transformationMatrix[2][3] = Q(-1);
+                        transformationMatrix[3][3] = Q(0);
                     }
                     else for (unsigned int i = 0; i <= d; i++)
                     {
@@ -151,11 +151,11 @@ namespace efgy
                         {
                             if (i == j)
                             {
-                                transformationMatrix.data[i][j] = ((i >= (d-1)) ? Q(1) : f);
+                                transformationMatrix[i][j] = ((i >= (d-1)) ? Q(1) : f);
                             }
                             else
                             {
-                                transformationMatrix.data[i][j] = 0;
+                                transformationMatrix[i][j] = 0;
                             }
                         }
                     }

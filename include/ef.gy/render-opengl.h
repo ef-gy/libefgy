@@ -205,22 +205,22 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[16] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[0][2]),
-                            GLfloat(matrix.data[0][3]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]),
-                            GLfloat(matrix.data[1][2]),
-                            GLfloat(matrix.data[1][3]),
-                            GLfloat(matrix.data[2][0]),
-                            GLfloat(matrix.data[2][1]),
-                            GLfloat(matrix.data[2][2]),
-                            GLfloat(matrix.data[2][3]),
-                            GLfloat(matrix.data[3][0]),
-                            GLfloat(matrix.data[3][1]),
-                            GLfloat(matrix.data[3][2]),
-                            GLfloat(matrix.data[3][3]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[0][3]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[1][3]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]),
+                            GLfloat(matrix[2][3]),
+                            GLfloat(matrix[3][0]),
+                            GLfloat(matrix[3][1]),
+                            GLfloat(matrix[3][2]),
+                            GLfloat(matrix[3][3]) };
 
                         glUniformMatrix4fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
@@ -250,15 +250,15 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[9] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[0][2]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]),
-                            GLfloat(matrix.data[1][2]),
-                            GLfloat(matrix.data[2][0]),
-                            GLfloat(matrix.data[2][1]),
-                            GLfloat(matrix.data[2][2]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]) };
 
                         glUniformMatrix3fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
@@ -288,10 +288,10 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[4] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]) };
 
                         glUniformMatrix2fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
@@ -371,22 +371,22 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[16] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[0][2]),
-                            GLfloat(matrix.data[0][3]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]),
-                            GLfloat(matrix.data[1][2]),
-                            GLfloat(matrix.data[1][3]),
-                            GLfloat(matrix.data[2][0]),
-                            GLfloat(matrix.data[2][1]),
-                            GLfloat(matrix.data[2][2]),
-                            GLfloat(matrix.data[2][3]),
-                            GLfloat(matrix.data[3][0]),
-                            GLfloat(matrix.data[3][1]),
-                            GLfloat(matrix.data[3][2]),
-                            GLfloat(matrix.data[3][3]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[0][3]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[1][3]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]),
+                            GLfloat(matrix[2][3]),
+                            GLfloat(matrix[3][0]),
+                            GLfloat(matrix[3][1]),
+                            GLfloat(matrix[3][2]),
+                            GLfloat(matrix[3][3]) };
 
                         glUniformMatrix4fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
@@ -416,15 +416,15 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[9] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[0][2]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]),
-                            GLfloat(matrix.data[1][2]),
-                            GLfloat(matrix.data[2][0]),
-                            GLfloat(matrix.data[2][1]),
-                            GLfloat(matrix.data[2][2]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]) };
 
                         glUniformMatrix3fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
@@ -454,10 +454,10 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[4] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]) };
 
                         glUniformMatrix2fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;

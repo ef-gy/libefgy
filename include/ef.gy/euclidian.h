@@ -53,8 +53,6 @@ namespace efgy
                             vector (const std::array<scalar, n> &t) : math::coordinateSpace<F,n>::vector(t) {}
                             explicit vector (const typename math::coordinateSpace<F,n>::vector &t) : math::coordinateSpace<F,n>::vector(t) {}
 
-                            using math::coordinateSpace<F,n>::vector::data;
-
                             template<unsigned int nd>
                             typename space<F,nd>::vector expand (void) const
                             {
@@ -110,7 +108,7 @@ namespace efgy
 
                 for (unsigned int i = 0; i < n; i++)
                 {
-                    rv += a.data[i] * b.data[i];
+                    rv += a[i] * b[i];
                 }
 
                 return rv;
@@ -159,7 +157,7 @@ namespace efgy
                 {
                     for (unsigned int j = 0; j < d; j++)
                     {
-                        pM.data[i][j] = pV[i][j];
+                        pM[i][j] = pV[i][j];
                         baseVectors[i][j] = ((i == j) ? 1 : 0);
                     }
                 }
@@ -185,7 +183,7 @@ namespace efgy
                                 continue;
                             }
 
-                            pS.data[r][c] = pM.data[j][k];
+                            pS[r][c] = pM[j][k];
 
                             c++;
                         }
