@@ -183,15 +183,13 @@ namespace efgy
 
                     std::vector<typename euclidian::space<Q,d>::vector> points2;
 
-                    for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it1 = points.begin();
-                         it1 != points.end(); it1++)
+                    std::for_each (points.begin(), points.end(), [&] (const typename euclidian::space<Q,d>::vector &point)
                     {
                         bool pointInSet = false;
 
-                        for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it2 = points2.begin();
-                             it2 != points2.end(); it2++)
+                        for (const typename euclidian::space<Q,d>::vector &point2 : points2)
                         {
-                            if (*it1 == *it2)
+                            if (point == point2)
                             {
                                 pointInSet = true;
                                 break;
@@ -200,43 +198,30 @@ namespace efgy
 
                         if (!pointInSet)
                         {
-                            points2.push_back (*it1);
+                            points2.push_back (point);
                         }
-                    }
+                    });
 
                     points = points2;
 
                     std::vector<typename euclidian::space<Q,d>::vector> usedPoints;
 
-                    for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it1 = points.begin();
-                         it1 != points.end(); it1++)
+                    std::for_each (points.begin(), points.end(), [&] (const typename euclidian::space<Q,d>::vector &A)
                     {
-                        const typename euclidian::space<Q,d>::vector A = *it1;
-
                         std::vector<typename euclidian::space<Q,d>::vector> usedPoints2;
 
-                        for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it2 = usedPoints.begin();
-                             it2 != usedPoints.end(); it2++)
+                        std::for_each (usedPoints.begin(), usedPoints.end(), [&] (const typename euclidian::space<Q,d>::vector &B)
                         {
-                            const typename euclidian::space<Q,d>::vector B = *it2;
-
-                            for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it3 = usedPoints2.begin();
-                                 it3 != usedPoints2.end(); it3++)
+                            std::for_each (usedPoints2.begin(), usedPoints2.end(), [&] (const typename euclidian::space<Q,d>::vector &C)
                             {
-                                const typename euclidian::space<Q,d>::vector C = *it3;
-
-                                std::array<typename euclidian::space<Q,d>::vector,3> newTriangle;
-                                newTriangle[0] = A;
-                                newTriangle[1] = B;
-                                newTriangle[2] = C;
-                                faces.push_back(newTriangle);
-                            }
+                                faces.push_back ({{ A, B, C }});
+                            });
 
                             usedPoints2.push_back(B);
-                        }
+                        });
 
                         usedPoints.push_back(A);
-                    }
+                    });
                 }
         };
 
