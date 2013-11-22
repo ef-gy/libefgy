@@ -108,19 +108,11 @@ namespace efgy
                             Q un = (u + stepU) <= Q(2*M_PI) ? (u + stepU) : Q(2*M_PI);
                             Q vn = (v + stepV) <= Q(radius) ? (v + stepV) : radius;
 
-                            const typename euclidian::space<Q,d>::vector A = getCoordinates(radius, u, v);
-                            const typename euclidian::space<Q,d>::vector B = getCoordinates(radius, un, v);
-                            const typename euclidian::space<Q,d>::vector C = getCoordinates(radius, u, vn);
-                            const typename euclidian::space<Q,d>::vector D = getCoordinates(radius, un, vn);
-
-                            std::array<typename euclidian::space<Q,d>::vector,4> newFace;
-
-                            newFace[0] = A;
-                            newFace[1] = B;
-                            newFace[2] = D;
-                            newFace[3] = C;
-
-                            faces.push_back(newFace);
+                            faces.push_back
+                                ({{ getCoordinates(radius, u, v),
+                                    getCoordinates(radius, un, v),
+                                    getCoordinates(radius, un, vn),
+                                    getCoordinates(radius, u, vn) }});
                         }
                     }
                 }
@@ -204,19 +196,11 @@ namespace efgy
                             Q un = (u + stepU) <= Q(2*M_PI) ? (u + stepU) : Q(2*M_PI);
                             Q vn = (v + stepV) <= Q(2*M_PI) ? (v + stepV) : Q(2*M_PI);
 
-                            const typename euclidian::space<Q,d>::vector A = getCoordinates(radius, u, v);
-                            const typename euclidian::space<Q,d>::vector B = getCoordinates(radius, un, v);
-                            const typename euclidian::space<Q,d>::vector C = getCoordinates(radius, u, vn);
-                            const typename euclidian::space<Q,d>::vector D = getCoordinates(radius, un, vn);
-
-                            std::array<typename euclidian::space<Q,d>::vector,4> newFace;
-
-                            newFace[0] = A;
-                            newFace[1] = B;
-                            newFace[2] = D;
-                            newFace[3] = C;
-
-                            faces.push_back(newFace);
+                            faces.push_back
+                                ({{ getCoordinates(radius, u, v),
+                                    getCoordinates(radius, un, v),
+                                    getCoordinates(radius, un, vn),
+                                    getCoordinates(radius, u, vn) }});
                         }
                     }
                 }

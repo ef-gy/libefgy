@@ -292,7 +292,7 @@ namespace efgy
                             face[2][i] = -diameter;
                             face[3][i] = -diameter;
 
-                            auto newFace = face;
+                            typename parent::face newFace = face;
                             newFace[0][i] = diameter;
                             newFace[1][i] = diameter;
                             newFace[2][i] = diameter;
