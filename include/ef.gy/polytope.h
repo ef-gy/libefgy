@@ -41,6 +41,7 @@
 #include <ef.gy/polar.h>
 #include <vector>
 #include <array>
+#include <algorithm>
 
 namespace efgy
 {
@@ -77,22 +78,20 @@ namespace efgy
 
                 void renderSolid () const
                 {
-                    typename std::vector<std::array<typename euclidian::space<Q,d>::vector,f> >::const_iterator it = faces.begin();
                     typename std::vector<Q>::const_iterator itIndex = indices.begin();
 
-                    while (it != faces.end())
+                    std::for_each (faces.begin(), faces.end(), [&] (const face &p)
                     {
                         if (itIndex == indices.end())
                         {
-                            renderer.render::template drawFace<f> (*it);
+                            renderer.drawFace (p);
                         }
                         else
                         {
-                            renderer.render::template drawFace<f> (*it, *itIndex);
+                            renderer.drawFace (p, *itIndex);
                             itIndex++;
                         }
-                        it++;
-                    }
+                    });
                 }
 
                 static const unsigned int modelDimensionMinimum  = 2;
@@ -106,11 +105,12 @@ namespace efgy
                 std::array<Q,0> genome (void) const { return {{}}; }
 
             protected:
+                typedef std::array<typename euclidian::space<Q,d>::vector,f> face;
                 render &renderer;
                 const parameters<Q> &parameter;
                 const Q &precisionMultiplier;
 
-                std::vector<std::array<typename euclidian::space<Q,d>::vector,f> > faces;
+                std::vector<face> faces;
                 std::vector<Q> indices;
         };
 
