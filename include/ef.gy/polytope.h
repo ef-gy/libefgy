@@ -102,6 +102,9 @@ namespace efgy
 
                 static const unsigned int faceVertices = f;
 
+                static unsigned int renderDepth (void) { return d; }
+                std::array<Q,0> genome (void) const { return {{}}; }
+
             protected:
                 render &renderer;
                 const parameters<Q> &parameter;
@@ -318,12 +321,10 @@ namespace efgy
                         for (typename std::vector<typename euclidian::space<Q,d>::vector>::iterator it = points.begin();
                              it != points.end(); it++)
                         {
-                            std::array<typename euclidian::space<Q,d>::vector,2> newLine;
-                            
                             (*it)[i] = -diameter;
-                            
-                            newLine[0] = *it;
-                            newLine[1] = *it;
+
+                            std::array<typename euclidian::space<Q,d>::vector,2> newLine {{ *it, *it }};
+
                             newLine[1][i] = diameter;
                             
                             newPoints.push_back(newLine[1]);
@@ -377,21 +378,7 @@ namespace efgy
                     {
                         for (Q j = -s; j <= s; j+=q)
                         {
-                            std::array<typename euclidian::space<Q,d>::vector,4> newFace;
-
-                            newFace[0][0] = i;
-                            newFace[0][1] = j;
-                            
-                            newFace[1][0] = i+q;
-                            newFace[1][1] = j;
-                            
-                            newFace[2][0] = i+q;
-                            newFace[2][1] = j+q;
-                            
-                            newFace[3][0] = i;
-                            newFace[3][1] = j+q;
-
-                            faces.push_back(newFace);
+                            faces.push_back({{ {{i, j}}, {{i+q, j}}, {{i+q, j+q}}, {{i, j+q}} }});
                         }
                     }
                 }
@@ -479,8 +466,7 @@ namespace efgy
 
                     faces.clear();
 
-                    typename polar::space<Q,d>::vector v;
-                    v[0] = radius;
+                    typename polar::space<Q,d>::vector v {{ radius }};
 
                     const int r = od;
                     const int q = r-1;
