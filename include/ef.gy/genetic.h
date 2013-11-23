@@ -32,7 +32,9 @@
 #include <cstdlib>
 #include <ctime>
 #include <map>
+#include <array>
 #include "../ef.gy/random.h"
+
 namespace efgy
 {
     namespace optimise
@@ -48,10 +50,10 @@ namespace efgy
         A class that handles classic genetic algorithms. 
 
         This class contains the entire population of the GA; individual genomes are 
-        represented as GAIndividual<T, genomeLength>. 
+        represented as individual<T, genomeLength>. 
 
         \tparam Fitness is assumed to have a _static_ overloaded () operator that accepts
-        a GAIndividual and returns a value of type Q.
+        a individual and returns a value of type Q.
 
         \tparam Q is assumed to be a type that represents rational numbers; the default is double,
         but one might want to use long doubles, fractions, or other rational data types instead.
@@ -68,8 +70,8 @@ namespace efgy
         indicates whether the genetic algorithm should terminate.
 
         \tparam Select is assumed to be a functor with a static overloaded () operator that takes the target population size,
-        a vector of GAIndividual and the Fitness functor as its arguments, 
-        and returns a vector of GAIndividual as the new population, implementing a selection
+        a vector of individual and the Fitness functor as its arguments, 
+        and returns a vector of individual as the new population, implementing a selection
         method of the user's choice. Its template argument is an instance of type geneticAlgorithm,
         usually the this pointer.
 
@@ -88,29 +90,9 @@ namespace efgy
         typedef Fitness FitnessFunctor;
 
        /// an individual for genetic algorithms
-        class GAIndividual
-        {
-           public:
-             GAIndividual()
-             {
-                Initialise(&genome, genomeLength);
-             }
-            
-            private:
-             void set(int position, T newValue)
-             {
-                if((0 <= position) && (position <= genomeLength))
-                {
-                    genome[position] = newValue;
-                }
-             }
-             
-            T genome[genomeLength];
-            
-    
-        };
+        typedef std::array<T, genomeLength> individual;
         /// population
-        std::vector<GAIndividual > population;
+        std::vector<individual > population;
 
         /// mutation probability
         Q pMutate;
@@ -123,9 +105,9 @@ namespace efgy
         void breedNextGeneration()
         {
            Select<geneticAlgorithm<T, genomeLength, Fitness, Mutate,  hasTerminated, selectNull, Initialise, populationSize, Q > > sel(&this);
-           std::vector<GAIndividual > parents = sel(populationSize, population);
+           std::vector<individual > parents = sel(populationSize, population);
            
-           std::vector<GAIndividual > children;
+           std::vector<individual > children;
            while(children.size() < populationSize)
            {
               std::srand(std::time(NULL));
@@ -133,17 +115,17 @@ namespace efgy
               int p1 = rng.rand(0, parents.size());
               int p2 = rng.rand(0, parents.size());
               
-              GAIndividual  i1 = parents[p1];
-              GAIndividual  i2 = parents[p2];
+              individual  i1 = parents[p1];
+              individual  i2 = parents[p2];
 
-              std::pair<GAIndividual , GAIndividual> offspring;
+              std::pair<individual , individual> offspring;
               double r = (double) rng.rand() / (double) rng.max();
               if(r < pCrossover) {
                 offspring = onePointCrossover(i1, i2);
               }
               else
               {
-                offspring = std::pair<GAIndividual , GAIndividual>(i1, i2);
+                offspring = std::pair<individual , individual>(i1, i2);
               }
 
               r = (double) rng.rand() / (double) rng.max();
@@ -160,14 +142,14 @@ namespace efgy
         }
 
 
-        void mutate(GAIndividual  &individual)
+        void mutate(individual  &individual)
         {
             int position = rng.rand(0, genomeLength);
             
             individual.set(position, Mutate(individual[position]));
         }
        
-        std::pair<GAIndividual , GAIndividual>  onePointCrossover(GAIndividual &i1, GAIndividual &i2)
+        std::pair<individual , individual>  onePointCrossover(individual &i1, individual &i2)
         {
            int position =  rng.rand(0, genomeLength);
 
@@ -177,7 +159,7 @@ namespace efgy
                 i1.genome[k] = i2.genome[k];
                 i2.genome[k] = tmp;
             }
-           return std::pair<GAIndividual , GAIndividual> (i1, i2);
+           return std::pair<individual , individual> (i1, i2);
         }
         
        public:
@@ -185,23 +167,23 @@ namespace efgy
         {
             for(int i = 0; i < populationSize; i++)
             {
-                population.push_back(GAIndividual ());
+                population.push_back(individual ());
             }
             rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
         }
 
 
-        GAIndividual  start()
+        individual  start()
         {
             while(!hasTerminated())
               {
                 breedNextGeneration();
               }
 
-            std::map<Q, GAIndividual > lastGeneration;
-            for(typename std::vector<GAIndividual >::iterator it = population.begin(); it != population.end(); it++)
+            std::map<Q, individual > lastGeneration;
+            for(typename std::vector<individual >::iterator it = population.begin(); it != population.end(); it++)
             {
-                lastGeneration.insert(std::pair<Q, GAIndividual > (Fitness(*it), *it));
+                lastGeneration.insert(std::pair<Q, individual > (Fitness(*it), *it));
             }
 
             return lastGeneration.end().second;            
@@ -236,38 +218,38 @@ namespace efgy
             {
             }
 
-            std::vector<typename S::GAIndividual > operator() (int targetSize, std::vector<typename S::GAIndividual > population)
+            std::vector<typename S::individual > operator() (int targetSize, std::vector<typename S::individual > population)
             {
                random::mersenneTwister<unsigned long long> rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
                
-               std::map<typename S::Q, typename S::GAIndividual > current;
-               for(typename std::vector<typename S::GAIndividual >::iterator it = population.begin(); it != population.end(); it++)
+               std::map<typename S::Q, typename S::individual > current;
+               for(typename std::vector<typename S::individual >::iterator it = population.begin(); it != population.end(); it++)
                {
-                    current.insert(std::pair<typename S::Q, typename S::GAIndividual > (typename S::FitnessFunctor(*it), *it));
+                    current.insert(std::pair<typename S::Q, typename S::individual > (typename S::FitnessFunctor(*it), *it));
                }
                
-               std::vector<typename S::GAIndividual > newPopulation; 
+               std::vector<typename S::individual > newPopulation; 
 
                while (newPopulation.size () < targetSize)
                {
-                    std::map<typename S::Q, typename S::GAIndividual > tournament;
+                    std::map<typename S::Q, typename S::individual > tournament;
                     for(int i = 0; i < tournamentSize; i++)
                     {
                         int r = rng.rand(0, tournament.size());
                     {
-                        typename std::map<typename S::Q, typename S::GAIndividual >::iterator it = current.begin();
+                        typename std::map<typename S::Q, typename S::individual >::iterator it = current.begin();
                         for(int k = 0;
                             (it != current.end) && (k < r);
                             k++, it++)
                         {
-                            std::pair<typename S::Q, typename S::GAIndividual> p = *it;
+                            std::pair<typename S::Q, typename S::individual> p = *it;
                             tournament.insert(p);
                         }
                     }
 
                     for(int i = 0; i < tournamentSize; i++)
                     {
-                        typename std::map<typename S::Q, typename S::GAIndividual >::iterator it;
+                        typename std::map<typename S::Q, typename S::individual >::iterator it;
                         it = tournament.upper_bound(std::numeric_limits<typename S::Q>::max());
                         if(newPopulation.size < targetSize)
                         {
