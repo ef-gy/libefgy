@@ -29,11 +29,12 @@
 #define EF_GY_RANGE_H
 
 #include <array>
+#include <iterator>
 
 namespace efgy
 {
     template<typename T>
-    class rangeIterator
+    class rangeIterator : public std::iterator<std::input_iterator_tag, T>
     {
         public:
             constexpr rangeIterator (const T &pStart, const T &pStep, std::size_t pPosition)
@@ -41,9 +42,18 @@ namespace efgy
 
             typedef T value_type;
 
+            constexpr bool operator == (const rangeIterator &b)
+            {
+                return (start == b.start)
+                    && (step  == b.step)
+                    && (position == b.position);
+            }
+
             constexpr bool operator != (const rangeIterator &b)
             {
-                return position != b.position;
+                return (start != b.start)
+                    || (step  != b.step)
+                    || (position != b.position);
             }
 
             constexpr T operator * (void)

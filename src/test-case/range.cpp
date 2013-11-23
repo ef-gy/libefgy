@@ -80,6 +80,12 @@ int testRange (std::ostream &log)
         p++;
     }
 
+    if (!std::equal (a1.begin(), a1.end(), range<int,8>(42,1).begin()))
+    {
+        log << "range iterator did not produce the expected results.\n";
+        return -5;
+    }
+
     return 0;
 }
 
