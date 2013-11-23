@@ -99,7 +99,7 @@ namespace efgy
                     const Q stepU = Q(M_PI/(precision*Q(2)));
                     const Q stepV = Q((2*radius)/precision);
 
-                    faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
+                    faces.clear();
 
                     for (Q u = 0; u < Q(2*M_PI); u += stepU)
                     {
@@ -108,19 +108,11 @@ namespace efgy
                             Q un = (u + stepU) <= Q(2*M_PI) ? (u + stepU) : Q(2*M_PI);
                             Q vn = (v + stepV) <= Q(radius) ? (v + stepV) : radius;
 
-                            const typename euclidian::space<Q,d>::vector A = getCoordinates(radius, u, v);
-                            const typename euclidian::space<Q,d>::vector B = getCoordinates(radius, un, v);
-                            const typename euclidian::space<Q,d>::vector C = getCoordinates(radius, u, vn);
-                            const typename euclidian::space<Q,d>::vector D = getCoordinates(radius, un, vn);
-
-                            math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
-
-                            newFace.data[0] = A;
-                            newFace.data[1] = B;
-                            newFace.data[2] = D;
-                            newFace.data[3] = C;
-
-                            faces.push_back(newFace);
+                            faces.push_back
+                                ({{ getCoordinates(radius, u, v),
+                                    getCoordinates(radius, un, v),
+                                    getCoordinates(radius, un, vn),
+                                    getCoordinates(radius, u, vn) }});
                         }
                     }
                 }
@@ -143,9 +135,9 @@ namespace efgy
                 {
                     typename euclidian::space<Q,d>::vector res;
 
-                    res.data[0] = getCoordinate(0, r, u, v);
-                    res.data[1] = getCoordinate(1, r, u, v);
-                    res.data[2] = getCoordinate(2, r, u, v);
+                    res[0] = getCoordinate(0, r, u, v);
+                    res[1] = getCoordinate(1, r, u, v);
+                    res[2] = getCoordinate(2, r, u, v);
 
                     return res;
                 }
@@ -195,7 +187,7 @@ namespace efgy
                     const Q stepU = Q(M_PI/(precision));
                     const Q stepV = stepU;
 
-                    faces = std::vector<math::tuple<4,typename euclidian::space<Q,d>::vector> >();
+                    faces.clear();
 
                     for (Q u = 0; u < Q(2*M_PI); u += stepU)
                     {
@@ -204,19 +196,11 @@ namespace efgy
                             Q un = (u + stepU) <= Q(2*M_PI) ? (u + stepU) : Q(2*M_PI);
                             Q vn = (v + stepV) <= Q(2*M_PI) ? (v + stepV) : Q(2*M_PI);
 
-                            const typename euclidian::space<Q,d>::vector A = getCoordinates(radius, u, v);
-                            const typename euclidian::space<Q,d>::vector B = getCoordinates(radius, un, v);
-                            const typename euclidian::space<Q,d>::vector C = getCoordinates(radius, u, vn);
-                            const typename euclidian::space<Q,d>::vector D = getCoordinates(radius, un, vn);
-
-                            math::tuple<4,typename euclidian::space<Q,d>::vector> newFace;
-
-                            newFace.data[0] = A;
-                            newFace.data[1] = B;
-                            newFace.data[2] = D;
-                            newFace.data[3] = C;
-
-                            faces.push_back(newFace);
+                            faces.push_back
+                                ({{ getCoordinates(radius, u, v),
+                                    getCoordinates(radius, un, v),
+                                    getCoordinates(radius, un, vn),
+                                    getCoordinates(radius, u, vn) }});
                         }
                     }
                 }
@@ -239,9 +223,9 @@ namespace efgy
                 {
                     typename euclidian::space<Q,d>::vector res;
 
-                    res.data[0] = getCoordinate(0, r, u, v);
-                    res.data[1] = getCoordinate(1, r, u, v);
-                    res.data[2] = getCoordinate(2, r, u, v);
+                    res[0] = getCoordinate(0, r, u, v);
+                    res[1] = getCoordinate(1, r, u, v);
+                    res[2] = getCoordinate(2, r, u, v);
 
                     return res;
                 }

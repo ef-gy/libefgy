@@ -28,7 +28,7 @@
 #if !defined(EF_GY_COORDINATE_SPACE_H)
 #define EF_GY_COORDINATE_SPACE_H
 
-#include <ef.gy/tuple.h>
+#include <array>
 
 namespace efgy
 {
@@ -75,7 +75,7 @@ namespace efgy
 
                             for (unsigned int i = 0; i < n; i++)
                             {
-                                r[i] = F(v.data[i]) * F(*this);
+                                r[i] = F(v[i]) * F(*this);
                             }
 
                             return vector(r);
@@ -87,23 +87,21 @@ namespace efgy
 
                             for (unsigned int i = 0; i < n; i++)
                             {
-                                r[i] = F(v.data[i]) / F(*this);
+                                r[i] = F(v[i]) / F(*this);
                             }
 
                             return vector(r);
                         }
                 };
 
-                class vector : public tuple<n, scalar>
+                class vector : public std::array<scalar, n>
                 {
                     public:
-                        vector () : tuple<n, scalar>() {}
-                        vector (const scalar t[n]) : tuple<n, scalar>(t) {}
-                        vector (const tuple<n, scalar> &t) : tuple<n, scalar>(t) {}
+                        vector () : std::array<scalar, n>() {}
+                        vector (const scalar t[n]) : std::array<scalar, n>() { std::copy(t, t+n, std::array<scalar, n>::begin()); }
+                        vector (const std::array<scalar, n> &t) : std::array<scalar, n>(t) {}
 
-                        using tuple<n,scalar>::data;
-
-                        using tuple<n,scalar>::operator =;
+                        using std::array<scalar, n>::operator =;
 
                         vector operator * (const scalar &s) const
                         {
@@ -116,7 +114,7 @@ namespace efgy
 
                             for (unsigned int i = 0; i < n; i++)
                             {
-                                s = s + (data[i] * v.data[i]);
+                                s = s + ((*this)[i] * v[i]);
                             }
 
                             return s;
@@ -133,7 +131,7 @@ namespace efgy
 
                             for (unsigned int i = 0; i < n; i++)
                             {
-                                s = s + (data[i] / v.data[i]);
+                                s = s + ((*this)[i] / v[i]);
                             }
 
                             return s;
@@ -145,7 +143,7 @@ namespace efgy
 
                             for (unsigned int i = 0; i < n; i++)
                             {
-                                r[i] = (data[i] + v.data[i]);
+                                r[i] = ((*this)[i] + v[i]);
                             }
 
                             return vector(r);
@@ -162,7 +160,7 @@ namespace efgy
 
                             for (unsigned int i = 0; i < n; i++)
                             {
-                                r[i] = (data[i] - v.data[i]);
+                                r[i] = ((*this)[i] - v[i]);
                             }
 
                             return vector(r);

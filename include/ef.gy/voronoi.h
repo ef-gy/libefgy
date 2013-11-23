@@ -151,18 +151,18 @@ namespace efgy
                         vector m = l.midpoint();
                         vector p = euclidian::getPerpendicular<base>(d);
 
-                        perpendicularBisector.data[0] = m + p;
-                        perpendicularBisector.data[1] = m - p;
+                        perpendicularBisector[0] = m + p;
+                        perpendicularBisector[1] = m - p;
 
                         polygon<S> nearestPoly = r.cells.data[nearestCell];
 
-                        math::tuple<3,maybe<polygon<S> > > rd = nearestPoly / perpendicularBisector;
+                        std::array<maybe<polygon<S> >,3> rd = nearestPoly / perpendicularBisector;
 
-                        if (rd.data[0] && rd.data[1])
+                        if (rd[0] && rd[1])
                         {
-                            const polygon<S> &rA = rd.data[0];
-                            const polygon<S> &rB = rd.data[1];
-                            polygon<S> rC = rd.data[2];
+                            const polygon<S> &rA = rd[0];
+                            const polygon<S> &rB = rd[1];
+                            polygon<S> rC = rd[2];
 
                             polygon<S> newCell;
 
@@ -213,15 +213,15 @@ namespace efgy
                                         m = l.midpoint();
                                         p = euclidian::getPerpendicular<base>(d);
 
-                                        perpendicularBisector.data[0] = m + p;
-                                        perpendicularBisector.data[1] = m - p;
+                                        perpendicularBisector[0] = m + p;
+                                        perpendicularBisector[1] = m - p;
 
                                         rd = nearestPoly / perpendicularBisector;
-                                        if (rd.data[0] && rd.data[1])
+                                        if (rd[0] && rd[1])
                                         {
-                                            const polygon<S> &rD = rd.data[0];
-                                            const polygon<S> &rE = rd.data[1];
-                                            const polygon<S> &rF = rd.data[2];
+                                            const polygon<S> &rD = rd[0];
+                                            const polygon<S> &rE = rd[1];
+                                            const polygon<S> &rF = rd[2];
 
                                             if (rD && vector(r.cells.data[k]))
                                             {
@@ -254,17 +254,17 @@ namespace efgy
                     {
                         ngon<S,4> g = ngon<S,4>();
 
-                        g.data[0].data[0] = v.data[0] - scalar(boundingBoxSize);
-                        g.data[0].data[1] = v.data[1] - scalar(boundingBoxSize);
+                        g[0][0] = v[0] - scalar(boundingBoxSize);
+                        g[0][1] = v[1] - scalar(boundingBoxSize);
 
-                        g.data[1].data[0] = v.data[0] + scalar(boundingBoxSize);
-                        g.data[1].data[1] = v.data[1] - scalar(boundingBoxSize);
+                        g[1][0] = v[0] + scalar(boundingBoxSize);
+                        g[1][1] = v[1] - scalar(boundingBoxSize);
 
-                        g.data[2].data[0] = v.data[0] + scalar(boundingBoxSize);
-                        g.data[2].data[1] = v.data[1] + scalar(boundingBoxSize);
+                        g[2][0] = v[0] + scalar(boundingBoxSize);
+                        g[2][1] = v[1] + scalar(boundingBoxSize);
 
-                        g.data[3].data[0] = v.data[0] - scalar(boundingBoxSize);
-                        g.data[3].data[1] = v.data[1] + scalar(boundingBoxSize);
+                        g[3][0] = v[0] - scalar(boundingBoxSize);
+                        g[3][1] = v[1] + scalar(boundingBoxSize);
 
                         r.cells = r.cells + cell(v, g, colour); 
                     }

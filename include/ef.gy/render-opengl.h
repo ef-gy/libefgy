@@ -205,22 +205,22 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[16] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[0][2]),
-                            GLfloat(matrix.data[0][3]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]),
-                            GLfloat(matrix.data[1][2]),
-                            GLfloat(matrix.data[1][3]),
-                            GLfloat(matrix.data[2][0]),
-                            GLfloat(matrix.data[2][1]),
-                            GLfloat(matrix.data[2][2]),
-                            GLfloat(matrix.data[2][3]),
-                            GLfloat(matrix.data[3][0]),
-                            GLfloat(matrix.data[3][1]),
-                            GLfloat(matrix.data[3][2]),
-                            GLfloat(matrix.data[3][3]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[0][3]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[1][3]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]),
+                            GLfloat(matrix[2][3]),
+                            GLfloat(matrix[3][0]),
+                            GLfloat(matrix[3][1]),
+                            GLfloat(matrix[3][2]),
+                            GLfloat(matrix[3][3]) };
 
                         glUniformMatrix4fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
@@ -250,15 +250,15 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[9] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[0][2]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]),
-                            GLfloat(matrix.data[1][2]),
-                            GLfloat(matrix.data[2][0]),
-                            GLfloat(matrix.data[2][1]),
-                            GLfloat(matrix.data[2][2]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]) };
 
                         glUniformMatrix3fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
@@ -288,10 +288,10 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[4] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]) };
 
                         glUniformMatrix2fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
@@ -371,22 +371,22 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[16] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[0][2]),
-                            GLfloat(matrix.data[0][3]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]),
-                            GLfloat(matrix.data[1][2]),
-                            GLfloat(matrix.data[1][3]),
-                            GLfloat(matrix.data[2][0]),
-                            GLfloat(matrix.data[2][1]),
-                            GLfloat(matrix.data[2][2]),
-                            GLfloat(matrix.data[2][3]),
-                            GLfloat(matrix.data[3][0]),
-                            GLfloat(matrix.data[3][1]),
-                            GLfloat(matrix.data[3][2]),
-                            GLfloat(matrix.data[3][3]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[0][3]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[1][3]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]),
+                            GLfloat(matrix[2][3]),
+                            GLfloat(matrix[3][0]),
+                            GLfloat(matrix[3][1]),
+                            GLfloat(matrix[3][2]),
+                            GLfloat(matrix[3][3]) };
 
                         glUniformMatrix4fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
@@ -416,15 +416,15 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[9] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[0][2]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]),
-                            GLfloat(matrix.data[1][2]),
-                            GLfloat(matrix.data[2][0]),
-                            GLfloat(matrix.data[2][1]),
-                            GLfloat(matrix.data[2][2]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]) };
 
                         glUniformMatrix3fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
@@ -454,10 +454,10 @@ namespace efgy
                     if (use())
                     {
                         GLfloat mat[4] =
-                          { GLfloat(matrix.data[0][0]),
-                            GLfloat(matrix.data[0][1]),
-                            GLfloat(matrix.data[1][0]),
-                            GLfloat(matrix.data[1][1]) };
+                          { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]) };
 
                         glUniformMatrix2fv(uniforms[index], 1, GL_FALSE, mat);
                         return true;
@@ -938,6 +938,136 @@ namespace efgy
          */
         typedef texture<GL_TEXTURE_2D> texture2D;
 
+        /**\brief Renderbuffer object
+         *
+         * Encapsulates an OpenGL renderbuffer object and the state associated
+         * with it.
+         *
+         * \note The format and target parameters are reversed compared to the
+         *       texture template, because you shouldn't ever need to change the
+         *       renderbuffer target.
+         *
+         * \tparam format Texture format to use.
+         * \tparam target Renderbuffer target to bind to.
+         *
+         * \see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glRenderbufferStorage.xml
+         *      for the possible values of the format and target parameters.
+         */
+        template<GLenum format, GLenum target = GL_RENDERBUFFER>
+        class renderbuffer
+        {
+            public:
+                /**\brief Default constructor
+                 *
+                 * Initialises the object; this does not yet create a
+                 * renderbuffer object, the use() method does that the first
+                 * time you call it.
+                 */
+                renderbuffer (void)
+                    : renderbufferID(0) {}
+                
+                /**\brief Destructor
+                 *
+                 * Erases the renderbuffer object if it has been created; does
+                 * nothing otherwise.
+                 */
+                ~renderbuffer (void)
+                {
+                    if (renderbufferID)
+                    {
+                        glDeleteTextures(1, &renderbufferID);
+                    }
+                }
+
+                /**\brief Bind renderbuffer
+                 *
+                 * Binds the renderbuffer for this object; if the renderbuffer
+                 * object has not been created yet, it will be created when you
+                 * call this method.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool bind (void)
+                {
+                    if (!renderbufferID)
+                    {
+                        glGenRenderbuffers(1, &renderbufferID);
+                        width = 0;
+                        height = 0;
+                    }
+                    
+                    if (renderbufferID)
+                    {
+                        glBindRenderbuffer(target, renderbufferID);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+
+                /**\brief Bind and load renderbuffer
+                 *
+                 * Binds a renderbuffer and then sets its width and height if
+                 * necessary.
+                 *
+                 * The renderbuffer is created if it doesn't exist yet.
+                 *
+                 * \param[in] pWidth  Width of the renderbuffer to bind.
+                 * \param[in] pHeight Height of the renderbuffer to bind.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool load (const GLuint &pWidth, const GLuint &pHeight)
+                {
+                    if (bind())
+                    {
+                        if ((pWidth != width) || (pHeight != height))
+                        {
+                            width  = roundToPowerOf2(pWidth);
+                            height = roundToPowerOf2(pHeight);
+
+                            glRenderbufferStorage(target, format, width, height);
+                        }
+                        
+                        return true;
+                    }
+                    
+                    return false;
+                }
+
+                /**\brief Renderbuffer ID
+                 *
+                 * The renderbuffer ID as returned by OpenGL; set to zero as
+                 * long as the texture has not been created, nonzero afterwards.
+                 */
+                GLuint renderbufferID;
+                
+            protected:
+                /**\brief Renderbuffer width
+                 *
+                 * The width of the buffer that was created with the use()
+                 * method; zero if the buffer has been created with
+                 * glGenRenderbuffers() but has not had any storage attached
+                 * with the use() method.
+                 *
+                 * Used to figure out if the buffer needs to be recreated if
+                 * you use the use() method.
+                 */
+                GLuint width;
+
+                /**\brief Renderbuffer height
+                 *
+                 * The height of the buffer that was created with the use()
+                 * method; zero if the buffer has been created with
+                 * glGenRenderbuffers() but has not had any storage attached
+                 * with the use() method.
+                 *
+                 * Used to figure out if the buffer needs to be recreated if
+                 * you use the use() method.
+                 */
+                GLuint height;
+        };
+
         /**\brief Framebuffer with associated texture
          *
          * Associates a texture with a framebuffer so the two are always used
@@ -976,6 +1106,54 @@ namespace efgy
                         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
                         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, texture<target,format,baseFormat,type>::textureID, 0);
+
+                        return true;
+                    }
+
+                    return false;
+                }
+        };
+
+        /**\brief Framebuffer with associated texture and depth buffer
+         *
+         * Associates a texture with a framebuffer so the two are always used
+         * together. Also adds a renderbuffer used as a depth buffer.
+         *
+         * \tparam Q Base data type for calculations.
+         * \tparam format Format of the texture to load or create.
+         * \tparam baseFormat External texture format.
+         * \tparam type   Type of the texture to load.
+         * \tparam target The texture target to bind to.
+         * \tparam depthFormat Internal texture format of the depth buffer.
+         *
+         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml and
+         *      http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml for
+         *      the possible values of the target, format and type parameters.
+         * \see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glRenderbufferStorage.xml
+         *      for possible values of the depthFormat parameter.
+         */
+        template<typename Q, GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D, GLenum depthFormat = GL_DEPTH_COMPONENT16>
+        class framebufferTextureDepth : public framebufferTexture<Q, format, baseFormat, type, target>, public renderbuffer<depthFormat>
+        {
+            public:
+                /**\brief Bind framebuffer, texture and depth renderbuffer
+                 *
+                 * Binds the framebuffer, texture object and depth renderbuffer
+                 * for this instance. The texture is bound to the specified
+                 * target. Creates the framebuffer, texture or renderbuffer if
+                 * they don't exist yet.
+                 *
+                 * \param[in] width  Width of the texture to load or create.
+                 * \param[in] height Height of the texture to load or create.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool use (const GLuint &width, const GLuint &height)
+                {
+                    if (   framebufferTexture<Q, format, baseFormat, type, target>::load(width, height)
+                        && renderbuffer<depthFormat>::load(width, height))
+                    {
+                        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer<depthFormat>::renderbufferID);
 
                         return true;
                     }
@@ -1055,6 +1233,91 @@ namespace efgy
                         return true;
                     }
 
+                    return false;
+                }
+
+                using programme<Q>::use;
+        };
+
+        /**\brief OpenGL programme to render to a texture with depth buffer
+         *
+         * Associates an OpenGL programme with a framebuffer, a texture and a
+         * renderbuffer for the depth component to easily render grab the output
+         * of a render pass.
+         *
+         * \tparam Q Base data type for calculations.
+         * \tparam format Format of the texture to load or create.
+         * \tparam baseFormat External texture format.
+         * \tparam type   Type of the texture to load.
+         * \tparam target The texture target to bind to.
+         * \tparam depthFormat Internal texture format of the depth buffer.
+         *
+         * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml and
+         *      http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml for
+         *      the possible values of the target, format and type parameters.
+         * \see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glRenderbufferStorage.xml
+         *      for possible values of the depthFormat parameter.
+         */
+        template<typename Q, GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D, GLenum depthFormat = GL_DEPTH_COMPONENT16>
+        class renderToTextureDepthProgramme : public programme<Q>, public framebufferTextureDepth<Q,format,baseFormat,type,target,depthFormat>
+        {
+            public:
+                /**\brief Construct with shaders
+                 *
+                 * Initialises an instance of this class with a copy of a vertex
+                 * and a fragment shader. The programme is not compiled and
+                 * linked before it's used for the first time, so it's OK to
+                 * initialise the class before you have an active OpenGL
+                 * context.
+                 *
+                 * The framebuffer, texture and renderbuffer objects are
+                 * similarly initialised with their default constructor; they're
+                 * not created or bound automatically either, only when the
+                 * use() method is called.
+                 *
+                 * \param[in] pVertexShader   The vertex shader to compile and
+                 *                            link to the programme.
+                 * \param[in] pFragmentShader The fragment shader to compile and
+                 *                            link to the programme.
+                 */
+                renderToTextureDepthProgramme (const std::string &pVertexShader, const std::string &pFragmentShader)
+                    : programme<Q>(pVertexShader, pFragmentShader), framebufferTextureDepth<Q,format,baseFormat,type,target,depthFormat>() {}
+                
+                /**\brief Use programme and render to associated texture
+                 *
+                 * Enables or compiles the programme described in the shaders
+                 * passed to the constructor, then binds or creates a
+                 * framebuffer, texture and depth buffer as needed.
+                 *
+                 * If compiling the programme and binding the framebuffer,
+                 * texture and depth buffer succeed then the viewport is set to
+                 * write to the whole texture.
+                 *
+                 * \param[in] width       Width of the texture to load or
+                 *                        create.
+                 * \param[in] height      Height of the texture to load or
+                 *                        create.
+                 * \param[in] textureUnit The texture unit to bind to.
+                 *
+                 * \return True on success, false otherwise.
+                 */
+                bool use (const GLuint &width, const GLuint &height, const int &textureUnit = -1)
+                {
+                    const GLuint swidth  = roundToPowerOf2(width);
+                    const GLuint sheight = roundToPowerOf2(height);
+
+                    if (textureUnit >= 0)
+                    {
+                        glActiveTexture (GL_TEXTURE0 + textureUnit);
+                    }
+                    
+                    if (programme<Q>::use() && framebufferTextureDepth<Q,format,baseFormat,type,target>::use(swidth, sheight))
+                    {
+                        glViewport (0, 0, swidth, sheight);
+                        
+                        return true;
+                    }
+                    
                     return false;
                 }
 
@@ -1645,17 +1908,17 @@ namespace efgy
                 };
                 void frameEnd (void) const { lowerRenderer.frameEnd(); };
 
-                template<unsigned int q>
+                template<std::size_t q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,d>::vector> &pV, const Q &index = 0.5) const
+                    (const std::array<typename geometry::euclidian::space<Q,d>::vector,q> &pV, const Q &index = 0.5) const
                 {
                     if (isPrepared()) return;
                     
-                    math::tuple<q, typename geometry::euclidian::space<Q,d-1>::vector> V;
+                    std::array<typename geometry::euclidian::space<Q,d-1>::vector,q> V;
                     
                     for (unsigned int i = 0; i < q; i++)
                     {
-                        V.data[i] = combined * pV.data[i];
+                        V[i] = combined * pV[i];
                     }
                     
                     lowerRenderer.drawFace(V, index);
@@ -1802,22 +2065,27 @@ namespace efgy
 
                         flameColouring.use(width, height, 0);
 
-                        glDepthMask(GL_FALSE);
-                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
-                        glDisable(GL_DEPTH_TEST);
+                        glDepthMask(GL_TRUE);
+                        glBlendFunc (GL_ONE, GL_ZERO);
+                        glEnable(GL_DEPTH_TEST);
+                        glDepthFunc(GL_LEQUAL);
 
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
 
                         pushFaces();
 
                         flameHistogram.use(width, height, 1);
+
+                        glDepthMask(GL_FALSE);
+                        glDisable(GL_DEPTH_TEST);
 
 //                        glClearColor(0,0,0,1);
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 //                        glBlendFunc (GL_ONE, GL_ONE);
                         glBlendFunc (GL_ZERO, GL_SRC_COLOR);
- 
+
                         pushFaces();
 
                         flamePostProcess.use(width, height);
@@ -1852,69 +2120,69 @@ namespace efgy
                     }
                 };
 
-                template<unsigned int q>
+                template<std::size_t q>
                 void drawFace
-                    (const math::tuple<q, typename geometry::euclidian::space<Q,3>::vector> &pV, const Q &index = 0.5)
+                    (const std::array<typename geometry::euclidian::space<Q,3>::vector,q> &pV, const Q &index = 0.5)
                 {
                     if (isPrepared()) return;
 
                     typename geometry::euclidian::space<Q,3>::vector R
                         = geometry::euclidian::normalise<Q,3>
                             (geometry::euclidian::crossProduct<Q>
-                                (pV.data[1] - pV.data[0], pV.data[2] - pV.data[0]));
+                                (pV[1] - pV[0], pV[2] - pV[0]));
 
                     typename geometry::euclidian::space<Q,3>::vector RN
                         = geometry::euclidian::normalise<Q,3>
                             (geometry::euclidian::crossProduct<Q>
-                        (pV.data[2] - pV.data[0], pV.data[1] - pV.data[0]));
+                        (pV[2] - pV[0], pV[1] - pV[0]));
 
-                    triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                                   GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                    triindices.push_back(addVertex(GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2]),
+                                                   GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
                     unsigned int nstartf = triindices.back();
                     lineindices.push_back(nstartf);
-                    triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
-                                                   GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                    triindices.push_back(addVertex(GLfloat(pV[1][0]), GLfloat(pV[1][1]), GLfloat(pV[1][2]),
+                                                   GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
                     lineindices.push_back(triindices.back());
                     lineindices.push_back(triindices.back());
-                    triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
-                                                   GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                    triindices.push_back(addVertex(GLfloat(pV[2][0]), GLfloat(pV[2][1]), GLfloat(pV[2][2]),
+                                                   GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
                     unsigned int nendf = triindices.back();
                     lineindices.push_back(nendf);
 
-                    triindices.push_back(addVertex(GLfloat(pV.data[2].data[0]), GLfloat(pV.data[2].data[1]), GLfloat(pV.data[2].data[2]),
-                                                   GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                    triindices.push_back(addVertex(GLfloat(pV[2][0]), GLfloat(pV[2][1]), GLfloat(pV[2][2]),
+                                                   GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
                     unsigned int nendb = triindices.back();
                     lineindices.push_back(nendb);
-                    triindices.push_back(addVertex(GLfloat(pV.data[1].data[0]), GLfloat(pV.data[1].data[1]), GLfloat(pV.data[1].data[2]),
-                                                   GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                    triindices.push_back(addVertex(GLfloat(pV[1][0]), GLfloat(pV[1][1]), GLfloat(pV[1][2]),
+                                                   GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
                     lineindices.push_back(triindices.back());
                     lineindices.push_back(triindices.back());
-                    triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                                   GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                    triindices.push_back(addVertex(GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2]),
+                                                   GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
                     unsigned int nstartb = triindices.back();
                     lineindices.push_back(nstartb);
 
                     for (unsigned int j = 3; j < q; j++)
                     {
-                        triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                                       GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
-                        triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
-                                                       GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                        triindices.push_back(addVertex(GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2]),
+                                                       GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
+                        triindices.push_back(addVertex(GLfloat(pV[(j-1)][0]), GLfloat(pV[(j-1)][1]), GLfloat(pV[(j-1)][2]),
+                                                       GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
                         lineindices.push_back(triindices.back());
-                        triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
-                                                       GLfloat(R.data[0]), GLfloat(R.data[1]), GLfloat(R.data[2]), GLfloat(index)));
+                        triindices.push_back(addVertex(GLfloat(pV[j][0]), GLfloat(pV[j][1]), GLfloat(pV[j][2]),
+                                                       GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
                         lineindices.push_back(triindices.back());
                         nendf = triindices.back();
 
-                        triindices.push_back(addVertex(GLfloat(pV.data[j].data[0]), GLfloat(pV.data[j].data[1]), GLfloat(pV.data[j].data[2]),
-                                                       GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                        triindices.push_back(addVertex(GLfloat(pV[j][0]), GLfloat(pV[j][1]), GLfloat(pV[j][2]),
+                                                       GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
                         nendb = triindices.back();
                         lineindices.push_back(triindices.back());
-                        triindices.push_back(addVertex(GLfloat(pV.data[(j-1)].data[0]), GLfloat(pV.data[(j-1)].data[1]), GLfloat(pV.data[(j-1)].data[2]),
-                                                       GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                        triindices.push_back(addVertex(GLfloat(pV[(j-1)][0]), GLfloat(pV[(j-1)][1]), GLfloat(pV[(j-1)][2]),
+                                                       GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
                         lineindices.push_back(triindices.back());
-                        triindices.push_back(addVertex(GLfloat(pV.data[0].data[0]), GLfloat(pV.data[0].data[1]), GLfloat(pV.data[0].data[2]),
-                                                       GLfloat(RN.data[0]), GLfloat(RN.data[1]), GLfloat(RN.data[2]), GLfloat(index)));
+                        triindices.push_back(addVertex(GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2]),
+                                                       GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
                     }
 
                     lineindices.push_back(nendf);

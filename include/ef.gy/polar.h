@@ -48,10 +48,8 @@ namespace efgy
                         public:
                             vector () : math::coordinateSpace<F,n>::vector() {}
                             vector (const scalar t[n]) : math::coordinateSpace<F,n>::vector(t) {}
-                            vector (const math::tuple<n, scalar> &t) : math::coordinateSpace<F,n>::vector(t) {}
+                            vector (const std::array<scalar, n> &t) : math::coordinateSpace<F,n>::vector(t) {}
                             explicit vector (const typename math::coordinateSpace<F,n>::vector &t) : math::coordinateSpace<F,n>::vector(t) {}
-
-                            using math::coordinateSpace<F,n>::vector::data;
 
                             operator typename euclidian::space<F,n>::vector () const
                             {
@@ -59,18 +57,18 @@ namespace efgy
 
                                 for (unsigned int i = 0; i < n; i++)
                                 {
-                                    v.data[i] = data[0];
+                                    v[i] = (*this)[0];
                                 }
 
                                 for (unsigned int i = 0; i < (n-1); i++)
                                 {
                                     const unsigned int p = i + 1;
 
-                                    v.data[i] *= cos(data[p]);
+                                    v[i] *= cos((*this)[p]);
 
                                     for (unsigned int j = p; j < n; j++)
                                     {
-                                        v.data[j] *= sin(data[p]);                                            
+                                        v[j] *= sin((*this)[p]);                                            
                                     }
                                 }
 

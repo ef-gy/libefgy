@@ -49,7 +49,7 @@ namespace efgy
                             {
                                 for (unsigned int j = 0; j < d; j++)
                                 {
-                                    matrix.data[i][j] = (i == j) ? 1 : 0;
+                                    matrix[i][j] = (i == j) ? 1 : 0;
                                 }
                             }
                         }
@@ -63,7 +63,7 @@ namespace efgy
 
                         for (unsigned int i = 0; i < d; i++)
                         {
-                            vectorMatrix.data[0][i] = pV.data[i];
+                            vectorMatrix[0][i] = pV.data[i];
                         }
 
                         vectorMatrix
@@ -72,7 +72,7 @@ namespace efgy
 
                         for (unsigned int i = 0; i < d; i++)
                         {
-                            rv.data[i] = vectorMatrix.data[0][i];
+                            rv.data[i] = vectorMatrix[0][i];
                         }
 
                         return rv;
@@ -114,7 +114,7 @@ namespace efgy
                             {
                                 for (unsigned int j = 0; j <= d; j++)
                                 {
-                                    transformationMatrix.data[i][j] = (i == j) ? 1 : 0;
+                                    transformationMatrix[i][j] = (i == j) ? 1 : 0;
                                 }
                             }
                         }
@@ -125,15 +125,15 @@ namespace efgy
                             {
                                 for (unsigned int j = 0; j < d; j++)
                                 {
-                                    transformationMatrix.data[i][j] = L.data[i][j];
+                                    transformationMatrix[i][j] = L.data[i][j];
                                 }
                             }
                             for (unsigned int i = 0; i < d; i++)
                             {
-                                transformationMatrix.data[i][d] = Q(0);
-                                transformationMatrix.data[d][i] = Q(0);
+                                transformationMatrix[i][d] = Q(0);
+                                transformationMatrix[d][i] = Q(0);
                             }
-                            transformationMatrix.data[d][d] = Q(1);
+                            transformationMatrix[d][d] = Q(1);
                         }
 
                     typename euclidian::space<Q,d>::vector operator *
@@ -145,10 +145,10 @@ namespace efgy
 
                         for (unsigned int i = 0; i < d; i++)
                         {
-                            vectorMatrix.data[0][i] = pV.data[i];
+                            vectorMatrix[0][i] = pV[i];
                         }
 
-                        vectorMatrix.data[0][d] = 1;
+                        vectorMatrix[0][d] = 1;
 
                         vectorMatrix
                             = vectorMatrix
@@ -156,7 +156,7 @@ namespace efgy
 
                         for (unsigned int i = 0; i < d; i++)
                         {
-                            rv.data[i] = vectorMatrix.data[0][i] / vectorMatrix.data[0][d];
+                            rv[i] = vectorMatrix[0][i] / vectorMatrix[0][d];
                         }
 
                         return rv;
@@ -196,11 +196,11 @@ namespace efgy
                     
                         typename euclidian::space<Q,d>::vector R = affine<Q,d>(*this) * pP;
                     
-                        Q S = 1 / R.data[(d-1)];
+                        Q S = 1 / R[(d-1)];
                     
                         for (unsigned int i = 0; i < (d-1); i++)
                         {
-                            result.data[i] = S * R.data[i];
+                            result[i] = S * R[i];
                         }
                     
                         return result;
@@ -235,11 +235,11 @@ namespace efgy
                             {
                                 if (i == j)
                                 {
-                                    transformationMatrix.data[i][j] = i == d ? Q(1) / targetScale : Q(1);
+                                    transformationMatrix[i][j] = i == d ? Q(1) / targetScale : Q(1);
                                 }
                                 else
                                 {
-                                    transformationMatrix.data[i][j] = 0;
+                                    transformationMatrix[i][j] = 0;
                                 }
                             }
                         }
@@ -269,27 +269,27 @@ namespace efgy
                             {
                                 if ((i == axis1) && (j == axis1))
                                 {
-                                    transformationMatrix.data[i][j] =  cos(angle);
+                                    transformationMatrix[i][j] =  cos(angle);
                                 }
                                 else if ((i == axis1) && (j == axis2))
                                 {
-                                    transformationMatrix.data[i][j] = -sin(angle);
+                                    transformationMatrix[i][j] = -sin(angle);
                                 }
                                 else if ((i == axis2) && (j == axis2))
                                 {
-                                    transformationMatrix.data[i][j] =  cos(angle);
+                                    transformationMatrix[i][j] =  cos(angle);
                                 }
                                 else if ((i == axis2) && (j == axis1))
                                 {
-                                    transformationMatrix.data[i][j] =  sin(angle);
+                                    transformationMatrix[i][j] =  sin(angle);
                                 }
                                 else if (i == j)
                                 {
-                                    transformationMatrix.data[i][j] = Q(1);
+                                    transformationMatrix[i][j] = Q(1);
                                 }
                                 else
                                 {
-                                    transformationMatrix.data[i][j] = 0;
+                                    transformationMatrix[i][j] = 0;
                                 }
                             }
                         }
@@ -322,9 +322,9 @@ namespace efgy
                     {
                         if (d == 3)
                         {
-                            transformationMatrix.data[3][0] = from.data[0];
-                            transformationMatrix.data[3][1] = from.data[1];
-                            transformationMatrix.data[3][2] = from.data[2];
+                            transformationMatrix[3][0] = from[0];
+                            transformationMatrix[3][1] = from[1];
+                            transformationMatrix[3][2] = from[2];
                         }
                         else for (unsigned int i = 0; i <= d; i++)
                         {
@@ -332,15 +332,15 @@ namespace efgy
                             {
                                 if ((i == d) && (j < d))
                                 {
-                                    transformationMatrix.data[i][j] = from.data[j];
+                                    transformationMatrix[i][j] = from[j];
                                 }
                                 else if (i == j)
                                 {
-                                    transformationMatrix.data[i][j] = 1;
+                                    transformationMatrix[i][j] = 1;
                                 }
                                 else
                                 {
-                                    transformationMatrix.data[i][j] = 0;
+                                    transformationMatrix[i][j] = 0;
                                 }
                             }
                         }
