@@ -34,7 +34,7 @@
 namespace efgy
 {
     template<typename T>
-    class rangeIterator : public std::iterator<std::input_iterator_tag, T>
+    class rangeIterator : public std::iterator<std::random_access_iterator_tag, T>
     {
         public:
             constexpr rangeIterator (const T &pStart, const T &pStep, std::size_t pPosition)
@@ -42,29 +42,87 @@ namespace efgy
 
             typedef T value_type;
 
-            constexpr bool operator == (const rangeIterator &b)
+            constexpr bool operator == (const rangeIterator &b) const
             {
                 return (start == b.start)
                     && (step  == b.step)
                     && (position == b.position);
             }
 
-            constexpr bool operator != (const rangeIterator &b)
+            constexpr bool operator != (const rangeIterator &b) const
             {
                 return (start != b.start)
                     || (step  != b.step)
                     || (position != b.position);
             }
 
-            constexpr T operator * (void)
+            constexpr T operator * (void) const
             {
                 return start + step * position;
             }
 
-            rangeIterator<T> &operator ++ (void)
+            rangeIterator &operator ++ (void)
             {
                 ++position;
                 return *this;
+            }
+
+            rangeIterator &operator -- (void)
+            {
+                --position;
+                return *this;
+            }
+
+            rangeIterator &operator += (const std::ptrdiff_t &b)
+            {
+                position += b;
+                return *this;
+            }
+
+            constexpr rangeIterator operator + (const std::ptrdiff_t &b) const
+            {
+                return rangeIterator (start, step, position + b);
+            }
+
+            rangeIterator &operator -= (const std::ptrdiff_t &b)
+            {
+                position -= b;
+                return *this;
+            }
+
+            constexpr rangeIterator operator - (const std::ptrdiff_t &b) const
+            {
+                return rangeIterator (start, step, position - b);
+            }
+
+            constexpr std::ptrdiff_t operator - (const rangeIterator &b) const
+            {
+                return std::ptrdiff_t (position) - std::ptrdiff_t (b.position);
+            }
+
+            constexpr T &operator [] (const std::ptrdiff_t &b) const
+            {
+                return *((*this) + b);
+            }
+
+            constexpr bool operator < (const rangeIterator &b) const
+            {
+                return position < b.position;
+            }
+
+            constexpr bool operator <= (const rangeIterator &b) const
+            {
+                return position <= b.position;
+            }
+
+            constexpr bool operator > (const rangeIterator &b) const
+            {
+                return position > b.position;
+            }
+
+            constexpr bool operator >= (const rangeIterator &b) const
+            {
+                return position >= b.position;
             }
 
         protected:
@@ -72,6 +130,12 @@ namespace efgy
             const T step;
             std::size_t position;
     };
+
+    template<typename T>
+    constexpr rangeIterator<T> operator + (const std::ptrdiff_t &a, const rangeIterator<T> &b)
+    {
+        return b + a;
+    }
 
     template<typename T, std::size_t n, std::size_t c = n>
     class range
