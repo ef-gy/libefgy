@@ -1,4 +1,14 @@
 /**\file
+ * \brief Haskell-like "maybe" template
+ *
+ * This header implements a 'maybe' template, much like the one found in the
+ * programming language Haskell. The basic idea is that you have a class that
+ * either contains a value, or a special sentinel value that indicates a value
+ * of 'nothing'.
+ *
+ * This concept comes up surprisingly often - mostly for errors and the like,
+ * where you typically do get a proper value, but sometimes you just don't for
+ * one reason or another.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -27,19 +37,6 @@
 
 #if !defined(EF_GY_MAYBE_H)
 #define EF_GY_MAYBE_H
-
-/**\file
- * \brief Haskell-like "maybe" template
- *
- * This header implements a 'maybe' template, much like the one found in the
- * programming language Haskell. The basic idea is that you have a class that
- * either contains a value, or a special sentinel value that indicates a value
- * of 'nothing'.
- *
- * This concept comes up surprisingly often - mostly for errors and the like,
- * where you typically do get a proper value, but sometimes you just don't for
- * one reason or another.
- */
 
 namespace efgy
 {
@@ -70,8 +67,8 @@ namespace efgy
              *
              * Construct a 'maybe' that contains 'nothing'.
              */
-            maybe ()
-                : nothing(true)
+            constexpr maybe (void)
+                : nothing(true), just()
                 {}
 
             /**\brief Construct with value
@@ -81,7 +78,7 @@ namespace efgy
              *
              * \param[in] pJust The value to use.
              */
-            maybe (const T &pJust)
+            constexpr maybe (const T &pJust)
                 : nothing(false), just(pJust)
                 {}
 
@@ -92,7 +89,7 @@ namespace efgy
              *
              * \param[in] b The 'maybe' to copy.
              */
-            maybe (const maybe &b)
+            constexpr maybe (const maybe &b)
                 : nothing(b.nothing), just(b.just)
                 {}
 
@@ -112,7 +109,7 @@ namespace efgy
              * \param[in] b The 'maybe' to copy.
              */
             template <typename U>
-            maybe (const maybe<U> &b)
+            constexpr maybe (const maybe<U> &b)
                 : nothing(b.nothing), just(T(b.just))
                 {}
 
@@ -161,7 +158,7 @@ namespace efgy
              * \return 'true' when this 'maybe' does contain a proper value,
              *         'false' if it contains 'nothing'.
              */
-            operator bool (void) const
+            constexpr operator bool (void) const
             {
                 return !nothing;
             }
@@ -174,7 +171,7 @@ namespace efgy
              *
              * \return The value contained in this 'maybe'.
              */
-            operator T (void) const
+            constexpr operator T (void) const
             {
                 return just;
             }
