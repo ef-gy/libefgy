@@ -1,4 +1,8 @@
 /**\file
+ * \brief Primitive type wrapper implementation
+ *
+ * Contains a wrapper for primitive types - floats, doubles, etc. - which wraps
+ * them in a class so they can be derived from properly.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -34,23 +38,38 @@ namespace efgy
 {
     namespace math
     {
+        /**\brief Primitive type wrapper
+         *
+         * This template wraps the specified primitive type in an object, so
+         * that other can can use them as such and properly use these types as
+         * base classes.
+         *
+         * \tparam Q        The primitive type to wrap; should be float, double
+         *                  or similar.
+         * \tparam Tinteger Integer type to use with the base type.
+         */
         template <typename Q, typename Tinteger = unsigned long>
         class primitive
         {
             public:
+                /**\brief Integer type
+                 *
+                 * This is a typedef to the integer base type that was passed
+                 * to the template.
+                 */
                 typedef Tinteger integer;
 
-                primitive ()
+                constexpr primitive (void)
                     : data(Q(0))
                     {}
-                primitive (const Q &pQ)
+                constexpr primitive (const Q &pQ)
                     : data(pQ)
                     {}
-                primitive (const primitive &pQ)
+                constexpr primitive (const primitive &pQ)
                     : data(pQ.data)
                     {}
 
-                operator Q () const
+                constexpr operator const Q& (void) const
                 {
                     return data;
                 }
@@ -66,28 +85,28 @@ namespace efgy
                     return *this;
                 }
 
-                primitive operator - () const
+                constexpr primitive operator - () const
                 {
                     return primitive(-data);
                 }
 
-                primitive operator + (const Q &pQ) const
+                constexpr primitive operator + (const Q &pQ) const
                 {
                     return primitive(data + pQ);
                 }
-                primitive operator - (const Q &pQ) const
+                constexpr primitive operator - (const Q &pQ) const
                 {
                     return primitive(data - pQ);
                 }
-                primitive operator * (const Q &pQ) const
+                constexpr primitive operator * (const Q &pQ) const
                 {
                     return primitive(data * pQ);
                 }
-                primitive operator / (const Q &pQ) const
+                constexpr primitive operator / (const Q &pQ) const
                 {
                     return primitive(data / pQ);
                 }
-                primitive operator % (const Q &pQ) const
+                constexpr primitive operator % (const Q &pQ) const
                 {
                     return primitive(data % pQ);
                 }
@@ -118,48 +137,48 @@ namespace efgy
                     return *this;
                 }
 
-                bool operator == (const Q &pQ) const
+                constexpr bool operator == (const Q &pQ) const
                 {
                     return data == pQ;
                 }
-                bool operator != (const Q &pQ) const
+                constexpr bool operator != (const Q &pQ) const
                 {
                     return data != pQ;
                 }
-                bool operator < (const Q &pQ) const
+                constexpr bool operator < (const Q &pQ) const
                 {
                     return data < pQ;
                 }
-                bool operator > (const Q &pQ) const
+                constexpr bool operator > (const Q &pQ) const
                 {
                     return data > pQ;
                 }
-                bool operator <= (const Q &pQ) const
+                constexpr bool operator <= (const Q &pQ) const
                 {
                     return data <= pQ;
                 }
-                bool operator >= (const Q &pQ) const
+                constexpr bool operator >= (const Q &pQ) const
                 {
                     return data >= pQ;
                 }
 
-                primitive operator + (const primitive &pQ) const
+                constexpr primitive operator + (const primitive &pQ) const
                 {
                     return primitive(data + pQ.data);
                 }
-                primitive operator - (const primitive &pQ) const
+                constexpr primitive operator - (const primitive &pQ) const
                 {
                     return primitive(data - pQ.data);
                 }
-                primitive operator * (const primitive &pQ) const
+                constexpr primitive operator * (const primitive &pQ) const
                 {
                     return primitive(data * pQ.data);
                 }
-                primitive operator / (const primitive &pQ) const
+                constexpr primitive operator / (const primitive &pQ) const
                 {
                     return primitive(data / pQ.data);
                 }
-                primitive operator % (const primitive &pQ) const
+                constexpr primitive operator % (const primitive &pQ) const
                 {
                     return primitive(data % pQ.data);
                 }
@@ -190,36 +209,36 @@ namespace efgy
                     return *this;
                 }
 
-                bool operator == (const primitive &pQ) const
+                constexpr bool operator == (const primitive &pQ) const
                 {
                     return data == pQ.data;
                 }
-                bool operator != (const primitive &pQ) const
+                constexpr bool operator != (const primitive &pQ) const
                 {
                     return data != pQ.data;
                 }
-                bool operator < (const primitive &pQ) const
+                constexpr bool operator < (const primitive &pQ) const
                 {
                     return data < pQ.data;
                 }
-                bool operator > (const primitive &pQ) const
+                constexpr bool operator > (const primitive &pQ) const
                 {
                     return data > pQ.data;
                 }
-                bool operator <= (const primitive &pQ) const
+                constexpr bool operator <= (const primitive &pQ) const
                 {
                     return data <= pQ.data;
                 }
-                bool operator >= (const primitive &pQ) const
+                constexpr bool operator >= (const primitive &pQ) const
                 {
                     return data >= pQ.data;
                 }
 
-                primitive operator ^ (const Q &pQ)
+                constexpr primitive operator ^ (const Q &pQ)
                 {
                     return primitive(pow(data, pQ));
                 }
-                primitive operator ^ (const primitive &pQ)
+                constexpr primitive operator ^ (const primitive &pQ)
                 {
                     return primitive(pow(data, pQ.data));
                 }
@@ -234,41 +253,46 @@ namespace efgy
                     return *this;
                 }
 
+                /**\brief Actual contents
+                 *
+                 * This variable contains the actual contents of any variable
+                 * using this class, in the specified base type.
+                 */
                 Q data;
         };
 
         template <typename Q, typename u>
-        primitive<Q,u> sqrt (const primitive<Q,u> &vA)
+        constexpr primitive<Q,u> sqrt (const primitive<Q,u> &vA)
         {
             return primitive<Q,u>(std::sqrt(vA.data));
         }
 
         template <typename Q, typename u>
-        primitive<Q,u> sin (const primitive<Q,u> &vA)
+        constexpr primitive<Q,u> sin (const primitive<Q,u> &vA)
         {
             return primitive<Q,u>(std::sin(vA.data));
         }
 
         template <typename Q, typename u>
-        primitive<Q,u> cos (const primitive<Q,u> &vA)
+        constexpr primitive<Q,u> cos (const primitive<Q,u> &vA)
         {
             return primitive<Q,u>(std::cos(vA.data));
         }
 
         template <typename Q, typename u>
-        primitive<Q,u> tan (const primitive<Q,u> &vA)
+        constexpr primitive<Q,u> tan (const primitive<Q,u> &vA)
         {
             return primitive<Q,u>(std::tan(vA.data));
         }
 
         template <typename Q, typename u>
-        primitive<Q,u> atan (const primitive<Q,u> &vA)
+        constexpr primitive<Q,u> atan (const primitive<Q,u> &vA)
         {
             return primitive<Q,u>(std::atan(vA.data));
         }
 
         template <typename Q, typename u>
-        primitive<Q,u> atan2 (const primitive<Q,u> &vA, const primitive<Q,u> &vB)
+        constexpr primitive<Q,u> atan2 (const primitive<Q,u> &vA, const primitive<Q,u> &vB)
         {
             return primitive<Q,u>(std::atan2(vA.data, vB.data));
         }
