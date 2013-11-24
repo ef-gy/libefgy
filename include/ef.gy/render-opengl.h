@@ -38,9 +38,84 @@
 #include <vector>
 #include <map>
 #include <sstream>
+#include <functional>
 
 namespace efgy
 {
+    namespace render
+    {
+        static inline std::string getVertexShader (const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
+        {
+            std::stringstream output ("");
+            output << "#version 100\n";
+            if (postProcess)
+            {
+                output
+                <<  "attribute vec4 position;\n"
+                    "varying lowp vec2 UV;\n"
+                    "void main() {\n"
+                        "gl_Position = position;\n"
+                        "UV = (position.xy+vec2(1.0,1.0))/2.0;\n"
+                    "}\n";
+            }
+            else
+            {
+                output
+                <<  "attribute vec4 position;\n"
+                    "attribute vec3 normal;\n"
+                    "attribute highp float index;\n"
+                    "varying lowp vec4 colorVarying;\n"
+                    "varying lowp float indexVarying;\n"
+                    "uniform mat4 modelViewProjectionMatrix;\n"
+                    "uniform mat3 normalMatrix;\n"
+                    "uniform vec4 colour;\n"
+                    "void main() {\n"
+                    << (fractalFlameColouring
+                        ? "indexVarying = index;\n"
+                        : "vec3 eyeNormal = normalize(normalMatrix * normal);\n"
+                          "vec3 lightPosition = vec3(0.0, 0.0, 1.0);\n"
+                          "float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));\n"
+                          "colorVarying = colour * nDotVP;\n")
+                  <<      "gl_Position = modelViewProjectionMatrix * position;\n"
+                "}";
+            }
+            return output.str();
+        }
+        
+        static inline std::string getFragmentShader (const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
+        {
+            std::stringstream output ("");
+            output << "#version 100\n";
+            if (postProcess)
+            {
+                output
+                <<  "varying lowp vec2 UV;\n"
+                    "uniform sampler2D screenFramebuffer;\n"
+                    "uniform sampler2D screenHistogram;\n"
+                    "uniform sampler2D colourMap;\n"
+                    "void main() {\n"
+                        "highp float intensity = 1.0 - texture2D(screenHistogram, UV).x;\n"
+                        "highp float index     = texture2D(screenFramebuffer, UV).x;\n"
+                        "gl_FragColor = texture2D(colourMap, vec2(index,0.0)) * intensity;\n"
+                    "}\n";
+            }
+            else
+            {
+                output
+                <<  "varying lowp vec4 colorVarying;\n"
+                    "varying lowp float indexVarying;\n"
+                    "void main() {\n"
+                << (fractalFlameColouring
+                    ? (renderHistogram
+                       ? "gl_FragColor = vec4(0.995,0.995,0.995,0.995);\n"
+                       : "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,0.5);\n")
+                    : "gl_FragColor = colorVarying;\n")
+                <<  "}\n";
+            }
+            return output.str();
+        }
+    };
+
     /**\brief OpenGL helpers
      *
      * Templates to handle basic OpenGL tasks, such as compiling and linking
@@ -1784,83 +1859,136 @@ namespace efgy
                  */
                 bool hasBound;
         };
+
+        /**\brief Fractal flame render programme
+         *
+         * This class encapsulates the OpenGL programmes used to implement the
+         * fractal flame colouring algorithm.
+         *
+         * \tparam Q Base data type for calculations.
+         */
+        template<typename Q>
+        class fractalFlameRenderProgramme
+        {
+            public:
+                constexpr fractalFlameRenderProgramme (void)
+                    : initialised(false),
+                      colouring(render::getVertexShader(true, false, false), render::getFragmentShader(true, false, false)),
+                      histogram(render::getVertexShader(true, false, true), render::getFragmentShader(true, false, true)),
+                      postProcess(render::getVertexShader(true, true, false), render::getFragmentShader(true, true, false))
+                    {}
+
+                void uniform (const geometry::transformation::projective<Q,3> &combined, const math::matrix<Q,3,3> &normalMatrix)
+                {
+                    histogram.uniform(uniformProjectionMatrix, combined.transformationMatrix);
+                    histogram.uniform(uniformNormalMatrix, normalMatrix);
+                    
+                    colouring.uniform(uniformProjectionMatrix, combined.transformationMatrix);
+                    colouring.uniform(uniformNormalMatrix, normalMatrix);
+                }
+
+                void operator () (const GLuint &width, const GLuint &height, std::function<void()> draw)
+                {
+                    if (!initialised)
+                    {
+                        initialised = true;
+
+                        postProcess.copy();
+
+                        static const GLfloat fullscreenQuadBufferData[] =
+                        {
+                            -1.0f, -1.0f,  0.0f,
+                            1.0f, -1.0f,  0.0f,
+                            -1.0f,  1.0f,  0.0f,
+                            -1.0f,  1.0f,  0.0f,
+                            1.0f, -1.0f,  0.0f,
+                            1.0f,  1.0f,  0.0f
+                        };
+                        
+                        vertexArrayFullscreenQuad.use();
+                        vertexbufferFullscreenQuad.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
+                        vertexArrayFullscreenQuad.setup();
+                        
+                        setColourMap();
+                    }
+
+                    glClearColor(1,1,1,1);
+                    
+                    colouring.use(width, height, 0);
+                    
+                    glDepthMask(GL_TRUE);
+                    glBlendFunc (GL_ONE, GL_ZERO);
+                    glEnable(GL_DEPTH_TEST);
+                    glDepthFunc(GL_LEQUAL);
+                    
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                    glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
+                    
+                    draw();
+                    
+                    histogram.use(width, height, 1);
+                    
+                    glDepthMask(GL_FALSE);
+                    glDisable(GL_DEPTH_TEST);
+
+//                        glClearColor(0,0,0,1);
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                    
+//                        glBlendFunc (GL_ONE, GL_ONE);
+                    glBlendFunc (GL_ZERO, GL_SRC_COLOR);
+                    
+                    draw();
+
+                    postProcess.use(width, height);
+                    
+                    postProcess.uniform(efgy::opengl::uniformScreenFramebuffer, 0);
+                    postProcess.uniform(efgy::opengl::uniformScreenHistogram, 1);
+                    
+                    glActiveTexture(GL_TEXTURE0 + 2);
+                    textureFlameColourMap.bind();
+                    postProcess.uniform(efgy::opengl::uniformColourMap, 2);
+                    
+                    glBlendFunc (GL_ONE, GL_ZERO);
+                    
+                    vertexArrayFullscreenQuad.use();
+                    vertexbufferFullscreenQuad.bind();
+                    vertexArrayFullscreenQuad.setup();
+                    
+                    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+                    draw();
+                }
+
+                void setColourMap (void)
+                {
+                    std::vector<unsigned char> colours;
+
+                    for (unsigned int i = 0; i < 8; i++)
+                    {
+                        colours.push_back(std::rand()%255);
+                        colours.push_back(std::rand()%255);
+                        colours.push_back(std::rand()%255);
+                    }
+
+                    textureFlameColourMap.load(GLsizei(colours.size()/3), 1, &colours[0]);
+
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                }
+
+            protected:
+                bool initialised;
+                renderToTextureProgramme<Q> colouring;
+                renderToTextureProgramme<Q> histogram;
+                renderToFramebufferProgramme<Q> postProcess;
+                vertexArrayMinimal<Q> vertexArrayFullscreenQuad;
+                vertexBuffer vertexbufferFullscreenQuad;
+                texture2D textureFlameColourMap;
+        };
     };
 
     namespace render
     {
-        static inline std::string getVertexShader (const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
-        {
-            std::stringstream output ("");
-            output
-                << "#version 100\n";
-            if (postProcess)
-            {
-                output
-                <<  "attribute vec4 position;\n"
-                    "varying lowp vec2 UV;\n"
-                    "void main() {\n"
-                        "gl_Position = position;\n"
-                        "UV = (position.xy+vec2(1.0,1.0))/2.0;\n"
-                    "}\n";
-            }
-            else
-            {
-                output
-                <<  "attribute vec4 position;\n"
-                    "attribute vec3 normal;\n"
-                    "attribute highp float index;\n"
-                    "varying lowp vec4 colorVarying;\n"
-                    "varying lowp float indexVarying;\n"
-                    "uniform mat4 modelViewProjectionMatrix;\n"
-                    "uniform mat3 normalMatrix;\n"
-                    "uniform vec4 colour;\n"
-                    "void main() {\n"
-                << (fractalFlameColouring
-                      ? "indexVarying = index;\n"
-                      : "vec3 eyeNormal = normalize(normalMatrix * normal);\n"
-                        "vec3 lightPosition = vec3(0.0, 0.0, 1.0);\n"
-                        "float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));\n"
-                        "colorVarying = colour * nDotVP;\n")
-                <<      "gl_Position = modelViewProjectionMatrix * position;\n"
-                    "}";
-            }
-            return output.str();
-        }
-
-        static inline std::string getFragmentShader (const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
-        {
-            std::stringstream output ("");
-            output
-                << "#version 100\n";
-            if (postProcess)
-            {
-                output
-                <<  "varying lowp vec2 UV;\n"
-                    "uniform sampler2D screenFramebuffer;\n"
-                    "uniform sampler2D screenHistogram;\n"
-                    "uniform sampler2D colourMap;\n"
-                    "void main() {\n"
-                        "highp float intensity = 1.0 - texture2D(screenHistogram, UV).x;\n"
-                        "highp float index     = texture2D(screenFramebuffer, UV).x;\n"
-                        "gl_FragColor = texture2D(colourMap, vec2(index,0.0)) * intensity;\n"
-                    "}\n";
-            }
-            else
-            {
-                output
-                <<  "varying lowp vec4 colorVarying;\n"
-                    "varying lowp float indexVarying;\n"
-                    "void main() {\n"
-                << (fractalFlameColouring
-                      ? (renderHistogram
-                            ? "gl_FragColor = vec4(0.995,0.995,0.995,0.995);\n"
-                            : "gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,0.5);\n")
-                      : "gl_FragColor = colorVarying;\n")
-                <<  "}\n";
-            }
-            return output.str();
-        }
-
         /**\brief OpenGL renderer
          *
          * Transforms object to a format that OpenGL can understand and then
@@ -1892,7 +2020,7 @@ namespace efgy
                  *    an arbitrary number of dimensions to 3 dimensions, as
                  *    OpenGL natively supports 3D graphics.
                  */
-                opengl
+                constexpr opengl
                     (const geometry::transformation::affine<Q,d> &pTransformation,
                      const geometry::projection<Q,d> &pProjection,
                      opengl<Q,d-1> &pLowerRenderer)
@@ -1980,16 +2108,14 @@ namespace efgy
                  *    an arbitrary number of dimensions to 3 dimensions, as
                  *    OpenGL natively supports 3D graphics.
                  */
-                opengl
+                constexpr opengl
                     (const geometry::transformation::affine<Q,3> &pTransformation,
                      const geometry::projection<Q,3> &pProjection,
                      opengl<Q,2> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection),
                       haveBuffers(false), prepared(false),
+                      fractalFlame(),
                       regular(getVertexShader(false, false, false), getFragmentShader(false, false, false)),
-                      flameColouring(getVertexShader(true, false, false), getFragmentShader(true, false, false)),
-                      flameHistogram(getVertexShader(true, false, true), getFragmentShader(true, false, true)),
-                      flamePostProcess(getVertexShader(true, true, false), getFragmentShader(true, true, false)),
                       width(pLowerRenderer.width), height(pLowerRenderer.height)
                     {
                     }
@@ -2001,23 +2127,6 @@ namespace efgy
                         haveBuffers = true;
                         
                         regular.copy();
-                        flamePostProcess.copy();
-
-                        static const GLfloat fullscreenQuadBufferData[] =
-                        {
-                            -1.0f, -1.0f,  0.0f,
-                             1.0f, -1.0f,  0.0f,
-                            -1.0f,  1.0f,  0.0f,
-                            -1.0f,  1.0f,  0.0f,
-                             1.0f, -1.0f,  0.0f,
-                             1.0f,  1.0f,  0.0f
-                        };
-
-                        vertexArrayFullscreenQuad.use();
-                        vertexbufferFullscreenQuad.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
-                        vertexArrayFullscreenQuad.setup();
-
-                        setColourMap();
                     }
 
                     const geometry::transformation::projective<Q,3> combined = transformation * projection;
@@ -2025,11 +2134,7 @@ namespace efgy
 
                     if (fractalFlameColouring)
                     {
-                        flameHistogram.uniform(efgy::opengl::uniformProjectionMatrix, combined.transformationMatrix);
-                        flameHistogram.uniform(efgy::opengl::uniformNormalMatrix, normalMatrix);
-
-                        flameColouring.uniform(efgy::opengl::uniformProjectionMatrix, combined.transformationMatrix);
-                        flameColouring.uniform(efgy::opengl::uniformNormalMatrix, normalMatrix);
+                        fractalFlame.uniform (combined, normalMatrix);
                     }
                     else
                     {
@@ -2061,49 +2166,10 @@ namespace efgy
 
                     if (fractalFlameColouring)
                     {
-                        glClearColor(1,1,1,1);
-
-                        flameColouring.use(width, height, 0);
-
-                        glDepthMask(GL_TRUE);
-                        glBlendFunc (GL_ONE, GL_ZERO);
-                        glEnable(GL_DEPTH_TEST);
-                        glDepthFunc(GL_LEQUAL);
-
-                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
-
-                        pushFaces();
-
-                        flameHistogram.use(width, height, 1);
-
-                        glDepthMask(GL_FALSE);
-                        glDisable(GL_DEPTH_TEST);
-
-//                        glClearColor(0,0,0,1);
-                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-//                        glBlendFunc (GL_ONE, GL_ONE);
-                        glBlendFunc (GL_ZERO, GL_SRC_COLOR);
-
-                        pushFaces();
-
-                        flamePostProcess.use(width, height);
-
-                        flamePostProcess.uniform(efgy::opengl::uniformScreenFramebuffer, 0);
-                        flamePostProcess.uniform(efgy::opengl::uniformScreenHistogram, 1);
-
-                        glActiveTexture(GL_TEXTURE0 + 2);
-                        textureFlameColourMap.bind();
-                        flamePostProcess.uniform(efgy::opengl::uniformColourMap, 2);
-
-                        glBlendFunc (GL_ONE, GL_ZERO);
-
-                        vertexArrayFullscreenQuad.use();
-                        vertexbufferFullscreenQuad.bind();
-                        vertexArrayFullscreenQuad.setup();
-
-                        glDrawArrays(GL_TRIANGLES, 0, 6);
+                        fractalFlame (width, height, [&] ()
+                        {
+                            pushFaces();
+                        });
                     }
                     else
                     {
@@ -2216,7 +2282,9 @@ namespace efgy
                     return rv;
                 }
 
-                bool setColour (float pRed, float pGreen, float pBlue, float pAlpha, bool pWireframe)
+                bool setColour
+                    (const float &pRed, const float &pGreen, const float &pBlue,
+                     const float &pAlpha, const bool &pWireframe)
                 {
                     if (pWireframe)
                     {
@@ -2241,19 +2309,7 @@ namespace efgy
 
                 void setColourMap (void)
                 {
-                    std::vector<unsigned char> colours;
-                    
-                    for (unsigned int i = 0; i < 8; i++)
-                    {
-                        colours.push_back(std::rand()%255);
-                        colours.push_back(std::rand()%255);
-                        colours.push_back(std::rand()%255);
-                    }
-
-                    textureFlameColourMap.load(GLsizei(colours.size()/3), 1, &colours[0]);
-                    
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    fractalFlame.setColourMap();
                 }
 
                 bool fractalFlameColouring;
@@ -2272,11 +2328,11 @@ namespace efgy
                 bool haveBuffers;
                 bool prepared;
 
+                efgy::opengl::fractalFlameRenderProgramme<Q> fractalFlame;
+
                 efgy::opengl::vertexArrayExtended<Q> vertexArrayModel;
-                efgy::opengl::vertexArrayMinimal<Q> vertexArrayFullscreenQuad;
 
                 efgy::opengl::vertexBuffer vertexbuffer;
-                efgy::opengl::vertexBuffer vertexbufferFullscreenQuad;
                 efgy::opengl::indexBuffer elementbuffer;
                 efgy::opengl::indexBuffer linebuffer;
 
@@ -2286,11 +2342,7 @@ namespace efgy
                 bool faceDepthMask;
                 GLfloat wireframeColour[4];
                 GLfloat surfaceColour[4];
-                efgy::opengl::texture2D textureFlameColourMap;
                 efgy::opengl::renderToFramebufferProgramme<Q> regular;
-                efgy::opengl::renderToTextureProgramme<Q> flameColouring;
-                efgy::opengl::renderToTextureProgramme<Q> flameHistogram;
-                efgy::opengl::renderToFramebufferProgramme<Q> flamePostProcess;
 
                 void pushLines (void) const
                 {
@@ -2350,7 +2402,7 @@ namespace efgy
                  * matrix. This matrix is actually ignored, as the 'real' fix
                  * point for the OpenGL renderer is in 3D, not 2D.
                  */
-                opengl (const geometry::transformation::affine<Q,2> &) {}
+                constexpr opengl (const geometry::transformation::affine<Q,2> &) {}
 
                 GLuint width;
                 GLuint height;
