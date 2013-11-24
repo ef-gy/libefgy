@@ -65,7 +65,10 @@ namespace efgy
         public:
             /**\brief Default constructor
              *
-             * Construct a 'maybe' that contains 'nothing'.
+             * Construct a 'maybe' that contains 'nothing'. This constructor
+             * can only be used if your type supports a default constructor; if
+             * it does not, then you probably won't be able to use the template
+             * all too effectively.
              */
             constexpr maybe (void)
                 : nothing(true), just()
@@ -171,7 +174,7 @@ namespace efgy
              *
              * \return The value contained in this 'maybe'.
              */
-            constexpr operator T (void) const
+            constexpr operator const T& (void) const
             {
                 return just;
             }

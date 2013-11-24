@@ -101,4 +101,62 @@ int testMaybe (std::ostream &log)
     return 0;
 }
 
-TEST_BATCH(testMaybe)
+/**\brief Nontrivial example class
+ *
+ * Used in testMaybeNontrivial to test whether the (constexpr) maybe template
+ * works as intended with a nontrivial class.
+ */
+class outputInDestructor
+{
+    public:
+        /**\brief Initialise with output stream
+         *
+         * Initialises the class with an output stream, which is used in the
+         * destructor.
+         *
+         * \param[in,out] pLog The stream to log to upon destruction of the
+         *                     object
+         */
+        outputInDestructor (std::ostream &pLog)
+            : log(pLog) {}
+
+        /**\brief Destructor
+         *
+         * This destructor will log a message to the ostream passed to the
+         * constructor in order to visualise when copies of an object are being
+         * created an destroyed when using the maybe template.
+         */
+        ~outputInDestructor (void)
+            {
+                log << "outputInDestructor::~outputInDestructor()\n";
+            }
+
+    protected:
+        /**\brief Output stream reference
+         *
+         * The output stream passed to the constructor; used in the destructor.
+         */
+        std::ostream &log;
+};
+
+/**\brief 'Maybe' usage with nontrivial types test
+ * \test Initialises a maybe with a nontrivial type to see if it behaves as
+ *       expected. This test case also demonstrates how and when the contained
+ *       objects are copied or re-initialised.
+ *
+ * \param[out] log A stream for test cases to log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
+int testMaybeNontrivial (std::ostream &log)
+{
+    // maybe<outputInDestructor> nontrivial; // should not compile
+
+    maybe<outputInDestructor> nontrivial ((outputInDestructor(log)));
+
+    const outputInDestructor &dest = nontrivial;
+
+    return 0;
+}
+
+TEST_BATCH(testMaybe, testMaybeNontrivial)
