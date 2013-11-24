@@ -59,53 +59,147 @@ namespace efgy
                  */
                 typedef Tinteger integer;
 
-                constexpr primitive (void)
-                    : data(Q(0))
-                    {}
-                constexpr primitive (const Q &pQ)
-                    : data(pQ)
-                    {}
-                constexpr primitive (const primitive &pQ)
-                    : data(pQ.data)
-                    {}
+                /**\brief Default constructor
+                 *
+                 * Initialises the object with the Q-equivalent of a zero.
+                 */
+                constexpr primitive (void) : data(Q(0)) {}
 
-                constexpr operator const Q& (void) const
-                {
-                    return data;
-                }
+                /**\brief Value constructor
+                 *
+                 * Initialises the object with a copy of the provided value.
+                 *
+                 * \param[in] pQ The value to initialise the object to.
+                 */
+                constexpr primitive (const Q &pQ) : data(pQ) {}
 
+                /**\brief Copy constructor
+                 *
+                 * Copies the value of another primitive to initialise a new
+                 * instance o fthis class.
+                 *
+                 * \param[in] pQ The value to copy.
+                 */
+                constexpr primitive (const primitive &pQ) : data(pQ.data) {}
+
+                /**\brief Cast to base type
+                 *
+                 * This operator returns a reference to the base type, so that
+                 * this object can be used interchangeably with instances of the
+                 * original primitive type.
+                 *
+                 * \return Const reference to the base value.
+                 */
+                constexpr operator const Q& (void) const { return data; }
+
+                /**\brief Assign base value
+                 *
+                 * Assigns the value of the given base value to this object,
+                 * then returns a reference to this object.
+                 *
+                 * \param[in] pQ The value to copy.
+                 *
+                 * \return Reference to the object.
+                 */
                 primitive &operator = (const Q &pQ)
                 {
                     data = pQ;
                     return *this;
                 }
+
+                /**\brief Assign value of other instance
+                 *
+                 * Assigns the value of the given object to this object, then
+                 * returns a reference to this object.
+                 *
+                 * \param[in] pQ The value to copy.
+                 *
+                 * \return Reference to the object.
+                 */
                 primitive &operator = (const primitive &pQ)
                 {
                     data = pQ.data;
                     return *this;
                 }
 
-                constexpr primitive operator - () const
+                /**\brief Swap sign of object
+                 *
+                 * Creates a new primitive object with a reversed sign. The sign
+                 * is reversed with the help of the native unary minus operator.
+                 *
+                 * \return New object with the modified value.
+                 */
+                constexpr primitive operator - (void) const
                 {
                     return primitive(-data);
                 }
 
+                /**\brief Add base type value
+                 *
+                 * Creates a new primitive object with the given parameter added
+                 * to it.
+                 *
+                 * \param[in] pQ The value to add to this object.
+                 *
+                 * \return New object with the modified value.
+                 */
                 constexpr primitive operator + (const Q &pQ) const
                 {
                     return primitive(data + pQ);
                 }
+
+                /**\brief Subtract base type value
+                 *
+                 * Creates a new primitive object with the given parameter
+                 * subtracted from it.
+                 *
+                 * \param[in] pQ The value to subtract from this object.
+                 *
+                 * \return New object with the modified value.
+                 */
                 constexpr primitive operator - (const Q &pQ) const
                 {
                     return primitive(data - pQ);
                 }
+
+                /**\brief Multiply with base type value
+                 *
+                 * Creates a new primitive object with the given parameter
+                 * multiplied to it.
+                 *
+                 * \param[in] pQ The factor to multiply with this object.
+                 *
+                 * \return New object with the modified value.
+                 */
                 constexpr primitive operator * (const Q &pQ) const
                 {
                     return primitive(data * pQ);
                 }
+
+                /**\brief Divide by base type value
+                 *
+                 * Creates a new primitive object by dividing the current value
+                 * by the given divisor.
+                 *
+                 * \param[in] pQ The divisor to divide this object by.
+                 *
+                 * \return New object with the modified value.
+                 */
                 constexpr primitive operator / (const Q &pQ) const
                 {
                     return primitive(data / pQ);
                 }
+
+                /**\brief Calculate remainder of division by base type value
+                 *
+                 * Creates a new primitive object by dividing the current value
+                 * by the given divisor and then taking the remainder of that
+                 * division.
+                 *
+                 * \param[in] pQ The divisor to divide this object by.
+                 *
+                 * \return New object with the modified value.
+                 */
                 constexpr primitive operator % (const Q &pQ) const
                 {
                     return primitive(data % pQ);
