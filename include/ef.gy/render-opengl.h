@@ -39,6 +39,7 @@
 #include <map>
 #include <sstream>
 #include <functional>
+#include <algorithm>
 
 namespace efgy
 {
@@ -2132,14 +2133,17 @@ namespace efgy
                     (const std::array<typename geometry::euclidian::space<Q,d>::vector,q> &pV, const Q &index = 0.5) const
                 {
                     if (prepared) return;
-                    
+
                     std::array<typename geometry::euclidian::space<Q,d-1>::vector,q> V;
-                    
-                    for (unsigned int i = 0; i < q; i++)
+
+                    std::transform
+                        (pV.begin(), pV.end(), V.begin(),
+                         [&](const typename geometry::euclidian::space<Q,d>::vector &s)
+                          -> typename geometry::euclidian::space<Q,d-1>::vector
                     {
-                        V[i] = combined * pV[i];
-                    }
-                    
+                        return combined * s;
+                    });
+
                     lowerRenderer.drawFace(V, index);
                 }
 
