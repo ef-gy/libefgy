@@ -2116,7 +2116,8 @@ namespace efgy
                      opengl<Q,d-1> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer),
                       fractalFlameColouring(pLowerRenderer.fractalFlameColouring),
-                      width(pLowerRenderer.width), height(pLowerRenderer.height)
+                      width(pLowerRenderer.width), height(pLowerRenderer.height),
+                      prepared(pLowerRenderer.prepared)
                     {}
 
                 void frameStart (void)
@@ -2130,7 +2131,7 @@ namespace efgy
                 void drawFace
                     (const std::array<typename geometry::euclidian::space<Q,d>::vector,q> &pV, const Q &index = 0.5) const
                 {
-                    if (isPrepared()) return;
+                    if (prepared) return;
                     
                     std::array<typename geometry::euclidian::space<Q,d-1>::vector,q> V;
                     
@@ -2143,7 +2144,6 @@ namespace efgy
                 }
 
                 void reset (void) const { lowerRenderer.reset(); }
-                const bool isPrepared (void) const { return lowerRenderer.isPrepared(); }
                 bool setColour (float red, float green, float blue, float alpha, bool wireframe)
                 {
                     return lowerRenderer.setColour(red,green,blue,alpha,wireframe);
@@ -2157,6 +2157,7 @@ namespace efgy
                 bool &fractalFlameColouring;
                 GLuint &width;
                 GLuint &height;
+                bool &prepared;
 
             protected:
                 const geometry::transformation::affine<Q,d> &transformation;
@@ -2203,7 +2204,7 @@ namespace efgy
                      const geometry::projection<Q,3> &pProjection,
                      opengl<Q,2> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection),
-                      haveBuffers(false), prepared(false),
+                      haveBuffers(false), prepared(pLowerRenderer.prepared),
                       fractalFlame(),
                       regular(getVertexShader(false, false, false), getFragmentShader(false, false, false)),
                       width(pLowerRenderer.width), height(pLowerRenderer.height)
@@ -2280,7 +2281,7 @@ namespace efgy
                 void drawFace
                     (const std::array<typename geometry::euclidian::space<Q,3>::vector,q> &pV, const Q &index = 0.5)
                 {
-                    if (isPrepared()) return;
+                    if (prepared) return;
 
                     typename geometry::euclidian::space<Q,3>::vector R
                         = geometry::euclidian::normalise<Q,3>
@@ -2348,7 +2349,6 @@ namespace efgy
                 }
 
                 void reset (void) { prepared = false; }
-                const bool isPrepared (void) const { return prepared; }
 
                 unsigned int addVertex
                     (const GLfloat &x, const GLfloat &y, const GLfloat &z,
@@ -2405,6 +2405,7 @@ namespace efgy
                 bool fractalFlameColouring;
                 GLuint &width;
                 GLuint &height;
+                bool &prepared;
 
             protected:
                 const geometry::transformation::affine<Q,3> &transformation;
@@ -2416,7 +2417,6 @@ namespace efgy
                 GLsizei tindices;
                 GLsizei lindices;
                 bool haveBuffers;
-                bool prepared;
 
                 efgy::opengl::fractalFlameRenderProgramme<Q> fractalFlame;
 
@@ -2492,10 +2492,12 @@ namespace efgy
                  * matrix. This matrix is actually ignored, as the 'real' fix
                  * point for the OpenGL renderer is in 3D, not 2D.
                  */
-                constexpr opengl (const geometry::transformation::affine<Q,2> &) {}
+                constexpr opengl (const geometry::transformation::affine<Q,2> &)
+                    : prepared(false) {}
 
                 GLuint width;
                 GLuint height;
+                bool prepared;
         };
     };
 };
