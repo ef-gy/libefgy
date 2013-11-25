@@ -342,7 +342,7 @@ namespace efgy
                 void calculateObject (void)
                 {
                     const Q s = parameter.polarRadius * Q(2);
-                    const range<Q> r(-s, s, parameter.polarPrecision);
+                    const range<Q> r (-s, s, parameter.polarPrecision, false);
 
                     faces.clear();
 

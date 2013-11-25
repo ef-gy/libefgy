@@ -201,7 +201,7 @@ namespace efgy
     {
         return range<T,(inclusive ? 1 : 0)+((end-start) < 0 ? (start-end) : (end-start))>::get (start, (end-start) < 0 ? -1 : 1);
     }
-
+    
     template<typename T>
     class range<T,0,0>
     {

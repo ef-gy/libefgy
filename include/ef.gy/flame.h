@@ -1,4 +1,8 @@
 /**\file
+ * \brief Fractal flame transformation algorithm
+ *
+ * This file implements the fractal flame IFS 'Variations' as described in the
+ * fractal flame algorithm paper.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -23,6 +27,8 @@
  *
  * \see Project Documentation: http://ef.gy/documentation/libefgy
  * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
+ * \see The paper 'Fractal Flame Algorithm' by Scott Draves and Eric Reckase:
+ *      http://flam3.com/flame_draves.pdf
  */
 
 #if !defined(EF_GY_FLAME_H)
@@ -36,14 +42,18 @@ namespace efgy
     {
         namespace transformation
         {
-            /* These transformations are based on the 'Fractal Flame Algorithm' paper by Scott Draves
-               and Eric Reckase.
-               See http://flam3.com/flame_draves.pdf for the original paper. */
+            /**\brief Fractal flame transformation
+             *
+             * These transformations are based on the 'Fractal Flame Algorithm'
+             * paper by Scott Draves and Eric Reckase.
+             *
+             * \see http://flam3.com/flame_draves.pdf for the original paper.
+             */
             template <typename Q, unsigned int d>
             class flame : public affine<Q,d>
             {
                 public:
-                    flame (void) {}
+                    flame (unsigned int pDepth = d) : depth(pDepth) {}
 
                     using affine<Q,d>::transformationMatrix;
 
@@ -53,7 +63,7 @@ namespace efgy
                         const typename euclidian::space<Q,d>::vector V = affine<Q,d>(*this) * pV;
                         typename euclidian::space<Q,d>::vector rv = V * coefficient[0];
 
-                        for (unsigned int i = 1; i < coefficients; i++)
+                        for (unsigned int i : sequence<unsigned int, 1, coefficients, false>())
                         {
                             rv = rv + apply(i, V);
                         }
@@ -89,7 +99,7 @@ namespace efgy
                                 rv = V;
                                 break;
                             case 1: // "sinusoidal"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     rv[i] = sin(V[i]);
                                 break;
                             case 2: // "spherical"
@@ -99,7 +109,7 @@ namespace efgy
                             {
                                 const Q sinrsq = sin(r2);
                                 const Q cosrsq = cos(r2);
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     if ((i % 2 == 0) && (i < (d-1)))
                                         rv[i] = V[i] * sinrsq - V[(i+1)] * cosrsq;
                                     else
@@ -118,7 +128,7 @@ namespace efgy
                                 rv[1] = sqrt(euclidian::lengthSquared<Q,d>(V)) - Q(1);
                                 break;
                             case 6: // "handkerchief"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     switch (i % 4)
                                     {
                                         case 0: rv[i] = sin(theta + r);
@@ -129,7 +139,7 @@ namespace efgy
                                 rv = rv * r;
                                 break;
                             case 7: // "heart"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     switch (i % 4)
                                     {
                                         case 0: rv[i] =  sin(theta * r); break;
@@ -140,7 +150,7 @@ namespace efgy
                                 rv = rv * r;
                                 break;
                             case 8: // "disc"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     switch (i % 2)
                                     {
                                         case 0: rv[i] = sin(Q(M_PI) * r); break;
@@ -149,7 +159,7 @@ namespace efgy
                                 rv = rv * theta / Q(M_PI);
                                 break;
                             case 9: // "spiral"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     switch (i % 4)
                                     {
                                         case 0: rv[i] = cos(theta) + sin(r); break;
@@ -160,7 +170,7 @@ namespace efgy
                                 rv = rv / r;
                                 break;
                             case 10: // "hyperbolic"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     switch (i % 4)
                                     {
                                         case 0: rv[i] = sin(theta) / r; break;
@@ -170,7 +180,7 @@ namespace efgy
                                     }
                                 break;
                             case 11: // "diamond"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     switch (i % 2)
                                     {
                                         case 0: rv[i] = sin(theta) * cos(r); break;
@@ -183,7 +193,7 @@ namespace efgy
                                         p1 = cos(theta - r),
                                         p2 = sin(theta - r),
                                         p3 = cos(theta + r);
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     switch (i % 4)
                                     {
                                         case 0: rv[i] = p0*p0*p0 + p1*p1*p1; break;
@@ -197,7 +207,7 @@ namespace efgy
                             case 13: // "julia"
                             {
                                 const Q thpo = theta/Q(2) + omega;
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     switch (i % 2)
                                     {
                                         case 0: rv[i] = cos(thpo); break;
@@ -207,7 +217,7 @@ namespace efgy
                             }
                                 break;
                             case 14: // "bent"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     switch ((i % 2) + ((V[0] < Q(0)) << 1) + ((V[1] < Q(0)) << 2))
                                     {
                                         case 0: rv[i] = V[i];        break;
@@ -221,7 +231,7 @@ namespace efgy
                                     }
                                 break;
                             case 15: // "waves"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     if (i < (d-1))
                                         rv[i] = V[i]
                                                    * transformationMatrix[i][0]
@@ -232,16 +242,16 @@ namespace efgy
                                                    * sin(V[0] / (transformationMatrix[d][i] * transformationMatrix[d][i]));
                                 break;
                             case 16: // "fisheye"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     rv[i] = V[(d-i)];
                                 rv = rv * Q(2) / (r + Q(1));
                                 break;
                             case 17: // "popcorn"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     rv[i] = V[i] + transformationMatrix[d][i] * sin(tan(Q(3)*V[i]));
                                 break;
                             case 18: // "exponential"
-                                for (unsigned int i = 0; i < d; i++)
+                                for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     switch (i % 2)
                                     {
                                         case 0: rv[i] = cos(M_PI*V[1]); break;
@@ -255,14 +265,16 @@ namespace efgy
 
                         return rv * coefficient[f];
                     }
+
+                    unsigned int depth;
             };
 
-            template <typename Q, unsigned int d, unsigned int od = d>
+            template <typename Q, unsigned int od, unsigned int d = od>
             class randomFlame : public flame<Q,d>
             {
                 public:
                     randomFlame(const parameters<Q> &pParameter, const unsigned long long &pSeed)
-                        : seed(pSeed)
+                        : flame<Q,d>(od), seed(pSeed)
                         {
                             efgy::random::mersenneTwister<> PRNG (pSeed);
 
@@ -358,10 +370,10 @@ namespace efgy
                             efgy::random::mersenneTwister<> PRNG (parameter.seed);
 
                             const unsigned int nfunctions = parameter.functions;
-                        
-                            for (unsigned int i = 0; i < nfunctions; i++)
+
+                            for (unsigned int i : range<unsigned int>(0,nfunctions,nfunctions,false))
                             {
-                                functions.push_back (transformation::randomFlame<Q,d,od>(parameter, PRNG.rand()));
+                                functions.push_back (transformation::randomFlame<Q,od,d>(parameter, PRNG.rand()));
                             }
                         
                             parent::calculateObject();
