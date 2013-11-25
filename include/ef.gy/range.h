@@ -155,7 +155,7 @@ namespace efgy
         return b + a;
     }
 
-    template<typename T, std::size_t n, std::size_t c = n>
+    template<typename T, std::size_t n = 0, std::size_t c = n>
     class range
     {
         public:
@@ -202,6 +202,31 @@ namespace efgy
     {
         return range<T,1+((end-start) < 0 ? (start-end) : (end-start))>::get (start, (end-start) < 0 ? -1 : 1);
     }
+
+    template<typename T>
+    class range<T,0,0>
+    {
+        public:
+            constexpr range (const T &pStart, const T &pEnd, const std::size_t pSteps, const bool inclusive = true)
+                : start(pStart), step((pEnd - pStart)/T(pSteps-(inclusive ? 1 : 0))), steps(pSteps) {}
+
+            typedef rangeIterator<T> iterator;
+
+            constexpr iterator begin (void)
+            {
+                return iterator(start, step, 0);
+            }
+
+            constexpr iterator end (void)
+            {
+                return iterator(start, step, steps);
+            }
+
+        protected:
+            const T start;
+            const T step;
+            const std::size_t steps;
+    };
 };
 
 #endif
