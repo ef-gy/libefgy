@@ -38,6 +38,7 @@
 #include <vector>
 #include <map>
 #include <sstream>
+#include <exception>
 #include <functional>
 #include <algorithm>
 
@@ -124,6 +125,85 @@ namespace efgy
      */
     namespace opengl
     {
+        /**\brief OpenGL error wrapper
+         *
+         * A functor to handle OpenGL errors in a generic way; should be used
+         * every now and then to make sure the graphics library is still in the
+         * intended state.
+         *
+         * \tparam doThrow Whether to throw a runtime exception instead of
+         *                 logging an error to stderr.
+         *
+         * \see http://www.opengl.org/sdk/docs/man/xhtml/glGetError.xml for a
+         *      description of the flags that this functor might return.
+         */
+        template<const bool doThrow = false>
+        class error
+        {
+            public:
+                /**\brief Process OpenGL errors
+                 *
+                 * Queries OpenGL for any recent errors and return any actual
+                 * errors as a vector.
+                 *
+                 * \return A vector with any error flags that may have occurred
+                 *         since the last time glGetError was used. If no errors
+                 *         have occurred, then the vector will be empty.
+                 */
+                std::vector<GLenum> operator () (void)
+                {
+                    std::vector<GLenum> errors;
+
+                    for (GLenum flag = glGetError(); flag != GL_NO_ERROR; flag = glGetError())
+                    {
+                        std::cerr << "glGetError() = 0x" << std::hex << flag << "\n";
+
+                        errors.push_back(flag);
+                    }
+
+                    return errors;
+                }
+        };
+
+        /**\brief OpenGL error wrapper; throws exceptions on errors
+         *
+         * A functor to handle OpenGL errors in a generic way; should be used
+         * every now and then to make sure the graphics library is still in the
+         * intended state.
+         */
+        template<>
+        class error<true>
+        {
+            public:
+                /**\brief Process OpenGL errors
+                 *
+                 * Queries OpenGL for any recent errors; will throw an exception
+                 * if any errors have occurred and do nothing otherwise.
+                 *
+                 * \return Either an empty vector or nothing at all - because
+                 *         any error flags that would be returned will instead
+                 *         be thrown as an exception, meaning the function will
+                 *         not return in such cases.
+                 */
+                std::vector<GLenum> operator () (void)
+                {
+                    std::vector<GLenum> errors;
+                    
+                    for (GLenum flag = glGetError(); flag != GL_NO_ERROR; flag = glGetError())
+                    {
+                        std::stringstream s("");
+
+                        s << "glGetError() = 0x" << std::hex << flag << "\n";
+
+                        throw std::runtime_error(s.str());
+
+                        errors.push_back(flag);
+                    }
+
+                    return errors;
+                }
+        };
+
         /**\brief Rounds up to the nearest power of two
          *
          * This function uses one of the infamous Bit Twiddling Hacks to round a
@@ -1861,6 +1941,98 @@ namespace efgy
                 bool hasBound;
         };
 
+        /**\brief OpenGL render programme
+         *
+         * This class encapsulates a typical, single-pass OpenGL programme to
+         * render things on the primary framebuffer.
+         *
+         * \tparam Q Base data type for calculations.
+         */
+        template<typename Q>
+        class renderProgramme : public renderToFramebufferProgramme<Q>
+        {
+            public:
+                /**\brief Default constructor
+                 *
+                 * Initialises, but does not compile, the render programme
+                 * with the correct shaders.
+                 */
+                renderProgramme (void)
+                    : initialised(false),
+                      renderToFramebufferProgramme<Q>
+                        (render::getVertexShader(false, false, false),
+                         render::getFragmentShader(false, false, false))
+                    {}
+            
+                /**\brief Load matrix uniforms
+                 *
+                 * Updates the projection and normal matrices of the OpenGL
+                 * programme with the specified values.
+                 *
+                 * \param[in] combined     The combined (MVC) projective
+                 *                         transformation.
+                 * \param[in] normalMatrix The normal matrix to use for
+                 *                         lighting.
+                 *
+                 * \return True if the uniforms were uploaded successfully,
+                 *         false otherwise.
+                 */
+                bool matrices (const geometry::transformation::projective<Q,3> &combined, const math::matrix<Q,3,3> &normalMatrix)
+                {
+                    return renderToFramebufferProgramme<Q>::uniform(uniformProjectionMatrix, combined.transformationMatrix)
+                        && renderToFramebufferProgramme<Q>::uniform(uniformNormalMatrix, normalMatrix);
+                }
+
+                using renderToFramebufferProgramme<Q>::uniform;
+            
+                /**\brief Render to current OpenGL context
+                 *
+                 * This function will perform a regular render of anything you
+                 * specify in the draw function. Shader programmes are compiled
+                 * and activated as necessary.
+                 *
+                 * \param[in] width  Width of the viewport to render to.
+                 * \param[in] height Height of the viewport to render to.
+                 * \param[in] draw   Function to do the actual rendering.
+                 *                   You'll want to use one of those
+                 *                   new-fangled lambdas here.
+                 *
+                 * \return True if rendering the scene succeeded.
+                 */
+                bool operator () (const GLuint &width, const GLuint &height, std::function<void()> draw)
+                {
+                    if (!initialised)
+                    {
+                        initialised = true;
+
+                        renderToFramebufferProgramme<Q>::copy();
+                    }
+
+                    renderToFramebufferProgramme<Q>::use(width, height);
+                    glDepthMask(GL_TRUE);
+                    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    glEnable(GL_DEPTH_TEST);
+                    glDepthFunc(GL_LEQUAL);
+
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                    draw();
+
+                    return true;
+                }
+
+            protected:
+                /**\brief Has the object been initialised?
+                 *
+                 * The actual initialisation of the object is deferred until
+                 * the first time it is rendered, so as to prevent issues when
+                 * creating the object before an OpenGL context is available.
+                 * This boolean is set to true or false, depending on whether
+                 * this initialisation step has ever been processed.
+                 */
+                bool initialised;
+        };
+
         /**\brief Fractal flame render programme
          *
          * This class encapsulates the OpenGL programmes used to implement the
@@ -1900,7 +2072,7 @@ namespace efgy
                  * \return True if the uniforms were uploaded successfully,
                  *         false otherwise.
                  */
-                bool uniform (const geometry::transformation::projective<Q,3> &combined, const math::matrix<Q,3,3> &normalMatrix)
+                bool matrices (const geometry::transformation::projective<Q,3> &combined, const math::matrix<Q,3,3> &normalMatrix)
                 {
                     return histogram.uniform(uniformProjectionMatrix, combined.transformationMatrix)
                         && histogram.uniform(uniformNormalMatrix, normalMatrix)
@@ -2018,7 +2190,7 @@ namespace efgy
                 }
 
             protected:
-                /**\brief Is the object initialised?
+                /**\brief Has the object been initialised?
                  *
                  * The actual initialisation of the object is deferred until
                  * the first time it is rendered, so as to prevent issues when
@@ -2208,33 +2380,25 @@ namespace efgy
                      const geometry::projection<Q,3> &pProjection,
                      opengl<Q,2> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection),
-                      haveBuffers(false), prepared(pLowerRenderer.prepared),
-                      fractalFlame(),
-                      regular(getVertexShader(false, false, false), getFragmentShader(false, false, false)),
+                      fractalFlameColouring(pLowerRenderer.fractalFlameColouring),
+                      prepared(pLowerRenderer.prepared),
+                      fractalFlame(), render(),
                       width(pLowerRenderer.width), height(pLowerRenderer.height)
                     {
                     }
 
                 void frameStart (void)
                 {
-                    if(!haveBuffers)
-                    {
-                        haveBuffers = true;
-                        
-                        regular.copy();
-                    }
-
                     const geometry::transformation::projective<Q,3> combined = transformation * projection;
                     const math::matrix<Q,3,3> normalMatrix = math::transpose(math::invert(math::transpose(math::matrix<Q,3,3>(transformation.transformationMatrix))));
 
                     if (fractalFlameColouring)
                     {
-                        fractalFlame.uniform (combined, normalMatrix);
+                        fractalFlame.matrices (combined, normalMatrix);
                     }
                     else
                     {
-                        regular.uniform(efgy::opengl::uniformProjectionMatrix, combined.transformationMatrix);
-                        regular.uniform(efgy::opengl::uniformNormalMatrix, normalMatrix);
+                        render.matrices (combined, normalMatrix);
                     }
                 };
 
@@ -2257,6 +2421,9 @@ namespace efgy
                         triindices.clear();
                         lineindices.clear();
                         indices = 0;
+
+                        // log errors
+                        efgy::opengl::error<>();
                     }
 
                     if (fractalFlameColouring)
@@ -2268,16 +2435,11 @@ namespace efgy
                     }
                     else
                     {
-                        regular.use(width, height);
-                        glDepthMask(GL_TRUE);
-                        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                        glEnable(GL_DEPTH_TEST);
-                        glDepthFunc(GL_LEQUAL);
-
-                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-                        pushLines();
-                        pushFaces();
+                        render (width, height, [&] ()
+                        {
+                            pushLines();
+                            pushFaces();
+                        });
                     }
                 };
 
@@ -2406,7 +2568,7 @@ namespace efgy
                     fractalFlame.setColourMap();
                 }
 
-                bool fractalFlameColouring;
+                bool &fractalFlameColouring;
                 GLuint &width;
                 GLuint &height;
                 bool &prepared;
@@ -2420,8 +2582,8 @@ namespace efgy
                 unsigned int indices;
                 GLsizei tindices;
                 GLsizei lindices;
-                bool haveBuffers;
 
+                efgy::opengl::renderProgramme<Q> render;
                 efgy::opengl::fractalFlameRenderProgramme<Q> fractalFlame;
 
                 efgy::opengl::vertexArrayExtended<Q> vertexArrayModel;
@@ -2436,13 +2598,12 @@ namespace efgy
                 bool faceDepthMask;
                 GLfloat wireframeColour[4];
                 GLfloat surfaceColour[4];
-                efgy::opengl::renderToFramebufferProgramme<Q> regular;
 
                 void pushLines (void) const
                 {
                     if (prepared && linesEnabled && !fractalFlameColouring)
                     {
-                        regular.uniform(efgy::opengl::uniformColour, wireframeColour);
+                        render.uniform(efgy::opengl::uniformColour, wireframeColour);
 
                         glDepthMask (lineDepthMask ? GL_TRUE : GL_FALSE);
 
@@ -2461,7 +2622,7 @@ namespace efgy
                     {
                         if (!fractalFlameColouring)
                         {
-                            regular.uniform(efgy::opengl::uniformColour, surfaceColour);
+                            render.uniform(efgy::opengl::uniformColour, surfaceColour);
                         }
 
                         glDepthMask (faceDepthMask ? GL_TRUE : GL_FALSE);
@@ -2497,8 +2658,9 @@ namespace efgy
                  * point for the OpenGL renderer is in 3D, not 2D.
                  */
                 constexpr opengl (const geometry::transformation::affine<Q,2> &)
-                    : prepared(false) {}
+                    : fractalFlameColouring(false), prepared(false) {}
 
+                bool fractalFlameColouring;
                 GLuint width;
                 GLuint height;
                 bool prepared;

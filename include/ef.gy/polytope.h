@@ -364,7 +364,7 @@ namespace efgy
 
                 sphere (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier),
-                      loopRange(-M_PI, M_PI, 1)
+                      loopRange(-M_PI, M_PI, 1, true)
                     {
                         calculateObject();
                     }

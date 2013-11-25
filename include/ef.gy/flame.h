@@ -80,7 +80,7 @@ namespace efgy
                     {
                         typename euclidian::space<Q,d>::vector rv;
 
-                        if (coefficient[f] <= Q(0.))
+                        if (coefficient[f] <= Q(0))
                         {
                             return rv;
                         }

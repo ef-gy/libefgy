@@ -206,8 +206,20 @@ namespace efgy
     class range<T,0,0>
     {
         public:
+            constexpr range (const T &pEnd, const bool inclusive = true)
+                : start(0),
+                  stride((pEnd)/T((pEnd)-(inclusive ? 1 : 0))),
+                  steps(pEnd) {}
+
+            constexpr range (const T &pStart, const T &pEnd, const bool inclusive = true)
+                : start(pStart),
+                  stride((pEnd - pStart)/T(((pEnd - pStart) < 0 ? (pStart - pEnd) : (pEnd - pStart))-(inclusive ? 1 : 0))),
+                  steps((pEnd - pStart) < 0 ? (pStart - pEnd) : (pEnd - pStart)) {}
+
             constexpr range (const T &pStart, const T &pEnd, const std::size_t pSteps, const bool inclusive = true)
-                : start(pStart), stride((pEnd - pStart)/T(pSteps-(inclusive ? 1 : 0))), steps(pSteps) {}
+                : start(pStart),
+                  stride((pEnd - pStart)/T(pSteps-(inclusive ? 1 : 0))),
+                  steps(pSteps) {}
 
             typedef rangeIterator<T> iterator;
 
