@@ -1866,28 +1866,62 @@ namespace efgy
          * fractal flame colouring algorithm.
          *
          * \tparam Q Base data type for calculations.
+         *
+         * \see http://flam3.com/flame_draves.pdf for a description of the
+         *      colouring algorithm these render programmes are based on.
          */
         template<typename Q>
         class fractalFlameRenderProgramme
         {
             public:
-                constexpr fractalFlameRenderProgramme (void)
+                /**\brief Default constructor
+                 *
+                 * Initialises, but does not compile, the render programmes
+                 * with the correct shaders.
+                 */
+                fractalFlameRenderProgramme (void)
                     : initialised(false),
                       colouring(render::getVertexShader(true, false, false), render::getFragmentShader(true, false, false)),
                       histogram(render::getVertexShader(true, false, true), render::getFragmentShader(true, false, true)),
                       postProcess(render::getVertexShader(true, true, false), render::getFragmentShader(true, true, false))
                     {}
 
-                void uniform (const geometry::transformation::projective<Q,3> &combined, const math::matrix<Q,3,3> &normalMatrix)
+                /**\brief Load matrix uniforms
+                 *
+                 * Updates the projection and normal matrices of the OpenGL
+                 * programmes with the specified values.
+                 *
+                 * \param[in] combined     The combined (MVC) projective
+                 *                         transformation.
+                 * \param[in] normalMatrix The normal matrix to use for
+                 *                         lighting.
+                 *
+                 * \return True if the uniforms were uploaded successfully,
+                 *         false otherwise.
+                 */
+                bool uniform (const geometry::transformation::projective<Q,3> &combined, const math::matrix<Q,3,3> &normalMatrix)
                 {
-                    histogram.uniform(uniformProjectionMatrix, combined.transformationMatrix);
-                    histogram.uniform(uniformNormalMatrix, normalMatrix);
-                    
-                    colouring.uniform(uniformProjectionMatrix, combined.transformationMatrix);
-                    colouring.uniform(uniformNormalMatrix, normalMatrix);
+                    return histogram.uniform(uniformProjectionMatrix, combined.transformationMatrix)
+                        && histogram.uniform(uniformNormalMatrix, normalMatrix)
+                        && colouring.uniform(uniformProjectionMatrix, combined.transformationMatrix)
+                        && colouring.uniform(uniformNormalMatrix, normalMatrix);
                 }
 
-                void operator () (const GLuint &width, const GLuint &height, std::function<void()> draw)
+                /**\brief Render to current OpenGL context
+                 *
+                 * This function will perform a two-pass render of anything you
+                 * specify in the draw function. Shader programmes are compiled
+                 * and activated as necessary.
+                 *
+                 * \param[in] width  Width of the viewport to render to.
+                 * \param[in] height Height of the viewport to render to.
+                 * \param[in] draw   Function to do the actual rendering.
+                 *                   You'll want to use one of those
+                 *                   new-fangled lambdas here.
+                 *
+                 * \return True if rendering the scene succeeded.
+                 */
+                bool operator () (const GLuint &width, const GLuint &height, std::function<void()> draw)
                 {
                     if (!initialised)
                     {
@@ -1898,16 +1932,16 @@ namespace efgy
                         static const GLfloat fullscreenQuadBufferData[] =
                         {
                             -1.0f, -1.0f,  0.0f,
-                            1.0f, -1.0f,  0.0f,
+                             1.0f, -1.0f,  0.0f,
                             -1.0f,  1.0f,  0.0f,
                             -1.0f,  1.0f,  0.0f,
-                            1.0f, -1.0f,  0.0f,
-                            1.0f,  1.0f,  0.0f
+                             1.0f, -1.0f,  0.0f,
+                             1.0f,  1.0f,  0.0f
                         };
                         
-                        vertexArrayFullscreenQuad.use();
-                        vertexbufferFullscreenQuad.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
-                        vertexArrayFullscreenQuad.setup();
+                        vertexArray.use();
+                        vertices.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
+                        vertexArray.setup();
                         
                         setColourMap();
                     }
@@ -1945,20 +1979,26 @@ namespace efgy
                     postProcess.uniform(efgy::opengl::uniformScreenHistogram, 1);
                     
                     glActiveTexture(GL_TEXTURE0 + 2);
-                    textureFlameColourMap.bind();
+                    colourMap.bind();
                     postProcess.uniform(efgy::opengl::uniformColourMap, 2);
                     
                     glBlendFunc (GL_ONE, GL_ZERO);
                     
-                    vertexArrayFullscreenQuad.use();
-                    vertexbufferFullscreenQuad.bind();
-                    vertexArrayFullscreenQuad.setup();
+                    vertexArray.use();
+                    vertices.bind();
+                    vertexArray.setup();
                     
                     glDrawArrays(GL_TRIANGLES, 0, 6);
 
-                    draw();
+                    return true;
                 }
 
+                /**\brief Set random colour map
+                 *
+                 * The fractal flame colouring algorithm uses a colour map to
+                 * distinguish between different IFS indices; this creates a
+                 * random colour map for this purpose.
+                 */
                 void setColourMap (void)
                 {
                     std::vector<unsigned char> colours;
@@ -1970,20 +2010,70 @@ namespace efgy
                         colours.push_back(std::rand()%255);
                     }
 
-                    textureFlameColourMap.load(GLsizei(colours.size()/3), 1, &colours[0]);
+                    colourMap.load(GLsizei(colours.size()/3), 1, &colours[0]);
 
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 }
 
             protected:
+                /**\brief Is the object initialised?
+                 *
+                 * The actual initialisation of the object is deferred until
+                 * the first time it is rendered, so as to prevent issues when
+                 * creating the object before an OpenGL context is available.
+                 * This boolean is set to true or false, depending on whether
+                 * this initialisation step has ever been processed.
+                 */
                 bool initialised;
+
+                /**\brief Colouring render pass programme
+                 *
+                 * Stores the OpenGL programme that creates the colour index
+                 * texture for the flame algorithm. This colour information is
+                 * used to sample the colour map.
+                 */
                 renderToTextureProgramme<Q> colouring;
+
+                /**\brief Histogram render pass programme
+                 *
+                 * Stores the OpenGL programme that creates the histogram
+                 * texture for the flame algorithm. This information is used to
+                 * calculate the output intensity of individual fragments.
+                 */
                 renderToTextureProgramme<Q> histogram;
+
+                /**\brief Merge pass programme
+                 *
+                 * Stores the OpenGL programme that combines the textures
+                 * creates in the first two passes to output fragments for the
+                 * output framebuffer.
+                 */
                 renderToFramebufferProgramme<Q> postProcess;
-                vertexArrayMinimal<Q> vertexArrayFullscreenQuad;
-                vertexBuffer vertexbufferFullscreenQuad;
-                texture2D textureFlameColourMap;
+
+                /**\brief Vertex array for fullscreen quad
+                 *
+                 * Stores the vertex array for a fullscreen quad, which is used
+                 * in the merge pass to emit fragments for each pixel of the
+                 * output viewport.
+                 */
+                vertexArrayMinimal<Q> vertexArray;
+
+                /**\brief Vertex buffer for fullscreen quad
+                 *
+                 * Stores the vertex data for a fullscreen quad, which is used
+                 * in the merge pass to emit fragments for each pixel of the
+                 * output viewport.
+                 */
+                vertexBuffer vertices;
+
+                /**\brief Colour map texture
+                 *
+                 * This is the colour map created by setColourMap() and used in
+                 * the final merge pass to turn th initial grayscale image into
+                 * something much more interesting.
+                 */
+                texture2D colourMap;
         };
     };
 
