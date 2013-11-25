@@ -1,4 +1,10 @@
 /**\file
+ * \brief Ranged sequences
+ *
+ * Contains class and iterator templates for ranged sequences with arbitrary
+ * types. These sequences are intended to replace the more common 3-clause for
+ * loops with ranged for loops, thus hopefully increasing the legibility of
+ * certain types of code.
  *
  * \copyright
  * Copyright (c) 2013, ef.gy Project Members
@@ -33,14 +39,26 @@
 
 namespace efgy
 {
+    /**\brief Range iterator template
+     *
+     * This template specifies a random access iterator for arbitrary, ranged
+     * sequences. You should use the range class template to get instances of
+     * this class.
+     *
+     * Unlike some other iterators, this iterator in particular is rather hard
+     * to invalidate. That means you probably won't have to worry about most
+     * operations on these iterators in tight loops.
+     *
+     * \tparam T Numeric base type for the sequences. Basic types such as int
+     *           or double should work fine with this template, as should
+     *           classes that imitate these types.
+     */
     template<typename T>
     class rangeIterator : public std::iterator<std::random_access_iterator_tag, T>
     {
         public:
             constexpr rangeIterator (const T &pStart, const T &pStep, std::size_t pPosition)
                 : start(pStart), step(pStep), position(pPosition) {}
-
-            typedef T value_type;
 
             constexpr bool operator == (const rangeIterator &b) const
             {
@@ -141,8 +159,11 @@ namespace efgy
     class range
     {
         public:
-            constexpr range (const T &pStart, const T &pStep = 1)
-                : start(pStart), step(pStep) {}
+            constexpr range (const T &pStart)
+                : start(pStart), step(T(1)) {}
+
+            constexpr range (const T &pStart, const T &pEnd, const bool inclusive = true)
+                : start(pStart), step((pEnd - pStart)/T(n-(inclusive ? 1 : 0))) {}
 
             typedef rangeIterator<T> iterator;
 

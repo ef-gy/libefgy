@@ -69,7 +69,7 @@ int testRange (std::ostream &log)
     std::array<int,8> a1 = sequence<int,42,49>();
     std::size_t p = 0;
 
-    for (int i : range<int,8>(42,1))
+    for (int i : range<int,8>(42))
     {
         if (i != a1[p])
         {
@@ -80,10 +80,18 @@ int testRange (std::ostream &log)
         p++;
     }
 
-    if (!std::equal (a1.begin(), a1.end(), range<int,8>(42,1).begin()))
+    if (!std::equal (a1.begin(), a1.end(), range<int,8>(42).begin()))
     {
         log << "range iterator did not produce the expected results.\n";
         return -5;
+    }
+
+    std::array<int,8> a2 = sequence<int,49,42>();
+
+    if (!std::equal (a2.begin(), a2.end(), range<int,8>(49,42).begin()))
+    {
+        log << "range iterator did not produce the expected results.\n";
+        return -6;
     }
 
     return 0;
