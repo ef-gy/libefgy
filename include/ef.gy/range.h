@@ -58,25 +58,25 @@ namespace efgy
     {
         public:
             constexpr rangeIterator (const T &pStart, const T &pStep, std::size_t pPosition)
-                : start(pStart), step(pStep), position(pPosition) {}
+                : start(pStart), stride(pStep), position(pPosition) {}
 
             constexpr bool operator == (const rangeIterator &b) const
             {
                 return (start == b.start)
-                    && (step  == b.step)
+                    && (stride  == b.stride)
                     && (position == b.position);
             }
 
             constexpr bool operator != (const rangeIterator &b) const
             {
                 return (start != b.start)
-                    || (step  != b.step)
+                    || (stride  != b.stride)
                     || (position != b.position);
             }
 
             constexpr T operator * (void) const
             {
-                return start + step * position;
+                return start + stride * T(position);
             }
 
             rangeIterator &operator ++ (void)
@@ -99,7 +99,7 @@ namespace efgy
 
             constexpr rangeIterator operator + (const std::ptrdiff_t &b) const
             {
-                return rangeIterator (start, step, position + b);
+                return rangeIterator (start, stride, position + b);
             }
 
             rangeIterator &operator -= (const std::ptrdiff_t &b)
@@ -110,7 +110,7 @@ namespace efgy
 
             constexpr rangeIterator operator - (const std::ptrdiff_t &b) const
             {
-                return rangeIterator (start, step, position - b);
+                return rangeIterator (start, stride, position - b);
             }
 
             constexpr std::ptrdiff_t operator - (const rangeIterator &b) const
@@ -145,7 +145,7 @@ namespace efgy
 
         protected:
             const T start;
-            const T step;
+            const T stride;
             std::size_t position;
     };
 
@@ -160,47 +160,46 @@ namespace efgy
     {
         public:
             constexpr range (const T &pStart)
-                : start(pStart), step(T(1)) {}
+                : start(pStart), stride(T(1)) {}
 
             constexpr range (const T &pStart, const T &pEnd, const bool inclusive = true)
-                : start(pStart), step((pEnd - pStart)/T(n-(inclusive ? 1 : 0))) {}
+                : start(pStart), stride((pEnd - pStart)/T(n-(inclusive ? 1 : 0))) {}
 
             typedef rangeIterator<T> iterator;
 
             constexpr iterator begin (void)
             {
-                return iterator(start, step, 0);
+                return iterator(start, stride, 0);
             }
 
             constexpr iterator end (void)
             {
-                return iterator(start, step, n);
+                return iterator(start, stride, n);
             }
 
-            constexpr static std::array<T,n> get (T start = 0, T step = 1, std::array<T,n> p = {{}})
+            constexpr static std::array<T,n> get (T start = 0, T stride = 1, std::array<T,n> p = {{}})
             {
-                return (p[c] = (start+(step * c))), range<T,n,c-1>::get(start, step, p);
+                return (p[c] = (start+(stride * c))), range<T,n,c-1>::get(start, stride, p);
             }
 
-        protected:
-            const T start;
-            const T step;
+            T start;
+            T stride;
     };
 
     template<typename T, std::size_t n>
     class range<T,n,0>
     {
         public:
-            constexpr static std::array<T,n> get (T start = 0, T step = 1, std::array<T,n> p = {{}})
+            constexpr static std::array<T,n> get (T start = 0, T stride = 1, std::array<T,n> p = {{}})
             {
                 return (p[0] = start), p;
             }
     };
 
-    template<typename T, T start, T end>
-    constexpr static inline std::array<T,1+((end-start) < 0 ? (start-end) : (end-start))> sequence (void)
+    template<typename T, T start, T end, bool inclusive = true>
+    constexpr static inline std::array<T,(inclusive ? 1 : 0)+((end-start) < 0 ? (start-end) : (end-start))> sequence (void)
     {
-        return range<T,1+((end-start) < 0 ? (start-end) : (end-start))>::get (start, (end-start) < 0 ? -1 : 1);
+        return range<T,(inclusive ? 1 : 0)+((end-start) < 0 ? (start-end) : (end-start))>::get (start, (end-start) < 0 ? -1 : 1);
     }
 
     template<typename T>
@@ -208,24 +207,23 @@ namespace efgy
     {
         public:
             constexpr range (const T &pStart, const T &pEnd, const std::size_t pSteps, const bool inclusive = true)
-                : start(pStart), step((pEnd - pStart)/T(pSteps-(inclusive ? 1 : 0))), steps(pSteps) {}
+                : start(pStart), stride((pEnd - pStart)/T(pSteps-(inclusive ? 1 : 0))), steps(pSteps) {}
 
             typedef rangeIterator<T> iterator;
 
             constexpr iterator begin (void)
             {
-                return iterator(start, step, 0);
+                return iterator(start, stride, 0);
             }
 
             constexpr iterator end (void)
             {
-                return iterator(start, step, steps);
+                return iterator(start, stride, steps);
             }
 
-        protected:
-            const T start;
-            const T step;
-            const std::size_t steps;
+            T start;
+            T stride;
+            std::size_t steps;
     };
 };
 

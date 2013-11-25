@@ -42,6 +42,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <ef.gy/range.h>
 
 namespace efgy
 {
@@ -256,7 +257,7 @@ namespace efgy
 
                     points.push_back (typename euclidian::space<Q,d>::vector());
 
-                    for (unsigned int i = 0; i < od; i++)
+                    for (unsigned int i : sequence<unsigned int,0,od,false>())
                     {
                         std::vector<typename euclidian::space<Q,d>::vector> newPoints;
                         std::vector<std::array<typename euclidian::space<Q,d>::vector,2> > newLines;
@@ -341,15 +342,15 @@ namespace efgy
                 void calculateObject (void)
                 {
                     const Q s = parameter.polarRadius * Q(2);
-                    const Q q = s/parameter.polarPrecision;
+                    const range<Q> r(-s, s, parameter.polarPrecision);
 
                     faces.clear();
 
-                    for (Q i = -s; i <= s; i+=q)
+                    for (Q i : r)
                     {
-                        for (Q j = -s; j <= s; j+=q)
+                        for (Q j : r)
                         {
-                            faces.push_back({{ {{i, j}}, {{i+q, j}}, {{i+q, j+q}}, {{i, j+q}} }});
+                            faces.push_back({{ {{i, j}}, {{i+r.stride, j}}, {{i+r.stride, j+r.stride}}, {{i, j+r.stride}} }});
                         }
                     }
                 }
@@ -363,7 +364,7 @@ namespace efgy
 
                 sphere (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier),
-                      step(Q(M_PI) / (parameter.polarPrecision * precisionMultiplier))
+                      loopRange(-M_PI, M_PI, 1)
                     {
                         calculateObject();
                     }
@@ -395,7 +396,7 @@ namespace efgy
                         {
                             typename polar::space<Q,d>::vector v1 = v;
 
-                            v1[i] += step;
+                            v1[i] += loopRange.stride;
 
                             const typename euclidian::space<Q,d>::vector B = v1;
 
@@ -406,7 +407,7 @@ namespace efgy
                                 if (i != j)
                                 {
                                     v1 = v;
-                                    v1[j] -= step;
+                                    v1[j] -= loopRange.stride;
 
                                     const typename euclidian::space<Q,d>::vector C = v1;
                                     newFace[2] = C;
@@ -420,7 +421,7 @@ namespace efgy
                     {
                         const int q = r-1;
 
-                        for (Q i = Q(-M_PI); i < Q(M_PI); i+= step)
+                        for (Q i : loopRange)
                         {
                             v[r] = i;
                             recurse (q, v);
@@ -431,9 +432,7 @@ namespace efgy
                 void calculateObject (void)
                 {
                     Q radius = parameter.polarRadius;
-                    step = (Q(M_PI) / (parameter.polarPrecision * precisionMultiplier));
-
-                    Q usedRadius = radius;
+                    loopRange = range<Q>(-M_PI, M_PI, parameter.polarPrecision * precisionMultiplier, false);
 
                     faces.clear();
 
@@ -442,17 +441,15 @@ namespace efgy
                     const int r = od;
                     const int q = r-1;
 
-                    for (Q i = Q(-M_PI); i < Q(M_PI); i+= step)
+                    for (Q i : loopRange)
                     {
                         v[r] = i;
                         recurse (q, v);
                     }
                 }
 
-                Q usedRadius;
-
             protected:
-                Q step;
+                range<Q> loopRange;
         };
     };
 };
