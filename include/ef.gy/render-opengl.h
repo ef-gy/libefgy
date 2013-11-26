@@ -2330,10 +2330,38 @@ namespace efgy
                     lowerRenderer.setColourMap();
                 }
 
+                /**\brief Use Fractal Flame Colouring?
+                 *
+                 * Set to true to use the fractal flame colouring algorithm
+                 * instead of the 'normal' render programme.
+                 */
                 bool &fractalFlameColouring;
-                GLuint &width;
-                GLuint &height;
+
+                /**\brief Has the scene been prepared?
+                 *
+                 * Set to true after uploading geometry data to the graphics
+                 * card, right before actually telling OpenGL to render that
+                 * data. Needs to be set to 'false' if you change any model
+                 * parameters in order for that data to be prepared and uploaded
+                 * to the graphics card again.
+                 */
                 bool &prepared;
+
+                /**\brief Viewport width
+                 *
+                 * Width of the output viewport. The renderer assumes that the
+                 * viewport is rectangular, going from (0,0) and extending to
+                 * (width-1,height-1).
+                 */
+                GLuint &width;
+
+                /**\brief Viewport height
+                 *
+                 * Height of the output viewport. The renderer assumes that the
+                 * viewport is rectangular, going from (0,0) and extending to
+                 * (width-1,height-1).
+                 */
+                GLuint &height;
 
             protected:
                 const geometry::transformation::affine<Q,d> &transformation;
@@ -2382,7 +2410,6 @@ namespace efgy
                     : transformation(pTransformation), projection(pProjection),
                       fractalFlameColouring(pLowerRenderer.fractalFlameColouring),
                       prepared(pLowerRenderer.prepared),
-                      fractalFlame(), render(),
                       width(pLowerRenderer.width), height(pLowerRenderer.height)
                     {
                     }
@@ -2568,10 +2595,38 @@ namespace efgy
                     fractalFlame.setColourMap();
                 }
 
+                /**\brief Use Fractal Flame Colouring?
+                 *
+                 * Set to true to use the fractal flame colouring algorithm
+                 * instead of the 'normal' render programme.
+                 */
                 bool &fractalFlameColouring;
-                GLuint &width;
-                GLuint &height;
+
+                /**\brief Has the scene been prepared?
+                 *
+                 * Set to true after uploading geometry data to the graphics
+                 * card, right before actually telling OpenGL to render that
+                 * data. Needs to be set to 'false' if you change any model
+                 * parameters in order for that data to be prepared and uploaded
+                 * to the graphics card again.
+                 */
                 bool &prepared;
+
+                /**\brief Viewport width
+                 *
+                 * Width of the output viewport. The renderer assumes that the
+                 * viewport is rectangular, going from (0,0) and extending to
+                 * (width-1,height-1).
+                 */
+                GLuint &width;
+
+                /**\brief Viewport height
+                 *
+                 * Height of the output viewport. The renderer assumes that the
+                 * viewport is rectangular, going from (0,0) and extending to
+                 * (width-1,height-1).
+                 */
+                GLuint &height;
 
             protected:
                 const geometry::transformation::affine<Q,3> &transformation;
@@ -2660,10 +2715,38 @@ namespace efgy
                 constexpr opengl (const geometry::transformation::affine<Q,2> &)
                     : fractalFlameColouring(false), prepared(false) {}
 
+                /**\brief Use Fractal Flame Colouring?
+                 *
+                 * Set to true to use the fractal flame colouring algorithm
+                 * instead of the 'normal' render programme.
+                 */
                 bool fractalFlameColouring;
-                GLuint width;
-                GLuint height;
+
+                /**\brief Has the scene been prepared?
+                 *
+                 * Set to true after uploading geometry data to the graphics
+                 * card, right before actually telling OpenGL to render that
+                 * data. Needs to be set to 'false' if you change any model
+                 * parameters in order for that data to be prepared and uploaded
+                 * to the graphics card again.
+                 */
                 bool prepared;
+
+                /**\brief Viewport width
+                 *
+                 * Width of the output viewport. The renderer assumes that the
+                 * viewport is rectangular, going from (0,0) and extending to
+                 * (width-1,height-1).
+                 */
+                GLuint width;
+
+                /**\brief Viewport height
+                 *
+                 * Height of the output viewport. The renderer assumes that the
+                 * viewport is rectangular, going from (0,0) and extending to
+                 * (width-1,height-1).
+                 */
+                GLuint height;
         };
     };
 };
