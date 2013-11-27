@@ -392,6 +392,7 @@ namespace efgy
                     {
                         const typename euclidian::space<Q,d>::vector A = v;
 
+//                        for (unsigned int i : range<unsigned int>(1, od, true))
                         for (unsigned int i = 1; i <= od; i++)
                         {
                             typename polar::space<Q,d>::vector v1 = v;
@@ -402,6 +403,7 @@ namespace efgy
 
                             std::array<typename euclidian::space<Q,d>::vector,3> newFace {{A, B}};
 
+//                            for (unsigned int j : range<unsigned int>(1, od, true))
                             for (unsigned int j = 1; j <= od; j++)
                             {
                                 if (i != j)
