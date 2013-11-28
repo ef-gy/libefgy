@@ -2319,7 +2319,6 @@ namespace efgy
                     lowerRenderer.drawFace(V, index);
                 }
 
-                void reset (void) const { lowerRenderer.reset(); }
                 bool setColour (float red, float green, float blue, float alpha, bool wireframe)
                 {
                     return lowerRenderer.setColour(red,green,blue,alpha,wireframe);
@@ -2540,8 +2539,6 @@ namespace efgy
                     lineindices.push_back(nstartb);
                     lineindices.push_back(nendb);
                 }
-
-                void reset (void) { prepared = false; }
 
                 unsigned int addVertex
                     (const GLfloat &x, const GLfloat &y, const GLfloat &z,
