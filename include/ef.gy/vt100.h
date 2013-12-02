@@ -25,32 +25,19 @@
  * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
  */
 
-#if !defined(EF_GY_TERMINAL_H)
-#define EF_GY_TERMINAL_H
+#if !defined(EF_GY_VT100_H)
+#define EF_GY_VT100_H
 
-#include <ef.gy/render.h>
-#include <vector>
+#include <ef.gy/terminal.h>
 
 namespace efgy
 {
     namespace terminal
     {
         template<typename T = long>
-        class cell
+        class vt100 : public screen<T>
         {
-            public:
-                T content;
-                int foregroundColour;
-                int backgroundColour;
-                int attributes;
         };
-
-        template<typename T = long>
-        class screen: public std::vector<std::vector<cell<T> > >
-        {
-            public:
-                typename std::vector<std::vector<cell<T> > > parent;
-        }
     };
 };
 
