@@ -50,7 +50,7 @@ namespace efgy
         {
             public:
                 typename std::vector<std::vector<cell<T> > > parent;
-        }
+        };
     };
 };
 
