@@ -50,7 +50,7 @@ using namespace efgy;
 template<unsigned int order>
 int testMarkovChain (std::ostream &log)
 {
-    typename markov::chain<char, order>::random PRNG(0);
+    typename markov::chain<char, order>::random PRNG(1);
     markov::chain<char, order> mc(PRNG);
 
     std::string str1("frob");
@@ -66,6 +66,19 @@ int testMarkovChain (std::ostream &log)
     mc << typename markov::chain<char,order>::input(str4.begin(), str4.end());
     mc << typename markov::chain<char,order>::input(str5.begin(), str5.end());
     mc << typename markov::chain<char,order>::input(str6.begin(), str6.end());
+
+    typename markov::chain<char, order>::output out;
+
+    mc >> out;
+    std::cerr << std::string(out.begin(), out.end()) << "\n";
+    mc >> out;
+    std::cerr << std::string(out.begin(), out.end()) << "\n";
+    mc >> out;
+    std::cerr << std::string(out.begin(), out.end()) << "\n";
+    mc >> out;
+    std::cerr << std::string(out.begin(), out.end()) << "\n";
+    mc >> out;
+    std::cerr << std::string(out.begin(), out.end()) << "\n";
 
     return 0;
 }
