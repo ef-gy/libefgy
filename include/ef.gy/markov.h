@@ -60,52 +60,47 @@ namespace efgy
                     output rv;
                     memory m;
 
-                    do
+                    for (typename std::map<memory, transition>::iterator it = transitions.find(m);
+                         it != transitions.end();
+                         it = transitions.find(m))
                     {
-                        typename std::map<memory, transition>::iterator it = transitions.find(m);
-                        if (it != transitions.end())
+                        counter c = std::accumulate
+                            (it->second.begin(), it->second.end(), 0,
+                             [] (const counter &v, const std::pair<maybe<T>, counter> &t) -> counter
+                             {
+                                 return v + t.second;
+                             });
+
+                        c = RNG() % c;
+
+                        for (const std::pair<maybe<T>, counter> &t : it->second)
                         {
-                            counter c = std::accumulate
-                                (it->second.begin(), it->second.end(), 0,
-                                 [] (const counter &v, const std::pair<maybe<T>, counter> &t) -> counter
-                                 {
-                                    return v + t.second;
-                                 });
-
-                            c = RNG() % c;
-
-                            for (const std::pair<maybe<T>, counter> &t : it->second)
+                            if (c > t.second)
                             {
-                                if (c > t.second)
-                                {
-                                    c -= t.second;
-                                }
-                                else if (t.first)
-                                {
-                                    rv.push_back(T(t.first));
+                                c -= t.second;
+                            }
+                            else if (t.first)
+                            {
+                                rv.push_back(T(t.first));
 
-                                    std::transform
-                                        (m.begin()+1, m.end(), m.begin(),
-                                         [] (maybe<T> &i) -> maybe<T>
-                                         {
-                                            return i;
-                                         });
+                                std::transform
+                                    (m.begin()+1, m.end(), m.begin(),
+                                     [] (maybe<T> &i) -> maybe<T>
+                                     {
+                                         return i;
+                                     });
 
-                                    *(m.end()-1) = t.first;
-                                    break;
-                                }
-                                else
-                                {
-                                    return rv;
-                                }
+                                *(m.end()-1) = t.first;
+                                break;
+                            }
+                            else
+                            {
+                                return rv;
                             }
                         }
-                        else
-                        {
-                            throw std::runtime_error("impossible memory state in markov chain.");
-                        }
                     }
-                    while (1);
+
+                    throw std::runtime_error("impossible memory state in markov chain.");
 
                     return output();
                 }
