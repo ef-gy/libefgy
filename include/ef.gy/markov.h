@@ -102,7 +102,7 @@ namespace efgy
                         }
                         else
                         {
-                            throw std::runtime_error("impossible state memory state in markov chain.");
+                            throw std::runtime_error("impossible memory state in markov chain.");
                         }
                     }
                     while (1);
