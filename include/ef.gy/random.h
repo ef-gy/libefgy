@@ -122,8 +122,21 @@ namespace efgy
                     return (T) scaled;
                 }
 
-               /**\brief returns maximum value of type T
-               */
+                /**\brief Generate random number
+                 *
+                 * Wrapper for the rand() overload without arguments so you can
+                 * use instances of this class as a functor object.
+                 */
+                T operator () (void)
+                {
+                    return rand();
+                }
+
+                /**\brief Returns maximum value of type T
+                 *
+                 * Useful when generating fractional values so as to maximise
+                 * the range of the generated fractions.
+                 */
                 T max()
                 {
                     return std::numeric_limits<T>::max();
