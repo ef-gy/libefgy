@@ -38,6 +38,7 @@
 #include <map>
 #include <numeric>
 #include <algorithm>
+#include <exception>
 
 namespace efgy
 {
@@ -98,11 +99,52 @@ namespace efgy
                  */
                 typedef std::vector<T> output;
 
+                /**\brief State data
+                 *
+                 * Holds the data used to determine the next transition when
+                 * generating data and to identify the possible transitions in
+                 * the model.
+                 */
                 typedef std::array<maybe<T>, order> memory;
+
+                /**\brief Next state and associated probability
+                 *
+                 * This is what the transitions table maps to; uses a maybe<T>
+                 * as opposed to a T to allow for terminating transitions by
+                 * using a value of nothing in the maybe<T> as opposed to a T.
+                 *
+                 * The probability is only recorded indirectly by recording how
+                 * often a transition occured while training the model. To get
+                 * the actual probability, you'll need to sum up all the
+                 * possible transitions after looking up a state in the
+                 * transitions map.
+                 */
                 typedef std::map<maybe<T>, counter> transition;
 
+                /**\brief Construct with RNG
+                 *
+                 * Creates a copy of the given RNG to initialise the model. This
+                 * is the only constructor, as RNGs usually can't be initialised
+                 * sanely without a seed and creating a markov chain without an
+                 * RNG to create data with later is utterly pointless.
+                 *
+                 * \param[in] pRNG The random number generator to use.
+                 */
                 chain(const random &pRNG) : RNG(pRNG) {}
 
+                /**\brief Generate data with model
+                 *
+                 * Use this function after training the model sufficiently; this
+                 * will then create a sequence of Ts based on what you trained
+                 * the model with.
+                 *
+                 * \returns A vector of Ts based on the training data.
+                 *
+                 * \throws A std::runtime_error iff the code manages to generate
+                 *         a state with no successors. This should only ever
+                 *         happen if you try to generate data without training
+                 *         the model first.
+                 */
                 output operator () (void)
                 {
                     output rv;
@@ -153,12 +195,40 @@ namespace efgy
                     return output();
                 }
 
+                /**\brief Generate data based on model
+                 *
+                 * This is an overload of the 'extraction operator' as C++-ers
+                 * like to call it. This is purely for convenience if you're
+                 * used to working with streams a lot.
+                 *
+                 * \param[out] output A reference to a variable to extract to.
+                 *
+                 * \returns A reference to this instance, much like a stream
+                 *          would behave.
+                 */
                 chain &operator >> (output &output)
                 {
                     output = (*this)();
                     return *this;
                 }
 
+                /**\brief Train model
+                 *
+                 * Use the given input to refine the model; this is provided as
+                 * an 'insertion operator', as C++-ers like to call it, so that
+                 * it feels familiar to programmers used to working with C++
+                 * streams.
+                 *
+                 * The model is trained by constructing a null state and then
+                 * folding along the input data, shifting new Ts in an
+                 * increasing counters as appropriate for the transitions that
+                 * occur in the input.
+                 *
+                 * \param[in] input A vector of Ts to train the model with.
+                 *
+                 * \returns A reference to this instance, much like a stream
+                 *          would behave.
+                 */
                 chain &operator << (const input &input)
                 {
                     memory m = std::accumulate
@@ -184,13 +254,36 @@ namespace efgy
                     return *this;
                 }
 
+                /**\brief Copy, then train model
+                 *
+                 * This is a const overload of the regular insertion operator;
+                 * instead of modifying the model itself, this will create a
+                 * copy of the current state and then train that copy.
+                 *
+                 * \param[in] input A vector of Ts to train the model with.
+                 *
+                 * \returns A copy of the model, refined with the given input.
+                 */
                 chain operator << (const input &input) const
                 {
                     chain cs = *this;
                     return (cs << input);
                 }
 
+                /**\brief Random number generator
+                 *
+                 * This is a copy of the PRNG you pass to the constructor; used
+                 * extensively when generating data.
+                 */
                 random RNG;
+
+                /**\brief Actual model data
+                 *
+                 * This map contains the actual transition data that you trained
+                 * with. Each encountered state maps to a series of possible
+                 * transitions, which in turn map to a counter indicating how
+                 * that particular transition occured while training the model.
+                 */
                 std::map<memory, transition> transitions;
         };
     };
