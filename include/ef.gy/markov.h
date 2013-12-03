@@ -1,4 +1,7 @@
-/**\file
+/**\file Markov chains
+ *
+ * Contains a simple implementation of higher order markov chains of arbitrary
+ * data types.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -38,22 +41,67 @@
 
 namespace efgy
 {
+    /**\brief Namespace for markov models
+     *
+     * Currently only contains an implementation of higher order markov chains.
+     */
     namespace markov
     {
+        /**\brief Higher order markov chains
+         *
+         * This class can both train a model and generate data based on such a
+         * model; the order of the markov model and the data type must be set at
+         * compile time with the template parameters.
+         *
+         * Unlike the default algorithm for markov chains, this implementation
+         * does not use anything but integers. There is no finalisation step
+         * training the model where occurences are transformed into
+         * probabilities, and it's perfectly fine to keep training the model
+         * with new data as it becomes available while simultaneously generating
+         * data.
+         *
+         * \tparam T       Data type for the model.
+         * \tparam order   The order of the markov model to work with.
+         * \tparam rng     Functor class for the PRNG to use.
+         * \tparam counter Type for a counter; used when training a model and
+         *                 when using the model data to generate things.
+         */
         template<typename T, unsigned int order, typename rng = random::mersenneTwister<>, typename counter = unsigned long>
         class chain
         {
             public:
+                /**\brief Data type for the model
+                 *
+                 * This is a convenient alias for the T template parameter.
+                 */
                 typedef T element;
+
+                /**\brief PRNG functor
+                 *
+                 * An alias for the rng template parameter, which could make it
+                 * easier to initialise an instance of the PRNG if you only have
+                 * the the model type to work with.
+                 */
                 typedef rng random;
+
+                /**\brief Input data
+                 *
+                 * Input to train the model with must be a vector of Ts.
+                 */
                 typedef std::vector<T> input;
+
+                /**\brief Output data
+                 *
+                 * Output that is generated has the same type as the input that
+                 * the model is trained with, but this separate type alias may
+                 * keep things easier to read.
+                 */
                 typedef std::vector<T> output;
 
                 typedef std::array<maybe<T>, order> memory;
                 typedef std::map<maybe<T>, counter> transition;
 
-                chain(const random &pRNG)
-                    : RNG(pRNG) {}
+                chain(const random &pRNG) : RNG(pRNG) {}
 
                 output operator () (void)
                 {
@@ -142,9 +190,7 @@ namespace efgy
                     return (cs << input);
                 }
 
-            protected:
                 random RNG;
-
                 std::map<memory, transition> transitions;
         };
     };
