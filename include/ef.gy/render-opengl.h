@@ -39,6 +39,7 @@
 #include <map>
 #include <functional>
 #include <algorithm>
+#include <array>
 
 namespace efgy
 {
@@ -636,9 +637,9 @@ namespace efgy
                         prepared = true;
 
                         vertexArrayModel.use();
-                        vertexbuffer.load(vertices.size() * sizeof(GLfloat), &vertices[0]);
-                        elementbuffer.load(triindices.size() * sizeof(unsigned int), &triindices[0]);
-                        linebuffer.load(lineindices.size() * sizeof(unsigned int), &lineindices[0]);
+                        vertexbuffer.load(vertices.size() * sizeof(GLfloat), vertices.data());
+                        elementbuffer.load(triindices.size() * sizeof(unsigned int), triindices.data());
+                        linebuffer.load(lineindices.size() * sizeof(unsigned int), lineindices.data());
                         vertexArrayModel.setup();
 
                         tindices = GLsizei(triindices.size());
