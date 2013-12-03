@@ -179,6 +179,22 @@ namespace efgy
                 return just;
             }
 
+            /**\brief Less-than comparison operator
+             *
+             * You should cast a 'maybe' to the appropriate type directly if
+             * you intend to work with it instead of relying on any overloads;
+             * this operator in particular was implemented to make maybes work
+             * with sorted STL containers.
+             */
+            constexpr bool operator < (const maybe &b) const
+            {
+                return (bool(*this)
+                            ? (bool(b)
+                                   ? (just < b.just)
+                                   : false)
+                            : true);
+            }
+
             /**\brief The value contained in this 'maybe'
              *
              * This contains the actual value stored in this 'maybe'. If the
