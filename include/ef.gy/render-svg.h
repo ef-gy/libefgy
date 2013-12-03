@@ -163,7 +163,7 @@ namespace efgy
                 svg<Q,d-1> &lowerRenderer;
         };
 
-        /**\brief Render to SVG
+        /**\brief Render to SVG (2D fix point)
          *
          * Converts objects to strings so that an SVG parser can understand and
          * display them properly. This is the 2D fix point of the
