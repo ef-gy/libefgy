@@ -471,12 +471,28 @@ namespace efgy
                       prepared(pLowerRenderer.prepared)
                     {}
 
+                /**\brief Start new frame
+                 *
+                 * Calculates the combined transformation and projection matrix
+                 * and the normal matrix, then prepares the OpenGL state for a
+                 * new frame.
+                 */
                 void frameStart (void)
                 {
                     combined = transformation * projection;
                     lowerRenderer.frameStart();
                 };
-                void frameEnd (void) const { lowerRenderer.frameEnd(); };
+
+                /**\brief End frame
+                 *
+                 * Indicates that the currently rendered frame is now complete
+                 * and that it can be uploaded to the graphics card. The frame
+                 * is then rendered with the currently active renderer.
+                 */
+                void frameEnd (void) const
+                {
+                    lowerRenderer.frameEnd();
+                };
 
                 template<std::size_t q>
                 void drawFace
@@ -615,6 +631,12 @@ namespace efgy
                     {
                     }
 
+                /**\brief Start new frame
+                 *
+                 * Calculates the combined transformation and projection matrix
+                 * and the normal matrix, then prepares the OpenGL state for a
+                 * new frame.
+                 */
                 void frameStart (void)
                 {
                     const geometry::transformation::projective<Q,3> combined = transformation * projection;
@@ -630,6 +652,12 @@ namespace efgy
                     }
                 };
 
+                /**\brief End frame
+                 *
+                 * Indicates that the currently rendered frame is now complete
+                 * and that it can be uploaded to the graphics card. The frame
+                 * is then rendered with the currently active renderer.
+                 */
                 void frameEnd (void)
                 {
                     if (!prepared)
