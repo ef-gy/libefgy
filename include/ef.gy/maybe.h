@@ -188,11 +188,11 @@ namespace efgy
              */
             constexpr bool operator < (const maybe &b) const
             {
-                return (bool(*this)
-                            ? (bool(b)
+                return (!nothing
+                            ? (!b.nothing
                                    ? (just < b.just)
-                                   : false)
-                            : true);
+                                   : true)
+                            : false);
             }
 
             /**\brief The value contained in this 'maybe'
