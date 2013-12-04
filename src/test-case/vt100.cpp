@@ -1,4 +1,7 @@
 /**\file
+ * \brief Test cases for the VT100 I/O code
+ *
+ * Covers the functionality in the terminal.h and vt100.h headers.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -25,22 +28,26 @@
  * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
  */
 
-#if !defined(EF_GY_VT100_H)
-#define EF_GY_VT100_H
+#include <iostream>
 
-#include <ef.gy/terminal.h>
+#include <ef.gy/test-case.h>
+#include <ef.gy/vt100.h>
 
-namespace efgy
+using namespace efgy;
+
+/**\brief VT100 output tests
+ * \test Tries to create some output on the current terminal using the vt100
+ *       helpers.
+ *
+ * \param[out] log A stream for test cases to log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
+int testVT100 (std::ostream &log)
 {
-    namespace terminal
-    {
-        template<typename T = long>
-        class vt100 : public terminal<T>
-        {
-            public:
-                using terminal<T>::resize;
-        };
-    };
-};
+    terminal::vt100<> buffer;
 
-#endif
+    return 0;
+}
+
+TEST_BATCH(testVT100)

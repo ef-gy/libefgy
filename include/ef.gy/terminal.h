@@ -49,7 +49,36 @@ namespace efgy
         class screen: public std::vector<std::vector<cell<T> > >
         {
             public:
-                typename std::vector<std::vector<cell<T> > > parent;
+                screen(int width = 80, int height = 25)
+                    {
+                        resize(width, height);
+                    }
+
+                typedef std::vector<std::vector<cell<T> > > parent;
+
+                void resize(unsigned int columns, unsigned int lines)
+                {
+                    parent(*this).resize(lines);
+
+                    for (std::vector<cell<T> > &column : parent(*this))
+                    {
+                        column.resize(columns);
+                    }
+                }
+        };
+
+        template<typename T = long>
+        class terminal
+        {
+            public:
+                screen<T> current;
+                screen<T> target;
+
+                void resize(unsigned int columns, unsigned int lines)
+                {
+                    current.resize (columns, lines);
+                    target.resize  (columns, lines);
+                }
         };
     };
 };
