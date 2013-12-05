@@ -30,6 +30,7 @@
 
 #include <ef.gy/render.h>
 #include <vector>
+#include <array>
 
 namespace efgy
 {
@@ -56,7 +57,7 @@ namespace efgy
 
                 typedef std::vector<std::vector<cell<T> > > parent;
 
-                void resize(unsigned int columns, unsigned int lines)
+                void resize(std::size_t columns, std::size_t lines)
                 {
                     parent(*this).resize(lines);
 
@@ -64,6 +65,12 @@ namespace efgy
                     {
                         column.resize(columns);
                     }
+                }
+
+                constexpr std::array<std::size_t,2> size (void) const
+                {
+                    return {{ parent(*this).size() > 0 ? parent(*this)[0].size() : 0,
+                              parent(*this).size() > 0 ? parent(*this).size()    : 0 }};
                 }
         };
 
@@ -74,10 +81,15 @@ namespace efgy
                 screen<T> current;
                 screen<T> target;
 
-                void resize(unsigned int columns, unsigned int lines)
+                void resize(std::size_t columns, std::size_t lines)
                 {
                     current.resize (columns, lines);
                     target.resize  (columns, lines);
+                }
+
+                constexpr std::array<std::size_t,2> size (void) const
+                {
+                    return current.size();
                 }
         };
     };

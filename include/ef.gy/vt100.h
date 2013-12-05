@@ -38,7 +38,19 @@ namespace efgy
         class vt100 : public terminal<T>
         {
             public:
+                using terminal<T>::current;
+                using terminal<T>::target;
                 using terminal<T>::resize;
+
+                std::string transform (std::size_t maxLength)
+                {
+                    return "";
+                }
+
+                bool apply (std::string stream)
+                {
+                    return false;
+                }
         };
     };
 };
