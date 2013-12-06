@@ -74,7 +74,11 @@ namespace efgy
                             {
                                 std::stringstream rv;
 
-                                if ((currentLine != l) && (currentColumn != c))
+                                if ((c == 0) && (currentLine = l-1))
+                                {
+                                    rv << "\n";
+                                }
+                                else if ((currentLine != l) && (currentColumn != c))
                                 {
                                     std::size_t vtl = l+1;
                                     std::size_t vtc = c+1;
@@ -97,8 +101,6 @@ namespace efgy
                                     {
                                         rv << "\e[" << vtl << ";" << vtc << "H";
                                     }
-                                    currentLine = l;
-                                    currentColumn = c;
                                 }
                                 else if (currentLine != l)
                                 {
@@ -111,7 +113,6 @@ namespace efgy
                                     {
                                         rv << "\e[" << -sp << "B";
                                     }
-                                    currentLine = l;
                                 }
                                 else if (currentColumn != c)
                                 {
@@ -124,31 +125,28 @@ namespace efgy
                                     {
                                         rv << "\e[" << -sp << "C";
                                     }
-                                    currentColumn = c;
                                 }
 
                                 if (target[l][c].foregroundColour != currentForegroundColour)
                                 {
-                                    currentForegroundColour = target[l][c].foregroundColour;
-                                    if (currentForegroundColour < 8)
+                                    if (target[l][c].foregroundColour < 8)
                                     {
-                                        rv << "\e[3" << currentForegroundColour << "m";
+                                        rv << "\e[3" << target[l][c].foregroundColour << "m";
                                     }
                                     else
                                     {
-                                        rv << "\e[38;5;" << currentForegroundColour << "m";
+                                        rv << "\e[38;5;" << target[l][c].foregroundColour << "m";
                                     }
                                 }
                                 if (target[l][c].backgroundColour != currentBackgroundColour)
                                 {
-                                    currentBackgroundColour = target[l][c].backgroundColour;
-                                    if (currentBackgroundColour < 8)
+                                    if (target[l][c].backgroundColour < 8)
                                     {
-                                        rv << "\e[4" << currentBackgroundColour << "m";
+                                        rv << "\e[4" << target[l][c].backgroundColour << "m";
                                     }
                                     else
                                     {
-                                        rv << "\e[48;5;" << currentBackgroundColour << "m";
+                                        rv << "\e[48;5;" << target[l][c].backgroundColour << "m";
                                     }
                                 }
 
@@ -197,15 +195,6 @@ namespace efgy
                                        << char(( target[l][c].content        & 0x3f) | 0x80);
                                 }
 
-                                currentColumn++;
-                                /*
-                                if (currentColumn >= s[0])
-                                {
-                                    currentColumn = 0;
-                                    currentLine++;
-                                }
-                                */
-
                                 std::size_t len = rv.str().size();
                                 if ((maxLength > 0) && (rvx.str().size() + len > maxLength))
                                 {
@@ -215,6 +204,10 @@ namespace efgy
                                 {
                                     rvx << rv.str();
                                     current[l][c] = target[l][c];
+                                    currentLine = l;
+                                    currentColumn = c+1;
+                                    currentForegroundColour = target[l][c].foregroundColour;
+                                    currentBackgroundColour = target[l][c].backgroundColour;
                                 }
                             }
                         }

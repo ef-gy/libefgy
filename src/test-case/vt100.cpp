@@ -57,6 +57,7 @@ int testVT100 (std::ostream &log)
 
     log << s[0] << "x" << s[1] << "\n";
 
+#if 0
     for (unsigned int l = 0; l < s[1]; l++)
     {
         for (unsigned int c = 0; c < s[0]; c++)
@@ -68,6 +69,19 @@ int testVT100 (std::ostream &log)
             output.target[l][c].backgroundColour = mt() % 256;
         }
     }
+#else
+    int n = 0;
+    for (unsigned int l = 0; l < s[1]; l++)
+    {
+        for (unsigned int c = 0; c < s[0]; c++)
+        {
+            output.target[l][c].content = '0' + c % 10;
+            output.target[l][c].foregroundColour = 7;
+            output.target[l][c].backgroundColour = 0;
+            n++;
+        }
+    }
+#endif
 
     int i = 0;
     for (std::string s = output.flush(); s != ""; s = output.flush())
