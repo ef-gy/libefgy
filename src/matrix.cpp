@@ -30,7 +30,6 @@
 
 #include <ef.gy/vt100.h>
 #include <ef.gy/random.h>
-#include <unistd.h>
 #include <chrono>
 
 using namespace efgy;
@@ -130,15 +129,11 @@ int main (int argc, char **argv)
         i++;
         now = system_clock::now();
 
-        if (i % 50 == 0)
+        if ((streams.size() <= 100) && (i % 50 == 0))
         {
             std::size_t l = rng() % (s[1] / 3);
             std::size_t c = rng() %  s[0];
             streams.push_back(matrixStream(l, c));
-        }
-        if (streams.size() > 100)
-        {
-            streams.erase(streams.begin());
         }
 
         for (matrixStream &s : streams)
@@ -155,7 +150,6 @@ int main (int argc, char **argv)
         }
 
         std::cout << output.flush();
-        usleep(50);
     }
 
     for (std::string s = output.flush(); s != ""; s = output.flush())
