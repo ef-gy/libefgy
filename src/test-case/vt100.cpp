@@ -57,6 +57,7 @@ int testVT100 (std::ostream &log)
 
     log << s[0] << "x" << s[1] << "\n";
 
+#if 0
 #if 1
     for (unsigned int l = 0; l < s[1]; l++)
     {
@@ -82,6 +83,21 @@ int testVT100 (std::ostream &log)
         }
     }
 #endif
+#else
+    for (unsigned int i = 0; i < 100000; i++)
+    {
+        std::size_t l = mt() % s[1];
+        std::size_t c = mt() % s[0];
+        output.target[l][c].content = mt() % (1<<7);
+        output.target[l][c].foregroundColour = mt() % 256;
+        output.target[l][c].backgroundColour = mt() % 256;
+
+        if ((i % 100) == 0)
+        {
+            std::cout << output.flush(0, 2048);
+        }
+    }
+#endif
 
     int i = 0;
     for (std::string s = output.flush(); s != ""; s = output.flush())
@@ -90,7 +106,8 @@ int testVT100 (std::ostream &log)
         i++;
     }
 
-    std::cout << "iterations: " << i << "\n" << "\e[39;49;0m";
+    std::cout << "iterations: " << i << "\n";
+    std::cout << "\e[39;49;0m";
 
     return 0;
 }

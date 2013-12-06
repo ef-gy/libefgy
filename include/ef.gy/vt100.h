@@ -78,7 +78,7 @@ namespace efgy
                             {
                                 std::stringstream rv;
 
-                                if ((c == 0) && (currentLine = l-1))
+                                if ((c == 0) && (currentLine == (l-1)))
                                 {
                                     rv << "\n";
                                 }
@@ -200,7 +200,7 @@ namespace efgy
                                 }
 
                                 std::size_t len = rv.str().size();
-                                if ((maxLength > 0) && (rvx.str().size() + len > maxLength))
+                                if ((maxLength > 0) && ((rvx.str().size() + len) > maxLength))
                                 {
                                     return rvx.str();
                                 }
