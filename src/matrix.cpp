@@ -54,19 +54,20 @@ class matrixStream
         };
 
         matrixStream(const std::size_t &pLine, const std::size_t &pColumn)
-            : line(pLine), column(pColumn), last(now) {}
+            : line(pLine), column(pColumn), last(now), doDelete(false) {}
 
         std::size_t line;
         std::size_t column;
         std::vector<cell> data;
         system_clock::time_point last;
+        bool doDelete;
 
         bool update (void)
         {
-            if ((now - last) > std::chrono::microseconds(40))
+            if ((now - last) > std::chrono::milliseconds(10))
             {
                 last = now;
-                switch (rng() % 4)
+                switch (rng() % 3)
                 {
                     case 0:
                         if (data.size() > 0)
@@ -83,6 +84,22 @@ class matrixStream
                 }
             }
             std::array<std::size_t,2> s = output.size();
+            if (data.size() > (s[1]/2))
+            {
+                if (line < s[1])
+                {
+                    if (rng() % 5 == 0)
+                    {
+                        output.target[line][column].content = ' ';
+                        line++;
+                    }
+                }
+                else
+                {
+                    doDelete = true;
+                }
+                data.erase(data.begin());
+            }
             int i = line;
             for (cell &d : data)
             {
@@ -91,7 +108,7 @@ class matrixStream
                     break;
                 }
                 output.target[i][column].content = d.character;
-                output.target[i][column].foregroundColour = (now - d.created) > std::chrono::microseconds(120) ? 2 : 7;
+                output.target[i][column].foregroundColour = (now - d.created) > std::chrono::milliseconds(120) ? 2 : 7;
                 output.target[i][column].backgroundColour = 0;
                 i++;
             }
@@ -113,27 +130,32 @@ int main (int argc, char **argv)
         i++;
         now = system_clock::now();
 
-        if (i % 100 == 0)
+        if (i % 50 == 0)
         {
-            std::size_t l = rng() % s[1];
-            std::size_t c = rng() % s[0];
+            std::size_t l = rng() % (s[1] / 3);
+            std::size_t c = rng() %  s[0];
             streams.push_back(matrixStream(l, c));
         }
-        if (streams.size() > 200)
+        if (streams.size() > 100)
         {
             streams.erase(streams.begin());
         }
 
         for (matrixStream &s : streams)
         {
-            if (rng() % 10 == 0)
+            s.update();
+        }
+
+        for (unsigned int i = 0; i < streams.size(); i++)
+        {
+            if (streams[i].doDelete)
             {
-                s.update();
+                streams.erase(streams.begin() + i);
             }
         }
 
         std::cout << output.flush();
-        usleep(10);
+        usleep(50);
     }
 
     for (std::string s = output.flush(); s != ""; s = output.flush())
