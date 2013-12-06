@@ -49,8 +49,9 @@ int testVT100 (std::ostream &log)
     terminal::vt100<> output;
     random::mersenneTwister<> mt(1337);
 
+//    output.resize(20,10);
     output.resize(output.getOSDimensions());
-    output.updatePosition();
+//    output.updatePosition();
 
     std::array<std::size_t,2> s = output.size();
 
@@ -68,9 +69,14 @@ int testVT100 (std::ostream &log)
         }
     }
 
-    std::cout << output.transform();
+    int i = 0;
+    for (std::string s = output.flush(); s != ""; s = output.flush())
+    {
+        std::cout << s;
+        i++;
+    }
 
-    std::cout << "\e[39;49m";
+    std::cout << "iterations: " << i << "\n" << "\e[39;49;0m";
 
     return 0;
 }

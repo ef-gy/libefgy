@@ -62,17 +62,18 @@ namespace efgy
                 std::size_t currentForegroundColour;
                 std::size_t currentBackgroundColour;
 
-                std::string transform (std::size_t maxLength = 0)
+                std::string flush (std::size_t maxLength = 1024)
                 {
-                    std::stringstream rv;
-                    std::array<std::size_t,2> s = size();
+                    std::stringstream rvx;
 
-                    for (unsigned int l = 0; l < s[1]; l++)
+                    for (unsigned int l = 0; l < current.screen<T>::parent::size(); l++)
                     {
-                        for (unsigned int c = 0; c < s[0]; c++)
+                        for (unsigned int c = 0; c < current[l].size(); c++)
                         {
                             if (current[l][c] != target[l][c])
                             {
+                                std::stringstream rv;
+
                                 if ((currentLine != l) && (currentColumn != c))
                                 {
                                     std::size_t vtl = l+1;
@@ -204,11 +205,22 @@ namespace efgy
                                     currentLine++;
                                 }
                                 */
+
+                                std::size_t len = rv.str().size();
+                                if ((maxLength > 0) && (rvx.str().size() + len > maxLength))
+                                {
+                                    return rvx.str();
+                                }
+                                else
+                                {
+                                    rvx << rv.str();
+                                    current[l][c] = target[l][c];
+                                }
                             }
                         }
                     }
 
-                    return rv.str();
+                    return rvx.str();
                 }
 
                 enum parserState

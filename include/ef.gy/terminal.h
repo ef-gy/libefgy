@@ -55,10 +55,10 @@ namespace efgy
 
                 constexpr bool operator != (const cell &b) const
                 {
-                    return (content != b.content)
+                    return (content          != b.content)
                         || (foregroundColour != b.foregroundColour)
                         || (backgroundColour != b.backgroundColour)
-                        || (attributes != b.attributes);
+                        || (attributes       != b.attributes);
                 }
         };
 
@@ -96,8 +96,8 @@ namespace efgy
 
                 constexpr std::array<std::size_t,2> size (void) const
                 {
-                    return {{ parent(*this).size() > 0 ? parent(*this)[0].size() : 0,
-                              parent(*this).size() > 0 ? parent(*this).size()    : 0 }};
+                    return {{ this->parent::size() > 0 ? (*this)[0].size() : 0,
+                              this->parent::size() }};
                 }
         };
 
