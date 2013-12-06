@@ -57,7 +57,7 @@ int testVT100 (std::ostream &log)
 
     log << s[0] << "x" << s[1] << "\n";
 
-#if 0
+#if 1
     for (unsigned int l = 0; l < s[1]; l++)
     {
         for (unsigned int c = 0; c < s[0]; c++)

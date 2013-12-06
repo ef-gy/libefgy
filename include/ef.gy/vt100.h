@@ -30,6 +30,7 @@
 
 #include <ef.gy/terminal.h>
 #include <sstream>
+#include <functional>
 
 namespace efgy
 {
@@ -62,13 +63,16 @@ namespace efgy
                 std::size_t currentForegroundColour;
                 std::size_t currentBackgroundColour;
 
-                std::string flush (std::size_t maxLength = 1024)
+                std::string flush (std::function<screen<T>(const screen<T>&)> postProcess = 0, std::size_t maxLength = 1024)
                 {
                     std::stringstream rvx;
+                    screen<T> target = postProcess
+                                     ? postProcess(this->target)
+                                     : this->target;
 
-                    for (unsigned int l = 0; l < current.screen<T>::parent::size(); l++)
+                    for (unsigned int l = 0; l < target.screen<T>::parent::size(); l++)
                     {
-                        for (unsigned int c = 0; c < current[l].size(); c++)
+                        for (unsigned int c = 0; c < target[l].size(); c++)
                         {
                             if (current[l][c] != target[l][c])
                             {
