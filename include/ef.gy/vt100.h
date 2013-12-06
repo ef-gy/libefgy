@@ -29,6 +29,7 @@
 #define EF_GY_VT100_H
 
 #include <ef.gy/terminal.h>
+#include <sstream>
 
 namespace efgy
 {
@@ -38,18 +39,139 @@ namespace efgy
         class vt100 : public terminal<T>
         {
             public:
+                vt100(void)
+                    : terminal<T>(), currentLine(-1), currentColumn(-1) {}
+
                 using terminal<T>::current;
                 using terminal<T>::target;
                 using terminal<T>::resize;
+                using terminal<T>::size;
 
-                std::string transform (std::size_t maxLength)
-                {
-                    return "";
-                }
+                std::size_t currentLine;
+                std::size_t currentColumn;
 
-                bool apply (std::string stream)
+                std::string transform (std::size_t maxLength = 0)
                 {
-                    return false;
+                    std::stringstream rv;
+                    std::array<std::size_t,2> s = size();
+
+                    for (unsigned int l = 0; l < s[1]; l++)
+                    {
+                        for (unsigned int c = 0; c < s[0]; c++)
+                        {
+                            if (current[l][c] != target[l][c])
+                            {
+                                if ((currentLine != l) && (currentColumn != c))
+                                {
+                                    std::size_t vtl = l+1;
+                                    std::size_t vtc = c+1;
+                                    if (vtl == 1)
+                                    {
+                                        if (vtc == 1)
+                                        {
+                                            rv << "\e[H";
+                                        }
+                                        else
+                                        {
+                                            rv << "\e[" << ";" << vtc << "H";
+                                        }
+                                    }
+                                    else if (vtc == 1)
+                                    {
+                                        rv << "\e[" << vtl << "H";
+                                    }
+                                    else
+                                    {
+                                        rv << "\e[" << vtl << ";" << vtc << "H";
+                                    }
+                                    currentLine = l;
+                                    currentColumn = c;
+                                }
+                                else if (currentLine != l)
+                                {
+                                    signed long sp = (signed long)currentLine - (signed long)l;
+                                    if (sp > 0)
+                                    {
+                                        rv << "\e[" << sp << "A";
+                                    }
+                                    else
+                                    {
+                                        rv << "\e[" << -sp << "B";
+                                    }
+                                    currentLine = l;
+                                }
+                                else if (currentColumn != c)
+                                {
+                                    signed long sp = (signed long)currentColumn - (signed long)c;
+                                    if (sp > 0)
+                                    {
+                                        rv << "\e[" << sp << "D";
+                                    }
+                                    else
+                                    {
+                                        rv << "\e[" << -sp << "C";
+                                    }
+                                    currentColumn = c;
+                                }
+
+                                if ((target[l][c].content < 0x20) || (target[l][c].content == 0x7f))
+                                {
+                                    rv << ".";
+                                    /* don't print control characters */
+                                }
+                                else if (target[l][c].content < 0x80)
+                                {
+                                    rv << char(target[l][c].content);
+                                }
+                                else if (target[l][c].content < 0x800)
+                                {
+                                    rv << char(((target[l][c].content >>  6) & 0x1f) | 0xc0)
+                                       << char(( target[l][c].content        & 0x3f) | 0x80);
+                                }
+                                else if (target[l][c].content < 0x10000)
+                                {
+                                    rv << char(((target[l][c].content >> 12) & 0x0f) | 0xe0)
+                                       << char(((target[l][c].content >>  6) & 0x3f) | 0x80)
+                                       << char(( target[l][c].content        & 0x3f) | 0x80);
+                                }
+                                else if (target[l][c].content < 0x200000)
+                                {
+                                    rv << char(((target[l][c].content >> 18) & 0x07) | 0xf0)
+                                       << char(((target[l][c].content >> 12) & 0x3f) | 0x80)
+                                       << char(((target[l][c].content >>  6) & 0x3f) | 0x80)
+                                       << char(( target[l][c].content        & 0x3f) | 0x80);
+                                }
+                                else if (target[l][c].content < 0x4000000)
+                                {
+                                    rv << char(((target[l][c].content >> 24) & 0x03) | 0xf8)
+                                       << char(((target[l][c].content >> 18) & 0x3f) | 0x80)
+                                       << char(((target[l][c].content >> 12) & 0x3f) | 0x80)
+                                       << char(((target[l][c].content >>  6) & 0x3f) | 0x80)
+                                       << char(( target[l][c].content        & 0x3f) | 0x80);
+                                }
+                                else /* if (target[l][c].content < 0x80000000) */
+                                {
+                                    rv << char(((target[l][c].content >> 30) & 0x01) | 0xfc)
+                                       << char(((target[l][c].content >> 24) & 0x3f) | 0x80)
+                                       << char(((target[l][c].content >> 18) & 0x3f) | 0x80)
+                                       << char(((target[l][c].content >> 12) & 0x3f) | 0x80)
+                                       << char(((target[l][c].content >>  6) & 0x3f) | 0x80)
+                                       << char(( target[l][c].content        & 0x3f) | 0x80);
+                                }
+
+                                currentColumn++;
+                                /*
+                                if (currentColumn >= s[0])
+                                {
+                                    currentColumn = 0;
+                                    currentLine++;
+                                }
+                                */
+                            }
+                        }
+                    }
+
+                    return rv.str();
                 }
         };
     };

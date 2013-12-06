@@ -32,6 +32,7 @@
 
 #include <ef.gy/test-case.h>
 #include <ef.gy/vt100.h>
+#include <ef.gy/random.h>
 
 using namespace efgy;
 
@@ -45,7 +46,24 @@ using namespace efgy;
  */
 int testVT100 (std::ostream &log)
 {
-    terminal::vt100<> buffer;
+    terminal::vt100<> output;
+    random::mersenneTwister<> mt(1337);
+
+    output.resize(output.getOSDimensions());
+
+    std::array<std::size_t,2> s = output.size();
+
+    log << s[0] << "x" << s[1] << "\n";
+
+    for (unsigned int l = 0; l < s[1]; l++)
+    {
+        for (unsigned int c = 0; c < s[0]; c++)
+        {
+            output.target[l][c].content = mt() & ((1<<7)-1);
+        }
+    }
+
+    std::cout << output.transform();
 
     return 0;
 }

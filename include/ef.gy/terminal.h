@@ -29,8 +29,12 @@
 #define EF_GY_TERMINAL_H
 
 #include <ef.gy/render.h>
+#include <ef.gy/maybe.h>
 #include <vector>
 #include <array>
+#if !defined(NO_IOCTL)
+#include <sys/ioctl.h>
+#endif
 
 namespace efgy
 {
@@ -44,27 +48,46 @@ namespace efgy
                 int foregroundColour;
                 int backgroundColour;
                 int attributes;
+
+                constexpr bool operator != (const cell &b) const
+                {
+                    return (content != b.content)
+                        || (foregroundColour != b.foregroundColour)
+                        || (backgroundColour != b.backgroundColour)
+                        || (attributes != b.attributes);
+                }
         };
 
         template<typename T = long>
         class screen: public std::vector<std::vector<cell<T> > >
         {
             public:
-                screen(int width = 80, int height = 25)
+                typedef std::vector<std::vector<cell<T> > > parent;
+                using parent::resize;
+
+                screen(const parent &p)
+                    : parent(p) {}
+
+                screen(int width = 80, int height = 24)
                     {
                         resize(width, height);
                     }
 
-                typedef std::vector<std::vector<cell<T> > > parent;
-
-                void resize(std::size_t columns, std::size_t lines)
+                bool resize(std::size_t columns, std::size_t lines)
                 {
-                    parent(*this).resize(lines);
+                    resize(lines);
 
-                    for (std::vector<cell<T> > &column : parent(*this))
+                    for (std::vector<cell<T> > &column : *this)
                     {
                         column.resize(columns);
                     }
+
+                    return true;
+                }
+
+                bool resize(const std::array<std::size_t,2> &size)
+                {
+                    return resize(size[0], size[1]);
                 }
 
                 constexpr std::array<std::size_t,2> size (void) const
@@ -81,15 +104,34 @@ namespace efgy
                 screen<T> current;
                 screen<T> target;
 
-                void resize(std::size_t columns, std::size_t lines)
+                bool resize(std::size_t columns, std::size_t lines)
                 {
-                    current.resize (columns, lines);
-                    target.resize  (columns, lines);
+                    return current.resize (columns, lines)
+                        && target.resize  (columns, lines);
+                }
+
+                bool resize(const maybe<std::array<std::size_t,2> > &size)
+                {
+                    return size
+                        && current.resize (std::array<std::size_t,2>(size))
+                        && target.resize  (std::array<std::size_t,2>(size));
                 }
 
                 constexpr std::array<std::size_t,2> size (void) const
                 {
                     return current.size();
+                }
+
+                maybe<std::array<std::size_t,2> > getOSDimensions (void) const
+                {
+#if defined(TIOCGWINSZ)
+                    winsize w;
+                    ioctl (0, TIOCGWINSZ, &w);
+                    return maybe<std::array<std::size_t,2> >
+                        (std::array<std::size_t,2>({{ w.ws_col, w.ws_row }}));
+#else
+                    return maybe<std::array<std::size_t,2> >();
+#endif
                 }
         };
     };
