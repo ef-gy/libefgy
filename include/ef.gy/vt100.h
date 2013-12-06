@@ -39,16 +39,28 @@ namespace efgy
         class vt100 : public terminal<T>
         {
             public:
-                vt100(void)
-                    : terminal<T>(), currentLine(-1), currentColumn(-1) {}
+                vt100
+                    (std::istream &pInput  = std::cin,
+                     std::ostream &pOutput = std::cout)
+                    : terminal<T>(pInput, pOutput),
+                      currentLine(-1), currentColumn(-1),
+                      currentForegroundColour(-1),
+                      currentBackgroundColour(-1)
+                    {}
 
                 using terminal<T>::current;
                 using terminal<T>::target;
+                using terminal<T>::input;
+                using terminal<T>::output;
+                using terminal<T>::queue;
                 using terminal<T>::resize;
                 using terminal<T>::size;
+                using terminal<T>::read;
 
                 std::size_t currentLine;
                 std::size_t currentColumn;
+                std::size_t currentForegroundColour;
+                std::size_t currentBackgroundColour;
 
                 std::string transform (std::size_t maxLength = 0)
                 {
@@ -114,6 +126,31 @@ namespace efgy
                                     currentColumn = c;
                                 }
 
+                                if (target[l][c].foregroundColour != currentForegroundColour)
+                                {
+                                    currentForegroundColour = target[l][c].foregroundColour;
+                                    if (currentForegroundColour < 8)
+                                    {
+                                        rv << "\e[3" << currentForegroundColour << "m";
+                                    }
+                                    else
+                                    {
+                                        rv << "\e[38;5;" << currentForegroundColour << "m";
+                                    }
+                                }
+                                if (target[l][c].backgroundColour != currentBackgroundColour)
+                                {
+                                    currentBackgroundColour = target[l][c].backgroundColour;
+                                    if (currentBackgroundColour < 8)
+                                    {
+                                        rv << "\e[4" << currentBackgroundColour << "m";
+                                    }
+                                    else
+                                    {
+                                        rv << "\e[48;5;" << currentBackgroundColour << "m";
+                                    }
+                                }
+
                                 if ((target[l][c].content < 0x20) || (target[l][c].content == 0x7f))
                                 {
                                     rv << ".";
@@ -172,6 +209,124 @@ namespace efgy
                     }
 
                     return rv.str();
+                }
+
+                enum parserState
+                {
+                    text,
+                    escape1,
+                    escape2
+                };
+
+                bool updatePosition (void)
+                {
+                    output << "\e[6n";
+
+                    enum parserState state = text;
+                    std::vector<T> result;
+
+                    bool haveCommand = false;
+                    std::string vtparam;
+                    std::vector<std::string> vtparams;
+                    T vtcommand;
+
+                    do
+                    {
+                        read();
+                        vtparam = "";
+                        vtparams.resize(0);
+                        result.resize(0);
+
+                        for (T v : queue)
+                        {
+                            switch (state)
+                            {
+                                case text:
+                                    switch (v)
+                                    {
+                                        case '\e':
+                                            if (!haveCommand)
+                                            {
+                                                state = escape1;
+                                                break;
+                                            }
+                                        default:
+                                            result.push_back(v);
+                                    }
+                                    break;
+                                case escape1:
+                                    switch (v)
+                                    {
+                                        case '[':
+                                            state = escape2;
+                                            break;
+                                        default:
+                                            state = text;
+                                            result.push_back(T('\e'));
+                                            result.push_back(v);
+                                    }
+                                    break;
+                                case escape2:
+                                    switch (v)
+                                    {
+                                        case '0': vtparam += "0"; break;
+                                        case '1': vtparam += "1"; break;
+                                        case '2': vtparam += "2"; break;
+                                        case '3': vtparam += "3"; break;
+                                        case '4': vtparam += "4"; break;
+                                        case '5': vtparam += "5"; break;
+                                        case '6': vtparam += "6"; break;
+                                        case '7': vtparam += "7"; break;
+                                        case '8': vtparam += "8"; break;
+                                        case '9': vtparam += "9"; break;
+                                        case ';':
+                                            vtparams.push_back(vtparam);
+                                            vtparam = "";
+                                            break;
+                                        default:
+                                            vtparams.push_back(vtparam);
+                                            vtcommand = v;
+                                            state = text;
+                                            haveCommand = true;
+                                            break;
+                                    }
+                                    break;
+                            }
+                        }
+
+                        queue = result;
+                        if (vtcommand == 'R')
+                        {
+                            std::stringstream st;
+                            switch (vtparams.size())
+                            {
+                                case 0:
+                                    currentLine = 0;
+                                    currentColumn = 0;
+                                    break;
+                                case 1:
+                                    st.clear();
+                                    st.str(vtparams[0]);
+                                    st >> currentLine;
+                                    currentLine--;
+                                    currentColumn = 0;
+                                    break;
+                                default:
+                                    st.clear();
+                                    st.str(vtparams[0]);
+                                    st >> currentLine;
+                                    st.clear();
+                                    st.str(vtparams[1]);
+                                    st >> currentColumn;
+                                    currentLine--;
+                                    currentColumn--;
+                                    break;
+                            }
+                        }
+                    }
+                    while (!haveCommand);
+
+                    return true;
                 }
         };
     };

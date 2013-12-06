@@ -32,8 +32,12 @@
 #include <ef.gy/maybe.h>
 #include <vector>
 #include <array>
+#include <iostream>
 #if !defined(NO_IOCTL)
 #include <sys/ioctl.h>
+#endif
+#if !defined(NO_TERMIOS)
+#include <termios.h>
 #endif
 
 namespace efgy
@@ -101,8 +105,49 @@ namespace efgy
         class terminal
         {
             public:
+                terminal
+                    (std::istream &pInput  = std::cin,
+                     std::ostream &pOutput = std::cout,
+                     const bool &doSetup = true)
+                    : input(pInput), output(pOutput), didSetup(doSetup)
+                    {
+#if defined(TCSANOW)
+                        if (doSetup)
+                        {
+                            std::ios_base::sync_with_stdio(false);
+
+                            termios terminalFlags;
+                            tcgetattr (0, &originalTerminalFlags);
+                            terminalFlags = originalTerminalFlags;
+                            terminalFlags.c_lflag &= ~(ICANON | ECHO);
+                            tcsetattr (0, TCSANOW, &terminalFlags);
+                            didSetup = true;
+                        }
+#endif
+                    }
+
+#if defined(TCSANOW)
+                ~terminal
+                    (void)
+                    {
+                        if (didSetup)
+                        {
+                            tcsetattr (0, TCSANOW, &originalTerminalFlags);
+                        }
+                    }
+#endif
+
                 screen<T> current;
                 screen<T> target;
+                std::istream &input;
+                std::ostream &output;
+
+#if defined(TCSANOW)
+                bool didSetup;
+                termios originalTerminalFlags;
+#endif
+
+                std::vector<T> queue;
 
                 bool resize(std::size_t columns, std::size_t lines)
                 {
@@ -132,6 +177,21 @@ namespace efgy
 #else
                     return maybe<std::array<std::size_t,2> >();
 #endif
+                }
+
+                maybe<T> read (void)
+                {
+                    if (!input)
+                    {
+                        return maybe<T>();
+                    }
+                    else
+                    {
+                        char n;
+                        input >> n;
+                        queue.push_back (T(n));
+                        return maybe<T>(T(n));
+                    }
                 }
         };
     };

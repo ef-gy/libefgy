@@ -50,6 +50,7 @@ int testVT100 (std::ostream &log)
     random::mersenneTwister<> mt(1337);
 
     output.resize(output.getOSDimensions());
+    output.updatePosition();
 
     std::array<std::size_t,2> s = output.size();
 
@@ -59,11 +60,17 @@ int testVT100 (std::ostream &log)
     {
         for (unsigned int c = 0; c < s[0]; c++)
         {
-            output.target[l][c].content = mt() & ((1<<7)-1);
+            output.target[l][c].content = mt() % (1<<7);
+            //output.target[l][c].foregroundColour = 0xe8 + mt() % 24;
+            //output.target[l][c].backgroundColour = 0xe8 + mt() % 24;
+            output.target[l][c].foregroundColour = mt() % 256;
+            output.target[l][c].backgroundColour = mt() % 256;
         }
     }
 
     std::cout << output.transform();
+
+    std::cout << "\e[39;49m";
 
     return 0;
 }
