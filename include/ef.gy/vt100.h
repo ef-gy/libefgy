@@ -66,9 +66,6 @@ namespace efgy
                 std::string flush (std::function<screen<T>(const screen<T>&)> postProcess = 0, std::size_t maxLength = 1024)
                 {
                     std::stringstream rvx;
-                    screen<T> target = postProcess
-                                     ? postProcess(this->target)
-                                     : this->target;
 
                     for (unsigned int l = 0; l < target.screen<T>::parent::size(); l++)
                     {
