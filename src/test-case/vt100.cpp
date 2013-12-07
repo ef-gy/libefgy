@@ -49,41 +49,12 @@ int testVT100 (std::ostream &log)
     terminal::vt100<> output;
     random::mersenneTwister<> mt(1337);
 
-//    output.resize(20,10);
     output.resize(output.getOSDimensions());
-//    output.updatePosition();
 
     std::array<std::size_t,2> s = output.size();
 
     log << s[0] << "x" << s[1] << "\n";
 
-#if 0
-#if 1
-    for (unsigned int l = 0; l < s[1]; l++)
-    {
-        for (unsigned int c = 0; c < s[0]; c++)
-        {
-            output.target[l][c].content = mt() % (1<<7);
-            //output.target[l][c].foregroundColour = 0xe8 + mt() % 24;
-            //output.target[l][c].backgroundColour = 0xe8 + mt() % 24;
-            output.target[l][c].foregroundColour = mt() % 256;
-            output.target[l][c].backgroundColour = mt() % 256;
-        }
-    }
-#else
-    int n = 0;
-    for (unsigned int l = 0; l < s[1]; l++)
-    {
-        for (unsigned int c = 0; c < s[0]; c++)
-        {
-            output.target[l][c].content = '0' + c % 10;
-            output.target[l][c].foregroundColour = 7;
-            output.target[l][c].backgroundColour = 0;
-            n++;
-        }
-    }
-#endif
-#else
     for (unsigned int i = 0; i < 100000; i++)
     {
         std::size_t l = mt() % s[1];
@@ -97,7 +68,6 @@ int testVT100 (std::ostream &log)
             std::cout << output.flush(0, 2048);
         }
     }
-#endif
 
     int i = 0;
     for (std::string s = output.flush(); s != ""; s = output.flush())
