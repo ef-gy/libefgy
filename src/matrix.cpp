@@ -6,7 +6,7 @@
  * version of the matrix 'scrolling streams of text' animation. It's really
  * fairly simple but also kinda nice to see how the vt100 output is performing.
  *
- * \image html matrix.png "screenshot of the programme running in Terminal"
+ * \image html matrix.png "Screenshot of the programme running in Terminal.app"
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
