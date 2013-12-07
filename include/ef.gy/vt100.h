@@ -63,7 +63,7 @@ namespace efgy
                 std::size_t currentForegroundColour;
                 std::size_t currentBackgroundColour;
 
-                std::string flush (std::function<screen<T>(const screen<T>&)> postProcess = 0, std::size_t maxLength = 1024)
+                std::string flush (std::function<cell<T>(const terminal<T>&,const std::size_t&,const std::size_t&)> postProcess = 0, std::size_t maxLength = 1024)
                 {
                     std::stringstream rvx;
 
@@ -71,7 +71,10 @@ namespace efgy
                     {
                         for (unsigned int c = 0; c < target[l].size(); c++)
                         {
-                            if (current[l][c] != target[l][c])
+                            const cell<T> &ccell = current[l][c];
+                            const cell<T>  tcell = postProcess ? postProcess(*this, l, c) : target[l][c];
+
+                            if (ccell != tcell)
                             {
                                 std::stringstream rv;
 
@@ -128,72 +131,72 @@ namespace efgy
                                     }
                                 }
 
-                                if (target[l][c].foregroundColour != currentForegroundColour)
+                                if (tcell.foregroundColour != currentForegroundColour)
                                 {
-                                    if (target[l][c].foregroundColour < 8)
+                                    if (tcell.foregroundColour < 8)
                                     {
-                                        rv << "\e[3" << target[l][c].foregroundColour << "m";
+                                        rv << "\e[3" << tcell.foregroundColour << "m";
                                     }
                                     else
                                     {
-                                        rv << "\e[38;5;" << target[l][c].foregroundColour << "m";
+                                        rv << "\e[38;5;" << tcell.foregroundColour << "m";
                                     }
                                 }
-                                if (target[l][c].backgroundColour != currentBackgroundColour)
+                                if (tcell.backgroundColour != currentBackgroundColour)
                                 {
-                                    if (target[l][c].backgroundColour < 8)
+                                    if (tcell.backgroundColour < 8)
                                     {
-                                        rv << "\e[4" << target[l][c].backgroundColour << "m";
+                                        rv << "\e[4" << tcell.backgroundColour << "m";
                                     }
                                     else
                                     {
-                                        rv << "\e[48;5;" << target[l][c].backgroundColour << "m";
+                                        rv << "\e[48;5;" << tcell.backgroundColour << "m";
                                     }
                                 }
 
-                                if ((target[l][c].content < 0x20) || (target[l][c].content == 0x7f))
+                                if ((tcell.content < 0x20) || (tcell.content == 0x7f))
                                 {
                                     rv << ".";
                                     /* don't print control characters */
                                 }
-                                else if (target[l][c].content < 0x80)
+                                else if (tcell.content < 0x80)
                                 {
-                                    rv << char(target[l][c].content);
+                                    rv << char(tcell.content);
                                 }
-                                else if (target[l][c].content < 0x800)
+                                else if (tcell.content < 0x800)
                                 {
-                                    rv << char(((target[l][c].content >>  6) & 0x1f) | 0xc0)
-                                       << char(( target[l][c].content        & 0x3f) | 0x80);
+                                    rv << char(((tcell.content >>  6) & 0x1f) | 0xc0)
+                                       << char(( tcell.content        & 0x3f) | 0x80);
                                 }
-                                else if (target[l][c].content < 0x10000)
+                                else if (tcell.content < 0x10000)
                                 {
-                                    rv << char(((target[l][c].content >> 12) & 0x0f) | 0xe0)
-                                       << char(((target[l][c].content >>  6) & 0x3f) | 0x80)
-                                       << char(( target[l][c].content        & 0x3f) | 0x80);
+                                    rv << char(((tcell.content >> 12) & 0x0f) | 0xe0)
+                                       << char(((tcell.content >>  6) & 0x3f) | 0x80)
+                                       << char(( tcell.content        & 0x3f) | 0x80);
                                 }
-                                else if (target[l][c].content < 0x200000)
+                                else if (tcell.content < 0x200000)
                                 {
-                                    rv << char(((target[l][c].content >> 18) & 0x07) | 0xf0)
-                                       << char(((target[l][c].content >> 12) & 0x3f) | 0x80)
-                                       << char(((target[l][c].content >>  6) & 0x3f) | 0x80)
-                                       << char(( target[l][c].content        & 0x3f) | 0x80);
+                                    rv << char(((tcell.content >> 18) & 0x07) | 0xf0)
+                                       << char(((tcell.content >> 12) & 0x3f) | 0x80)
+                                       << char(((tcell.content >>  6) & 0x3f) | 0x80)
+                                       << char(( tcell.content        & 0x3f) | 0x80);
                                 }
-                                else if (target[l][c].content < 0x4000000)
+                                else if (tcell.content < 0x4000000)
                                 {
-                                    rv << char(((target[l][c].content >> 24) & 0x03) | 0xf8)
-                                       << char(((target[l][c].content >> 18) & 0x3f) | 0x80)
-                                       << char(((target[l][c].content >> 12) & 0x3f) | 0x80)
-                                       << char(((target[l][c].content >>  6) & 0x3f) | 0x80)
-                                       << char(( target[l][c].content        & 0x3f) | 0x80);
+                                    rv << char(((tcell.content >> 24) & 0x03) | 0xf8)
+                                       << char(((tcell.content >> 18) & 0x3f) | 0x80)
+                                       << char(((tcell.content >> 12) & 0x3f) | 0x80)
+                                       << char(((tcell.content >>  6) & 0x3f) | 0x80)
+                                       << char(( tcell.content        & 0x3f) | 0x80);
                                 }
-                                else /* if (target[l][c].content < 0x80000000) */
+                                else /* if (tcell.content < 0x80000000) */
                                 {
-                                    rv << char(((target[l][c].content >> 30) & 0x01) | 0xfc)
-                                       << char(((target[l][c].content >> 24) & 0x3f) | 0x80)
-                                       << char(((target[l][c].content >> 18) & 0x3f) | 0x80)
-                                       << char(((target[l][c].content >> 12) & 0x3f) | 0x80)
-                                       << char(((target[l][c].content >>  6) & 0x3f) | 0x80)
-                                       << char(( target[l][c].content        & 0x3f) | 0x80);
+                                    rv << char(((tcell.content >> 30) & 0x01) | 0xfc)
+                                       << char(((tcell.content >> 24) & 0x3f) | 0x80)
+                                       << char(((tcell.content >> 18) & 0x3f) | 0x80)
+                                       << char(((tcell.content >> 12) & 0x3f) | 0x80)
+                                       << char(((tcell.content >>  6) & 0x3f) | 0x80)
+                                       << char(( tcell.content        & 0x3f) | 0x80);
                                 }
 
                                 std::size_t len = rv.str().size();
@@ -207,8 +210,8 @@ namespace efgy
                                     current[l][c] = target[l][c];
                                     currentLine = l;
                                     currentColumn = c+1;
-                                    currentForegroundColour = target[l][c].foregroundColour;
-                                    currentBackgroundColour = target[l][c].backgroundColour;
+                                    currentForegroundColour = tcell.foregroundColour;
+                                    currentBackgroundColour = tcell.backgroundColour;
                                 }
                             }
                         }
