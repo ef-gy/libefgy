@@ -1,5 +1,12 @@
 /**\file
+ * \ingroup example-programmes
  * \brief Matrix-esque terminal animation
+ *
+ * This is a terminal programme that uses libefgy's vt100 code to render a text
+ * version of the matrix 'scrolling streams of text' animation. It's really
+ * fairly simple but also kinda nice to see how the vt100 output is performing.
+ *
+ * \image html matrix.png "screenshot of the programme running in Terminal"
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members

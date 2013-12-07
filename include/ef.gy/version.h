@@ -120,6 +120,17 @@
  *       to contact magnus@ef.gy - I'm sure we can work something out.
  */
 
+/**\defgroup example-programmes Example Programmes
+ * \brief Programmes designed to demonstrate the library's capabilities
+ *
+ * The library's repository contains a few programmes which aren't exactly part
+ * of the library itself and which weren't quite fancy enough to warrant their
+ * own repository, but they're kinda neat nontheless and they do show off some
+ * of the libary's capabilities. You can find these example programmes in the
+ * 'src/' directory, and they'll be built automatically if you ever do run a
+ * plain 'make' in the top level of the repository.
+ */
+
 /**\brief Base namespace
  *
  * This is the base namespace for all the headers contained within libefgy.

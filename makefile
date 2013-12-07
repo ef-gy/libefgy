@@ -55,7 +55,7 @@ archive: ../$(NAME)-$(VERSION).tar.gz
 	git archive --format=tar --prefix=$(NAME)-$(VERSION)/ HEAD | gzip -9 >$@
 
 # meta rules for documentation
-documentation: doxyfile include/*/* xslt/doxy*
+documentation/html/index.xhtml: doxyfile include/*/* xslt/doxy*
 	doxygen $^
 
 # meta rules for javascript
