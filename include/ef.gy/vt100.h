@@ -207,7 +207,7 @@ namespace efgy
                                 else
                                 {
                                     rvx << rv.str();
-                                    current[l][c] = target[l][c];
+                                    current[l][c] = tcell;
                                     currentLine = l;
                                     currentColumn = c+1;
                                     currentForegroundColour = tcell.foregroundColour;
