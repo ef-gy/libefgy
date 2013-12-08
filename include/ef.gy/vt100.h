@@ -44,7 +44,7 @@ namespace efgy
                     (std::istream &pInput  = std::cin,
                      std::ostream &pOutput = std::cout,
                      const bool &doSetup = true)
-                    : terminal<T>(pInput, pOutput),
+                    : terminal<T>(pInput, pOutput, true),
                       currentLine(-1), currentColumn(-1),
                       currentForegroundColour(-1),
                       currentBackgroundColour(-1),

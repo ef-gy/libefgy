@@ -124,6 +124,18 @@ void handle_interrupt(int signal)
     exit(1);
 }
 
+terminal::cell<long> postProcess
+    (const terminal::terminal<long>&t,
+     const std::size_t&l,
+     const std::size_t&c)
+{
+    terminal::cell<long> rv = t.target[l][c];
+    rv.content = rv.content == 0 ? ' ' : rv.content;
+    rv.foregroundColour = rv.foregroundColour == 7 ? 7 : 2;
+    rv.backgroundColour = 0;
+    return rv;
+}
+
 int main (int argc, char **argv)
 {
     output.resize(output.getOSDimensions());
@@ -160,10 +172,10 @@ int main (int argc, char **argv)
             }
         }
 
-        std::cout << output.flush();
+        std::cout << output.flush(postProcess);
     }
 
-    for (std::string s = output.flush(); s != ""; s = output.flush())
+    for (std::string s = output.flush(postProcess); s != ""; s = output.flush(postProcess))
     {
         std::cout << s;
         i++;
