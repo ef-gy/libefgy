@@ -79,12 +79,8 @@ class matrixStream
                         if (data.size() > 0)
                         {
                             data.erase(data.begin() + (rng() % data.size()));
+                            break;
                         }
-                        else
-                        {
-                            data.push_back(cell(rng() % (1 << 7)));
-                        }
-                        break;
                     default:
                         data.push_back(cell(rng() % (1 << 7)));
                 }
@@ -164,8 +160,6 @@ int main (int argc, char **argv)
         std::cout << s;
         i++;
     }
-
-    std::cout << "\e[39;49;0m\n";
 
     return 0;
 }

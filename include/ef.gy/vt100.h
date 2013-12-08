@@ -42,12 +42,22 @@ namespace efgy
             public:
                 vt100
                     (std::istream &pInput  = std::cin,
-                     std::ostream &pOutput = std::cout)
+                     std::ostream &pOutput = std::cout,
+                     const bool &doSetup = true)
                     : terminal<T>(pInput, pOutput),
                       currentLine(-1), currentColumn(-1),
                       currentForegroundColour(-1),
-                      currentBackgroundColour(-1)
+                      currentBackgroundColour(-1),
+                      didSetup(doSetup)
                     {}
+
+                ~vt100(void)
+                    {
+                        if (didSetup)
+                        {
+                            std::cout << "\e[39;49;0m\n";
+                        }
+                    }
 
                 using terminal<T>::current;
                 using terminal<T>::target;
@@ -351,6 +361,9 @@ namespace efgy
 
                     return true;
                 }
+
+            private:
+                bool didSetup;
         };
     };
 };

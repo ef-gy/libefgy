@@ -142,11 +142,6 @@ namespace efgy
                 std::istream &input;
                 std::ostream &output;
 
-#if defined(TCSANOW)
-                bool didSetup;
-                termios originalTerminalFlags;
-#endif
-
                 std::vector<T> queue;
 
                 bool resize(std::size_t columns, std::size_t lines)
@@ -193,6 +188,13 @@ namespace efgy
                         return maybe<T>(T(n));
                     }
                 }
+
+            private:
+#if defined(TCSANOW)
+                bool didSetup;
+                termios originalTerminalFlags;
+#endif
+
         };
     };
 };
