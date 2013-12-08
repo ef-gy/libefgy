@@ -38,6 +38,7 @@
 #include <ef.gy/vt100.h>
 #include <ef.gy/random.h>
 #include <chrono>
+#include <csignal>
 
 using namespace efgy;
 using namespace std::chrono;
@@ -118,6 +119,11 @@ class matrixStream
         }
 };
 
+void handle_interrupt(int signal)
+{
+    exit(1);
+}
+
 int main (int argc, char **argv)
 {
     output.resize(output.getOSDimensions());
@@ -126,6 +132,8 @@ int main (int argc, char **argv)
     int i;
 
     std::vector<matrixStream> streams;
+
+    std::signal(SIGINT, handle_interrupt);
 
     while (1)
     {
