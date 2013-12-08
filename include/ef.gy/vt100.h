@@ -63,9 +63,10 @@ namespace efgy
                 std::size_t currentForegroundColour;
                 std::size_t currentBackgroundColour;
 
-                std::string flush (std::function<cell<T>(const terminal<T>&,const std::size_t&,const std::size_t&)> postProcess = 0, std::size_t maxLength = 1024)
+                std::string flush (std::function<cell<T>(const terminal<T>&,const std::size_t&,const std::size_t&)> postProcess = 0, std::size_t targetOps = 1024)
                 {
-                    std::stringstream rvx;
+                    std::stringstream rv("");
+                    int ops = 0;
 
                     for (unsigned int l = 0; l < target.screen<T>::parent::size(); l++)
                     {
@@ -76,11 +77,10 @@ namespace efgy
 
                             if (ccell != tcell)
                             {
-                                std::stringstream rv;
-
                                 if ((c == 0) && (currentLine == (l-1)))
                                 {
                                     rv << "\n";
+                                    ops++;
                                 }
                                 else if ((currentLine != l) && (currentColumn != c))
                                 {
@@ -91,19 +91,23 @@ namespace efgy
                                         if (vtc == 1)
                                         {
                                             rv << "\e[H";
+                                            ops++;
                                         }
                                         else
                                         {
                                             rv << "\e[" << ";" << vtc << "H";
+                                            ops++;
                                         }
                                     }
                                     else if (vtc == 1)
                                     {
                                         rv << "\e[" << vtl << "H";
+                                        ops++;
                                     }
                                     else
                                     {
                                         rv << "\e[" << vtl << ";" << vtc << "H";
+                                        ops++;
                                     }
                                 }
                                 else if (currentLine != l)
@@ -112,10 +116,12 @@ namespace efgy
                                     if (sp > 0)
                                     {
                                         rv << "\e[" << sp << "A";
+                                        ops++;
                                     }
                                     else
                                     {
                                         rv << "\e[" << -sp << "B";
+                                        ops++;
                                     }
                                 }
                                 else if (currentColumn != c)
@@ -124,10 +130,12 @@ namespace efgy
                                     if (sp > 0)
                                     {
                                         rv << "\e[" << sp << "D";
+                                        ops++;
                                     }
                                     else
                                     {
                                         rv << "\e[" << -sp << "C";
+                                        ops++;
                                     }
                                 }
 
@@ -136,10 +144,12 @@ namespace efgy
                                     if (tcell.foregroundColour < 8)
                                     {
                                         rv << "\e[3" << tcell.foregroundColour << "m";
+                                        ops++;
                                     }
                                     else
                                     {
                                         rv << "\e[38;5;" << tcell.foregroundColour << "m";
+                                        ops++;
                                     }
                                 }
                                 if (tcell.backgroundColour != currentBackgroundColour)
@@ -147,32 +157,38 @@ namespace efgy
                                     if (tcell.backgroundColour < 8)
                                     {
                                         rv << "\e[4" << tcell.backgroundColour << "m";
+                                        ops++;
                                     }
                                     else
                                     {
                                         rv << "\e[48;5;" << tcell.backgroundColour << "m";
+                                        ops++;
                                     }
                                 }
 
                                 if ((tcell.content < 0x20) || (tcell.content == 0x7f))
                                 {
                                     rv << ".";
+                                    ops++;
                                     /* don't print control characters */
                                 }
                                 else if (tcell.content < 0x80)
                                 {
                                     rv << char(tcell.content);
+                                    ops++;
                                 }
                                 else if (tcell.content < 0x800)
                                 {
                                     rv << char(((tcell.content >>  6) & 0x1f) | 0xc0)
                                        << char(( tcell.content        & 0x3f) | 0x80);
+                                    ops++;
                                 }
                                 else if (tcell.content < 0x10000)
                                 {
                                     rv << char(((tcell.content >> 12) & 0x0f) | 0xe0)
                                        << char(((tcell.content >>  6) & 0x3f) | 0x80)
                                        << char(( tcell.content        & 0x3f) | 0x80);
+                                    ops++;
                                 }
                                 else if (tcell.content < 0x200000)
                                 {
@@ -180,6 +196,7 @@ namespace efgy
                                        << char(((tcell.content >> 12) & 0x3f) | 0x80)
                                        << char(((tcell.content >>  6) & 0x3f) | 0x80)
                                        << char(( tcell.content        & 0x3f) | 0x80);
+                                    ops++;
                                 }
                                 else if (tcell.content < 0x4000000)
                                 {
@@ -188,6 +205,7 @@ namespace efgy
                                        << char(((tcell.content >> 12) & 0x3f) | 0x80)
                                        << char(((tcell.content >>  6) & 0x3f) | 0x80)
                                        << char(( tcell.content        & 0x3f) | 0x80);
+                                    ops++;
                                 }
                                 else /* if (tcell.content < 0x80000000) */
                                 {
@@ -197,27 +215,23 @@ namespace efgy
                                        << char(((tcell.content >> 12) & 0x3f) | 0x80)
                                        << char(((tcell.content >>  6) & 0x3f) | 0x80)
                                        << char(( tcell.content        & 0x3f) | 0x80);
+                                    ops++;
                                 }
 
-                                std::size_t len = rv.str().size();
-                                if ((maxLength > 0) && ((rvx.str().size() + len) > maxLength))
+                                current[l][c] = tcell;
+                                currentLine = l;
+                                currentColumn = c+1;
+                                currentForegroundColour = tcell.foregroundColour;
+                                currentBackgroundColour = tcell.backgroundColour;
+                                if (ops >= targetOps)
                                 {
-                                    return rvx.str();
-                                }
-                                else
-                                {
-                                    rvx << rv.str();
-                                    current[l][c] = tcell;
-                                    currentLine = l;
-                                    currentColumn = c+1;
-                                    currentForegroundColour = tcell.foregroundColour;
-                                    currentBackgroundColour = tcell.backgroundColour;
+                                    return rv.str();
                                 }
                             }
                         }
                     }
 
-                    return rvx.str();
+                    return rv.str();
                 }
 
                 enum parserState
