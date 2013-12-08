@@ -39,6 +39,7 @@
 #include <numeric>
 #include <algorithm>
 #include <exception>
+#include <string>
 
 namespace efgy
 {
@@ -132,6 +133,32 @@ namespace efgy
                  */
                 chain(const random &pRNG) : RNG(pRNG) {}
 
+                /**\brief Construct with RNG and data array
+                 *
+                 * Creates a copy of the given RNG to initialise the model. This
+                 * is the only constructor, as RNGs usually can't be initialised
+                 * sanely without a seed and creating a markov chain without an
+                 * RNG to create data with later is utterly pointless.
+                 *
+                 * The model is then trained with the array given in the pData
+                 * parameter by sequentially feeding the elements in that array
+                 * into the model.
+                 *
+                 * \tparam n Length of the array that is passed.
+                 *
+                 * \param[in] pRNG  The random number generator to use.
+                 * \param[in] pData The data to train the model with.
+                 */
+                template<std::size_t n>
+                chain(const random &pRNG, const std::array<const T*,n> &pData)
+                    : RNG(pRNG)
+                    {
+                        for (const std::basic_string<T> &str : pData)
+                        {
+                            (*this) << str;
+                        }
+                    }
+
                 /**\brief Generate data with model
                  *
                  * Use this function after training the model sufficiently; this
@@ -212,6 +239,25 @@ namespace efgy
                     return *this;
                 }
 
+                /**\brief Generate string data based on model
+                 *
+                 * This is an overload of the 'extraction operator' as C++-ers
+                 * like to call it. This is purely for convenience if you're
+                 * used to working with streams a lot and would like to get a
+                 * string instead of a vector.
+                 *
+                 * \param[out] pOutput A reference to a variable to extract to.
+                 *
+                 * \returns A reference to this instance, much like a stream
+                 *          would behave.
+                 */
+                chain &operator >> (std::basic_string<T> &pOutput)
+                {
+                    output out = (*this)();
+                    pOutput = std::basic_string<T>(out.begin(), out.end());
+                    return *this;
+                }
+
                 /**\brief Train model
                  *
                  * Use the given input to refine the model; this is provided as
@@ -254,6 +300,22 @@ namespace efgy
                     return *this;
                 }
 
+                /**\brief Train model with string
+                 *
+                 * An overload of the plain training function; this variant
+                 * makes it possible to pass a regular string type if the T
+                 * parameter makes it possible to do so.
+                 *
+                 * \param[in] pInput A string of Ts to train the model with.
+                 *
+                 * \returns A reference to this instance, much like a stream
+                 *          would behave.
+                 */
+                chain &operator << (const std::basic_string<T> &pInput)
+                {
+                    return (*this) << input(pInput.begin(), pInput.end());
+                }
+
                 /**\brief Copy, then train model
                  *
                  * This is a const overload of the regular insertion operator;
@@ -268,6 +330,22 @@ namespace efgy
                 {
                     chain cs = *this;
                     return (cs << input);
+                }
+
+                /**\brief Copy, then train model with string
+                 *
+                 * This is a const overload of the regular insertion operator;
+                 * instead of modifying the model itself, this will create a
+                 * copy of the current state and then train that copy.
+                 *
+                 * \param[in] pInput A string of Ts to train the model with.
+                 *
+                 * \returns A copy of the model, refined with the given input.
+                 */
+                chain operator << (const std::basic_string<T> &pInput) const
+                {
+                    chain cs = *this;
+                    return (cs << input(pInput.begin(), pInput.end()));
                 }
 
                 /**\brief Random number generator
