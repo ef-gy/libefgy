@@ -141,7 +141,7 @@ int main (int argc, char **argv)
     output.resize(output.getOSDimensions());
     std::array<std::size_t,2> s = output.size();
 
-    int i;
+    std::size_t i;
 
     std::vector<matrixStream> streams;
 
@@ -172,14 +172,12 @@ int main (int argc, char **argv)
             }
         }
 
-        std::cout << output.flush(postProcess);
+        if (output.flush(postProcess) == 0)
+        {
+        }
     }
 
-    for (std::string s = output.flush(postProcess); s != ""; s = output.flush(postProcess))
-    {
-        std::cout << s;
-        i++;
-    }
+    while ((i = output.flush(postProcess)) > 0);
 
     return 0;
 }

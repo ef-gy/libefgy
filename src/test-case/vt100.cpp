@@ -65,19 +65,18 @@ int testVT100 (std::ostream &log)
 
         if ((i % 100) == 0)
         {
-            std::cout << output.flush(0, 2048);
+            output.flush(0, 2048);
         }
     }
 
     int i = 0;
-    for (std::string s = output.flush(); s != ""; s = output.flush())
+    std::size_t ops;
+    while ((ops = output.flush()) > 0)
     {
-        std::cout << s;
         i++;
     }
 
     std::cout << "iterations: " << i << "\n";
-    std::cout << "\e[39;49;0m";
 
     return 0;
 }

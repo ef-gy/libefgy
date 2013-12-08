@@ -73,10 +73,9 @@ namespace efgy
                 std::size_t currentForegroundColour;
                 std::size_t currentBackgroundColour;
 
-                std::string flush (std::function<cell<T>(const terminal<T>&,const std::size_t&,const std::size_t&)> postProcess = 0, std::size_t targetOps = 1024)
+                std::size_t flush (std::function<cell<T>(const terminal<T>&,const std::size_t&,const std::size_t&)> postProcess = 0, std::size_t targetOps = 1024)
                 {
-                    std::stringstream rv("");
-                    int ops = 0;
+                    std::size_t ops = 0;
 
                     for (unsigned int l = 0; l < target.screen<T>::parent::size(); l++)
                     {
@@ -89,7 +88,7 @@ namespace efgy
                             {
                                 if ((c == 0) && (currentLine == (l-1)))
                                 {
-                                    rv << "\n";
+                                    output << "\n";
                                     ops++;
                                 }
                                 else if ((currentLine != l) && (currentColumn != c))
@@ -100,23 +99,23 @@ namespace efgy
                                     {
                                         if (vtc == 1)
                                         {
-                                            rv << "\e[H";
+                                            output << "\e[H";
                                             ops++;
                                         }
                                         else
                                         {
-                                            rv << "\e[" << ";" << vtc << "H";
+                                            output << "\e[" << ";" << vtc << "H";
                                             ops++;
                                         }
                                     }
                                     else if (vtc == 1)
                                     {
-                                        rv << "\e[" << vtl << "H";
+                                        output << "\e[" << vtl << "H";
                                         ops++;
                                     }
                                     else
                                     {
-                                        rv << "\e[" << vtl << ";" << vtc << "H";
+                                        output << "\e[" << vtl << ";" << vtc << "H";
                                         ops++;
                                     }
                                 }
@@ -125,12 +124,12 @@ namespace efgy
                                     signed long sp = (signed long)currentLine - (signed long)l;
                                     if (sp > 0)
                                     {
-                                        rv << "\e[" << sp << "A";
+                                        output << "\e[" << sp << "A";
                                         ops++;
                                     }
                                     else
                                     {
-                                        rv << "\e[" << -sp << "B";
+                                        output << "\e[" << -sp << "B";
                                         ops++;
                                     }
                                 }
@@ -139,12 +138,12 @@ namespace efgy
                                     signed long sp = (signed long)currentColumn - (signed long)c;
                                     if (sp > 0)
                                     {
-                                        rv << "\e[" << sp << "D";
+                                        output << "\e[" << sp << "D";
                                         ops++;
                                     }
                                     else
                                     {
-                                        rv << "\e[" << -sp << "C";
+                                        output << "\e[" << -sp << "C";
                                         ops++;
                                     }
                                 }
@@ -153,12 +152,12 @@ namespace efgy
                                 {
                                     if (tcell.foregroundColour < 8)
                                     {
-                                        rv << "\e[3" << tcell.foregroundColour << "m";
+                                        output << "\e[3" << tcell.foregroundColour << "m";
                                         ops++;
                                     }
                                     else
                                     {
-                                        rv << "\e[38;5;" << tcell.foregroundColour << "m";
+                                        output << "\e[38;5;" << tcell.foregroundColour << "m";
                                         ops++;
                                     }
                                 }
@@ -166,65 +165,65 @@ namespace efgy
                                 {
                                     if (tcell.backgroundColour < 8)
                                     {
-                                        rv << "\e[4" << tcell.backgroundColour << "m";
+                                        output << "\e[4" << tcell.backgroundColour << "m";
                                         ops++;
                                     }
                                     else
                                     {
-                                        rv << "\e[48;5;" << tcell.backgroundColour << "m";
+                                        output << "\e[48;5;" << tcell.backgroundColour << "m";
                                         ops++;
                                     }
                                 }
 
                                 if ((tcell.content < 0x20) || (tcell.content == 0x7f))
                                 {
-                                    rv << ".";
+                                    output << ".";
                                     ops++;
                                     /* don't print control characters */
                                 }
                                 else if (tcell.content < 0x80)
                                 {
-                                    rv << char(tcell.content);
+                                    output << char(tcell.content);
                                     ops++;
                                 }
                                 else if (tcell.content < 0x800)
                                 {
-                                    rv << char(((tcell.content >>  6) & 0x1f) | 0xc0)
-                                       << char(( tcell.content        & 0x3f) | 0x80);
+                                    output << char(((tcell.content >>  6) & 0x1f) | 0xc0)
+                                           << char(( tcell.content        & 0x3f) | 0x80);
                                     ops++;
                                 }
                                 else if (tcell.content < 0x10000)
                                 {
-                                    rv << char(((tcell.content >> 12) & 0x0f) | 0xe0)
-                                       << char(((tcell.content >>  6) & 0x3f) | 0x80)
-                                       << char(( tcell.content        & 0x3f) | 0x80);
+                                    output << char(((tcell.content >> 12) & 0x0f) | 0xe0)
+                                           << char(((tcell.content >>  6) & 0x3f) | 0x80)
+                                           << char(( tcell.content        & 0x3f) | 0x80);
                                     ops++;
                                 }
                                 else if (tcell.content < 0x200000)
                                 {
-                                    rv << char(((tcell.content >> 18) & 0x07) | 0xf0)
-                                       << char(((tcell.content >> 12) & 0x3f) | 0x80)
-                                       << char(((tcell.content >>  6) & 0x3f) | 0x80)
-                                       << char(( tcell.content        & 0x3f) | 0x80);
+                                    output << char(((tcell.content >> 18) & 0x07) | 0xf0)
+                                           << char(((tcell.content >> 12) & 0x3f) | 0x80)
+                                           << char(((tcell.content >>  6) & 0x3f) | 0x80)
+                                           << char(( tcell.content        & 0x3f) | 0x80);
                                     ops++;
                                 }
                                 else if (tcell.content < 0x4000000)
                                 {
-                                    rv << char(((tcell.content >> 24) & 0x03) | 0xf8)
-                                       << char(((tcell.content >> 18) & 0x3f) | 0x80)
-                                       << char(((tcell.content >> 12) & 0x3f) | 0x80)
-                                       << char(((tcell.content >>  6) & 0x3f) | 0x80)
-                                       << char(( tcell.content        & 0x3f) | 0x80);
+                                    output << char(((tcell.content >> 24) & 0x03) | 0xf8)
+                                           << char(((tcell.content >> 18) & 0x3f) | 0x80)
+                                           << char(((tcell.content >> 12) & 0x3f) | 0x80)
+                                           << char(((tcell.content >>  6) & 0x3f) | 0x80)
+                                           << char(( tcell.content        & 0x3f) | 0x80);
                                     ops++;
                                 }
                                 else /* if (tcell.content < 0x80000000) */
                                 {
-                                    rv << char(((tcell.content >> 30) & 0x01) | 0xfc)
-                                       << char(((tcell.content >> 24) & 0x3f) | 0x80)
-                                       << char(((tcell.content >> 18) & 0x3f) | 0x80)
-                                       << char(((tcell.content >> 12) & 0x3f) | 0x80)
-                                       << char(((tcell.content >>  6) & 0x3f) | 0x80)
-                                       << char(( tcell.content        & 0x3f) | 0x80);
+                                    output << char(((tcell.content >> 30) & 0x01) | 0xfc)
+                                           << char(((tcell.content >> 24) & 0x3f) | 0x80)
+                                           << char(((tcell.content >> 18) & 0x3f) | 0x80)
+                                           << char(((tcell.content >> 12) & 0x3f) | 0x80)
+                                           << char(((tcell.content >>  6) & 0x3f) | 0x80)
+                                           << char(( tcell.content        & 0x3f) | 0x80);
                                     ops++;
                                 }
 
@@ -235,13 +234,13 @@ namespace efgy
                                 currentBackgroundColour = tcell.backgroundColour;
                                 if (ops >= targetOps)
                                 {
-                                    return rv.str();
+                                    return ops;
                                 }
                             }
                         }
                     }
 
-                    return rv.str();
+                    return ops;
                 }
 
                 enum parserState
