@@ -39,6 +39,8 @@
 #include <ef.gy/random.h>
 #include <chrono>
 #include <csignal>
+#include <cmath>
+#include <sched.h>
 
 using namespace efgy;
 using namespace std::chrono;
@@ -126,11 +128,37 @@ void handle_interrupt(int signal)
 
 terminal::cell<long> postProcess
     (const terminal::terminal<long>&t,
-     const std::size_t&l,
-     const std::size_t&c)
+     const std::size_t &l,
+     const std::size_t &c)
 {
     terminal::cell<long> rv = t.target[l][c];
     rv.content = rv.content == 0 ? ' ' : rv.content;
+    rv.foregroundColour = rv.foregroundColour == 7 ? 7 : 2;
+    rv.backgroundColour = 0;
+    return rv;
+}
+
+terminal::cell<long> postProcessPolar
+    (const terminal::terminal<long>&t,
+     const std::size_t &pl,
+     const std::size_t &pc)
+{
+    double l = pl;
+    double c = pc;
+    std::array<std::size_t,2> s = t.size();
+    double hl = s[1]/2;
+    double hc = s[0]/2;
+    double loff = l - hl;
+    double coff = c - hc;
+    double r2 = loff*loff + coff*coff;
+    double r = std::sqrt(r2);
+    l = hl + loff + std::sin(r) * 1.0;
+    c = hc + coff + std::cos(r) * 1.0;
+    const std::size_t tl = (std::size_t)l < s[1] ? (std::size_t)l : (s[1] - 1);
+    const std::size_t tc = (std::size_t)c < s[0] ? (std::size_t)c : (s[0] - 1);
+    terminal::cell<long> rv = t.target[tl][tc];
+    terminal::cell<long> cv = t.current[tl][tc];
+    rv.content = rv.content == 0 ? (cv.content == 0 ? ' ' : cv.content) : rv.content;
     rv.foregroundColour = rv.foregroundColour == 7 ? 7 : 2;
     rv.backgroundColour = 0;
     return rv;
@@ -174,6 +202,7 @@ int main (int argc, char **argv)
 
         if (output.flush(postProcess) == 0)
         {
+            sched_yield();
         }
     }
 
