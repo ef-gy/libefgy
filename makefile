@@ -8,7 +8,7 @@ NAME:=libefgy
 VERSION:=4
 
 CC:=clang
-CXX:=clang++ -stdlib=libc++
+CXX:=clang++
 EMXX:=em++
 PKGCONFIG:=pkg-config
 INSTALL:=install
