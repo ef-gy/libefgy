@@ -45,7 +45,7 @@
 using namespace efgy;
 using namespace std::chrono;
 
-/**\brief Data and functions of the matrix example programme
+/**\brief Data and functions related to the matrix demo
  *
  * Contains global variables and classes used by the 'matrix' demo animation.
  * This is a separate namespace to keep things all neat, clean and tidy.
@@ -91,22 +91,95 @@ namespace thematrix
             class cell
             {
                 public:
+                    /**\brief Construct with glyph
+                     *
+                     * Constructs an instance of the class using the given
+                     * character and the current system time.
+                     *
+                     * \param[in] pCharacter A unicode code point.
+                     */
                     cell(const unsigned long &pCharacter)
                         : character(pCharacter), created(now) {}
 
+                    /**\brief The glyph
+                     *
+                     * This is the glyph to output; must be a valid unicode
+                     * glyph as the vt100 code will expect one to send to the
+                     * terminal.
+                     */
                     unsigned long character;
+
+                    /**\brief When was this object created?
+                     *
+                     * Contains the time point of this object's creation; used
+                     * to determine the colour of the glyph in the output;
+                     */
                     system_clock::time_point created;
             };
 
+            /**\brief Construct with position
+             *
+             * Initialises an instance of the class given the line and column
+             * of where the stream should appear.
+             *
+             * \param[in] pLine   The line at which to create the stream; must
+             *                    be less than output.size()[1].
+             * \param[in] pColumn The column at which to create the stream;
+             *                    must be less than output.size()[0].
+             */
             stream(const std::size_t &pLine, const std::size_t &pColumn)
                 : line(pLine), column(pColumn), last(now), doDelete(false) {}
 
+            /**\brief Line component of stream position
+             *
+             * This is the line at which the stream is rendered to the
+             * terminal.
+             */
             std::size_t line;
+
+            /**\brief Column component of stream position
+             *
+             * This is the column at which the stream is rendered to the
+             * terminal.
+             */
             std::size_t column;
+
+            /**\brief The stream contents to render
+             *
+             * A vector of glyphs and the time at which they were inserted into
+             * the stream; this vector is placed vertically at the coordinates
+             * given by line and column. Recent glyphs are rendered in white,
+             * older ones in green.
+             */
             std::vector<cell> data;
+
+            /**\brief Time of last update
+             *
+             * Records the last time a glyph was inserted into or removed from
+             * the stream; used to determine when to add new glyphs.
+             */
             system_clock::time_point last;
+
+            /**\brief Should this stream be deleted?
+             *
+             * Set to true when the upper part of the stream reaches the bottom
+             * of the screen; the stream should then be deleted in the main
+             * loop because it won't produce any output on the screen when this
+             * happens.
+             */
             bool doDelete;
 
+            /**\brief Update and render stream
+             *
+             * Render the current contents of the stream to the screen; if it
+             * so happens that enough time has passed since the last time this
+             * method was called then this function will also randomly add or
+             * remove glyphs, or move the stream further down.
+             *
+             * \returns 'true' if the update went smoothly; 'false' otherwise.
+             *          There is currently no way this function can fail, so
+             *          at the moment it will always return 'true'.
+             */
             bool update (void)
             {
                 if ((now - last) > std::chrono::milliseconds(10))
@@ -157,11 +230,27 @@ namespace thematrix
             }
     };
 
+    /**\brief SIGINT handler
+     *
+     * Signal handler that calls exit() properly; the SIGINT handler is
+     * replaced by this function. While SIGINT would ordinarily terminate the
+     * programme anyway, it doesn't do so with a proper call to exit(), meaning
+     * that destructors will not be called, further meaning that the terminal
+     * can't be reset to a proper state by the terminal handling code, because
+     * not using exit() properly means destructors won't run.
+     */
     void handle_interrupt(int signal)
     {
-        exit(1);
+        exit(0);
     }
 
+    /**\brief Green-tinted post processing function
+     *
+     * A simple post-processing function for the vt100 code, which makes sure
+     * that any output cell is always either white or green. This makes it
+     * easier for the optimiser as it won't have to switch colours quite as
+     * often as it otherwise might.
+     */
     terminal::cell<long> postProcess
         (const terminal::terminal<long>&t,
          const std::size_t &l,
@@ -174,6 +263,13 @@ namespace thematrix
         return rv;
     }
 
+    /**\brief Alternative post processing function
+     *
+     * Adds some curviness to the output by modifying the input coordinates a
+     * bit before creating the output. Kinda looks funky, but not really
+     * matrix-y. You'll have to modify the main() function yourself if you want
+     * to see this in action.
+     */
     terminal::cell<long> postProcessPolar
         (const terminal::terminal<long>&t,
          const std::size_t &pl,
@@ -203,7 +299,21 @@ namespace thematrix
 
 using namespace thematrix;
 
-int main (int argc, char **argv)
+/**\brief Matrix demo main function
+ *
+ * Entry point for the matrix programme; resizes the output buffer to encompass
+ * the whole terminal, sets up a SIGINT handler and then maintains a vector of
+ * thematrix::stream objects at random positions.
+ *
+ * Use CTRL+C to terminate the programme.
+ *
+ * \note Command line arguments and the programme environment are ignored.
+ *
+ * \returns 0 for 'success', but this should never be reached as the SIGINT
+ *          handler calls exit(), which is the only way to break out of the main
+ *          loop.
+ */
+int main (int, char **)
 {
     output.resize(output.getOSDimensions());
     std::array<std::size_t,2> s = output.size();
