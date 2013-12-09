@@ -109,7 +109,9 @@ namespace efgy
                     (std::istream &pInput  = std::cin,
                      std::ostream &pOutput = std::cout,
                      const bool &doSetup = true)
-                    : input(pInput), output(pOutput), didSetup(doSetup)
+                    : input(pInput), output(pOutput),
+                      cursor({{(std::size_t)-1,(std::size_t)-1}}),
+                      didSetup(doSetup)
                     {
 #if defined(TCSANOW)
                         if (doSetup)
@@ -189,6 +191,17 @@ namespace efgy
                     }
                 }
 
+                bool write
+                    (const std::basic_string<T> &text,
+                     const maybe<std::size_t> &column,
+                     const maybe<std::size_t> &line,
+                     const maybe<int> &foregroundColour,
+                     const maybe<int> &backgroundColour)
+                {
+                    return false;
+                }
+
+                std::array<std::size_t,2> cursor;
             private:
 #if defined(TCSANOW)
                 bool didSetup;

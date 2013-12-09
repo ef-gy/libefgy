@@ -45,7 +45,6 @@ namespace efgy
                      std::ostream &pOutput = std::cout,
                      const bool &doSetup = true)
                     : terminal<T>(pInput, pOutput, true),
-                      currentLine(-1), currentColumn(-1),
                       currentForegroundColour(-1),
                       currentBackgroundColour(-1),
                       didSetup(doSetup)
@@ -67,9 +66,8 @@ namespace efgy
                 using terminal<T>::resize;
                 using terminal<T>::size;
                 using terminal<T>::read;
+                using terminal<T>::cursor;
 
-                std::size_t currentLine;
-                std::size_t currentColumn;
                 std::size_t currentForegroundColour;
                 std::size_t currentBackgroundColour;
 
@@ -86,12 +84,12 @@ namespace efgy
 
                             if (ccell != tcell)
                             {
-                                if ((c == 0) && (currentLine == (l-1)))
+                                if ((c == 0) && (cursor[1] == (l-1)))
                                 {
                                     output << "\n";
                                     ops++;
                                 }
-                                else if ((currentLine != l) && (currentColumn != c))
+                                else if ((cursor[1] != l) && (cursor[0] != c))
                                 {
                                     std::size_t vtl = l+1;
                                     std::size_t vtc = c+1;
@@ -119,9 +117,9 @@ namespace efgy
                                         ops++;
                                     }
                                 }
-                                else if (currentLine != l)
+                                else if (cursor[1] != l)
                                 {
-                                    signed long sp = (signed long)currentLine - (signed long)l;
+                                    signed long sp = (signed long)cursor[1] - (signed long)l;
                                     if (sp > 0)
                                     {
                                         output << "\e[" << sp << "A";
@@ -133,9 +131,9 @@ namespace efgy
                                         ops++;
                                     }
                                 }
-                                else if (currentColumn != c)
+                                else if (cursor[0] != c)
                                 {
-                                    signed long sp = (signed long)currentColumn - (signed long)c;
+                                    signed long sp = (signed long)cursor[0] - (signed long)c;
                                     if (sp > 0)
                                     {
                                         output << "\e[" << sp << "D";
@@ -228,8 +226,8 @@ namespace efgy
                                 }
 
                                 current[l][c] = tcell;
-                                currentLine = l;
-                                currentColumn = c+1;
+                                cursor[1] = l;
+                                cursor[0] = c+1;
                                 currentForegroundColour = tcell.foregroundColour;
                                 currentBackgroundColour = tcell.backgroundColour;
                                 if (ops >= targetOps)
@@ -333,25 +331,25 @@ namespace efgy
                             switch (vtparams.size())
                             {
                                 case 0:
-                                    currentLine = 0;
-                                    currentColumn = 0;
+                                    cursor[1] = 0;
+                                    cursor[0] = 0;
                                     break;
                                 case 1:
                                     st.clear();
                                     st.str(vtparams[0]);
-                                    st >> currentLine;
-                                    currentLine--;
-                                    currentColumn = 0;
+                                    st >> cursor[1];
+                                    cursor[1]--;
+                                    cursor[0] = 0;
                                     break;
                                 default:
                                     st.clear();
                                     st.str(vtparams[0]);
-                                    st >> currentLine;
+                                    st >> cursor[1];
                                     st.clear();
                                     st.str(vtparams[1]);
-                                    st >> currentColumn;
-                                    currentLine--;
-                                    currentColumn--;
+                                    st >> cursor[0];
+                                    cursor[1]--;
+                                    cursor[0]--;
                                     break;
                             }
                         }
