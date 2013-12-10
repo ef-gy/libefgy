@@ -1,4 +1,5 @@
-/**\file Markov chains
+/**\file
+ * \brief Markov chains
  *
  * Contains a simple implementation of higher order markov chains of arbitrary
  * data types.
