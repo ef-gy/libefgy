@@ -131,6 +131,21 @@
  * plain 'make' in the top level of the repository.
  */
 
+/**\dir include/ef.gy
+ * \brief Library headers
+ *
+ * The library headers are all located at include/ef.gy in the repository.
+ * Since this is a template libary these headers also contain the actual
+ * implementation of the library, much like Pascal code tends to include both
+ * the interface and the implementation in a single file.
+ *
+ * To "install" the library, all you really need to do is to copy this
+ * directory to your own "include" directory - either globally or in your
+ * project. Better yet, symlink this location to a checkout of the repository,
+ * then you can update that with git every now and then and enjoy the latest
+ * documentation and features of the library.
+ */
+
 /**\brief Base namespace
  *
  * This is the base namespace for all the headers contained within libefgy.

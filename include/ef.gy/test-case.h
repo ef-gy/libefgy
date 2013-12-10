@@ -37,6 +37,22 @@
  * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
  */
 
+/**\dir src/test-case
+ * \brief Library test cases
+ *
+ * Library test cases all go in the src/test-case/ directory. The makefile will
+ * automatically build them, and you can run them in a batch by using the
+ * make target 'test', like so:
+ *
+ * \code
+ * $ make test
+ * \endcode
+ *
+ * If any of the test cases fail to run then the make command will fail with an
+ * error. You could use this to run the test cases automatically after a
+ * checkout, for example.
+ */
+
 #include <iostream>
 #include <vector>
 
