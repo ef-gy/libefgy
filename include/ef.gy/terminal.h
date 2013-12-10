@@ -181,8 +181,8 @@ namespace efgy
                  * If you omit the width and height of the buffer, then it is
                  * assumed that you meant to create a typical 80x24 buffer.
                  *
-                 * \param[in,optional] width  Width of the new buffer.
-                 * \param[in,optional] height Height of the new buffer.
+                 * \param[in] width  Width of the new buffer.
+                 * \param[in] height Height of the new buffer.
                  */
                 screen(const int &width = 80, const int &height = 24)
                     {
