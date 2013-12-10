@@ -191,17 +191,85 @@ namespace efgy
                     }
                 }
 
+                /**\brief Write string to target buffer
+                 *
+                 * Will write the given text at the coordinates specified by
+                 * (column, line) with the specified colours to the target
+                 * buffer.
+                 *
+                 * If you omit either the column or the line then this method
+                 * will write to the internal cursor position. If you omit the
+                 * colours then this method will not modify the colours at the
+                 * specified coordinates.
+                 *
+                 * This function will break to the next line at the end of a
+                 * line. If that line happens to be the last one on the screen,
+                 * then the method will wrap around to (0,0).
+                 *
+                 * The internal cursor position is NOT updated after the write
+                 * operation.
+                 *
+                 * \tparam S Character type of the string you pass to this
+                 *           function; separate from T because you might well
+                 *           try to write a regular string to a terminal<long>.
+                 *
+                 * \param[in] text   The string to write.
+                 * \param[in] column Column coordinate of the target position.
+                 * \param[in] line   Line coordinate of the target position.
+                 * \param[in] foregroundColour The foreground colour to use.
+                 * \param[in] backgroundColour The background colour to use.
+                 *
+                 * \returns 'true' if the operation succeeded, 'false'
+                 *          otherwise. Since there is no way for this function
+                 *          to fail right now, it'll always return 'true'.
+                 */
+                template<typename S>
                 bool write
-                    (const std::basic_string<T> &text,
-                     const maybe<std::size_t> &column,
-                     const maybe<std::size_t> &line,
-                     const maybe<int> &foregroundColour,
-                     const maybe<int> &backgroundColour)
+                    (const std::basic_string<S> &text,
+                     const maybe<std::size_t> &column = maybe<std::size_t>(),
+                     const maybe<std::size_t> &line = maybe<std::size_t>(),
+                     const maybe<int> &foregroundColour = maybe<int>(),
+                     const maybe<int> &backgroundColour = maybe<int>())
                 {
-                    return false;
+                    std::size_t c = column ? std::size_t(column) : cursor[0];
+                    std::size_t l = line   ? std::size_t(line)   : cursor[1];
+                    std::array<std::size_t,2> si = size();
+
+                    for (const S &character : text)
+                    {
+                        if (c >= si[0])
+                        {
+                            c = 0;
+                            l++;
+                        }
+                        if (l >= si[1])
+                        {
+                            l = 0;
+                        }
+                        target[l][c].content = T(character);
+                        if (foregroundColour)
+                        {
+                            target[l][c].foregroundColour = foregroundColour;
+                        }
+                        if (backgroundColour)
+                        {
+                            target[l][c].backgroundColour = backgroundColour;
+                        }
+                        c++;
+                    }
+
+                    return true;
                 }
 
+            protected:
+                /**\brief Current cursor position
+                 *
+                 * This is the current device cursor position. Should be kept
+                 * up to date by any terminal frontends that make use of this
+                 * information - e.g. by the vt100 class.
+                 */
                 std::array<std::size_t,2> cursor;
+
             private:
 #if defined(TCSANOW)
                 bool didSetup;
