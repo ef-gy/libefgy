@@ -1,4 +1,17 @@
 /**\file
+ * \brief Terminal I/O helpers
+ *
+ * This header contains templates that should make it fairly easy to use
+ * text-based terminals efficiently. The general idea is that this header
+ * provides a class template, terminal::terminal, with two screen buffers, one
+ * for the current state of the terminal and one for the target state of the
+ * terminal. Terminal-specific classes can then derive from this base class and
+ * implement efficient algorithms to transform the terminal state from the
+ * current state to the target state.
+ *
+ * One such deriving class is terminal::vt100, see ef.gy/vt100.h for more
+ * details on that. Also see src/matrix.cpp for some example code if you're
+ * stuck with the documentation for some reason.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -42,17 +55,70 @@
 
 namespace efgy
 {
+    /**\brief Terminal I/O helpers
+     *
+     * Contains classes and templates that should make it easy - or at least
+     * easier - to produce snappy TUI interfaces, or other terminal
+     * applications. See src/matrix.cpp for an example.
+     */
     namespace terminal
     {
+        /**\brief Terminal buffer cell
+         *
+         * Contains all the attributes associated with an individual cell in a
+         * terminal buffer: the contained character, colours and any applicable
+         * attributes.
+         *
+         * \tparam T Data type for an individual cell's contents. The default
+         *           is a "long", which should be enough to cover all possible
+         *           unicode codepoints, ever. Hopefully, anyway.
+         */
         template<typename T = long>
         class cell
         {
             public:
+                /**\brief The character in the cell
+                 *
+                 * Contains the current character in the given cell. Expect
+                 * this to be a unicode codepoint.
+                 */
                 T content;
+
+                /**\brief Foreground colour
+                 *
+                 * This is the colour of the glyph itself. The values in here
+                 * do sort of depend on the terminal settings on the output
+                 * driver, but expect xterm-256 codes to work as intended.
+                 */
                 int foregroundColour;
+
+                /**\brief Background colour
+                 *
+                 * This is the colour of the glyph's background. The values in
+                 * here do sort of depend on the terminal settings on the
+                 * output driver, but expect xterm-256 codes to work as
+                 * intended.
+                 */
                 int backgroundColour;
+
+                /**\brief Text attributes
+                 *
+                 * \todo This really needs to be fleshed out properly.
+                 */
                 int attributes;
 
+                /**\brief Compare two cells
+                 *
+                 * The frontend driver will need some way to figure out if two
+                 * cells contain the same data, so as to figure out if a cell
+                 * has been modified and needs to be modified. This operator
+                 * provides that functionality.
+                 *
+                 * \param[in] b The cell to compare this one with.
+                 *
+                 * \returns 'true' if the two cells don't contain the same
+                 *          data.
+                 */
                 constexpr bool operator != (const cell &b) const
                 {
                     return (content          != b.content)
@@ -62,6 +128,28 @@ namespace efgy
                 }
         };
 
+        /**\brief Screen buffer
+         *
+         * Contains the data stored in a single screen buffer - i.e. the
+         * current contents of a terminal or the target contents.
+         *
+         * This buffer is derived from a nested std::vector using the 'cell'
+         * template for individual cells. You should not modify this vector
+         * manually, unless you really know what you're doing. Note that the
+         * indices into this nested std::vector are reversed with respect to
+         * the coordinate and dimension tuples used in other places.
+         *
+         * While odd, this was done on purpose - because typically, if you
+         * iterate over the whole screen, you'd expect things on the same line
+         * to be 'in sequence'; or at least you would if you read from left to
+         * right, then top to bottom. However, it is customary to specify
+         * terminal sizes as WidthXHeight, or rather ColumnsXLines, which
+         * creates a bit of ambiguity in this case.
+         *
+         * \tparam T Data type to hold a single character of data. The default
+         *         is 'long', which is easily able to handle all of the unicode
+         *         code points.
+         */
         template<typename T = long>
         class screen: public std::vector<std::vector<cell<T> > >
         {
