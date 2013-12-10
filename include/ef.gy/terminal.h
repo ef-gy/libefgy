@@ -198,8 +198,10 @@ namespace efgy
                      std::ostream &pOutput = std::cout,
                      const bool &doSetup = true)
                     : input(pInput), output(pOutput),
-                      cursor({{(std::size_t)-1,(std::size_t)-1}}),
-                      didSetup(doSetup)
+#if defined(TCSANOW)
+                      didSetup(doSetup),
+#endif
+                      cursor({{(std::size_t)-1,(std::size_t)-1}})
                     {
 #if defined(TCSANOW)
                         if (doSetup)
