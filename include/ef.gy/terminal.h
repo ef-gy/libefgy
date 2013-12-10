@@ -154,18 +154,58 @@ namespace efgy
         class screen: public std::vector<std::vector<cell<T> > >
         {
             public:
+                /**\brief Alias for the parent class
+                 *
+                 * This class extends a nested std::vector, so this typedef
+                 * provides a convenient handle to this base class.
+                 */
                 typedef std::vector<std::vector<cell<T> > > parent;
+
                 using parent::resize;
 
+                /**\brief Construct with nested vectors
+                 *
+                 * Constructs a new screen buffer by copying the contents of
+                 * an instance of the parent class.
+                 *
+                 * \param[in] p The instance of the parent class to copy.
+                 */ 
                 screen(const parent &p)
                     : parent(p) {}
 
-                screen(int width = 80, int height = 24)
+                /**\brief Construct empty buffer
+                 *
+                 * Construct an empty buffer given the width and height of the
+                 * buffer to create.
+                 *
+                 * If you omit the width and height of the buffer, then it is
+                 * assumed that you meant to create a typical 80x24 buffer.
+                 *
+                 * \param[in,optional] width  Width of the new buffer.
+                 * \param[in,optional] height Height of the new buffer.
+                 */
+                screen(const int &width = 80, const int &height = 24)
                     {
                         resize(width, height);
                     }
 
-                bool resize(std::size_t columns, std::size_t lines)
+                /**\brief Resize screen buffer
+                 *
+                 * Modifies the current screen buffer so that it now fits a
+                 * terminal with the given number of columns and lines.
+                 *
+                 * Resizing the buffer has the same semantics as std::resize:
+                 * obsolete cells will be destroyed and new ones will be
+                 * created with their default constructor.
+                 *
+                 * \param[in] columns Number of columns to resize the buffer to
+                 * \param[in] lines   Number of lines to resize the buffer to
+                 *
+                 * \returns 'true' on success, 'false' otherwise. This method
+                 *          currently has no way to fail, so it'll always
+                 *          return 'true'.
+                 */
+                bool resize(const std::size_t &columns, const std::size_t &lines)
                 {
                     resize(lines);
 
@@ -177,11 +217,30 @@ namespace efgy
                     return true;
                 }
 
+                /**\brief Resize screen buffer
+                 *
+                 * Resizes the screen buffer with an array of length 2, in the
+                 * same way that calling resize(size[0], size[1]) would. This
+                 * overload is purely for convenience, as this is the return
+                 * type of the terminal<T>::getOSDimensions() and the size()
+                 * methods.
+                 *
+                 * \param[in] size The size to resize the buffer to.
+                 *
+                 * \returns Same value as resize(size[0], size[1]) would have.
+                 */
                 bool resize(const std::array<std::size_t,2> &size)
                 {
                     return resize(size[0], size[1]);
                 }
 
+                /**\brief Query buffer size
+                 *
+                 * Creates a std::array with the size of the buffer, as
+                 * obtained by querying the size of the parent vector.
+                 *
+                 * \returns An array of the form {{ columns, lines }}.
+                 */
                 constexpr std::array<std::size_t,2> size (void) const
                 {
                     return {{ this->parent::size() > 0 ? (*this)[0].size() : 0,
@@ -189,6 +248,24 @@ namespace efgy
                 }
         };
 
+        /**\brief Terminal base class
+         *
+         * This class template encapsulates the current state of a terminal as
+         * well as the intended target state of a terminal. This information
+         * can then be used by the individual terminal frontents to produce an
+         * efficient set of commands to get the terminal's current state to the
+         * intended target state.
+         *
+         * Additionally, this template class provides some basic,
+         * terminal-independent, OS-level queries and setup functionality. This
+         * includes querying the size of virtual terminals from the OS and
+         * encapsulating the input and output streams that provide a connection
+         * to the terminal for commands to be sent.
+         *
+         * \tparam T Data type to hold a single character of data. The default
+         *         is 'long', which is easily able to handle all of the unicode
+         *         code points.
+         */
         template<typename T = long>
         class terminal
         {
