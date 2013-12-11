@@ -73,7 +73,8 @@ namespace efgy
                     (const geometry::transformation::affine<Q,d> &pTransformation,
                      const geometry::projection<Q,d> &pProjection,
                      svg<Q,d-1> &pLowerRenderer)
-                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer)
+                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer),
+                      output(lowerRenderer.output)
                     {}
 
                 /**\brief Begin drawing a new frame
@@ -129,6 +130,14 @@ namespace efgy
                 {
                     lowerRenderer.reset();
                 }
+
+                /**\brief Output stream
+                 *
+                 * SVG fragments produced by the renderer are written to this
+                 * stream so you can gather all of the data as a string once
+                 * you're done rendering your frame.
+                 */
+                std::stringstream &output;
 
             protected:
                 /**\brief Affine transformation matrix
