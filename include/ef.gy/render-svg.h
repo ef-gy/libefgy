@@ -74,7 +74,7 @@ namespace efgy
                      const geometry::projection<Q,d> &pProjection,
                      svg<Q,d-1> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer),
-                      output(lowerRenderer.output)
+                      output(pLowerRenderer.output)
                     {}
 
                 /**\brief Begin drawing a new frame
