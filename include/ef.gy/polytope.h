@@ -48,6 +48,13 @@ namespace efgy
 {
     namespace geometry
     {
+        /**\defgroup libefgy-geometric-primitives Geometric Primitives
+         * \brief Class templates that define basic geometric primitives
+         *
+         * This group contains class templates that calculate meshes for basic
+         * geometric primitives, such as simplices, cubes or spheres.
+         */
+
         /**\brief Geometry parameters
          *
          * Contains parameters used by the shape-creating templates. You need
@@ -218,7 +225,8 @@ namespace efgy
                 }
         };
 
-        /**\brief The hypercube
+        /**\ingroup libefgy-geometric-primitives
+         * \brief The hypercube
          *
          * This template calculates the mesh for a cube in any number of
          * dimensions. For example if you set the 'od' parameter to '3', then
@@ -231,8 +239,8 @@ namespace efgy
          * Cubes are a fairly simple and common primitive, and they're easy to
          * generalise to higher dimensional spaces. They also make excellent
          * base primitives for iterated function systems, because they don't
-         * produce all that much output while still covering a lot of space, so
-         * deformations don't lose much information.
+         * produce all that much output while still covering a lot of space,
+         * and deformations don't lose much information.
          *
          * In terms of parameters, this primitive only makes use of the
          * parameter<Q>::polarRadius field, which i used to determine the size
