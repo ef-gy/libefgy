@@ -218,6 +218,27 @@ namespace efgy
                 }
         };
 
+        /**\brief The hypercube
+         *
+         * This template calculates the mesh for a cube in any number of
+         * dimensions. For example if you set the 'od' parameter to '3', then
+         * you get a regular cube, but if you set the 'od' parameter to '2' the
+         * resulting mesh is a 2D square. '4' will get you a so-called
+         * "tesseract".
+         *
+         * \image html geometric-primitive-4-cube.svg "A tesseract, i.e. a 4-cube"
+         *
+         * \tparam Q      Base datatype for calculations
+         * \tparam od     The 'depth' of the hypercube; e.g. '3' for a cube
+         * \tparam render Model renderer type; e.g. render::svg
+         * \tparam d      The render depth of the model; must be >= 'od'
+         *
+         * \see http://ef.gy/documentation/topologic - Topologic, the programme
+         *      that was used to render the sample image.
+         *
+         * \see http://en.wikipedia.org/wiki/Hypercube for more information on
+         *      hypercubes in general.
+         */
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
         class cube : public polytope<Q,d,4,render>
         {
