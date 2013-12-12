@@ -76,11 +76,22 @@ namespace efgy
                 unsigned int flameCoefficients;
         };
 
+        /**\brief Polytope base template
+         *
+         * Contains the base definitions for any polytope, i.e. code that
+         * should be shared among most class templates that generate meshes to
+         * be rendered.
+         *
+         * \tparam Q      Base type for calculations; should be a rational type
+         * \tparam d      Number of dimensions of the vector space to use
+         * \tparam f      Number of sides for mesh faces
+         * \tparam render Renderer type; e.g. render::svg<Q,d>
+         */
         template <typename Q, unsigned int d, unsigned int f, typename render>
         class polytope
         {
             public:
-                polytope (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier)
+                polytope (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : renderer(pRenderer), parameter(pParameter), precisionMultiplier(pMultiplier)
                     {}
 
@@ -122,6 +133,7 @@ namespace efgy
                 {
                     return d;
                 }
+
                 std::array<Q,0> genome (void) const { return {{}}; }
 
             protected:
@@ -276,8 +288,8 @@ namespace efgy
             public:
                 typedef polytope<Q,d,4,render> parent;
 
-                cube (render &pRenderer, const parameters<Q> &pParameter, const Q & = Q())
-                    : parent(pRenderer, pParameter, Q(1))
+                cube (render &pRenderer, const parameters<Q> &pParameter, const Q & = 1)
+                    : parent(pRenderer, pParameter)
                     {
                         calculateObject();
                     }
