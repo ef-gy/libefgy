@@ -224,13 +224,24 @@ namespace efgy
          * dimensions. For example if you set the 'od' parameter to '3', then
          * you get a regular cube, but if you set the 'od' parameter to '2' the
          * resulting mesh is a 2D square. '4' will get you a so-called
-         * "tesseract".
+         * "tesseract", which looks like this:
          *
          * \image html geometric-primitive-4-cube.svg "A tesseract, i.e. a 4-cube"
          *
+         * Cubes are a fairly simple and common primitive, and they're easy to
+         * generalise to higher dimensional spaces. They also make excellent
+         * base primitives for iterated function systems, because they don't
+         * produce all that much output while still covering a lot of space, so
+         * deformations don't lose much information.
+         *
+         * In terms of parameters, this primitive only makes use of the
+         * parameter<Q>::polarRadius field, which i used to determine the size
+         * of the mesh. Confusingly, this radius is actually used as the edge
+         * length for historical reasons.
+         *
          * \tparam Q      Base datatype for calculations
          * \tparam od     The 'depth' of the hypercube; e.g. '3' for a cube
-         * \tparam render Model renderer type; e.g. render::svg
+         * \tparam render Model renderer type; e.g. render::svg<Q,d>
          * \tparam d      The render depth of the model; must be >= 'od'
          *
          * \see http://ef.gy/documentation/topologic - Topologic, the programme
@@ -238,6 +249,9 @@ namespace efgy
          *
          * \see http://en.wikipedia.org/wiki/Hypercube for more information on
          *      hypercubes in general.
+         *
+         * \todo Use the parameter<Q>::polarRadius field properly; this should
+         *       probably be half the diagonal of the resulting model.
          */
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
         class cube : public polytope<Q,d,4,render>
