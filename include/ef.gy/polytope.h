@@ -196,7 +196,6 @@ namespace efgy
 
                 static const unsigned int modelDimensionMaximum = d;
 
-                static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "simplex"; }
 
                 void recurse (const int r, typename polar::space<Q,d>::vector v, std::vector<typename euclidian::space<Q,d>::vector> &points)
