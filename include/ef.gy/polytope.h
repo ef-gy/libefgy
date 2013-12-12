@@ -267,8 +267,8 @@ namespace efgy
             public:
                 typedef polytope<Q,d,4,render> parent;
 
-                cube (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parent(pRenderer, pParameter, pMultiplier)
+                cube (render &pRenderer, const parameters<Q> &pParameter, const Q & = Q())
+                    : parent(pRenderer, pParameter, Q(1))
                     {
                         calculateObject();
                     }
