@@ -107,12 +107,12 @@
 
   <!-- Layout definition for a file page -->
   <file>
-    <briefdescription visible="yes"/>
+    <briefdescription visible="no"/>
+    <sourcelink visible="no"/>
+    <detaileddescription title=""/>
     <includes visible="$SHOW_INCLUDE_FILES"/>
     <includegraph visible="$INCLUDE_GRAPH"/>
     <includedbygraph visible="$INCLUDED_BY_GRAPH"/>
-    <sourcelink visible="yes"/>
-    <detaileddescription title=""/>
     <memberdecl>
       <classes visible="yes" title=""/>
       <namespaces visible="yes" title=""/>
