@@ -110,7 +110,7 @@
     <briefdescription visible="no"/>
     <sourcelink visible="no"/>
     <detaileddescription title=""/>
-    <includes visible="$SHOW_INCLUDE_FILES"/>
+    <includes visible="no"/>
     <includegraph visible="$INCLUDE_GRAPH"/>
     <includedbygraph visible="$INCLUDED_BY_GRAPH"/>
     <memberdecl>
