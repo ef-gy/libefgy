@@ -112,7 +112,16 @@ namespace efgy
 
                 static const unsigned int faceVertices = f;
 
-                static unsigned int renderDepth (void) { return d; }
+                /**\brief Query the model's render depth
+                 *
+                 * This static method returns a model's render depth, which is
+                 * basically the number of dimensions in the vector space in
+                 * which it was constructed.
+                 */
+                static unsigned int renderDepth (void)
+                {
+                    return d;
+                }
                 std::array<Q,0> genome (void) const { return {{}}; }
 
             protected:
@@ -286,7 +295,6 @@ namespace efgy
                 using parent::faceVertices;
 
                 static unsigned int depth (void) { return od; }
-                static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "cube"; }
 
                 void calculateObject (void)
