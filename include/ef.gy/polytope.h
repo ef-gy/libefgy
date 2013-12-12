@@ -83,11 +83,12 @@ namespace efgy
          * be rendered.
          *
          * \tparam Q      Base type for calculations; should be a rational type
+         * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
          * \tparam d      Number of dimensions of the vector space to use
          * \tparam f      Number of sides for mesh faces
          * \tparam render Renderer type; e.g. render::svg<Q,d>
          */
-        template <typename Q, unsigned int d, unsigned int f, typename render>
+        template <typename Q, unsigned int od, unsigned int d, unsigned int f, typename render>
         class polytope
         {
             public:
@@ -123,13 +124,45 @@ namespace efgy
 
                 static const unsigned int faceVertices = f;
 
+                /**\brief Query the model's depth
+                 *
+                 * This static method returns a model's "depth". The exact
+                 * meaning of this value depends on the model in question, but
+                 * generally it's the number of dimensions of the surface of a
+                 * mesh.
+                 *
+                 * For example, the depth of a 2-sphere is "2", because while
+                 * you do need 3 dimensions to render a 2-sphere, the surface
+                 * of such a sphere is 2 dimensional since you can describe any
+                 * point on the surface with its (u,v) coordinates.
+                 *
+                 * A 3-cube, on the other hand, is also renderable in 3
+                 * dimensions, but there's no natural way to express a point on
+                 * the surface of such a cube with only two coordinates - you
+                 * could of course unroll the sides onto a texture, but it
+                 * still isn't "natural".
+                 *
+                 * Yeah the definition is kind of foggy; as a rule of thumb:
+                 * have a look at how the models are described in other places,
+                 * if it's called an n-something, then this 'depth' here is
+                 * 'n'.
+                 *
+                 * \returns The model's depth.
+                 */
+                static constexpr unsigned int depth (void)
+                {
+                    return od;
+                }
+
                 /**\brief Query the model's render depth
                  *
                  * This static method returns a model's render depth, which is
                  * basically the number of dimensions in the vector space in
                  * which it was constructed.
+                 *
+                 * \returns The model's render depth.
                  */
-                static unsigned int renderDepth (void)
+                static constexpr unsigned int renderDepth (void)
                 {
                     return d;
                 }
@@ -147,10 +180,10 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class simplex : public polytope<Q,d,3,render>
+        class simplex : public polytope<Q,od,d,3,render>
         {
             public:
-                typedef polytope<Q,d,3,render> parent;
+                typedef polytope<Q,od,d,3,render> parent;
 
                 simplex (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
@@ -159,18 +192,10 @@ namespace efgy
                     }
 
                 using parent::parameter;
-                using parent::renderSolid;
-                using parent::renderer;
                 using parent::faces;
 
-                using parent::modelDimensionMinimum;
                 static const unsigned int modelDimensionMaximum = d;
-                using parent::renderDimensionMinimum;
-                using parent::renderDimensionMaximum;
 
-                using parent::faceVertices;
-
-                static unsigned int depth (void) { return od; }
                 static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "simplex"; }
 
@@ -283,10 +308,10 @@ namespace efgy
          *       probably be half the diagonal of the resulting model.
          */
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class cube : public polytope<Q,d,4,render>
+        class cube : public polytope<Q,od,d,4,render>
         {
             public:
-                typedef polytope<Q,d,4,render> parent;
+                typedef polytope<Q,od,d,4,render> parent;
 
                 cube (render &pRenderer, const parameters<Q> &pParameter, const Q & = 1)
                     : parent(pRenderer, pParameter)
@@ -299,7 +324,6 @@ namespace efgy
 
                 static const unsigned int modelDimensionMaximum = d;
 
-                static unsigned int depth (void) { return od; }
                 static const char *id (void) { return "cube"; }
 
                 void calculateObject (void)
@@ -319,7 +343,8 @@ namespace efgy
                         std::vector<std::array<typename euclidian::space<Q,d>::vector,2> > newLines;
                         std::vector<std::array<typename euclidian::space<Q,d>::vector,4> > newFaces;
                         
-                        std::for_each (lines.begin(), lines.end(), [&] (std::array<typename euclidian::space<Q,d>::vector,2> &line) {
+                        std::for_each (lines.begin(), lines.end(), [&] (std::array<typename euclidian::space<Q,d>::vector,2> &line)
+                        {
                             line[0][i] = -diameter;
                             line[1][i] = -diameter;
 
@@ -368,10 +393,10 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class plane : public polytope<Q,d,4,render>
+        class plane : public polytope<Q,od,d,4,render>
         {
             public:
-                typedef polytope<Q,d,4,render> parent;
+                typedef polytope<Q,od,d,4,render> parent;
 
                 plane (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
@@ -380,19 +405,10 @@ namespace efgy
                     }
 
                 using parent::parameter;
-                using parent::renderSolid;
-                using parent::renderer;
                 using parent::faces;
 
-                using parent::modelDimensionMinimum;
                 static const unsigned int modelDimensionMaximum = 2;
-                using parent::renderDimensionMinimum;
-                using parent::renderDimensionMaximum;
 
-                using parent::faceVertices;
-
-                static unsigned int depth (void) { return od; }
-                static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "plane"; }
 
                 void calculateObject (void)
@@ -413,10 +429,10 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class sphere : public polytope<Q,d,3,render>
+        class sphere : public polytope<Q,od,d,3,render>
         {
             public:
-                typedef polytope<Q,d,3,render> parent;
+                typedef polytope<Q,od,d,3,render> parent;
 
                 sphere (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier),
@@ -438,8 +454,6 @@ namespace efgy
 
                 using parent::faceVertices;
 
-                static unsigned int depth (void) { return od; }
-                static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "sphere"; }
 
                 void recurse (const int r, typename polar::space<Q,d>::vector v)

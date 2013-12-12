@@ -34,11 +34,11 @@ namespace efgy
 {
     namespace geometry
     {
-        template <typename Q, unsigned int d, unsigned int f, typename render>
-        class parametric : public polytope<Q,d,f,render>
+        template <typename Q, unsigned int od, unsigned int d, unsigned int f, typename render>
+        class parametric : public polytope<Q,od,d,f,render>
         {
             public:
-                typedef polytope<Q,d,f,render> parent;
+                typedef polytope<Q,od,d,f,render> parent;
 
                 parametric (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
@@ -59,10 +59,10 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = 3>
-        class moebiusStrip : public parametric<Q,d,4,render>
+        class moebiusStrip : public parametric<Q,od,d,4,render>
         {
             public:
-                typedef parametric<Q,d,4,render> parent;
+                typedef parametric<Q,od,d,4,render> parent;
 
                 moebiusStrip (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
@@ -147,10 +147,10 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = 3>
-        class kleinBagel : public parametric<Q,d,4,render>
+        class kleinBagel : public parametric<Q,od,d,4,render>
         {
             public:
-                typedef parametric<Q,d,4,render> parent;
+                typedef parametric<Q,od,d,4,render> parent;
 
                 kleinBagel (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
                     : parent(pRenderer, pParameter, pMultiplier)
