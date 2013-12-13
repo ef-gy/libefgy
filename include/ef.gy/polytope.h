@@ -56,8 +56,7 @@ namespace efgy
          */
 
         /**\ingroup libefgy-geometric-primitives
-         * \defgroup libefgy-extended-geometric-primitives
-         *           Extended Geometric Primitives
+         * \defgroup libefgy-extended-geometric-primitives Extended Geometric Primitives
          * \brief Class templates that define extended geometric primitives
          *
          * Contains "extended" primitives - either those that reuse "basic"
