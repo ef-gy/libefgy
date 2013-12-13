@@ -331,14 +331,13 @@ namespace efgy
 
         namespace flame
         {
-            /**\brief Random Fractal Flame primitive
+            /**\ingroup libefgy-extended-geometric-primitives
+             * \brief Random Fractal Flame primitive
              *
              * This class template creates random fractal flame-esque geometry
              * based on the current values of the seed and functions
-             * parameters.
-             *
-             * The geometry created by this class can take all sorts of shapes,
-             * depending on the transformations it creates; here's an example:
+             * parameters. Tis geometry can take all sorts of shapes, depending
+             * on the transformations it creates; here's an example:
              *
              * \htmlonly
              * <iframe width="100%" height="600"

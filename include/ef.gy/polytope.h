@@ -55,6 +55,16 @@ namespace efgy
          * geometric primitives, such as simplices, cubes or spheres.
          */
 
+        /**\ingroup libefgy-geometric-primitives
+         * \defgroup libefgy-extended-geometric-primitives
+         *           Extended Geometric Primitives
+         * \brief Class templates that define extended geometric primitives
+         *
+         * Contains "extended" primitives - either those that reuse "basic"
+         * primitives, those that are very specialised or those that can get
+         * very complex.
+         */
+
         /**\brief Geometry parameters
          *
          * Contains parameters used by the shape-creating templates. You need
