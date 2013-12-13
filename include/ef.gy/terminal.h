@@ -345,8 +345,7 @@ namespace efgy
                     }
 #endif
 
-                /**\var queue
-                 * \brief Input queue
+                /**\brief Input queue
                  *
                  * Data coming in on the input stream is buffered here, so that
                  * things like control sequences can be filtered out by the
