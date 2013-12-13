@@ -296,8 +296,17 @@ namespace efgy
                     }
 
 #if defined(TCSANOW)
-                ~terminal
-                    (void)
+                /**\brief Destructor
+                 *
+                 * Only defined when the global macro TCSANOW is defined, i.e.
+                 * if it would have been possible for the constructor to grab
+                 * the current terminal settings and then modify them.
+                 *
+                 * When called, this destructor will reset the current terminal
+                 * attributes to what they were before the constructor ran, but
+                 * only if the constructor had the doSetup parameter set.
+                 */
+                ~terminal (void)
                     {
                         if (didSetup)
                         {
@@ -306,11 +315,34 @@ namespace efgy
                     }
 #endif
 
+                /**\brief Current state of the terminal
+                 *
+                 * Contains the current state of the terminal, or a lot of
+                 * zeroes if the object has just been created. This buffer is
+                 * kept around so that terminal frontend classes can decide
+                 * which parts of the screen need to be updated.
+                 */
                 screen<T> current;
+
+                /**\brief Target state of the terminal
+                 *
+                 * Contains a screen buffer describing what the programmer
+                 * wants the terminal to look like. To update the screen
+                 * contents, you'd modify this buffer in one way or another,
+                 * then tell your frontend class to update the screen contents.
+                 */
                 screen<T> target;
+
                 std::istream &input;
+
                 std::ostream &output;
 
+                /**\brief Input queue
+                 *
+                 * Data coming in on the input stream is buffered here, so that
+                 * things like control sequences can be filtered out by the
+                 * frontend driver.
+                 */
                 std::vector<T> queue;
 
                 bool resize(std::size_t columns, std::size_t lines)
