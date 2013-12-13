@@ -379,22 +379,12 @@ namespace efgy
                         }
 
                     using parent::parameter;
-                    using parent::renderSolid;
-                    using parent::renderer;
-                    using parent::faces;
 
-                    using parent::modelDimensionMinimum;
                     static const unsigned int modelDimensionMaximum = d;
-                    using parent::renderDimensionMinimum;
-                    using parent::renderDimensionMaximum;
-
-                    using parent::faceVertices;
 
                     using parent::functions;
                     using parent::calculateObject;
 
-                    static unsigned int depth (void) { return od; }
-                    static unsigned int renderDepth (void) { return d; }
                     static const char *id (void) { return "random-flame"; }
             };
         };

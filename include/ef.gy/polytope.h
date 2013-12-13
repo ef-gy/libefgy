@@ -94,7 +94,7 @@ namespace efgy
          * \tparam Q      Base type for calculations; should be a rational type
          * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
          * \tparam d      Number of dimensions of the vector space to use
-         * \tparam f      Number of sides for mesh faces
+         * \tparam f      Number of vertices for mesh faces
          * \tparam render Renderer type; e.g. render::svg<Q,d>
          */
         template <typename Q, unsigned int od, unsigned int d, unsigned int f, typename render>
@@ -131,6 +131,12 @@ namespace efgy
                 static const unsigned int renderDimensionMinimum = 3;
                 static const unsigned int renderDimensionMaximum = 0;
 
+                /**\brief Number of face vertices
+                 *
+                 * An alias for the 'f' template parameter, which contains the
+                 * number of vertices that make up an individual 'face' of the
+                 * resulting mesh.
+                 */
                 static const unsigned int faceVertices = f;
 
                 /**\brief Query the model's depth
