@@ -270,14 +270,44 @@ namespace efgy
         class terminal
         {
             public:
+                /**\brief Construct with I/O streams and set raw mode
+                 *
+                 * Constructs an instance of the terminal class, optionally
+                 * with input and output streams that connect to the terminal.
+                 * It is assumed that terminals are controlled through two
+                 * character streams.
+                 *
+                 * The optional third parameter, set to 'true' by default, will
+                 * set the terminal connected to stdin to non-canonical and
+                 * non-echo mode. Non-canonical mode means that input is not
+                 * processed line-by-line, but rather character-by-character,
+                 * which in turn means that the application can read from stdin
+                 * without the user having to press "enter" to release the
+                 * input. Non-echo mode means that the input is not echoed back
+                 * to the terminal.
+                 *
+                 * \param[out] pInput  Input stream for the terminal, e.g.
+                 *                     std::cin
+                 * \param[out] pOutput Output stream for the terminal, e.g.
+                 *                     std::cout
+                 * \param[in]  doSetup Whether to disable echo and canonical
+                 *                     mode on the terminal connected to stdin
+                 *
+                 * \note If you intend to pass in your own streams, do note
+                 *       the streams are stored in the class as references (the
+                 *       input and output members), meaning that you must make
+                 *       sure these two streams are not destroyed before this
+                 *       object is.
+                 */
                 terminal
                     (std::istream &pInput  = std::cin,
                      std::ostream &pOutput = std::cout,
                      const bool &doSetup = true)
-                    : input(pInput), output(pOutput),
+                    :
 #if defined(TCSANOW)
                       didSetup(doSetup),
 #endif
+                      input(pInput), output(pOutput),
                       cursor({{(std::size_t)-1,(std::size_t)-1}})
                     {
 #if defined(TCSANOW)
@@ -315,6 +345,15 @@ namespace efgy
                     }
 #endif
 
+                /**\var queue
+                 * \brief Input queue
+                 *
+                 * Data coming in on the input stream is buffered here, so that
+                 * things like control sequences can be filtered out by the
+                 * frontend driver.
+                 */
+                std::vector<T> queue;
+
                 /**\brief Current state of the terminal
                  *
                  * Contains the current state of the terminal, or a lot of
@@ -333,24 +372,65 @@ namespace efgy
                  */
                 screen<T> target;
 
+                /**\brief Terminal input stream
+                 *
+                 * This stream is used to read data from the terminal, such as
+                 * key presses or terminal control codes.
+                 */
                 std::istream &input;
 
+                /**\brief Terminal output stream
+                 *
+                 * Terminal output commands are written to this stream; these
+                 * commands range from plain old characters to escape codes
+                 * that modify the appearance of the characters following them.
+                 */
                 std::ostream &output;
 
-                /**\brief Input queue
+                /**\brief Resize screen buffers
                  *
-                 * Data coming in on the input stream is buffered here, so that
-                 * things like control sequences can be filtered out by the
-                 * frontend driver.
+                 * Calls the screen::resize() method of both the current and
+                 * the target screen buffer so that both of them share the same
+                 * new size afterwards.
+                 *
+                 * Resizing the buffer has the same semantics as std::resize:
+                 * obsolete cells will be destroyed and new ones will be
+                 * created with their default constructor.
+                 *
+                 * \param[in] columns Number of columns to resize the buffers to
+                 * \param[in] lines   Number of lines to resize the buffers to
+                 *
+                 * \returns 'true' if both buffers were successfully resized,
+                 *          'false' otherwise.
                  */
-                std::vector<T> queue;
-
                 bool resize(std::size_t columns, std::size_t lines)
                 {
                     return current.resize (columns, lines)
                         && target.resize  (columns, lines);
                 }
 
+                /**\brief Resize screen buffers
+                 *
+                 * Calls the screen::resize() method of both the current and
+                 * the target screen buffer so that both of them share the same
+                 * new size afterwards.
+                 *
+                 * Resizing the buffer has the same semantics as std::resize:
+                 * obsolete cells will be destroyed and new ones will be
+                 * created with their default constructor.
+                 *
+                 * Unlike the two-parameter resize() method, this one takes the
+                 * same type of argument that getOSDimensions() produces as its
+                 * return value: a maybe<> of the typical 2-element size array.
+                 * If the maybe contains nothing, then the size is not changed,
+                 * otherwise the array is taken as a (columns, lines) vector.
+                 *
+                 * \param[in] size Target size of the buffers; buffers aren't
+                 *                 resized if this maybe contains nothing.
+                 *
+                 * \returns 'true' if both buffers were successfully resized,
+                 *          'false' otherwise.
+                 */
                 bool resize(const maybe<std::array<std::size_t,2> > &size)
                 {
                     return size
@@ -358,12 +438,30 @@ namespace efgy
                         && target.resize  (std::array<std::size_t,2>(size));
                 }
 
+                /**\brief Query buffer size
+                 *
+                 * Creates a std::array with the size of the current buffer, as
+                 * obtained by usnig screen::size().
+                 *
+                 * \returns An array of the form {{ columns, lines }}.
+                 */
                 constexpr std::array<std::size_t,2> size (void) const
                 {
                     return current.size();
                 }
 
-                maybe<std::array<std::size_t,2> > getOSDimensions (void) const
+                /**\brief Query OS screen dimensions
+                 *
+                 * Uses an ioctl to query the size of the terminal connected to
+                 * stdin, then returns that size as an array. If the size could
+                 * not be determined then this method returns 'nothing'.
+                 *
+                 * Querying the size of the terminal requires the TIOCGWINSZ
+                 * ioctl to be available.
+                 *
+                 * \returns The size of the screen or 'nothing'.
+                 */
+                static maybe<std::array<std::size_t,2> > getOSDimensions (void)
                 {
 #if defined(TIOCGWINSZ)
                     winsize w;
@@ -375,6 +473,17 @@ namespace efgy
 #endif
                 }
 
+                /**\brief Read from terminal
+                 *
+                 * Tries to read a single character from the terminal input
+                 * stream. If that stream happens to be in an invalid state
+                 * then nothing will be read from the terminal.
+                 *
+                 * If a character was indeed read in then this character is
+                 * stored in the queue variable.
+                 *
+                 * \returns The character that was read or 'nothing'.
+                 */
                 maybe<T> read (void)
                 {
                     if (!input)
@@ -385,7 +494,7 @@ namespace efgy
                     {
                         char n;
                         input >> n;
-                        queue.push_back (T(n));
+                        queue.push_back(T(n));
                         return maybe<T>(T(n));
                     }
                 }
@@ -471,7 +580,19 @@ namespace efgy
 
             private:
 #if defined(TCSANOW)
+                /**\brief Has the constructor set up the terminal?
+                 *
+                 * Set to 'true' if the constructor has modified terminal
+                 * settings which it should reverse in the destructor.
+                 */
                 bool didSetup;
+
+                /**\brief Original terminal settings
+                 *
+                 * Contains the original terminal flags before the class was
+                 * instantiated. These settings are restored in the destructor
+                 * iff 'didSetup' is set to 'true'.
+                 */
                 termios originalTerminalFlags;
 #endif
 
