@@ -288,8 +288,8 @@ namespace efgy
          * and deformations don't lose much information.
          *
          * In terms of parameters, this primitive only makes use of the
-         * parameter<Q>::polarRadius field, which i used to determine the size
-         * of the mesh. Confusingly, this radius is actually used as the edge
+         * parameter::polarRadius field, which i used to determine the size of
+         * the mesh. Confusingly, this radius is actually used as the edge
          * length for historical reasons.
          *
          * \tparam Q      Base datatype for calculations
@@ -303,7 +303,7 @@ namespace efgy
          * \see http://en.wikipedia.org/wiki/Hypercube for more information on
          *      hypercubes in general.
          *
-         * \todo Use the parameter<Q>::polarRadius field properly; this should
+         * \todo Use the parameter::polarRadius field properly; this should
          *       probably be half the diagonal of the resulting model.
          */
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
