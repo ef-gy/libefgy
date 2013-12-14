@@ -308,7 +308,7 @@ namespace efgy
                       didSetup(doSetup),
 #endif
                       input(pInput), output(pOutput),
-                      cursor({{(std::size_t)-1,(std::size_t)-1}})
+                      cursor({(std::size_t)-1,(std::size_t)-1})
                     {
 #if defined(TCSANOW)
                         if (doSetup)
