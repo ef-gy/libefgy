@@ -47,8 +47,8 @@ namespace efgy
             public:
                 typedef polytope<Q,od,d,primitive<Q,pd,render,d>::faceVertices,render> parent;
 
-                ifs (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parent(pRenderer, pParameter, pMultiplier)
+                ifs (render &pRenderer, const parameters<Q> &pParameter)
+                    : parent(pRenderer, pParameter)
                     {}
 
                 using typename parent::face;
@@ -101,7 +101,7 @@ namespace efgy
 
                 void calculateObject (void)
                 {
-                    primitive<Q,pd,render,d> source(parent::renderer, parameter, parent::precisionMultiplier);
+                    primitive<Q,pd,render,d> source(parent::renderer, parameter);
 
                     faces = source.faces;
                     while (faces.size() > indices.size())
@@ -169,8 +169,8 @@ namespace efgy
                 public:
                     typedef ifs<Q,od,render,d,cube,od,transformation::affine> parent;
 
-                    gasket(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                        : parent(pRenderer, pParameter, pMultiplier)
+                    gasket(render &pRenderer, const parameters<Q> &pParameter)
+                        : parent(pRenderer, pParameter)
                         {
                             const unsigned int nfunctions = (1<<(od-1))+1;
                             std::array<typename euclidian::space<Q,d>::vector,nfunctions> translations;
@@ -224,8 +224,8 @@ namespace efgy
                 public:
                     typedef ifs<Q,od,render,d,cube,od,transformation::affine> parent;
 
-                    carpet(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                        : parent(pRenderer, pParameter, pMultiplier)
+                    carpet(render &pRenderer, const parameters<Q> &pParameter)
+                        : parent(pRenderer, pParameter)
                         {
                             const unsigned int nfunctions = od == 2 ? 8 : 20;
                             std::array<typename euclidian::space<Q,d>::vector,nfunctions> translations;
@@ -392,8 +392,8 @@ namespace efgy
             public:
                 typedef ifs<Q,od,render,d,cube,2,transformation::affine> parent;
 
-                randomAffineIFS(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parent(pRenderer, pParameter, pMultiplier)
+                randomAffineIFS(render &pRenderer, const parameters<Q> &pParameter)
+                    : parent(pRenderer, pParameter)
                     {
                         calculateObject();
                     }

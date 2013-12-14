@@ -40,11 +40,10 @@ namespace efgy
             public:
                 typedef polytope<Q,od,d,f,render> parent;
 
-                parametric (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parent(pRenderer, pParameter, pMultiplier)
+                parametric (render &pRenderer, const parameters<Q> &pParameter)
+                    : parent(pRenderer, pParameter)
                     {}
 
-                using parent::precisionMultiplier;
                 using parent::parameter;
                 using parent::renderSolid;
                 using parent::renderer;
@@ -64,13 +63,12 @@ namespace efgy
             public:
                 typedef parametric<Q,od,d,4,render> parent;
 
-                moebiusStrip (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parent(pRenderer, pParameter, pMultiplier)
+                moebiusStrip (render &pRenderer, const parameters<Q> &pParameter)
+                    : parent(pRenderer, pParameter)
                     {
                         calculateObject();
                     }
 
-                using parent::precisionMultiplier;
                 using parent::parameter;
                 using parent::renderSolid;
                 using parent::renderer;
@@ -90,7 +88,7 @@ namespace efgy
                 void calculateObject(void)
                 {
                     Q radius = parameter.polarRadius;
-                    Q precision = parameter.polarPrecision * precisionMultiplier;
+                    Q precision = parameter.polarPrecision;
 
                     usedRadius = radius;
                     usedPrecision = precision;
@@ -152,13 +150,12 @@ namespace efgy
             public:
                 typedef parametric<Q,od,d,4,render> parent;
 
-                kleinBagel (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parent(pRenderer, pParameter, pMultiplier)
+                kleinBagel (render &pRenderer, const parameters<Q> &pParameter)
+                    : parent(pRenderer, pParameter)
                     {
                         calculateObject();
                     }
 
-                using parent::precisionMultiplier;
                 using parent::parameter;
                 using parent::renderSolid;
                 using parent::renderer;
@@ -178,7 +175,7 @@ namespace efgy
                 void calculateObject(void)
                 {
                     Q radius = parameter.polarRadius;
-                    Q precision = parameter.polarPrecision * precisionMultiplier;
+                    Q precision = parameter.polarPrecision;
 
                     usedRadius = radius;
                     usedPrecision = precision;

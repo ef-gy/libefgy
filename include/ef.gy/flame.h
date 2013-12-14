@@ -356,8 +356,8 @@ namespace efgy
                 public:
                     typedef ifs<Q,od,render,d,plane,2,transformation::flame> parent;
 
-                    random(render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                        : parent(pRenderer, pParameter, pMultiplier)
+                    random(render &pRenderer, const parameters<Q> &pParameter)
+                        : parent(pRenderer, pParameter)
                         {
                             calculateObject();
                         }

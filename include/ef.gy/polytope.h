@@ -114,8 +114,8 @@ namespace efgy
         class polytope
         {
             public:
-                polytope (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : renderer(pRenderer), parameter(pParameter), precisionMultiplier(pMultiplier)
+                polytope (render &pRenderer, const parameters<Q> &pParameter)
+                    : renderer(pRenderer), parameter(pParameter)
                     {}
 
                 /**\brief Render mesh with renderer
@@ -220,7 +220,6 @@ namespace efgy
                 typedef std::array<typename euclidian::space<Q,d>::vector,f> face;
                 render &renderer;
                 const parameters<Q> &parameter;
-                const Q &precisionMultiplier;
 
                 std::vector<face> faces;
         };
@@ -231,8 +230,8 @@ namespace efgy
             public:
                 typedef polytope<Q,od,d,3,render> parent;
 
-                simplex (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parent(pRenderer, pParameter, pMultiplier)
+                simplex (render &pRenderer, const parameters<Q> &pParameter)
+                    : parent(pRenderer, pParameter)
                     {
                         calculateObject();
                     }
@@ -362,7 +361,7 @@ namespace efgy
             public:
                 typedef polytope<Q,od,d,4,render> parent;
 
-                cube (render &pRenderer, const parameters<Q> &pParameter, const Q & = 1)
+                cube (render &pRenderer, const parameters<Q> &pParameter)
                     : parent(pRenderer, pParameter)
                     {
                         calculateObject();
@@ -457,8 +456,8 @@ namespace efgy
             public:
                 typedef polytope<Q,od,d,4,render> parent;
 
-                plane (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parent(pRenderer, pParameter, pMultiplier)
+                plane (render &pRenderer, const parameters<Q> &pParameter)
+                    : parent(pRenderer, pParameter)
                     {
                         calculateObject();
                     }
@@ -497,25 +496,17 @@ namespace efgy
             public:
                 typedef polytope<Q,od,d,3,render> parent;
 
-                sphere (render &pRenderer, const parameters<Q> &pParameter, const Q &pMultiplier = 1)
-                    : parent(pRenderer, pParameter, pMultiplier),
+                sphere (render &pRenderer, const parameters<Q> &pParameter)
+                    : parent(pRenderer, pParameter),
                       loopRange(-M_PI, M_PI, 1, true)
                     {
                         calculateObject();
                     }
 
-                using parent::precisionMultiplier;
                 using parent::parameter;
-                using parent::renderSolid;
-                using parent::renderer;
                 using parent::faces;
 
-                using parent::modelDimensionMinimum;
                 static const unsigned int modelDimensionMaximum = d - 1;
-                using parent::renderDimensionMinimum;
-                using parent::renderDimensionMaximum;
-
-                using parent::faceVertices;
 
                 /**\copydoc polytope::id() */
                 static const char *id (void)
@@ -571,7 +562,16 @@ namespace efgy
                 void calculateObject (void)
                 {
                     Q radius = parameter.polarRadius;
-                    loopRange = range<Q>(-M_PI, M_PI, parameter.polarPrecision * precisionMultiplier, false);
+                    Q precision = parameter.polarPrecision;
+
+                    for (unsigned long long vertices = Q(2) * Q(M_PI) * Q(pow ((long double)precision, od));
+                         vertices > parameter.vertexLimit;
+                         vertices = Q(2) * Q(M_PI) * Q(pow ((long double)precision, od)))
+                    {
+                        precision /= Q(2);
+                    }
+
+                    loopRange = range<Q>(-M_PI, M_PI, precision, false);
 
                     faces.clear();
 
