@@ -175,7 +175,33 @@ namespace efgy
                     return d;
                 }
 
-                std::array<Q,0> genome (void) const { return {{}}; }
+                /**\brief Query model ID
+                 *
+                 * Every primitive has an ID that is used to identify the type
+                 * at runtime. This method produces that string.
+                 *
+                 * \returns The model's ID as a C-style string.
+                 */
+                static constexpr const char *id (void)
+                {
+                    return "none";
+                }
+
+                /**\brief Query the model's genome
+                 *
+                 * Every primitive that uses parameters should be able to
+                 * produce a genome, which uniquely identifies the settings
+                 * that were used to calculate the mesh and which could be used
+                 * to recreate that same model later. We're calling this a
+                 * genome because some models make perfect candidates for
+                 * further processing with a genetic algorithm.
+                 *
+                 * \returns An aray of Qs describing the object's parameters.
+                 */
+                constexpr std::array<Q,0> genome (void) const
+                {
+                    return {{}};
+                }
 
             protected:
                 typedef std::array<typename euclidian::space<Q,d>::vector,f> face;
@@ -203,7 +229,11 @@ namespace efgy
 
                 static const unsigned int modelDimensionMaximum = d;
 
-                static const char *id (void) { return "simplex"; }
+                /**\copydoc polytope::id() */
+                static const char *id (void)
+                {
+                    return "simplex";
+                }
 
                 void recurse (const int r, typename polar::space<Q,d>::vector v, std::vector<typename euclidian::space<Q,d>::vector> &points)
                 {
@@ -330,7 +360,11 @@ namespace efgy
 
                 static const unsigned int modelDimensionMaximum = d;
 
-                static const char *id (void) { return "cube"; }
+                /**\copydoc polytope::id() */
+                static const char *id (void)
+                {
+                    return "cube";
+                }
 
                 void calculateObject (void)
                 {
@@ -396,6 +430,12 @@ namespace efgy
                         faces.insert(faces.end(), newFaces.begin(), newFaces.end());
                     }
                 }
+
+                /**\copydoc polytope::genome() */
+                std::array<Q,1> genome (void) const
+                {
+                    return {{ parameter.polarRadius }};
+                }
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
@@ -415,7 +455,11 @@ namespace efgy
 
                 static const unsigned int modelDimensionMaximum = 2;
 
-                static const char *id (void) { return "plane"; }
+                /**\copydoc polytope::id() */
+                static const char *id (void)
+                {
+                    return "plane";
+                }
 
                 void calculateObject (void)
                 {
@@ -460,7 +504,11 @@ namespace efgy
 
                 using parent::faceVertices;
 
-                static const char *id (void) { return "sphere"; }
+                /**\copydoc polytope::id() */
+                static const char *id (void)
+                {
+                    return "sphere";
+                }
 
                 void recurse (const int r, typename polar::space<Q,d>::vector v)
                 {
