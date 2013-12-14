@@ -51,11 +51,44 @@ namespace efgy
                     : parent(pRenderer, pParameter, pMultiplier)
                     {}
 
+                using typename parent::face;
+
+                /**\brief Render mesh with renderer; use indices
+                 *
+                 * Passes all of the faces to the renderer for processing; see
+                 * the renderers' documentation for more information on the
+                 * results of doing so.
+                 *
+                 * Unlike the generic polytope renderer, the IFS renderer will
+                 * pass index hints to the renderers, which are needed by the
+                 * fractal flame colouring algorithm to produce even prettier
+                 * output.
+                 */
+                void renderSolid (void) const
+                {
+                    if (faces.size() != indices.size())
+                    {
+                        for (const face &p : faces)
+                        {
+                            renderer.drawFace(p);
+                        }
+                    }
+                    else
+                    {
+                        typename std::vector<Q>::const_iterator itIndex = indices.begin();
+
+                        std::for_each (faces.begin(), faces.end(), [&] (const face &p)
+                        {
+                            renderer.drawFace (p, *itIndex);
+                            itIndex++;
+                        });
+                    }
+                }
                 using parent::parameter;
                 using parent::renderSolid;
                 using parent::renderer;
                 using parent::faces;
-                using parent::indices;
+                std::vector<Q> indices;
 
                 using parent::modelDimensionMinimum;
                 using parent::modelDimensionMaximum;

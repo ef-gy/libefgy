@@ -105,24 +105,17 @@ namespace efgy
                     : renderer(pRenderer), parameter(pParameter), precisionMultiplier(pMultiplier)
                     {}
 
-                void renderSolid () const
+                /**\brief Render mesh with renderer
+                 *
+                 * Passes all of the faces to the renderer for processing; see
+                 * the renderers' documentation for more information on the
+                 * results of doing so.
+                 */
+                void renderSolid (void) const
                 {
-                    if (faces.size() != indices.size())
+                    for (const face &p : faces)
                     {
-                        std::for_each (faces.begin(), faces.end(), [&] (const face &p)
-                        {
-                            renderer.drawFace(p);
-                        });
-                    }
-                    else
-                    {
-                        typename std::vector<Q>::const_iterator itIndex = indices.begin();
-
-                        std::for_each (faces.begin(), faces.end(), [&] (const face &p)
-                        {
-                            renderer.drawFace (p, *itIndex);
-                            itIndex++;
-                        });
+                        renderer.drawFace(p);
                     }
                 }
 
@@ -191,7 +184,6 @@ namespace efgy
                 const Q &precisionMultiplier;
 
                 std::vector<face> faces;
-                std::vector<Q> indices;
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
