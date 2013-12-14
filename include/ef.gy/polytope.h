@@ -75,6 +75,18 @@ namespace efgy
         class parameters
         {
             public:
+                parameters(void)
+                    : polarRadius(1),
+                      polarPrecision(3),
+                      iterations(4),
+                      functions(3),
+                      seed(0),
+                      preRotate(1),
+                      postRotate(0),
+                      flameCoefficients(3),
+                      vertexLimit(1000000)
+                    {}
+
                 Q polarRadius;
                 Q polarPrecision;
                 unsigned int iterations;
@@ -83,6 +95,7 @@ namespace efgy
                 bool preRotate;
                 bool postRotate;
                 unsigned int flameCoefficients;
+                unsigned long long vertexLimit;
         };
 
         /**\brief Polytope base template

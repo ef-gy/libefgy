@@ -109,8 +109,15 @@ namespace efgy
                         indices.push_back(Q(0.5));
                     }
 
+                    unsigned long long vertices = faces.size() * faceVertices;
+
                     for (unsigned int i = 0; i < parameter.iterations; i++)
                     {
+                        if ((vertices * functions.size()) > parameter.vertexLimit)
+                        {
+                            break;
+                        }
+
                         std::vector<Q> rindices = indices;
                         indices.clear();
                         std::vector<std::array<typename euclidian::space<Q,d>::vector,faceVertices> > rfaces;
@@ -127,6 +134,7 @@ namespace efgy
                         }
                         
                         faces = rfaces;
+                        vertices *= functions.size();
                     }
                 }
             
