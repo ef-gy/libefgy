@@ -9,9 +9,9 @@
  */
 
 /**\if LIBEFGYMAIN
- * \mainpage libefgy-4
+ * \mainpage libefgy-5
  * \else
- * \page libefgy libefgy-4
+ * \page libefgy libefgy-5
  * \endif
  *
  * \section libefgy-introduction Introduction
@@ -175,7 +175,7 @@ namespace efgy
      *       that you can test for much more easily than a convoluted version
      *       string? ;)
      */
-    static const unsigned int version = 4;
+    static const unsigned int version = 5;
 };
 
 #endif

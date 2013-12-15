@@ -1,4 +1,8 @@
 /**\file
+ * \brief VT100 terminal frontend implementation
+ *
+ * This file contains code to drive a vt100-like terminal using the data in a
+ * terminal::terminal instance.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -36,6 +40,17 @@ namespace efgy
 {
     namespace terminal
     {
+        /**\brief VT100 terminal frontend
+         *
+         * A frontend for the terminal::terminal template, this class
+         * implements a very simple optimiser to output the screen buffer to a
+         * VT100, or any of the many newer terminals that support the basic
+         * escape codes the VT100 supported - which is pretty much all of them.
+         *
+         * \tparam T Data type for an individual cell's contents. The default
+         *           is a "long", which should be enough to cover all possible
+         *           unicode codepoints, ever. Hopefully, anyway.
+         */
         template<typename T = long>
         class vt100 : public terminal<T>
         {
