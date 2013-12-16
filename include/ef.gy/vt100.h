@@ -55,16 +55,36 @@ namespace efgy
         class vt100 : public terminal<T>
         {
             public:
+                /**\brief Construct with streams
+                 *
+                 * Calls the parent constructor, which will set up the streams
+                 * connecting the terminal; this constructor will also set the
+                 * current foreground and background text colours to invalid
+                 * values, so they're reset the first time they're used.
+                 *
+                 * \param[out] pInput  Input stream for the terminal, e.g.
+                 *                     std::cin
+                 * \param[out] pOutput Output stream for the terminal, e.g.
+                 *                     std::cout
+                 * \param[in]  doSetup Whether to disable echo and canonical
+                 *                     mode on the terminal connected to stdin
+                 */
                 vt100
                     (std::istream &pInput  = std::cin,
                      std::ostream &pOutput = std::cout,
                      const bool &doSetup = true)
-                    : terminal<T>(pInput, pOutput, true),
+                    : terminal<T>(pInput, pOutput, doSetup),
                       currentForegroundColour(-1),
                       currentBackgroundColour(-1),
                       didSetup(doSetup)
                     {}
 
+                /*\brief Destructor
+                 *
+                 * Resets the terminal's colour and text attributes and starts
+                 * a new line, but only if the "doSetup" was true when the
+                 * constructor ran.
+                 */
                 ~vt100(void)
                     {
                         if (didSetup)
@@ -82,9 +102,6 @@ namespace efgy
                 using terminal<T>::size;
                 using terminal<T>::read;
                 using terminal<T>::cursor;
-
-                std::size_t currentForegroundColour;
-                std::size_t currentBackgroundColour;
 
                 std::size_t flush (std::function<cell<T>(const terminal<T>&,const std::size_t&,const std::size_t&)> postProcess = 0, std::size_t targetOps = 1024)
                 {
@@ -256,13 +273,6 @@ namespace efgy
                     return ops;
                 }
 
-                enum parserState
-                {
-                    text,
-                    escape1,
-                    escape2
-                };
-
                 bool updatePosition (void)
                 {
                     output << "\e[6n";
@@ -375,7 +385,40 @@ namespace efgy
                 }
 
             private:
-                bool didSetup;
+                /**\brief Has the constructor set up the terminal?
+                 *
+                 * Set to 'true' if the constructor has modified terminal
+                 * settings which it should reverse in the destructor.
+                 */
+                const bool didSetup;
+
+                /**\brief Terminal's current foreground colour
+                 *
+                 * Set as part of running flush; VT100s have 'current' colours
+                 * and other text attributes, which are used when printing a
+                 * character at the current position. The flush() function
+                 * needs to know what this colour is so it can issue commands
+                 * to change that colour, if necessary.
+                 */
+                std::size_t currentForegroundColour;
+
+                /**\brief Terminal's current background colour
+                 *
+                 * Set as part of running flush; VT100s have 'current' colours
+                 * and other text attributes, which are used when printing a
+                 * character at the current position. The flush() function
+                 * needs to know what this colour is so it can issue commands
+                 * to change that colour, if necessary.
+                 */
+                std::size_t currentBackgroundColour;
+
+                enum parserState
+                {
+                    text,
+                    escape1,
+                    escape2
+                };
+
         };
     };
 };
