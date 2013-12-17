@@ -103,6 +103,51 @@ namespace efgy
                 using terminal<T>::read;
                 using terminal<T>::cursor;
 
+                /**\brief Flush current buffer contents
+                 *
+                 * Updates the current state of the terminal by writing vt100
+                 * escape codes and updated character data to the terminal. The
+                 * function will only write up to targetOps many operations to
+                 * the terminal - this is to prevent slow terminals from
+                 * freezing an interactive programme, such as a game. To make
+                 * sure everything has been updated, call this method in a loop
+                 * until the return value is 0.
+                 *
+                 * The first argument, postProcess, should be a function that
+                 * returns the actual value to use for each cell. The arguments
+                 * to this function are the terminal, with associated metadata,
+                 * the line and the column in question. If you pass in 0 then
+                 * the function is not used, which is the same as using a
+                 * lambda like this one:
+                 *
+                 * \code{.cpp}
+                 * [] (const terminal<T> &t,
+                 *     const std::size_t &l,
+                 *     const std::size_t &c)
+                 * {
+                 *     return t.target[l][c];
+                 * }
+                 * \endcode
+                 *
+                 * The purpose of this parameter is, as the name suggests, to
+                 * allow for full-screen special effects, much like pixel
+                 * shaders do for 3D graphics. For example, the matrix demo
+                 * uses this to make sure all cells have the right colour, and
+                 * if you dig around in the code a bit there's a second
+                 * post-processing function that you can activate in the code
+                 * to make the matrix streams run along curvy lines.
+                 *
+                 * \param[in] postProcess Post-processing function.
+                 * \param[in] targetOps   Target number of operations; for
+                 *                        vt100 terminals, each operation tends
+                 *                        to be longer than one byte. The code
+                 *                        may also emit slightly more
+                 *                        operations than specified here.
+                 *
+                 * \returns The actual number of operations performed. If this
+                 *          is more than 0 you might want to call the function
+                 *          again to make sure everything is updated.
+                 */
                 std::size_t flush (std::function<cell<T>(const terminal<T>&,const std::size_t&,const std::size_t&)> postProcess = 0, std::size_t targetOps = 1024)
                 {
                     std::size_t ops = 0;
@@ -273,6 +318,17 @@ namespace efgy
                     return ops;
                 }
 
+                /**\brief Query current cursor position from terminal
+                 *
+                 * This function will ask the terminal where the cursor
+                 * currently resides, then updates the cursor position with
+                 * that position once the terminal replies.
+                 *
+                 * \returns 'true' if the position was updated, 'false'
+                 *          otherwise. The code will actively wait for a valid
+                 *          reply, so you won't see this function returning
+                 *          'false'.
+                 */
                 bool updatePosition (void)
                 {
                     output << "\e[6n";
