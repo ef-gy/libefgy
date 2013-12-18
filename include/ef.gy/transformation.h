@@ -35,6 +35,14 @@ namespace efgy
 {
     namespace geometry
     {
+        /**\brief Contains vector transformation templates
+         *
+         * This namespace groups all templates that transform vector space
+         * elements to other vector space elements. Or, in non-mathemese:
+         * things that turn 3D coordinates to 2D coordinates, or things that
+         * move stuff around in 3D space. Except it's not just 3D and 2D
+         * vectors that we'd want to work with.
+         */
         namespace transformation
         {
             template <typename Q, unsigned int d> class projective;
