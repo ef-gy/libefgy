@@ -37,6 +37,11 @@
 
 namespace efgy
 {
+    /**\brief Geometric templates
+     *
+     * Contains templates dealing with geometry: vector space transformations,
+     * projections, mesh creation, polygon operators, etc.
+     */
     namespace geometry
     {
         template <typename S>
