@@ -59,6 +59,25 @@ namespace efgy
                  */
                 matrix (void) {}
 
+                /**\brief Copy constructor
+                 *
+                 * Copies the given matrix's elements to the new instance. The
+                 * source matrix may have different dimensions than the newly
+                 * created matrix; if it does, then any excess elements are
+                 * discarded and any new elements are initialised with their
+                 * default constructor.
+                 *
+                 * Example: you have a 2x2 matrix and create a new 1x3 matrix
+                 * from that. This will lead to the fields (0,0) and (0,1) to
+                 * be coped to the target matrix; (0,2) will be initialised
+                 * with its default constructor and (1,0) and (1,1) in the
+                 * source matrix will be ignored.
+                 *
+                 * \tparam rn Number of rows in the matrix to copy.
+                 * \tparam rm Number of columns in the matrix to copy.
+                 *
+                 * \param[in] b The matrix to copy.
+                 */
                 template<unsigned int rn, unsigned int rm>
                 matrix (const matrix<Q,rn,rm> &b)
                     {
