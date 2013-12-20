@@ -36,9 +36,7 @@
 #include <ef.gy/tracer.h>
 #include <algorithm>
 
-using namespace efgy;
-using efgy::math::numeric::tracerBase;
-using efgy::math::numeric::tracer;
+using namespace efgy::math::tracer;
 
 /**\brief Test case for the numeric tracer
  * \test Uses the numeric tracer to create a parse tree, then compare that to
@@ -50,21 +48,22 @@ using efgy::math::numeric::tracer;
  */
 int testTracer (std::ostream &log)
 {
-    auto frob = 1 - math::numeric::tracer<int>(1) * 2;
+    auto frob = 1 - tracer<int>(1) * 2;
 
     auto frob2 = frob / frob;
+    auto frob3 = frob + frob;
 
     log << std::string(frob) << "\n";
     log << std::string(frob2) << "\n";
 
-    std::shared_ptr<math::numeric::tracer<int,void,0,true>> frobrt(math::numeric::tracer<int,void,0,true>(1));
-    std::shared_ptr<math::numeric::tracerBase<true>> frobrt2 (new math::numeric::tracer<int,void,0,true>(1));
-    std::shared_ptr<math::numeric::tracerBase<true>> frobrt3 (frobrt);
-    math::numeric::tracer<int,void,0,true> * t = new math::numeric::tracer<int,void,0,true>(1);
-    math::numeric::tracerBase<true> * tb = t;
+    std::shared_ptr<tracer<int,void,0,true>> frobrt(tracer<int,void,0,true>(1));
+    runtime frobrt2 (new tracer<int,void,0,true>(1));
+    runtime frobrt3 (frobrt);
 
     auto frobd  = frobrt + 2;
-    auto frobde = frobrt + 3;
+    runtime frobde = frobrt + 3;
+
+    frobde /= frobd;
 
     log << frobd << "\n";
     log << frobde << "\n";

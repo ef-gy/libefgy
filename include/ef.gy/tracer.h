@@ -36,13 +36,13 @@ namespace efgy
 {
     namespace math
     {
-        namespace numeric
+        namespace tracer
         {
             template<bool runtime = false>
-            class tracerBase
+            class base
             {
                 public:
-                    virtual ~tracerBase (void) {}
+                    virtual ~base (void) {}
 
                     virtual operator std::string (void) const
                     {
@@ -56,10 +56,12 @@ namespace efgy
             };
 
             template<>
-            class tracerBase<false> {};
+            class base<false> {};
+
+            typedef std::shared_ptr<base<true>> runtime;
 
             template<typename T, typename S = void, char op = 0, bool runtime = false>
-            class tracer : public tracerBase<runtime>
+            class tracer : public base<runtime>
             {
                 public:
                     constexpr tracer (const T &p1, const S &p2)
@@ -94,7 +96,7 @@ namespace efgy
             };
 
             template<typename T, char op, bool runtime>
-            class tracer<T,void,op,runtime> : public tracerBase<runtime>
+            class tracer<T,void,op,runtime> : public base<runtime>
             {
                 public:
                     constexpr tracer (const T &p1)
@@ -128,7 +130,7 @@ namespace efgy
             };
 
             template<>
-            class tracer<void,void,0,true> : public tracerBase<true>
+            class tracer<void,void,0,true> : public base<true>
             {
                 public:
                     tracer (std::string pName)
@@ -153,7 +155,7 @@ namespace efgy
             };
 
             template<>
-            class tracer<void,void,0,false> : public tracerBase<false>
+            class tracer<void,void,0,false> : public base<false>
             {
                 public:
                     tracer (const char *pName)
@@ -190,7 +192,7 @@ namespace efgy
             }
 
             template<typename T, typename S, char op>
-            std::ostream & operator << (std::ostream &s, const tracerBase<true> &t)
+            std::ostream & operator << (std::ostream &s, const base<true> &t)
             {
                 return (s << std::string(t));
             }
@@ -201,9 +203,9 @@ namespace efgy
                 return (s << *t);
             }
 
-            std::ostream & operator << (std::ostream &s, const std::shared_ptr<tracerBase<true>> &t)
+            std::ostream & operator << (std::ostream &s, const runtime &t)
             {
-                return (s << *t);
+                return (s << std::string(*t));
             }
 
             // add
@@ -226,18 +228,21 @@ namespace efgy
                 return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'+',false> (p1, p2);
             }
 
-            template<typename T, typename S, typename R, char op>
-            std::shared_ptr<tracer<std::shared_ptr<tracer<T,S,op,true>>,R,'+',true>> operator + (const std::shared_ptr<tracer<T,S,op,true>> &p1, const R &p2)
+            template<typename R>
+            std::shared_ptr<tracer<runtime,R,'+',true>> operator + (const runtime &p1, const R &p2)
             {
-                return std::shared_ptr<tracer<std::shared_ptr<tracer<T,S,op,true>>,R,'+',true>>
-                        (new tracer<std::shared_ptr<tracer<T,S,op,true>>,R,'+',true>(p1, p2));
+                return std::shared_ptr<tracer<runtime,R,'+',true>> (new tracer<runtime,R,'+',true>(p1, p2));
             }
 
             template<typename R>
-            std::shared_ptr<tracer<std::shared_ptr<tracerBase<true>>,R,'+',true>> operator + (const std::shared_ptr<tracerBase<true>> &p1, const R &p2)
+            std::shared_ptr<tracer<R,runtime,'+',true>> operator + (const R &p1, const runtime &p2)
             {
-                return std::shared_ptr<tracer<std::shared_ptr<tracerBase<true>>,R,'+',true>>
-                        (new tracer<std::shared_ptr<tracerBase<true>>,R,'+',true>(p1, p2));
+                return std::shared_ptr<tracer<R,runtime,'+',true>> (new tracer<R,runtime,'+',true>(p1, p2));
+            }
+
+            std::shared_ptr<tracer<runtime,runtime,'+',true>> operator + (const runtime &p1, const runtime &p2)
+            {
+                return std::shared_ptr<tracer<runtime,runtime,'+',true>> (new tracer<runtime,runtime,'+',true>(p1, p2));
             }
 
             // subtract
@@ -260,6 +265,23 @@ namespace efgy
                 return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'-',false> (p1, p2);
             }
 
+            template<typename R>
+            std::shared_ptr<tracer<runtime,R,'-',true>> operator - (const runtime &p1, const R &p2)
+            {
+                return std::shared_ptr<tracer<runtime,R,'-',true>> (new tracer<runtime,R,'-',true>(p1, p2));
+            }
+
+            template<typename R>
+            std::shared_ptr<tracer<R,runtime,'-',true>> operator - (const R &p1, const runtime &p2)
+            {
+                return std::shared_ptr<tracer<R,runtime,'-',true>> (new tracer<R,runtime,'-',true>(p1, p2));
+            }
+
+            std::shared_ptr<tracer<runtime,runtime,'-',true>> operator - (const runtime &p1, const runtime &p2)
+            {
+                return std::shared_ptr<tracer<runtime,runtime,'-',true>> (new tracer<runtime,runtime,'-',true>(p1, p2));
+            }
+
             // multiply
 
             template<typename T, typename S, typename R, char op>
@@ -280,6 +302,23 @@ namespace efgy
                 return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'*',false> (p1, p2);
             }
 
+            template<typename R>
+            std::shared_ptr<tracer<runtime,R,'*',true>> operator * (const runtime &p1, const R &p2)
+            {
+                return std::shared_ptr<tracer<runtime,R,'*',true>> (new tracer<runtime,R,'*',true>(p1, p2));
+            }
+
+            template<typename R>
+            std::shared_ptr<tracer<R,runtime,'*',true>> operator * (const R &p1, const runtime &p2)
+            {
+                return std::shared_ptr<tracer<R,runtime,'*',true>> (new tracer<R,runtime,'*',true>(p1, p2));
+            }
+
+            std::shared_ptr<tracer<runtime,runtime,'*',true>> operator * (const runtime &p1, const runtime &p2)
+            {
+                return std::shared_ptr<tracer<runtime,runtime,'*',true>> (new tracer<runtime,runtime,'*',true>(p1, p2));
+            }
+
             // divide
 
             template<typename T, typename S, typename R, char op>
@@ -298,6 +337,45 @@ namespace efgy
             constexpr tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'/',false> operator / (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
             {
                 return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'/',false> (p1, p2);
+            }
+
+            template<typename R>
+            std::shared_ptr<tracer<runtime,R,'/',true>> operator / (const runtime &p1, const R &p2)
+            {
+                return std::shared_ptr<tracer<runtime,R,'/',true>> (new tracer<runtime,R,'/',true>(p1, p2));
+            }
+
+            template<typename R>
+            std::shared_ptr<tracer<R,runtime,'/',true>> operator / (const R &p1, const runtime &p2)
+            {
+                return std::shared_ptr<tracer<R,runtime,'/',true>> (new tracer<R,runtime,'/',true>(p1, p2));
+            }
+
+            std::shared_ptr<tracer<runtime,runtime,'/',true>> operator / (const runtime &p1, const runtime &p2)
+            {
+                return std::shared_ptr<tracer<runtime,runtime,'/',true>> (new tracer<runtime,runtime,'/',true>(p1, p2));
+            }
+
+            // combined assignment operators
+
+            runtime operator += (runtime &p1, const runtime &p2)
+            {
+                return p1 = (p1 + p2);
+            }
+
+            runtime operator -= (runtime &p1, const runtime &p2)
+            {
+                return p1 = (p1 - p2);
+            }
+
+            runtime operator *= (runtime &p1, const runtime &p2)
+            {
+                return p1 = (p1 * p2);
+            }
+
+            runtime operator /= (runtime &p1, const runtime &p2)
+            {
+                return p1 = (p1 / p2);
             }
         };
     };
