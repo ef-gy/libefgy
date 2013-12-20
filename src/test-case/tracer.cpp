@@ -34,9 +34,11 @@
 
 #include <ef.gy/test-case.h>
 #include <ef.gy/tracer.h>
+#include <ef.gy/matrix.h>
 #include <algorithm>
 
 using namespace efgy::math::tracer;
+using efgy::math::matrix;
 
 /**\brief Test case for the numeric tracer
  * \test Uses the numeric tracer to create a parse tree, then compare that to
@@ -71,4 +73,44 @@ int testTracer (std::ostream &log)
     return 0;
 }
 
-TEST_BATCH(testTracer)
+/**\brief Test case for the numeric tracer with matrix operations
+ * \test Uses the numeric tracer to create a parse tree, then compare that to
+ *       sample strings, much like testTracer(). Uses matrix manipulations to
+ *       see if the calculations work with slightly more complex functions.
+ *
+ * \param[out] log A stream for test cases to log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
+int testTracerMatrix (std::ostream &log)
+{
+    matrix<runtime,3,3> m1;
+    matrix<runtime,3,3> m2;
+
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        for (unsigned int j = 0; j < 3; j++)
+        {
+            std::stringstream s("");
+            s << "_" << i << "_" << j;
+
+            m1[i][j] = std::shared_ptr<tracer<void,void,0,true>> (new tracer<void,void,0,true> ("a" + s.str()));
+            m2[i][j] = std::shared_ptr<tracer<void,void,0,true>> (new tracer<void,void,0,true> ("b" + s.str()));
+        }
+    }
+
+    matrix<runtime,3,3> m3 = m1 * m2;
+
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        for (unsigned int j = 0; j < 3; j++)
+        {
+            log << "result" << "_" << i << "_" << j << " = "
+                << m3[i][j] << "\n";
+        }
+    }
+
+    return 0;
+}
+
+TEST_BATCH(testTracer, testTracerMatrix)

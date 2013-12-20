@@ -200,12 +200,12 @@ namespace efgy
             template<typename T, typename S, char op>
             std::ostream & operator << (std::ostream &s, const std::shared_ptr<tracer<T,S,op,true>> &t)
             {
-                return (s << *t);
+                return t ? (s << *t) : (s << "0");
             }
 
             std::ostream & operator << (std::ostream &s, const runtime &t)
             {
-                return (s << std::string(*t));
+                return t ? (s << std::string(*t)) : (s << "0");
             }
 
             // add
