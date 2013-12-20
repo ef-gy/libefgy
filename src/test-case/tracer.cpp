@@ -57,6 +57,18 @@ int testTracer (std::ostream &log)
     log << std::string(frob) << "\n";
     log << std::string(frob2) << "\n";
 
+    std::shared_ptr<math::numeric::tracer<int,void,0,true>> frobrt(math::numeric::tracer<int,void,0,true>(1));
+    std::shared_ptr<math::numeric::tracerBase<true>> frobrt2 (new math::numeric::tracer<int,void,0,true>(1));
+    std::shared_ptr<math::numeric::tracerBase<true>> frobrt3 (frobrt);
+    math::numeric::tracer<int,void,0,true> * t = new math::numeric::tracer<int,void,0,true>(1);
+    math::numeric::tracerBase<true> * tb = t;
+
+    auto frobd  = frobrt + 2;
+    auto frobde = frobrt + 3;
+
+    log << frobd << "\n";
+    log << frobde << "\n";
+
     return 0;
 }
 
