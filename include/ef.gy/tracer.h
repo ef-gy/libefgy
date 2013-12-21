@@ -49,7 +49,7 @@ namespace efgy
                         return "unknown";
                     }
 
-                    virtual operator char (void) const
+                    virtual char getOperator (void) const
                     {
                         return 0;
                     }
@@ -81,7 +81,7 @@ namespace efgy
                         return s.str();
                     }
 
-                    operator char (void) const
+                    char getOperator (void) const
                     {
                         return op;
                     }
@@ -116,7 +116,7 @@ namespace efgy
                         return s.str();
                     }
 
-                    operator char (void) const
+                    char getOperator (void) const
                     {
                         return op;
                     }
@@ -141,7 +141,7 @@ namespace efgy
                         return name;
                     }
 
-                    operator char (void) const
+                    char getOperator (void) const
                     {
                         return 0;
                     }
@@ -166,7 +166,7 @@ namespace efgy
                         return std::string(name);
                     }
 
-                    operator char (void) const
+                    char getOperator (void) const
                     {
                         return 0;
                     }
