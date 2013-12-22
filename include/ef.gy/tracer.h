@@ -63,9 +63,16 @@ namespace efgy
             {
                 public:
                     typedef R result;
+            };
+
+            template<>
+            class formatter<std::string>
+            {
+                public:
+                    typedef std::string result;
 
                     template<typename T, typename S, char op, bool runtime>
-                    static R format (const tracer<T,S,op,runtime> &);
+                    static result format (const tracer<T,S,op,runtime> &t);
             };
 
             template<bool runtime = false>
