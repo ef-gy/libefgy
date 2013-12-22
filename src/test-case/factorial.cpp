@@ -1,4 +1,7 @@
 /**\file
+ * \brief Test cases for the 'maybe' template
+ *
+ * This file contains test cases for the 'maybe' template.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -25,53 +28,42 @@
  * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
  */
 
-#if !defined(EF_GY_FACTORIAL_H)
-#define EF_GY_FACTORIAL_H
+#include <iostream>
 
-namespace efgy
+#include <ef.gy/test-case.h>
+#include <ef.gy/factorial.h>
+
+using namespace efgy;
+using namespace efgy::math;
+using namespace std;
+
+
+/**\brief Factorial tests
+*/
+int testFactorial(ostream &log)
 {
-    namespace math
+
+    if(factorial<int>(0) != 1)
     {
-        /** \brief A template to calculate the factorial of a number.
-        
-            Uses a basic iterative algorithm.
+        log << "Factorial of 0 should be 1.";
+        return 1;
+    }
 
-            \tparam Z Basic arithmetic type used for calculations.
-            Z is required to allow integral values and multiplication,
-            but there are no further restrictions on Z imposed by the code,
-            although the factorial function is only defined on the positive 
-            integers, so for larger types this template implements a partial
-            function.
+    
+    if(factorial<int>(1) != 1)
+    {
+        log << "Factorial of 1 should be 1.";
+        return 2;
+    }
 
-            The current behaviour for negative numbers is to return 1.
-        */
-        template <typename Z>
-        class factorial
-        {
-            public:
-                factorial()
-                    : integer(Z(0))
-                    {}
 
-                factorial(const Z &pInteger)
-                    : integer(pInteger)
-                    {}
+    if(factorial<int>(5) != 120)
+    {
+        log << "Factorial of 5 should be 120.";
+        return 3;
+    }
 
-                operator Z () const
-                {
-                    Z rv = Z(1);
+    return 0;
+}
 
-                    for (Z n = Z(2); n <= integer; n++)
-                    {
-                        rv = rv * n;
-                    }
-
-                    return rv;
-                }
-
-                Z integer;
-        };
-    };
-};
-
-#endif
+TEST_BATCH(testFactorial)
