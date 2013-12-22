@@ -36,6 +36,13 @@ namespace efgy
 {
     namespace math
     {
+        /**\brief Numeric operation tracer
+         *
+         * Implements a template class that acts like a numeric data type, but
+         * instead of performing any calculations it will log any operations
+         * performed on it. This would allow you to, e.g. find out which
+         * calculations a template function actually performs at runtime.
+         */
         namespace tracer
         {
             template<bool runtime = false>
