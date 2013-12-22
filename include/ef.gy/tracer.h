@@ -45,6 +45,29 @@ namespace efgy
          */
         namespace tracer
         {
+            template<typename T, typename S>
+            class coalesce;
+
+            template<typename T>
+            class coalesce<T,T>
+            {
+                public:
+                    typedef T type;
+            };
+
+            template<typename T, typename S, char op, bool runtime>
+            class tracer;
+
+            template<typename R>
+            class formatter
+            {
+                public:
+                    typedef R result;
+
+                    template<typename T, typename S, char op, bool runtime>
+                    static R format (const tracer<T,S,op,runtime> &);
+            };
+
             template<bool runtime = false>
             class base
             {
@@ -57,6 +80,16 @@ namespace efgy
                     }
 
                     virtual char getOperator (void) const
+                    {
+                        return 0;
+                    }
+
+                    virtual std::string trace (void) const
+                    {
+                        return "";
+                    }
+
+                    virtual int value (void) const
                     {
                         return 0;
                     }
