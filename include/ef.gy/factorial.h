@@ -32,19 +32,19 @@ namespace efgy
 {
     namespace math
     {
-        /** \brief A template to calculate the factorial of a number.
-        
-            Uses a basic iterative algorithm.
-
-            \tparam Z Basic arithmetic type used for calculations.
-            Z is required to allow integral values and multiplication,
-            but there are no further restrictions on Z imposed by the code,
-            although the factorial function is only defined on the positive 
-            integers, so for larger types this template implements a partial
-            function.
-
-            The current behaviour for negative numbers is to return 1.
-        */
+        /**\brief A template to calculate the factorial of a number.
+         *
+         * Uses a basic iterative algorithm.
+         *
+         * \tparam Z Basic arithmetic type used for calculations.
+         * Z is required to allow integral values and multiplication,
+         * but there are no further restrictions on Z imposed by the code,
+         * although the factorial function is only defined on the positive 
+         * integers, so for larger types this template implements a partial
+         * function.
+         *
+         * The current behaviour for negative numbers is to return 1.
+         */
         template <typename Z>
         class factorial
         {
