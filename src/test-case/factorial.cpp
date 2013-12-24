@@ -1,7 +1,8 @@
 /**\file
- * \brief Test cases for the 'maybe' template
+ * \brief Test cases for the factorial class template
  *
- * This file contains test cases for the 'maybe' template.
+ * This file contains test cases for the math::factorial template, which is
+ * used to calculate the factorial of a number.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -37,9 +38,15 @@ using namespace efgy;
 using namespace efgy::math;
 using namespace std;
 
-
 /**\brief Factorial tests
-*/
+ *
+ * \test Calculates the factorial of a few numbers and compares those to the
+ *       values that the template ought to return.
+ *
+ * \param[out] log A stream for test cases to log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
 int testFactorial(ostream &log)
 {
 
