@@ -1,4 +1,8 @@
 /**\file
+ * \brief Stub renderer
+ *
+ * Implements the null render template, which discards any drawing commands.
+ * This renderer is used in some template magic.
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -35,17 +39,39 @@ namespace efgy
 {
     namespace render
     {
+        /**\brief Null renderer
+         *
+         * Stub renderer that discards any input.
+         *
+         * \tparam Q The base numeric type you intend to use.
+         * \tparam d The number of dimensions for vectors.
+         */
         template<typename Q, unsigned int d>
         class null
         {
             public:
+                /**\brief Construct with matrices and lower renderer
+                 *
+                 * All of the parameters to this constructor are ignored. The
+                 * constructor is only provided for compatibility with other
+                 * renderers.
+                 */
                 null
                     (const geometry::transformation::affine<Q,d> &,
                      const geometry::projection<Q,d> &,
                      const null<Q,d-1> &)
                     {}
 
+                /**\brief Begin drawing a new frame
+                 *
+                 * Reset the renderer's state and start drawing a new image.
+                 */
                 void frameStart (void) const {};
+
+                /**\brief End drawing current frame
+                 *
+                 * Finalise the renderer's state.
+                 */
                 void frameEnd (void) const {};
 
                 /**\brief Draw polygon
@@ -58,19 +84,37 @@ namespace efgy
                 template<std::size_t q>
                 void drawFace
                     (const std::array<typename geometry::euclidian::space<Q,d>::vector,q> &, const Q & = 0.5) const {}
-
-                void reset (void) const {}
         };
 
+        /**\brief Null renderer (2D fix point)
+         *
+         * Stub renderer that discards any input.
+         *
+         * \tparam Q The base numeric type you intend to use.
+         */
         template<typename Q>
         class null<Q,2>
         {
             public:
+                /**\brief Construct with affine transformation
+                 *
+                 * Provided for compatibility with other renderers; the actual
+                 * parameter is ignored.
+                 */
                 null
                     (const typename geometry::transformation::affine<Q,2> &)
                     {}
 
+                /**\brief Begin drawing a new frame
+                 *
+                 * Reset the renderer's state and start drawing a new image.
+                 */
                 void frameStart (void) const {};
+
+                /**\brief End drawing current frame
+                 *
+                 * Finalise the renderer's state.
+                 */
                 void frameEnd (void) const {};
 
                 /**\brief Draw polygon
@@ -83,8 +127,6 @@ namespace efgy
                 template<std::size_t q>
                 void drawFace
                     (const std::array<typename geometry::euclidian::space<Q,2>::vector,q> &, const Q & = 0.5) const {}
-
-                void reset (void) const {}
         };
     };
 };
