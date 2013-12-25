@@ -48,9 +48,16 @@ namespace efgy
                 void frameStart (void) const {};
                 void frameEnd (void) const {};
 
+                /**\brief Draw polygon
+                 *
+                 * Draw a polygon with q vertices. The Polygon should be
+                 * convex; if it isn't then you'll get rather strange results.
+                 *
+                 * \tparam q The number of vertices that define the polygon.
+                 */
                 template<std::size_t q>
                 void drawFace
-                    (const std::array<typename geometry::euclidian::space<Q,d>::vector,q> &, const Q &index = 0.5) const {}
+                    (const std::array<typename geometry::euclidian::space<Q,d>::vector,q> &, const Q & = 0.5) const {}
 
                 void reset (void) const {}
         };
@@ -66,9 +73,16 @@ namespace efgy
                 void frameStart (void) const {};
                 void frameEnd (void) const {};
 
+                /**\brief Draw polygon
+                 *
+                 * Draw a polygon with q vertices. The Polygon should be
+                 * convex; if it isn't then you'll get rather strange results.
+                 *
+                 * \tparam q The number of vertices that define the polygon.
+                 */
                 template<std::size_t q>
                 void drawFace
-                    (const std::array<typename geometry::euclidian::space<Q,2>::vector,q> &, const Q &index = 0.5) const {}
+                    (const std::array<typename geometry::euclidian::space<Q,2>::vector,q> &, const Q & = 0.5) const {}
 
                 void reset (void) const {}
         };
