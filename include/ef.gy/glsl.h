@@ -55,7 +55,7 @@ namespace efgy
                     typedef T type;
             };
 
-            template<typename T, typename S, char op, bool runtime, typename format>
+            template<typename T, typename S, char op, bool runtime>
             class tracer;
 
             template<typename R>
@@ -72,43 +72,16 @@ namespace efgy
                     typedef std::string result;
 
                     template<typename T, typename S, char op, bool runtime>
-                    static result format (const tracer<T,S,op,runtime,formatter> &t)
-                    {
-                        std::stringstream s("");
-                        if (op)
-                        {
-                            s << "(" << t.value1 << " " << op << " " << t.value2 << ")";
-                        }
-                        else
-                        {
-                            s << "(" << t.value1 << " " << t.value2 << ")";
-                        }
-                        return s.str();
-                    }
-
-                    template<typename T, char op, bool runtime>
-                    static result format (const tracer<T,void,op,runtime,formatter> &t)
-                    {
-                        std::stringstream s("");
-                        if (op)
-                        {
-                            s << "(" << op << t.value1 << ")";
-                        }
-                        else
-                        {
-                            s << t.value1;
-                        }
-                        return s.str();
-                    }
+                    static result format (const tracer<T,S,op,runtime> &t);
             };
 
-            template<bool runtime = false, typename format = formatter<std::string>>
+            template<bool runtime = false>
             class base
             {
                 public:
                     virtual ~base (void) {}
 
-                    virtual operator typename format::result (void) const
+                    virtual operator std::string (void) const
                     {
                         return "unknown";
                     }
@@ -118,7 +91,7 @@ namespace efgy
                         return 0;
                     }
 
-                    virtual typename format::result trace (void) const
+                    virtual std::string trace (void) const
                     {
                         return "";
                     }
@@ -134,16 +107,25 @@ namespace efgy
 
             typedef std::shared_ptr<base<true>> runtime;
 
-            template<typename T, typename S = void, char op = 0, bool runtime = false, typename format = formatter<std::string>>
-            class tracer : public base<runtime,format>
+            template<typename T, typename S = void, char op = 0, bool runtime = false>
+            class tracer : public base<runtime>
             {
                 public:
                     constexpr tracer (const T &p1, const S &p2)
                         : value1(p1), value2(p2) {}
 
-                    operator typename format::result (void) const
+                    operator std::string (void) const
                     {
-                        return format::format(*this);
+                        std::stringstream s("");
+                        if (op)
+                        {
+                            s << "(" << value1 << " " << op << " " << value2 << ")";
+                        }
+                        else
+                        {
+                            s << "(" << value1 << " " << value2 << ")";
+                        }
+                        return s.str();
                     }
 
                     char getOperator (void) const
@@ -160,8 +142,8 @@ namespace efgy
                     const S value2;
             };
 
-            template<typename T, char op, bool runtime, typename format>
-            class tracer<T,void,op,runtime,format> : public base<runtime,format>
+            template<typename T, char op, bool runtime>
+            class tracer<T,void,op,runtime> : public base<runtime>
             {
                 public:
                     constexpr tracer (const T &p1)
@@ -169,7 +151,16 @@ namespace efgy
 
                     operator std::string (void) const
                     {
-                        return format::format(*this);
+                        std::stringstream s("");
+                        if (op)
+                        {
+                            s << "(" << op << value1 << ")";
+                        }
+                        else
+                        {
+                            s << value1;
+                        }
+                        return s.str();
                     }
 
                     char getOperator (void) const
@@ -185,8 +176,8 @@ namespace efgy
                     const T value1;
             };
 
-            template<typename format>
-            class tracer<void,void,0,true,format> : public base<true,format>
+            template<>
+            class tracer<void,void,0,true> : public base<true>
             {
                 public:
                     tracer (std::string pName)
@@ -210,8 +201,8 @@ namespace efgy
                     const std::string name;
             };
 
-            template<typename format>
-            class tracer<void,void,0,false,format> : public base<false,format>
+            template<>
+            class tracer<void,void,0,false> : public base<false>
             {
                 public:
                     tracer (const char *pName)
