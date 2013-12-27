@@ -194,6 +194,9 @@ const std::vector<efgy::test::testCase> testCases (testCasesArray, testCasesArra
  */
 #define TEST_BATCH(...)
 
+
+#endif
+
 /** \brief Get next return value
  *
  * This function returns a non-zero integer to return after a test case was 
@@ -204,8 +207,11 @@ int next_integer()
 {
     static int counter = 1;
     ++counter;
-    (counter == 0) ? return ++counter : return counter;
+    if(counter == 0)
+    {
+	return ++counter;
+    }
+    else { 
+	return counter;
+    }
 }
-
-#endif
-
