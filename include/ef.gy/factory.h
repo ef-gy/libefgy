@@ -54,7 +54,7 @@ namespace efgy
                 public:
                     bool operator () (void)
                     {
-                        std::cerr << T<Q,d,render::null<Q,e>,e>::id() << "\n";
+                        std::cerr << d << "-" << T<Q,d,render::null<Q,e>,e>::id() << "@" << e << "\n";
                         return true;
                     }
             };
@@ -68,7 +68,7 @@ namespace efgy
                 {
                     if (d < T<Q,d,render::null<Q,e>,e>::modelDimensionMinimum)
                     {
-                        return false;
+                        return (dims == 0);
                     }
 
                     if (   (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0)
@@ -79,7 +79,7 @@ namespace efgy
 
                     if (e < T<Q,d,render::null<Q,e>,e>::renderDimensionMinimum)
                     {
-                        return false;
+                        return (rdims == 0);
                     }
 
                     if (   (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0)
@@ -88,15 +88,43 @@ namespace efgy
                         return model<Q,d,e-1,T>::set (dims, rdims);
                     }
 
-                    if (e == rdims)
+                    if (rdims == 0)
                     {
-                        if (d == dims)
+                        if (dims == 0)
                         {
-                            return functor::print<Q,d,e,T>()();
+                            functor::print<Q,d,e,T>()();
+                            (void) model<Q,d,e-1,T>::set (dims, rdims);
+                            return model<Q,d-1,e,T>::set (dims, rdims);
+                        }
+                        else if (d == dims)
+                        {
+                            functor::print<Q,d,e,T>()();
+                            return model<Q,d,e-1,T>::set (dims, rdims);
                         }
                         else if (d < dims)
                         {
-                            return false;
+                            return (dims == 0);
+                        }
+                        else
+                        {
+                            return model<Q,d-1,e,T>::set (dims, rdims);
+                        }
+                    }
+                    else if (e == rdims)
+                    {
+                        if (dims == 0)
+                        {
+                            functor::print<Q,d,e,T>()();
+                            return model<Q,d-1,e,T>::set (dims, rdims);
+                        }
+                        else if (d == dims)
+                        {
+                            functor::print<Q,d,e,T>()();
+                            return model<Q,d,e-1,T>::set (dims, rdims);
+                        }
+                        else if (d < dims)
+                        {
+                            return (dims == 0);
                         }
                         else
                         {
@@ -105,7 +133,7 @@ namespace efgy
                     }
                     else if (e < rdims)
                     {
-                        return false;
+                        return (rdims == 0);
                     }
                     else
                     {
@@ -118,9 +146,9 @@ namespace efgy
         class model<Q,d,2,T>
         {
             public:
-                static bool set (const unsigned int &, const unsigned int &)
+                static bool set (const unsigned int &, const unsigned int &rdims)
                 {
-                    return false;
+                    return (rdims == 0);
                 }
         };
 
@@ -128,9 +156,9 @@ namespace efgy
         class model<Q,1,e,T>
         {
             public:
-                static bool set (const unsigned int &, const unsigned int &)
+                static bool set (const unsigned int &dims, const unsigned int &)
                 {
-                    return false;
+                    return (dims == 0);
                 }
         };
     };

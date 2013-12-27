@@ -47,7 +47,8 @@ using namespace efgy::math;
  */
 int testGeometryFactory (std::ostream &log)
 {
-    model<primitive<float>,7,7,cube>::set(3,3);
+    std::cerr << "\n";
+    model<primitive<float>,7,7,cube>::set(7,0);
     return 0;
 }
 
