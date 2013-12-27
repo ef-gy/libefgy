@@ -203,7 +203,8 @@ const std::vector<efgy::test::testCase> testCases (testCasesArray, testCasesArra
 int next_integer()
 {
     static int counter = 1;
-    return counter++;
+    ++counter;
+    (counter == 0) ? return ++counter : return counter;
 }
 
 #endif
