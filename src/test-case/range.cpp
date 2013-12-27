@@ -112,6 +112,12 @@ int testRange (std::ostream &log)
         return -9;
     }
 
+    if (range<int,0>::get() != std::array<int,0>({{  }}))
+    {
+      log << "empty range was not an empty array.\n";
+      return -10;
+    }
+
     return 0;
 }
 

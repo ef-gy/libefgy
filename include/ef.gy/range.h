@@ -155,6 +155,13 @@ namespace efgy
         return b + a;
     }
 
+    /**
+     * Generic range class implementation.
+     *
+     * \param n The amount of elements in the range.
+     * \param c A helper template argument to be used as internal counter for
+     *          the recursive template call.
+     */
     template<typename T, std::size_t n = 0, std::size_t c = n>
     class range
     {
@@ -177,6 +184,18 @@ namespace efgy
                 return iterator(start, stride, n);
             }
 
+            /**
+             * Returns a std::array of the range.
+             *
+             * \param start The start of the range.
+             * \param stride The step size of the array.
+             *
+             * One example:
+             * \code{.cpp}
+             * range<int, 5>::get(2, 2)
+             * {2, 4, 6, 8, 10
+             * \endcode
+             */
             constexpr static std::array<T,n> get (T start = 0, T stride = 1, std::array<T,n> p = {{}})
             {
                 return (p[c] = (start+(stride * c))), range<T,n,c-1>::get(start, stride, p);
@@ -231,6 +250,11 @@ namespace efgy
             constexpr iterator end (void)
             {
                 return iterator(start, stride, steps);
+            }
+
+            constexpr static std::array<T,0> get (T start = 0, T stride = 1, std::array<T,0> p = {{}})
+            {
+                return std::array<T, 0> {};
             }
 
             T start;
