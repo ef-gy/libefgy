@@ -34,14 +34,22 @@ namespace efgy
 {
     namespace math
     {
-        template <typename T>
+	/** \brief Sets with elements of a given type.	
+	*  
+	*  \tparam T The type of the set elements.
+	*/
+	template <typename T>
         class set
         {
             public:
-                set()
+                /** \brief Constructs the empty set.
+		* 
+		*/
+		set()
                     : data()
                     {}
-
+		
+		/** \brief Constructs a set from an array of elements of type T */
                 set(const T *pData, unsigned int pCount)
                     : data(pCount)
                     {
@@ -50,16 +58,23 @@ namespace efgy
                             data[i] = pData[i];
                         }
                     }
-
+		/** \brief Copy constructor */
                 set(const set &pT)
                     : data(pT.data)
                     {}
 
+		/**  */
                 template<typename U>
                 set(const set<U> &pT)
                     : data(pT.data)
                     {}
 
+		/** \brief Assignment operator
+		 *  
+		 *  Performs a comparison of the current object and the set to be assigned
+		 *  before assignment, to avoid unnecessary copying of data if the sets are
+		 *  already equal.
+		 */
                 set &operator = (const set &b)
                 {
                     if (this != &b)
@@ -70,6 +85,7 @@ namespace efgy
                     return *this;
                 }
 
+		/** \brief Set union */
                 set operator + (const T &b) const
                 {
                     if (data.size() > 0)
@@ -96,6 +112,7 @@ namespace efgy
                     return set(&b, 1);
                 }
 
+		/** \brief Set difference */
                 set operator - (const T &b) const
                 {
                     if (data.size() > 0)
@@ -137,6 +154,7 @@ namespace efgy
                     return set(*this);
                 }
 
+		/** \brief Set comparison */
                 bool operator == (const set &b) const
                 {
                     if (data.size() != b.data.size())
