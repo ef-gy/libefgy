@@ -48,7 +48,7 @@ namespace efgy
     {
         namespace functor
         {
-            template<typename Q, unsigned int d, unsigned int e, template <class,unsigned int,class,unsigned int> class T>
+            template<typename Q, template <class,unsigned int,class,unsigned int> class T, unsigned int d, unsigned int e>
             class echo
             {
                 public:
@@ -62,12 +62,13 @@ namespace efgy
             };
         };
 
-        template<typename Q, unsigned int d, unsigned int e, template <class,unsigned int,class,unsigned int> class T,
-                 template<typename, unsigned int, unsigned int, template <class,unsigned int,class,unsigned int> class> class func>
+        template<typename Q, template <class,unsigned int,class,unsigned int> class T,
+                 template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 unsigned int d, unsigned int e = d>
         class model
         {
             public:
-                static bool set (const unsigned int &dims, const unsigned int &rdims, typename func<Q,d,e,T>::argument &arg)
+                static bool with (const unsigned int &dims, const unsigned int &rdims, typename func<Q,T,d,e>::argument &arg)
                 {
                     if (d < T<Q,d,render::null<Q,e>,e>::modelDimensionMinimum)
                     {
@@ -77,7 +78,7 @@ namespace efgy
                     if (   (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0)
                         && (d > T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum))
                     {
-                        return model<Q,d-1,e,T,func>::set (dims, rdims, arg);
+                        return model<Q,T,func,d-1,e>::with (dims, rdims, arg);
                     }
 
                     if (e < T<Q,d,render::null<Q,e>,e>::renderDimensionMinimum)
@@ -88,21 +89,21 @@ namespace efgy
                     if (   (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0)
                         && (e > T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum))
                     {
-                        return model<Q,d,e-1,T,func>::set (dims, rdims, arg);
+                        return model<Q,T,func,d,e-1>::with (dims, rdims, arg);
                     }
 
                     if (rdims == 0)
                     {
                         if (dims == 0)
                         {
-                            func<Q,d,e,T>()(arg);
-                            (void) model<Q,d,e-1,T,func>::set (dims, rdims, arg);
-                            return model<Q,d-1,e,T,func>::set (dims, rdims, arg);
+                            func<Q,T,d,e>()(arg);
+                            (void) model<Q,T,func,d,e-1>::with (dims, rdims, arg);
+                            return model<Q,T,func,d-1,e>::with (dims, rdims, arg);
                         }
                         else if (d == dims)
                         {
-                            func<Q,d,e,T>()(arg);
-                            return model<Q,d,e-1,T,func>::set (dims, rdims, arg);
+                            func<Q,T,d,e>()(arg);
+                            return model<Q,T,func,d,e-1>::with (dims, rdims, arg);
                         }
                         else if (d < dims)
                         {
@@ -110,20 +111,20 @@ namespace efgy
                         }
                         else
                         {
-                            return model<Q,d-1,e,T,func>::set (dims, rdims, arg);
+                            return model<Q,T,func,d-1,e>::with (dims, rdims, arg);
                         }
                     }
                     else if (e == rdims)
                     {
                         if (dims == 0)
                         {
-                            func<Q,d,e,T>()(arg);
-                            return model<Q,d-1,e,T,func>::set (dims, rdims, arg);
+                            func<Q,T,d,e>()(arg);
+                            return model<Q,T,func,d-1,e>::with (dims, rdims, arg);
                         }
                         else if (d == dims)
                         {
-                            func<Q,d,e,T>()(arg);
-                            return model<Q,d,e-1,T,func>::set (dims, rdims, arg);
+                            func<Q,T,d,e>()(arg);
+                            return model<Q,T,func,d,e-1>::with (dims, rdims, arg);
                         }
                         else if (d < dims)
                         {
@@ -131,7 +132,7 @@ namespace efgy
                         }
                         else
                         {
-                            return model<Q,d-1,e,T,func>::set (dims, rdims, arg);
+                            return model<Q,T,func,d-1,e>::with (dims, rdims, arg);
                         }
                     }
                     else if (e < rdims)
@@ -140,28 +141,30 @@ namespace efgy
                     }
                     else
                     {
-                        return model<Q,d,e-1,T,func>::set (dims, rdims, arg);
+                        return model<Q,T,func,d,e-1>::with (dims, rdims, arg);
                     }
                 }
         };
 
-        template<typename Q, unsigned int d, template <class,unsigned int,class,unsigned int> class T,
-                 template<typename, unsigned int, unsigned int, template <class,unsigned int,class,unsigned int> class> class func>
-        class model<Q,d,2,T,func>
+        template<typename Q, template <class,unsigned int,class,unsigned int> class T,
+                 template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 unsigned int d>
+        class model<Q,T,func,d,2>
         {
             public:
-                static bool set (const unsigned int &, const unsigned int &rdims, typename func<Q,d,2,T>::argument &)
+                static bool with (const unsigned int &, const unsigned int &rdims, typename func<Q,T,d,2>::argument &)
                 {
                     return (rdims == 0);
                 }
         };
 
-        template<typename Q, unsigned int e, template <class,unsigned int,class,unsigned int> class T,
-                 template<typename, unsigned int, unsigned int, template <class,unsigned int,class,unsigned int> class> class func>
-        class model<Q,1,e,T,func>
+        template<typename Q, template <class,unsigned int,class,unsigned int> class T,
+                 template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 unsigned int e>
+        class model<Q,T,func,1,e>
         {
             public:
-                static bool set (const unsigned int &dims, const unsigned int &, typename func<Q,1,e,T>::argument &)
+                static bool with (const unsigned int &dims, const unsigned int &, typename func<Q,T,1,e>::argument &)
                 {
                     return (dims == 0);
                 }
