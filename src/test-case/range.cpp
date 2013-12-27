@@ -118,6 +118,17 @@ int testRange (std::ostream &log)
       return -10;
     }
 
+    if (range<int,0>::get(1, 1) != std::array<int,0>({{  }}))
+    {
+      log << "an empty range with a non-default start was not empty.\n";
+      return -11;
+    }
+
+    if (range<int, 3>::get(3, -1) != std::array<int,3>({{ 3, 2, 1 }}))
+    {
+      log << "a range with negative stepsize worked as expected.\n";
+      return -12;
+    }
     return 0;
 }
 
