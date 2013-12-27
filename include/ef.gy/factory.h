@@ -38,7 +38,9 @@
 #if !defined(EF_GY_FACTORY_H)
 #define EF_GY_FACTORY_H
 
-#include <render/null.h>
+#include <ef.gy/render-null.h>
+#include <ef.gy/parametric.h>
+#include <ef.gy/flame.h>
 
 namespace efgy
 {
@@ -49,9 +51,12 @@ namespace efgy
             template<typename Q, unsigned int d, unsigned int e, template <class,unsigned int,class,unsigned int> class T>
             class print
             {
-                static bool operator () (void)
-                {
-                }
+                public:
+                    bool operator () (void)
+                    {
+                        std::cerr << T<Q,d,render::null<Q,e>,e>::id() << "\n";
+                        return true;
+                    }
             };
         };
 
@@ -59,11 +64,6 @@ namespace efgy
         class model
         {
             public:
-                static bool operator () (void)
-                {
-                    return functor::print<Q,d,e,T>()();
-                }
-
                 static bool set (const unsigned int &dims, const unsigned int &rdims)
                 {
                     if (d < T<Q,d,render::null<Q,e>,e>::modelDimensionMinimum)
@@ -74,7 +74,7 @@ namespace efgy
                     if (   (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0)
                         && (d > T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum))
                     {
-                        return model<Q,d-1,e,T,C>::set (dims, rdims);
+                        return model<Q,d-1,e,T>::set (dims, rdims);
                     }
 
                     if (e < T<Q,d,render::null<Q,e>,e>::renderDimensionMinimum)
@@ -85,14 +85,14 @@ namespace efgy
                     if (   (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0)
                         && (e > T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum))
                     {
-                        return model<Q,d,e-1,T,C>::set (dims, rdims);
+                        return model<Q,d,e-1,T>::set (dims, rdims);
                     }
 
                     if (e == rdims)
                     {
                         if (d == dims)
                         {
-                            return set(so);
+                            return functor::print<Q,d,e,T>()();
                         }
                         else if (d < dims)
                         {
@@ -100,7 +100,7 @@ namespace efgy
                         }
                         else
                         {
-                            return model<Q,d-1,e,T,C>::set (dims, rdims);
+                            return model<Q,d-1,e,T>::set (dims, rdims);
                         }
                     }
                     else if (e < rdims)
@@ -109,7 +109,7 @@ namespace efgy
                     }
                     else
                     {
-                        return model<Q,d,e-1,T,C>::set (dims, rdims);
+                        return model<Q,d,e-1,T>::set (dims, rdims);
                     }
                 }
         };

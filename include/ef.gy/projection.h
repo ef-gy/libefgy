@@ -30,6 +30,7 @@
 
 #include <ef.gy/transformation.h>
 #include <array>
+#include <cmath>
 
 namespace efgy
 {
