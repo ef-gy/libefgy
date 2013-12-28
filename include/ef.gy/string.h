@@ -29,6 +29,12 @@
 #define EF_GY_STRING_H
 
 #include <string>
+#include <ef.gy/numeric.h>
+#include <string.h>
+#include <math.h>
+
+using efgy::math::numeric::zero;
+using std::cout;
 
 namespace efgy
 {
@@ -67,6 +73,44 @@ namespace efgy
 
         return rv;
     }
+
+    /**
+     * Template specialization for a print without arguments.
+     *
+     * \see print
+     */
+    template<typename stream_type, typename... values>
+    void print(stream_type &stream, const std::string &unformatted_string) {
+        stream << unformatted_string;
+    }
+
+    /**
+     * Template to print with % as placeholders to a stream.
+     *
+     * It just outputs a single placeholder variable, but does a recursive
+     * (template) function call for each character in the string.
+     *
+     * A usage example:
+     * \code
+     * print("Time: % Name: % Counter: %", time, name, counter);
+     * \endcode
+     */
+    template<typename stream_type, typename T, typename... values>
+    void print(stream_type &stream, const std::string &unformatted_string, T first, values... rest) {
+        size_t pos_placeholder = unformatted_string.find_first_of("%");
+        if (pos_placeholder == std::string::npos) {
+            print(stream, unformatted_string);
+            return;
+        }
+        else {
+            stream << unformatted_string.substr(0, pos_placeholder);
+            stream << first;
+            print(stream, unformatted_string.substr(pos_placeholder + 1), rest...);
+            return;
+        }
+    }
+
+
 };
 
 #endif
