@@ -7,3 +7,4 @@ documentation/xml
 test.svg
 voronoi
 matrix
+documentation/*.tag
