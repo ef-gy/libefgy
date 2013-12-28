@@ -68,7 +68,7 @@ namespace efgy
         class model
         {
             public:
-                static bool with (const unsigned int &dims, const unsigned int &rdims, typename func<Q,T,d,e>::argument &arg)
+                static bool with (typename func<Q,T,d,e>::argument &arg, const unsigned int &dims = 0, const unsigned int &rdims = 0)
                 {
                     if (d < T<Q,d,render::null<Q,e>,e>::modelDimensionMinimum)
                     {
@@ -78,7 +78,7 @@ namespace efgy
                     if (   (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0)
                         && (d > T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum))
                     {
-                        return model<Q,T,func,d-1,e>::with (dims, rdims, arg);
+                        return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
                     }
 
                     if (e < T<Q,d,render::null<Q,e>,e>::renderDimensionMinimum)
@@ -89,7 +89,7 @@ namespace efgy
                     if (   (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0)
                         && (e > T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum))
                     {
-                        return model<Q,T,func,d,e-1>::with (dims, rdims, arg);
+                        return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
                     }
 
                     if (rdims == 0)
@@ -97,13 +97,13 @@ namespace efgy
                         if (dims == 0)
                         {
                             func<Q,T,d,e>()(arg);
-                            (void) model<Q,T,func,d,e-1>::with (dims, rdims, arg);
-                            return model<Q,T,func,d-1,e>::with (dims, rdims, arg);
+                            (void) model<Q,T,func,d,e-1>::with (arg, dims, rdims);
+                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
                         }
                         else if (d == dims)
                         {
                             func<Q,T,d,e>()(arg);
-                            return model<Q,T,func,d,e-1>::with (dims, rdims, arg);
+                            return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
                         }
                         else if (d < dims)
                         {
@@ -111,7 +111,7 @@ namespace efgy
                         }
                         else
                         {
-                            return model<Q,T,func,d-1,e>::with (dims, rdims, arg);
+                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
                         }
                     }
                     else if (e == rdims)
@@ -119,12 +119,12 @@ namespace efgy
                         if (dims == 0)
                         {
                             func<Q,T,d,e>()(arg);
-                            return model<Q,T,func,d-1,e>::with (dims, rdims, arg);
+                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
                         }
                         else if (d == dims)
                         {
                             func<Q,T,d,e>()(arg);
-                            return model<Q,T,func,d,e-1>::with (dims, rdims, arg);
+                            return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
                         }
                         else if (d < dims)
                         {
@@ -132,7 +132,7 @@ namespace efgy
                         }
                         else
                         {
-                            return model<Q,T,func,d-1,e>::with (dims, rdims, arg);
+                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
                         }
                     }
                     else if (e < rdims)
@@ -141,7 +141,7 @@ namespace efgy
                     }
                     else
                     {
-                        return model<Q,T,func,d,e-1>::with (dims, rdims, arg);
+                        return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
                     }
                 }
         };
@@ -152,7 +152,7 @@ namespace efgy
         class model<Q,T,func,d,2>
         {
             public:
-                static bool with (const unsigned int &, const unsigned int &rdims, typename func<Q,T,d,2>::argument &)
+                static bool with (typename func<Q,T,d,2>::argument &, const unsigned int &, const unsigned int &rdims)
                 {
                     return (rdims == 0);
                 }
@@ -164,7 +164,7 @@ namespace efgy
         class model<Q,T,func,1,e>
         {
             public:
-                static bool with (const unsigned int &dims, const unsigned int &, typename func<Q,T,1,e>::argument &)
+                static bool with (typename func<Q,T,1,e>::argument &, const unsigned int &dims, const unsigned int &)
                 {
                     return (dims == 0);
                 }
