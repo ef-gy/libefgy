@@ -1,4 +1,6 @@
 /**\file
+ * \deprecated Will be removed in libefgy-5 (or rewritten properly, whichever
+ *             happens first).
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
