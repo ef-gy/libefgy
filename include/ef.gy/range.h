@@ -155,12 +155,15 @@ namespace efgy
         return b + a;
     }
 
-    /**
-     * Generic range class implementation.
+    /**\brief Generic range class
      *
-     * \param n The amount of elements in the range.
-     * \param c A helper template argument to be used as internal counter for
-     *          the recursive template call.
+     * Generic range class implementation; think of it as a C++ version of R's
+     * seq function.
+     *
+     * \tparam T The data type for the range elements.
+     * \tparam n The amount of elements in the range.
+     * \tparam c A helper template argument to be used as internal counter for
+     *           the recursive template call.
      */
     template<typename T, std::size_t n = 0, std::size_t c = n>
     class range
@@ -184,17 +187,23 @@ namespace efgy
                 return iterator(start, stride, n);
             }
 
-            /**
-             * Returns a std::array of the range.
+            /**\brief Get range array
              *
-             * \param start The start of the range.
+             * Returns a std::array of the range. This method is both constexpr
+             * and static, meaning that for most data types it will be
+             * evaluated at compile time.
+             *
+             * \param start  The start of the range.
              * \param stride The step size of the array.
+             * \param p      The array that is filled with the range.
              *
              * One example:
              * \code{.cpp}
              * range<int, 5>::get(2, 2)
              * {2, 4, 6, 8, 10
              * \endcode
+             *
+             * \returns A std::array of the range.
              */
             constexpr static std::array<T,n> get (T start = 0, T stride = 1, std::array<T,n> p = {{}})
             {
@@ -205,10 +214,23 @@ namespace efgy
             T stride;
     };
 
+    /**\brief Generic range class; c=0 fix point
+     * \copydetails range
+     *
+     * This fix point is used to terminate the static constexpr get method of
+     * the range class template. It does not provide most of the features of
+     * the range class itself, only that static method.
+     */
     template<typename T, std::size_t n>
     class range<T,n,0>
     {
         public:
+            /**\copydoc range::get
+             *
+             * This is the c=0 fix point of the function, i.e. this method
+             * will fill in the last remaining element in the array, then
+             * return the actual value instead of recursing further.
+             */
             constexpr static std::array<T,n> get (T start = 0, T stride = 1, std::array<T,n> p = {{}})
             {
                 return (p[0] = start), p;

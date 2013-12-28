@@ -48,7 +48,7 @@ using namespace efgy::math;
 int testGeometryFactory (std::ostream &log)
 {
     std::cerr << "\n";
-    model<primitive<float>,cube,functor::echo,7>::with(5,0,log);
+    model<primitive<float>,cube,functor::echo,7>::with(log, 5);
     return 0;
 }
 
