@@ -362,7 +362,7 @@ namespace efgy
                     typedef          fractional<N>          self;
                     typedef          fractional<N>          derivable;
 
-                    static const bool stable = false;
+                    static const bool stable = traits<N>::stable;
             };
         };
 

@@ -59,7 +59,7 @@ namespace efgy
          * start to get unstable with iterations > 4 when used with the
          * default fraction data type. pi<Q,4> results in an approximation
          * that is already accurate to +/- 1.960*10^-7. If you use a larger
-         * integer base for Q you should be able to get an arbitrarily precise
+         * rational base for Q you should be able to get an arbitrarily precise
          * approximation to pi.
          *
          * To calculate pi we use the power series expansion described by
@@ -77,11 +77,11 @@ namespace efgy
         class pi
         {
             public:
-                /**\brief The base data type's integer type
+                /**\brief The base data type's rational type
                  *
                  * Used to make sure that type casts work as intended.
                  */
-                typedef typename numeric::traits<Q>::integral integer;
+                typedef typename numeric::traits<Q>::rational rational;
 
                 /**\brief Default constructor
                  *
@@ -135,16 +135,9 @@ namespace efgy
                  */
                 Q getSequenceMemberAt (const unsigned int &n) const
                 {
-                    const Q one = integer(1);
-                    const Q two = integer(2);
-                    const Q four = integer(4);
-                    const Q five = integer(5);
-                    const Q six = integer(6);
-                    const Q eight = integer(8);
-                    const Q d = Q(one) / Q(16);
+                    const Q d = rational(1) / Q(16);
 
-                    const Q cn = integer(n);
-                    Q rv = integer(1);
+                    Q rv = rational(1);
 
                     if (n > 0)
                     {
@@ -156,7 +149,11 @@ namespace efgy
                         rv = rv * d;
                     }
 
-                    return factor * rv * (four/(eight*cn+one) - two/(eight*cn+four) - one/(eight*cn+five) - one/(eight*cn+six));
+                    return factor * rv *
+                       (   rational(4)/(rational(8)*rational(n)+rational(1))
+                         - rational(2)/(rational(8)*rational(n)+rational(4))
+                         - rational(1)/(rational(8)*rational(n)+rational(5))
+                         - rational(1)/(rational(8)*rational(n)+rational(6)) );
                 }
 
                 /**\brief The factor to multiply pi with
