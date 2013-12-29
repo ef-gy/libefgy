@@ -1,8 +1,5 @@
 /**\file
- * \brief Test cases for the 'pi' template
- *
- * Test cases for the 'pi' template to make sure instances of that class compile
- * properly and generate reasonable approximations of 'pi'.
+ * \brief Test cases for matrices
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -35,6 +32,7 @@
 #include <ef.gy/matrix.h>
 
 using namespace efgy::math;
+using efgy::test::next_integer;
 
 int testConstruction (std::ostream &log)
 {

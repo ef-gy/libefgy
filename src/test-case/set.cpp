@@ -1,8 +1,5 @@
 /**\file
- * \brief Test cases for the factorial class template
- *
- * This file contains test cases for the math::factorial template, which is
- * used to calculate the factorial of a number.
+ * \brief Test cases for the set templates
  *
  * \copyright
  * Copyright (c) 2012-2013, ef.gy Project Members
@@ -36,6 +33,7 @@
 
 using namespace efgy;
 using namespace efgy::math;
+using efgy::test::next_integer;
 
 int testSet(std::ostream &log)
 {

@@ -123,6 +123,26 @@ namespace efgy
 
             return 0;
         }
+
+        /** \brief Get next return value
+         *
+         * This function returns a non-zero integer to return after a test case
+         * was unsuccessful. This is useful if one wants to add test cases to an
+         * existing test later and avoid returning any one value more than once.
+         */
+        static inline int next_integer (void)
+        {
+            static int counter = 1;
+            ++counter;
+            if(counter == 0)
+            {
+            	return ++counter;
+            }
+            else
+            {
+                return counter;
+            }
+        }
     };
 };
 
@@ -196,22 +216,3 @@ const std::vector<efgy::test::testCase> testCases (testCasesArray, testCasesArra
 
 
 #endif
-
-/** \brief Get next return value
- *
- * This function returns a non-zero integer to return after a test case was 
- * unsuccessful. This is useful if one wants to add test cases to an existing
- * test later and avoid returning any one value more than once.
- */
-int next_integer()
-{
-    static int counter = 1;
-    ++counter;
-    if(counter == 0)
-    {
-	return ++counter;
-    }
-    else { 
-	return counter;
-    }
-}
