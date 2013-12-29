@@ -34,6 +34,9 @@ namespace efgy
 {
     namespace math
     {
+        template<typename Q, typename I>
+        class primitive;
+
         namespace numeric
         {
             template<typename T>
@@ -45,8 +48,44 @@ namespace efgy
                     typedef T self;
                     typedef primitive<T> derivable;
 
-                    const bool stable = false;
-            }:
+                    static const bool stable = false;
+            };
+
+            template<>
+            class traits<double>
+            {
+                public:
+                    typedef long integral;
+                    typedef double rational;
+                    typedef double self;
+                    typedef primitive<double> derivable;
+
+                    static const bool stable = false;
+            };
+
+            template<>
+            class traits<long double>
+            {
+                public:
+                    typedef long long integral;
+                    typedef long double rational;
+                    typedef long double self;
+                    typedef primitive<long double> derivable;
+
+                    static const bool stable = false;
+            };
+
+            template<typename Q, typename I>
+            class traits<primitive<Q,I>>
+            {
+                public:
+                    typedef I integral;
+                    typedef Q rational;
+                    typedef primitive<Q,I> self;
+                    typedef primitive<Q,I> derivable;
+
+                    static const bool stable = false;
+            };
         };
     };
 };

@@ -33,6 +33,8 @@
 #if !defined(EF_GY_PI_H)
 #define EF_GY_PI_H
 
+#include <ef.gy/traits.h>
+
 namespace efgy
 {
     /**\brief Classes and functions dealing with mathematics
@@ -80,7 +82,7 @@ namespace efgy
                  *
                  * Used to make sure that type casts work as intended.
                  */
-                typedef typename Q::integer integer;
+                typedef typename numeric::traits<Q>::integral integer;
 
                 /**\brief Default constructor
                  *

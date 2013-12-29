@@ -30,6 +30,7 @@
 
 #include <ef.gy/integers.h>
 #include <ef.gy/big-integers.h>
+#include <ef.gy/traits.h>
 
 #define normalise minimise
 
@@ -351,6 +352,18 @@ namespace efgy
 
                 return fractional<N>(f.denominator, f.numerator);
             }
+
+            template <typename N>
+            class traits<fractional<N>>
+            {
+                public:
+                    typedef typename fractional<N>::integer integral;
+                    typedef          fractional<N>          rational;
+                    typedef          fractional<N>          self;
+                    typedef          fractional<N>          derivable;
+
+                    static const bool stable = false;
+            };
         };
 
         typedef numeric::fractional<number> fraction;

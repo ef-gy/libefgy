@@ -57,10 +57,20 @@ int testPi (std::ostream &log)
     pi<longDouble,3> piD3;
     pi<longDouble,4> piD4;
 
-    log << "pi<1> = " << (long double)longDouble(piD1) << "\n";
-    log << "pi<2> = " << (long double)longDouble(piD2) << "\n";
-    log << "pi<3> = " << (long double)longDouble(piD3) << "\n";
-    log << "pi<4> = " << (long double)longDouble(piD4) << "\n";
+    log << "pi<longDouble,1> = " << (long double)longDouble(piD1) << "\n";
+    log << "pi<longDouble,2> = " << (long double)longDouble(piD2) << "\n";
+    log << "pi<longDouble,3> = " << (long double)longDouble(piD3) << "\n";
+    log << "pi<longDouble,4> = " << (long double)longDouble(piD4) << "\n";
+
+    pi<long double,1> piDL1;
+    pi<long double,2> piDL2;
+    pi<long double,3> piDL3;
+    pi<long double,4> piDL4;
+
+    log << "pi<long double,1> = " << (long double)piDL1 << "\n";
+    log << "pi<long double,2> = " << (long double)piDL2 << "\n";
+    log << "pi<long double,3> = " << (long double)piDL3 << "\n";
+    log << "pi<long double,4> = " << (long double)piDL4 << "\n";
 
     pi<fraction,1> piQ1;
     pi<fraction,2> piQ2;
