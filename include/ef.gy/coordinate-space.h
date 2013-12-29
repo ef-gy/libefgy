@@ -42,8 +42,6 @@ namespace efgy
                 typedef F base;
                 typedef F scalar;
 
-                class vector;
-
                 class vector : public std::array<scalar, n>
                 {
                     public:
