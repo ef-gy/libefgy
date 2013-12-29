@@ -34,6 +34,7 @@
 #define EF_GY_PI_H
 
 #include <ef.gy/traits.h>
+#include <ef.gy/range.h>
 
 namespace efgy
 {
@@ -144,7 +145,8 @@ namespace efgy
                         rv = d;
                     }
 
-                    for (int i = 1; i < n; i++)
+                    if (n >= 2)
+                    for (int i : range<int>(1,n,false))
                     {
                         rv = rv * d;
                     }
