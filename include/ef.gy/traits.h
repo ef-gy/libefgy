@@ -46,7 +46,7 @@ namespace efgy
                     typedef T integral;
                     typedef T rational;
                     typedef T self;
-                    typedef primitive<T> derivable;
+                    typedef primitive<T, unsigned long> derivable;
 
                     static const bool stable = false;
             };
@@ -58,7 +58,7 @@ namespace efgy
                     typedef long integral;
                     typedef double rational;
                     typedef double self;
-                    typedef primitive<double> derivable;
+                    typedef primitive<double, unsigned long> derivable;
 
                     static const bool stable = false;
             };
@@ -70,7 +70,7 @@ namespace efgy
                     typedef long long integral;
                     typedef long double rational;
                     typedef long double self;
-                    typedef primitive<long double> derivable;
+                    typedef primitive<long double, unsigned long> derivable;
 
                     static const bool stable = false;
             };
