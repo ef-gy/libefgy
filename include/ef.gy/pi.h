@@ -66,9 +66,8 @@ namespace efgy
          * Bailey et al in 1997.
          *
          * \tparam Q          The data type to use in the calculations -
-         *                    should be rational or similar. Must be a class
-         *                    that defines an integer subtype and behaves like
-         *                    a typical numeric data type.
+         *                    should be rational or similar. Must be a type
+         *                    with numeric::traits<Q> defined.
          * \tparam iterations The number of iterations to run Bailey's
          *                    algorithm. This is a compile time constant in
          *                    the hope that the compiler will be able to
