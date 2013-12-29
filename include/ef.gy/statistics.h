@@ -29,20 +29,26 @@
 #define EF_GY_STATISTICS_H
 
 #include <array>
+#include <ef.gy/maybe.H>
 
 namespace efgy
 {
     namespace statistics
     {
         template<typename Q>
-        Q average (const std::vector<Q> &input) const
+        maybe<Q> average (const std::vector<Q> &input) const
         {
-            Q s = Q();
+            if (input.size() == 0)
+            {
+                return maybe<Q>();
+            }
+
+            Q s = 0;
             for (Q &i : input)
             {
                 s += i;
             }
-            return s / Q(input.size());
+            return maybe<Q>(s / Q(input.size()));
         }
     };
 };
