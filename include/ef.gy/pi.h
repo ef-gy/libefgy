@@ -33,8 +33,7 @@
 #if !defined(EF_GY_PI_H)
 #define EF_GY_PI_H
 
-#include <ef.gy/traits.h>
-#include <ef.gy/range.h>
+#include <ef.gy/exponential.h>
 
 namespace efgy
 {
@@ -78,18 +77,12 @@ namespace efgy
         class pi
         {
             public:
-                /**\brief The base data type's rational type
-                 *
-                 * Used to make sure that type casts work as intended.
-                 */
-                typedef typename numeric::traits<Q>::rational rational;
-
                 /**\brief Default constructor
                  *
                  * Initialises the object so that it creates an approximation
                  * of 1*pi.
                  */
-                pi(void)
+                constexpr pi(void)
                     : factor(Q(1))
                     {}
 
@@ -100,7 +93,7 @@ namespace efgy
                  *
                  * \param[in] pFactor The factor to multiply pi with.
                  */
-                pi(const Q &pFactor)
+                constexpr pi(const Q &pFactor)
                     : factor(pFactor)
                     {}
 
@@ -111,16 +104,9 @@ namespace efgy
                  *
                  * \return The approximation of pi with the given parameters.
                  */
-                operator Q (void) const
+                constexpr operator Q (void) const
                 {
-                    Q rv = Q();
-
-                    for (int i : range<int>(0, iterations, false))
-                    {
-                        rv = rv + getSequenceMemberAt (i);
-                    }
-
-                    return rv;
+                    return sumSequenceTo(iterations-1, Q(0));
                 }
 
             protected:
@@ -134,22 +120,32 @@ namespace efgy
                  *
                  * \return The requested sequence member.
                  */
-                Q getSequenceMemberAt (const unsigned int &n) const
+                constexpr Q getSequenceMemberAt (const unsigned int &n) const
                 {
-                    const Q d = rational(1) / Q(16);
+                    return factor
+                       *   exponentiate::integral<Q>::raise(Q(1) / Q(16), n)
+                       * ( Q(4)/(Q(8)*Q(n)+Q(1))
+                         - Q(2)/(Q(8)*Q(n)+Q(4))
+                         - Q(1)/(Q(8)*Q(n)+Q(5))
+                         - Q(1)/(Q(8)*Q(n)+Q(6)) );
+                }
 
-                    Q rv = rational(1);
-
-                    for (int i : range<int>(0, n, false))
-                    {
-                        rv = rv * d;
-                    }
-
-                    return factor * rv *
-                       (   rational(4)/(rational(8)*rational(n)+rational(1))
-                         - rational(2)/(rational(8)*rational(n)+rational(4))
-                         - rational(1)/(rational(8)*rational(n)+rational(5))
-                         - rational(1)/(rational(8)*rational(n)+rational(6)) );
+                /**\brief Constant summation function
+                 *
+                 * Used to sum up the first n+1 members of the sequence to. This
+                 * method is tail-recursive so it's easier to flatten.
+                 *
+                 * \param[in] n   Up to which sequence member to accumulate.
+                 * \param[in] acc The initial (or current) value; used for tail
+                 *                recursion.
+                 *
+                 * \returns The sum of the 0th to the nth sequence member.
+                 */
+                constexpr Q sumSequenceTo (const unsigned int &n, const Q &acc) const
+                {
+                    return n == 0
+                         ?                     acc + getSequenceMemberAt (0)
+                         : sumSequenceTo (n-1, acc + getSequenceMemberAt (n));
                 }
 
                 /**\brief The factor to multiply pi with
