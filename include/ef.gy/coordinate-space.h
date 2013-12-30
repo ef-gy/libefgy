@@ -28,6 +28,7 @@
 #if !defined(EF_GY_COORDINATE_SPACE_H)
 #define EF_GY_COORDINATE_SPACE_H
 
+#include <ef.gy/traits.h>
 #include <array>
 
 namespace efgy
@@ -39,60 +40,7 @@ namespace efgy
         {
             public:
                 typedef F base;
-
-                class vector;
-
-                class scalar : public F
-                {
-                    public:
-                        typedef typename F::integer integer;
-
-                        scalar () : F() {}
-                        scalar (const F &t) : F(t) {}
-                        scalar (const integer &t) : F(t) {}
-
-                        using F::operator *;
-                        using F::operator ^;
-                        using F::operator /;
-
-                        using F::operator =;
-                        using F::operator +=;
-                        using F::operator -=;
-                        using F::operator *=;
-                        using F::operator ^=;
-                        using F::operator /=;
-
-/*
-                        using F::operator >;
-                        using F::operator >=;
-                        using F::operator <;
-                        using F::operator <=;
-*/
-
-                        vector operator * (const vector &v) const
-                        {
-                            scalar r[n];
-
-                            for (unsigned int i = 0; i < n; i++)
-                            {
-                                r[i] = F(v[i]) * F(*this);
-                            }
-
-                            return vector(r);
-                        }
-
-                        vector operator / (const vector &v) const
-                        {
-                            scalar r[n];
-
-                            for (unsigned int i = 0; i < n; i++)
-                            {
-                                r[i] = F(v[i]) / F(*this);
-                            }
-
-                            return vector(r);
-                        }
-                };
+                typedef F scalar;
 
                 class vector : public std::array<scalar, n>
                 {
@@ -105,7 +53,14 @@ namespace efgy
 
                         vector operator * (const scalar &s) const
                         {
-                            return s * (*this);
+                            vector r = *this;
+
+                            for (unsigned int i = 0; i < n; i++)
+                            {
+                                r[i] *= s;
+                            }
+
+                            return r;
                         }
 
                         scalar operator * (const vector &v) const
@@ -122,7 +77,14 @@ namespace efgy
 
                         vector operator / (const scalar &s) const
                         {
-                            return s / (*this);
+                            vector r = *this;
+
+                            for (unsigned int i = 0; i < n; i++)
+                            {
+                                r[i] /= s;
+                            }
+
+                            return r;
                         }
 
                         scalar operator / (const vector &v) const

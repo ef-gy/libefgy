@@ -115,7 +115,7 @@ namespace efgy
                 {
                     Q rv = Q();
 
-                    for (unsigned int i = 0; i < iterations; i++)
+                    for (int i : range<int>(0, iterations, false))
                     {
                         rv = rv + getSequenceMemberAt (i);
                     }
@@ -140,13 +140,7 @@ namespace efgy
 
                     Q rv = rational(1);
 
-                    if (n > 0)
-                    {
-                        rv = d;
-                    }
-
-                    if (n >= 2)
-                    for (int i : range<int>(1,n,false))
+                    for (int i : range<int>(0, n, false))
                     {
                         rv = rv * d;
                     }
