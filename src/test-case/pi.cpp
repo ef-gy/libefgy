@@ -37,6 +37,7 @@
 #include <ef.gy/pi.h>
 
 using namespace efgy::math;
+using efgy::test::next_integer;
 using std::string;
 
 typedef primitive<long double, unsigned long long> longDouble;
@@ -62,10 +63,58 @@ int testPi (std::ostream &log)
     log << "pi<longDouble,3> = " << (long double)longDouble(piD3) << "\n";
     log << "pi<longDouble,4> = " << (long double)longDouble(piD4) << "\n";
 
+    if (longDouble(piD1) != pi<longDouble>::get(1))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 1;
+    }
+
+    if (longDouble(piD2) != pi<longDouble>::get(2))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 2;
+    }
+
+    if (longDouble(piD3) != pi<longDouble>::get(3))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 3;
+    }
+
+    if (longDouble(piD4) != pi<longDouble>::get(4))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 4;
+    }
+
     pi<long double,1> piDL1;
     pi<long double,2> piDL2;
     pi<long double,3> piDL3;
     pi<long double,4> piDL4;
+
+    if ((long double)(piDL1) != pi<long double>::get(1))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 11;
+    }
+
+    if ((long double)(piDL2) != pi<long double>::get(2))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 12;
+    }
+
+    if ((long double)(piDL3) != pi<long double>::get(3))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 13;
+    }
+
+    if ((long double)(piDL4) != pi<long double>::get(4))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 14;
+    }
 
     log << "pi<long double,1> = " << (long double)piDL1 << "\n";
     log << "pi<long double,2> = " << (long double)piDL2 << "\n";
@@ -81,6 +130,30 @@ int testPi (std::ostream &log)
     log << "pi<fraction,2> = " << (string)fraction(piQ2) << "\n";
     log << "pi<fraction,3> = " << (string)fraction(piQ3) << "\n";
     log << "pi<fraction,4> = " << (string)fraction(piQ4) << "\n";
+
+    if (fraction(piQ1) != pi<fraction>::get(1))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 21;
+    }
+
+    if (fraction(piQ2) != pi<fraction>::get(2))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 22;
+    }
+
+    if (fraction(piQ3) != pi<fraction>::get(3))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 23;
+    }
+
+    if (fraction(piQ4) != pi<fraction>::get(4))
+    {
+        log << "constexpr method returned unexpected result\n";
+        return 24;
+    }
 
     return 0;
 }

@@ -106,7 +106,24 @@ namespace efgy
                  */
                 constexpr operator Q (void) const
                 {
-                    return sumSequenceTo(iterations-1, Q(0));
+                    return sumSequenceTo(iterations-1, factor, Q(0));
+                }
+
+                /**\brief Calculate approximation of pi without object
+                 *
+                 * Calculates pi without needing a class instance; this is a
+                 * proper, static constexpr method, so it should probably get
+                 * evaluated at compile time.
+                 *
+                 * \param[in] n The number of iterations to use.
+                 * \param[in] f The factor to multiply pi with.
+                 *
+                 * \returns pi, after running Bailey's algorithm for n
+                 *         iterations, multiplied by f.
+                 */
+                constexpr static Q get (const unsigned int &n = 3, const Q &f = Q(1))
+                {
+                    return sumSequenceTo (n-1, f, Q(0));
                 }
 
             protected:
@@ -117,12 +134,13 @@ namespace efgy
                  * sequence members.
                  *
                  * \param[in] n Which sequence member to return.
+                 * \param[in] f Factor to multiply the sequence member with.
                  *
                  * \return The requested sequence member.
                  */
-                constexpr Q getSequenceMemberAt (const unsigned int &n) const
+                constexpr static Q getSequenceMemberAt (const unsigned int &n, const Q &f)
                 {
-                    return factor
+                    return f
                        *   exponentiate::integral<Q>::raise(Q(1) / Q(16), n)
                        * ( Q(4)/(Q(8)*Q(n)+Q(1))
                          - Q(2)/(Q(8)*Q(n)+Q(4))
@@ -136,16 +154,17 @@ namespace efgy
                  * method is tail-recursive so it's easier to flatten.
                  *
                  * \param[in] n   Up to which sequence member to accumulate.
+                 * \param[in] f   Factor to multiply the sequence members with.
                  * \param[in] acc The initial (or current) value; used for tail
                  *                recursion.
                  *
                  * \returns The sum of the 0th to the nth sequence member.
                  */
-                constexpr Q sumSequenceTo (const unsigned int &n, const Q &acc) const
+                constexpr static Q sumSequenceTo (const unsigned int &n, const Q &f, const Q &acc)
                 {
                     return n == 0
-                         ?                     acc + getSequenceMemberAt (0)
-                         : sumSequenceTo (n-1, acc + getSequenceMemberAt (n));
+                         ?                        acc + getSequenceMemberAt (0, f)
+                         : sumSequenceTo (n-1, f, acc + getSequenceMemberAt (n, f));
                 }
 
                 /**\brief The factor to multiply pi with
