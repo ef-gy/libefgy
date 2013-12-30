@@ -35,6 +35,8 @@
 #if !defined(EF_GY_EXPONENTIAL_H)
 #define EF_GY_EXPONENTIAL_H
 
+#include <ef.gy/traits.h>
+
 namespace efgy
 {
     namespace math
@@ -56,9 +58,11 @@ namespace efgy
              *
              * \tparam Q        Basic arithmetic type for calculations.
              * \tparam exponent The exponent to raise numbers to with the
-             *                  raise() function.
+             *                  raise() function. When not specified the value
+             *                  '0' is substituted, which provides an additional
+             *                  plain constexpr variant of the algorithm.
              */
-            template<typename Q, long exponent>
+            template<typename Q, long exponent = 0>
             class integral
             {
                 public:
@@ -76,7 +80,7 @@ namespace efgy
                      *
                      * \return Base raised to the exponent'th power.
                      */
-                    static Q raise (const Q &base)
+                    constexpr static Q raise (const Q &base)
                     {
                         return (exponent % 2 == 0)
                              ?         integral<Q, (exponent    >> 1)>::raise(base*base)
@@ -106,7 +110,7 @@ namespace efgy
                      * \return The value of the base argument is passed through
                      *         to the caller.
                      */
-                    static Q raise (const Q &base)
+                    constexpr static Q raise (const Q &base)
                     {
                         return base;
                     }
@@ -133,7 +137,7 @@ namespace efgy
                      *
                      * \return Returns the reciprocal of the number passed in.
                      */
-                    static Q raise (const Q &base)
+                    constexpr static Q raise (const Q &base)
                     {
                         return Q(1)/base;
                     }
@@ -144,6 +148,10 @@ namespace efgy
              * This is one of the fix points of the integral template. This one
              * handles the case when the exponent is zero, i.e. the raise()
              * method simply discards its argument and returns one.
+             *
+             * The zero fix-point of the template also provides an alternative
+             * raise member, which may be used to provide the exponent may not
+             * be known at compile time.
              *
              * \tparam Q        Basic arithmetic type for calculations.
              */
@@ -160,9 +168,32 @@ namespace efgy
                      *
                      * \return Always Q(1).
                      */
-                    static Q raise (const Q &base)
+                    constexpr static Q raise (const Q &base)
                     {
                         return Q(1);
+                    }
+
+                    /**\brief Raise to the specified power
+                     *
+                     * Raises the 'base' value to the 'exponent'th power using a
+                     * square-and-multiply algorithm.
+                     *
+                     * \param[in] base     The number to raise.
+                     * \param[in] exponent What to raise the number to.
+                     *
+                     * \return base raised to the exponent'th power.
+                     */
+                    constexpr static Q raise
+                        (const Q &base,
+                         const typename numeric::traits<Q>::integral &exponent)
+                    {
+                        return exponent     == typename numeric::traits<Q>::integral( 0) ? Q(1)
+                             : exponent     == typename numeric::traits<Q>::integral(-1) ? Q(1) / base
+                             : exponent     == typename numeric::traits<Q>::integral( 1) ? base
+                             : exponent % typename numeric::traits<Q>::integral(2)
+                                            == typename numeric::traits<Q>::integral( 0)
+                             ?        raise(base*base,  exponent                                           >> 1)
+                             : base * raise(base*base, (exponent-typename numeric::traits<Q>::integral(1)) >> 1);
                     }
             };
         };
