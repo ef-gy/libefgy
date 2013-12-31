@@ -72,6 +72,52 @@ namespace efgy
          *                    algorithm. This is a compile time constant in
          *                    the hope that the compiler will be able to
          *                    substitute a constant value for base data types.
+         *
+         * \section Usage
+         *
+         * This class may look rather curious, so I should probably explain how
+         * to use it. The idea is to create an instance of the pi class with the
+         * parameters you need, and to then cast or assign it to the data type
+         * you needed. Basically, the class is supposed to act like a function
+         * so to use it do something like this:
+         *
+         * \code{.cpp}
+         * double myPi = math::pi<double>();
+         * \endcode
+         *
+         * You could, of course, add additional parameters as needed. This was
+         * written before C++11 was all popular, so nowadays we could just use
+         * a constexpr static function instead... which is where pi::get comes
+         * in:
+         *
+         * \code{.cpp}
+         * double myPi = math::pi<double>::get();
+         * \endcode
+         *
+         * This is slightly more verbose, but it is a true constexpr function so
+         * you'll be able to use it in a compile-time context. You can still
+         * specify the number of iterations, either as a template argument or as
+         * as the first parameter to the function. Adjusting the factor by which
+         * pi is multiplied is also supported.
+         *
+         * Since the template is fairly clean you shouldn't have any issues
+         * using it as a temporary, either:
+         *
+         * \code{.cpp}
+         * (double)math::pi<double>();
+         * \endcode
+         *
+         * And finally, in case you're wondering why this has been implemented
+         * as a class template that acts like a function template, as opposed to
+         * an actual function template, consider this: you can re-specialise
+         * templates and operators based on the input types. Which means, you
+         * could specialise a multiplication by pi using this template, if your
+         * numeric type would do something special then - like, say, you had a
+         * type that represents sines or cosines, and you multiplied the result
+         * of that with pi, you could just reverse the result's sign as opposed
+         * to performing a potentially lengthy floating point operation. I know
+         * that at this point that's all theoretical, but it's getting there and
+         * I really do think this would be a good thing in the end.
          */
         template <typename Q, unsigned int iterations = 3>
         class pi
@@ -121,7 +167,7 @@ namespace efgy
                  * \returns pi, after running Bailey's algorithm for n
                  *         iterations, multiplied by f.
                  */
-                constexpr static Q get (const unsigned int &n = 3, const Q &f = Q(1))
+                constexpr static Q get (const unsigned int &n = iterations, const Q &f = Q(1))
                 {
                     return sumSequenceTo (n-1, f, Q(0));
                 }
