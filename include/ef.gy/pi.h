@@ -150,8 +150,9 @@ namespace efgy
 
                 /**\brief Constant summation function
                  *
-                 * Used to sum up the first n+1 members of the sequence to. This
-                 * method is tail-recursive so it's easier to flatten.
+                 * Used to sum up the first n+1 members of the sequence. This
+                 * method is tail-recursive so it shouldn't make your stack
+                 * explode, either.
                  *
                  * \param[in] n   Up to which sequence member to accumulate.
                  * \param[in] f   Factor to multiply the sequence members with.
