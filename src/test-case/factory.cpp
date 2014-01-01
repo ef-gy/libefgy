@@ -32,7 +32,6 @@
 
 #include <ef.gy/test-case.h>
 #include <ef.gy/factory.h>
-#include <ef.gy/primitive.h>
 
 using namespace efgy::geometry;
 using namespace efgy::math;
@@ -48,7 +47,25 @@ using namespace efgy::math;
 int testGeometryFactory (std::ostream &log)
 {
     std::cerr << "\n";
-    model<primitive<float>,cube,functor::echo,7>::with(log, 5);
+    model<float,functor::echo,cube,7>::with(log, 5);
+
+    std::set<const char *> models;
+    models = with<float,functor::models,7>(models, "*", 0, 0);
+
+    bool haveCube = false;
+
+    for (std::string m : models)
+    {
+        haveCube || (haveCube = (m == "cube"));
+        std::cerr << m << "\n";
+    }
+
+    if (!haveCube)
+    {
+        log << "no cube model\n";
+        return 1;
+    }
+
     return 0;
 }
 

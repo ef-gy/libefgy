@@ -42,6 +42,8 @@
 #include <ef.gy/parametric.h>
 #include <ef.gy/flame.h>
 
+#include <set>
+
 namespace efgy
 {
     namespace geometry
@@ -60,10 +62,25 @@ namespace efgy
                         return out << d << "-" << T<Q,d,render::null<Q,e>,e>::id() << "@" << e << "\n";
                     }
             };
+
+            template<typename Q, template <class,unsigned int,class,unsigned int> class T, unsigned int d, unsigned int e>
+            class models
+            {
+                public:
+                    typedef std::set<const char *> &argument;
+                    typedef std::set<const char *> &output;
+
+                    output operator () (argument out)
+                    {
+                        out.insert(T<Q,d,render::null<Q,e>,e>::id());
+                        return out;
+                    }
+            };
         };
 
-        template<typename Q, template <class,unsigned int,class,unsigned int> class T,
+        template<typename Q,
                  template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 template <class,unsigned int,class,unsigned int> class T,
                  unsigned int d, unsigned int e = d>
         class model
         {
@@ -74,28 +91,29 @@ namespace efgy
                      const unsigned int &rdims = 0)
                 {
                     return d < T<Q,d,render::null<Q,e>,e>::modelDimensionMinimum ? arg
-                         : (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0) && (d > T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum) ? model<Q,T,func,d-1,e>::with (arg, dims, rdims)
+                         : (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0) && (d > T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum) ? model<Q,func,T,d-1,e>::with (arg, dims, rdims)
                          : e < T<Q,d,render::null<Q,e>,e>::renderDimensionMinimum ? arg
-                         : (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0) && (e > T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum) ? model<Q,T,func,d,e-1>::with (arg, dims, rdims)
+                         : (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0) && (e > T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum) ? model<Q,func,T,d,e-1>::with (arg, dims, rdims)
                          : 0 == rdims
-                            ? (   0 == dims ? func<Q,T,d,e>()(arg), model<Q,T,func,d,e-1>::with (arg, dims, rdims), model<Q,T,func,d-1,e>::with (arg, dims, rdims)
-                                : d == dims ? func<Q,T,d,e>()(arg), model<Q,T,func,d,e-1>::with (arg, dims, rdims)
+                            ? (   0 == dims ? func<Q,T,d,e>()(arg), model<Q,func,T,d,e-1>::with (arg, dims, rdims), model<Q,func,T,d-1,e>::with (arg, dims, rdims)
+                                : d == dims ? func<Q,T,d,e>()(arg), model<Q,func,T,d,e-1>::with (arg, dims, rdims)
                                 : d  < dims ? arg
-                                : model<Q,T,func,d-1,e>::with (arg, dims, rdims) )
+                                : model<Q,func,T,d-1,e>::with (arg, dims, rdims) )
                          : e == rdims
-                            ? (   0 == dims ? func<Q,T,d,e>()(arg), model<Q,T,func,d-1,e>::with (arg, dims, rdims)
-                                : d == dims ? func<Q,T,d,e>()(arg), model<Q,T,func,d,e-1>::with (arg, dims, rdims)
+                            ? (   0 == dims ? func<Q,T,d,e>()(arg), model<Q,func,T,d-1,e>::with (arg, dims, rdims)
+                                : d == dims ? func<Q,T,d,e>()(arg), model<Q,func,T,d,e-1>::with (arg, dims, rdims)
                                 : d  < dims ? arg
-                                : model<Q,T,func,d-1,e>::with (arg, dims, rdims) )
+                                : model<Q,func,T,d-1,e>::with (arg, dims, rdims) )
                          : e < rdims ? arg
-                         : model<Q,T,func,d,e-1>::with (arg, dims, rdims);
+                         : model<Q,func,T,d,e-1>::with (arg, dims, rdims);
                 }
         };
 
-        template<typename Q, template <class,unsigned int,class,unsigned int> class T,
+        template<typename Q,
                  template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 template <class,unsigned int,class,unsigned int> class T,
                  unsigned int d>
-        class model<Q,T,func,d,2>
+        class model<Q,func,T,d,2>
         {
             public:
                 constexpr static typename func<Q,T,d,2>::output with
@@ -107,10 +125,11 @@ namespace efgy
                 }
         };
 
-        template<typename Q, template <class,unsigned int,class,unsigned int> class T,
+        template<typename Q,
                  template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 template <class,unsigned int,class,unsigned int> class T,
                  unsigned int e>
-        class model<Q,T,func,1,e>
+        class model<Q,func,T,1,e>
         {
             public:
                 constexpr static typename func<Q,T,1,e>::output with
@@ -121,6 +140,40 @@ namespace efgy
                     return arg;
                 }
         };
+
+        template<typename Q,
+                 template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 unsigned int d,
+                 unsigned int e = d>
+        static inline typename func<Q,cube,d,e>::output with
+            (typename func<Q,cube,d,e>::argument arg,
+             const std::string &type,
+             const unsigned int &dims,
+             const unsigned int &rdims)
+        {
+            if ((type == "*") || (type == "simplex"))
+                model<Q,func,simplex,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "plane"))
+                model<Q,func,plane,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "cube"))
+                model<Q,func,cube,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "sphere"))
+                model<Q,func,sphere,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "moebius-strip"))
+                model<Q,func,moebiusStrip,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "klein-bagel"))
+                model<Q,func,kleinBagel,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "sierpinski-gasket"))
+                model<Q,func,sierpinski::gasket,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "sierpinski-carpet"))
+                model<Q,func,sierpinski::carpet,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "random-affine-ifs"))
+                model<Q,func,randomAffineIFS,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "random-flame"))
+                model<Q,func,flame::random,d,e>::with(arg, dims, rdims);
+
+            return arg;
+        }
     };
 };
 
