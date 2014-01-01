@@ -43,6 +43,8 @@
 #include <ef.gy/flame.h>
 
 #include <set>
+#include <string>
+#include <iostream>
 
 namespace efgy
 {
