@@ -55,7 +55,7 @@ namespace efgy
                     typedef std::ostream &argument;
                     typedef std::ostream &output;
 
-                    output operator () (argument &out)
+                    output operator () (argument out)
                     {
                         return out << d << "-" << T<Q,d,render::null<Q,e>,e>::id() << "@" << e << "\n";
                     }
@@ -68,84 +68,27 @@ namespace efgy
         class model
         {
             public:
-                static typename func<Q,T,d,e>::output with
+                constexpr static typename func<Q,T,d,e>::output with
                     (typename func<Q,T,d,e>::argument &arg,
                      const unsigned int &dims = 0,
                      const unsigned int &rdims = 0)
                 {
-                    if (d < T<Q,d,render::null<Q,e>,e>::modelDimensionMinimum)
-                    {
-                        return arg;
-                    }
-
-                    if (   (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0)
-                        && (d > T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum))
-                    {
-                        return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
-                    }
-
-                    if (e < T<Q,d,render::null<Q,e>,e>::renderDimensionMinimum)
-                    {
-                        return arg;
-                    }
-
-                    if (   (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0)
-                        && (e > T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum))
-                    {
-                        return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
-                    }
-
-                    if (rdims == 0)
-                    {
-                        if (dims == 0)
-                        {
-                            func<Q,T,d,e>()(arg);
-                            (void) model<Q,T,func,d,e-1>::with (arg, dims, rdims);
-                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
-                        }
-                        else if (d == dims)
-                        {
-                            func<Q,T,d,e>()(arg);
-                            return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
-                        }
-                        else if (d < dims)
-                        {
-                            return arg;
-                        }
-                        else
-                        {
-                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
-                        }
-                    }
-                    else if (e == rdims)
-                    {
-                        if (dims == 0)
-                        {
-                            func<Q,T,d,e>()(arg);
-                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
-                        }
-                        else if (d == dims)
-                        {
-                            func<Q,T,d,e>()(arg);
-                            return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
-                        }
-                        else if (d < dims)
-                        {
-                            return arg;
-                        }
-                        else
-                        {
-                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
-                        }
-                    }
-                    else if (e < rdims)
-                    {
-                        return arg;
-                    }
-                    else
-                    {
-                        return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
-                    }
+                    return d < T<Q,d,render::null<Q,e>,e>::modelDimensionMinimum ? arg
+                         : (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0) && (d > T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum) ? model<Q,T,func,d-1,e>::with (arg, dims, rdims)
+                         : e < T<Q,d,render::null<Q,e>,e>::renderDimensionMinimum ? arg
+                         : (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0) && (e > T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum) ? model<Q,T,func,d,e-1>::with (arg, dims, rdims)
+                         : 0 == rdims
+                            ? (   0 == dims ? func<Q,T,d,e>()(arg), model<Q,T,func,d,e-1>::with (arg, dims, rdims), model<Q,T,func,d-1,e>::with (arg, dims, rdims)
+                                : d == dims ? func<Q,T,d,e>()(arg), model<Q,T,func,d,e-1>::with (arg, dims, rdims)
+                                : d  < dims ? arg
+                                : model<Q,T,func,d-1,e>::with (arg, dims, rdims) )
+                         : e == rdims
+                            ? (   0 == dims ? func<Q,T,d,e>()(arg), model<Q,T,func,d-1,e>::with (arg, dims, rdims)
+                                : d == dims ? func<Q,T,d,e>()(arg), model<Q,T,func,d,e-1>::with (arg, dims, rdims)
+                                : d  < dims ? arg
+                                : model<Q,T,func,d-1,e>::with (arg, dims, rdims) )
+                         : e < rdims ? arg
+                         : model<Q,T,func,d,e-1>::with (arg, dims, rdims);
                 }
         };
 
