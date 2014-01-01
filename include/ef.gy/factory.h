@@ -53,11 +53,11 @@ namespace efgy
             {
                 public:
                     typedef std::ostream &argument;
+                    typedef std::ostream &output;
 
-                    bool operator () (argument &out)
+                    output operator () (argument &out)
                     {
-                        out << d << "-" << T<Q,d,render::null<Q,e>,e>::id() << "@" << e << "\n";
-                        return true;
+                        return out << d << "-" << T<Q,d,render::null<Q,e>,e>::id() << "@" << e << "\n";
                     }
             };
         };
@@ -68,11 +68,14 @@ namespace efgy
         class model
         {
             public:
-                static bool with (typename func<Q,T,d,e>::argument &arg, const unsigned int &dims = 0, const unsigned int &rdims = 0)
+                static typename func<Q,T,d,e>::output with
+                    (typename func<Q,T,d,e>::argument &arg,
+                     const unsigned int &dims = 0,
+                     const unsigned int &rdims = 0)
                 {
                     if (d < T<Q,d,render::null<Q,e>,e>::modelDimensionMinimum)
                     {
-                        return (dims == 0);
+                        return arg;
                     }
 
                     if (   (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0)
@@ -83,7 +86,7 @@ namespace efgy
 
                     if (e < T<Q,d,render::null<Q,e>,e>::renderDimensionMinimum)
                     {
-                        return (rdims == 0);
+                        return arg;
                     }
 
                     if (   (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0)
@@ -107,7 +110,7 @@ namespace efgy
                         }
                         else if (d < dims)
                         {
-                            return (dims == 0);
+                            return arg;
                         }
                         else
                         {
@@ -128,7 +131,7 @@ namespace efgy
                         }
                         else if (d < dims)
                         {
-                            return (dims == 0);
+                            return arg;
                         }
                         else
                         {
@@ -137,7 +140,7 @@ namespace efgy
                     }
                     else if (e < rdims)
                     {
-                        return (rdims == 0);
+                        return arg;
                     }
                     else
                     {
@@ -152,9 +155,12 @@ namespace efgy
         class model<Q,T,func,d,2>
         {
             public:
-                static bool with (typename func<Q,T,d,2>::argument &, const unsigned int &, const unsigned int &rdims)
+                constexpr static typename func<Q,T,d,2>::output with
+                    (typename func<Q,T,d,2>::argument &arg,
+                     const unsigned int &,
+                     const unsigned int &)
                 {
-                    return (rdims == 0);
+                    return arg;
                 }
         };
 
@@ -164,9 +170,12 @@ namespace efgy
         class model<Q,T,func,1,e>
         {
             public:
-                static bool with (typename func<Q,T,1,e>::argument &, const unsigned int &dims, const unsigned int &)
+                constexpr static typename func<Q,T,1,e>::output with
+                    (typename func<Q,T,1,e>::argument &arg,
+                     const unsigned int &,
+                     const unsigned int &)
                 {
-                    return (dims == 0);
+                    return arg;
                 }
         };
     };
