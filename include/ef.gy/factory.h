@@ -69,7 +69,7 @@ namespace efgy
         {
             public:
                 constexpr static typename func<Q,T,d,e>::output with
-                    (typename func<Q,T,d,e>::argument &arg,
+                    (typename func<Q,T,d,e>::argument arg,
                      const unsigned int &dims = 0,
                      const unsigned int &rdims = 0)
                 {
@@ -99,7 +99,7 @@ namespace efgy
         {
             public:
                 constexpr static typename func<Q,T,d,2>::output with
-                    (typename func<Q,T,d,2>::argument &arg,
+                    (typename func<Q,T,d,2>::argument arg,
                      const unsigned int &,
                      const unsigned int &)
                 {
@@ -114,7 +114,7 @@ namespace efgy
         {
             public:
                 constexpr static typename func<Q,T,1,e>::output with
-                    (typename func<Q,T,1,e>::argument &arg,
+                    (typename func<Q,T,1,e>::argument arg,
                      const unsigned int &,
                      const unsigned int &)
                 {
