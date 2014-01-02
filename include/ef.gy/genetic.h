@@ -33,7 +33,7 @@
 #include <ctime>
 #include <map>
 #include <array>
-#include "../ef.gy/random.h"
+#include <random>
 
 namespace efgy
 {
@@ -100,7 +100,7 @@ namespace efgy
         /// onePointCrossover probability
         Q pCrossover;
 
-        random::mersenneTwister<unsigned long long> rng;
+        std::mt19937 rng; 
 
         void breedNextGeneration()
         {
@@ -110,16 +110,16 @@ namespace efgy
            std::vector<individual > children;
            while(children.size() < populationSize)
            {
-              std::srand(std::time(NULL));
-
-              int p1 = rng.rand(0, parents.size());
-              int p2 = rng.rand(0, parents.size());
+  
+              std::uniform_int_distribution<> dis(0, parents.size()); 
+              int p1 = dis(rng);
+              int p2 = dis(rng);
               
               individual  i1 = parents[p1];
               individual  i2 = parents[p2];
 
               std::pair<individual , individual> offspring;
-              double r = (double) rng.rand() / (double) rng.max();
+              double r = std::generate_canonical<double, 10>(rng);
               if(r < pCrossover) {
                 offspring = onePointCrossover(i1, i2);
               }
@@ -128,7 +128,7 @@ namespace efgy
                 offspring = std::pair<individual , individual>(i1, i2);
               }
 
-              r = (double) rng.rand() / (double) rng.max();
+              r = std::generate_canonical<double, 10>(rng);
               if(r < pMutate) {
                 mutate(offspring.first());
                 mutate(offspring.second());
@@ -144,14 +144,16 @@ namespace efgy
 
         void mutate(individual  &individual)
         {
-            int position = rng.rand(0, genomeLength);
+           std::uniform_int_distribution<> dis(0, genomeLength);
+           int position = dis(rng);
             
-            individual.set(position, Mutate(individual[position]));
+           individual.set(position, Mutate(individual[position]));
         }
        
         std::pair<individual , individual>  onePointCrossover(individual &i1, individual &i2)
         {
-           int position =  rng.rand(0, genomeLength);
+           std::uniform_int_distribution<> dis(0, genomeLength);
+           int position = dis(rng);
 
            for(int k = 0; k < position; k++)
             {
@@ -169,7 +171,9 @@ namespace efgy
             {
                 population.push_back(individual ());
             }
-            rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
+            std::random_device rd;
+            rng = std::mt19937(rd());
+             
         }
 
 
@@ -198,8 +202,9 @@ namespace efgy
     {
         public:
             float operator () (float x) {
-               random::mersenneTwister<unsigned long long> rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
-                return ((float) rng.rand() / (float) RAND_MAX); 
+               std::random_device rd;
+               std::mt19937 rng(rd()); 
+               return std::generate_canonical<float, 10>(rng);
             }
 
             
@@ -220,8 +225,8 @@ namespace efgy
 
             std::vector<typename S::individual > operator() (int targetSize, std::vector<typename S::individual > population)
             {
-               random::mersenneTwister<unsigned long long> rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
-               
+               std::random_device rd;
+               std::mt19937 rng(rd());
                std::map<typename S::Q, typename S::individual > current;
                for(typename std::vector<typename S::individual >::iterator it = population.begin(); it != population.end(); it++)
                {
@@ -235,7 +240,8 @@ namespace efgy
                     std::map<typename S::Q, typename S::individual > tournament;
                     for(int i = 0; i < tournamentSize; i++)
                     {
-                        int r = rng.rand(0, tournament.size());
+                        std::uniform_int_distribution<> dis(0, tournament.size());
+                        int r = dis(rng);
                     {
                         typename std::map<typename S::Q, typename S::individual >::iterator it = current.begin();
                         for(int k = 0;
@@ -295,11 +301,10 @@ namespace efgy
 
             void operator() (float* array, int length) 
             {
-                    
-               random::mersenneTwister<unsigned long long> rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
-               
+               std::random_device rd;
+               std::mt19937 rng(rd()); 
                for(int i = 0; i < length; i++) {
-                 float r = (float) rng.rand() / (float) rng.max();  
+                 float r = std::generate_canonical<float, 10>(rng); 
                  array[i] = r;
                }
             }
@@ -315,10 +320,11 @@ namespace efgy
 
             void operator() (bool *array, int length)
             {
-
-               random::mersenneTwister<unsigned long long> rng = random::mersenneTwister<unsigned long long>(std::time(NULL));
+               std::random_device rd;
+               std::mt19937 rng(rd);
+               std::uniform_int_distribution<> dis(0, 1);
                for(int i = 0; i < length; i++) {
-                  bool r = (rng.rand() % 2) == 0;
+                  bool r = (dis(rng) % 2) == 0;
                   array [i] = r; 
                }
                
