@@ -35,27 +35,7 @@ namespace efgy
     namespace geometry
     {
         template <typename Q, unsigned int od, unsigned int d, unsigned int f, typename render>
-        class parametric : public polytope<Q,od,d,f,render>
-        {
-            public:
-                typedef polytope<Q,od,d,f,render> parent;
-
-                parametric (render &pRenderer, const parameters<Q> &pParameter)
-                    : parent(pRenderer, pParameter)
-                    {}
-
-                using parent::parameter;
-                using parent::renderSolid;
-                using parent::renderer;
-                using parent::faces;
-
-                using parent::modelDimensionMinimum;
-                using parent::modelDimensionMaximum;
-                using parent::renderDimensionMinimum;
-                using parent::renderDimensionMaximum;
-
-                using parent::faceVertices;
-        };
+        using parametric = polytope<Q,od,d,f,render>;
 
         template <typename Q, unsigned int od, typename render, unsigned int d = 3>
         class moebiusStrip : public parametric<Q,od,d,4,render>
@@ -70,19 +50,10 @@ namespace efgy
                     }
 
                 using parent::parameter;
-                using parent::renderSolid;
-                using parent::renderer;
                 using parent::faces;
 
-                using parent::modelDimensionMinimum;
                 static const unsigned int modelDimensionMaximum = 2;
-                using parent::renderDimensionMinimum;
-                using parent::renderDimensionMaximum;
 
-                using parent::faceVertices;
-
-                static unsigned int depth (void) { return od; }
-                static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "moebius-strip"; }
 
                 void calculateObject(void)
@@ -157,19 +128,10 @@ namespace efgy
                     }
 
                 using parent::parameter;
-                using parent::renderSolid;
-                using parent::renderer;
                 using parent::faces;
 
-                using parent::modelDimensionMinimum;
                 static const unsigned int modelDimensionMaximum = 2;
-                using parent::renderDimensionMinimum;
-                using parent::renderDimensionMaximum;
 
-                using parent::faceVertices;
-
-                static unsigned int depth (void) { return od; }
-                static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "klein-bagel"; }
 
                 void calculateObject(void)
