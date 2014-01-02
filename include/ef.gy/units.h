@@ -39,6 +39,7 @@
 #define EF_GY_UNITS_H
 
 #include <ef.gy/exponential.h>
+#include <ef.gy/traits.h>
 
 namespace efgy
 {
@@ -67,16 +68,25 @@ namespace efgy
          *                      square metres.
          */
         template<typename Q, const char unitSymbol, int unitExponent>
-        class unitValue : public Q
+        class unitValue : public math::numeric::traits<Q>::derivable
         {
             public:
+                /**\brief Original base datatype
+                 *
+                 * Alias for Q, the base datatype in use. This is not quite the
+                 * same as the 'base' typedef, as that is the one this class was
+                 * derived from and this is the one that was passed as a
+                 * template parameter.
+                 */
+                typedef Q original;
+
                 /**\brief Base datatype
                  *
                  * Alias for the base datatype in use. This makes it possible
                  * for derived classes to figure out the base datatype without
                  * needing a separate template parameter for that.
                  */
-                typedef Q base;
+                typedef typename math::numeric::traits<Q>::derivable base;
 
                 /**\brief Unit symbol
                  *
@@ -667,7 +677,7 @@ namespace efgy
          *                      squared.
          */
         template<typename Q, int unitExponent = 1>
-        class gramme : public metric<Q, 'g', unitExponent> {};
+        using gramme = metric<Q, 'g', unitExponent>;
 
         /**\brief Metres
          *
@@ -678,7 +688,7 @@ namespace efgy
          *                      metres.
          */
         template<typename Q, int unitExponent = 1>
-        class metre : public metric<Q, 'm', unitExponent> {};
+        using metre = metric<Q, 'm', unitExponent>;
 
         /**\brief Seconds
          *
@@ -689,7 +699,7 @@ namespace efgy
          *                      seconds.
          */
         template<typename Q, int unitExponent = 1>
-        class second : public metric<Q, 's', unitExponent> {};
+        using second = metric<Q, 's', unitExponent>;
 
         /**\brief Bytes
          *
@@ -700,7 +710,7 @@ namespace efgy
          *                      bytes.
          */
         template<typename Q, int unitExponent = 1>
-        class byte : public binary<Q, 'B', unitExponent> {};
+        using byte = binary<Q, 'B', unitExponent>;
 
         /**\brief Bits
          *
@@ -711,7 +721,7 @@ namespace efgy
          *                      bits.
          */
         template<typename Q, int unitExponent = 1>
-        class bit : public binary<Q, 'b', unitExponent> {};
+        using bit = binary<Q, 'b', unitExponent>;
     };
 };
 
