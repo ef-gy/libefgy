@@ -29,14 +29,14 @@
 #define EF_GY_STATISTICS_H
 
 #include <array>
-#include <ef.gy/maybe.H>
+#include <ef.gy/maybe.h>
 
 namespace efgy
 {
     namespace statistics
     {
         template<typename Q>
-        maybe<Q> average (const std::vector<Q> &input) const
+        static maybe<Q> average (const std::vector<Q> &input)
         {
             if (input.size() == 0)
             {
@@ -44,7 +44,7 @@ namespace efgy
             }
 
             Q s = 0;
-            for (Q &i : input)
+            for (const Q &i : input)
             {
                 s += i;
             }
