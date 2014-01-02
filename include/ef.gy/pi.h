@@ -6,7 +6,7 @@
  * 1997.
  *
  * \copyright
- * Copyright (c) 2012-2013, ef.gy Project Members
+ * Copyright (c) 2012-2014, ef.gy Project Members
  * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,8 +33,7 @@
 #if !defined(EF_GY_PI_H)
 #define EF_GY_PI_H
 
-#include <ef.gy/traits.h>
-#include <ef.gy/range.h>
+#include <ef.gy/exponential.h>
 
 namespace efgy
 {
@@ -73,23 +72,63 @@ namespace efgy
          *                    algorithm. This is a compile time constant in
          *                    the hope that the compiler will be able to
          *                    substitute a constant value for base data types.
+         *
+         * \section Usage
+         *
+         * This class may look rather curious, so I should probably explain how
+         * to use it. The idea is to create an instance of the pi class with the
+         * parameters you need, and to then cast or assign it to the data type
+         * you needed. Basically, the class is supposed to act like a function
+         * so to use it do something like this:
+         *
+         * \code{.cpp}
+         * double myPi = math::pi<double>();
+         * \endcode
+         *
+         * You could, of course, add additional parameters as needed. This was
+         * written before C++11 was all popular, so nowadays we could just use
+         * a constexpr static function instead... which is where pi::get comes
+         * in:
+         *
+         * \code{.cpp}
+         * double myPi = math::pi<double>::get();
+         * \endcode
+         *
+         * This is slightly more verbose, but it is a true constexpr function so
+         * you'll be able to use it in a compile-time context. You can still
+         * specify the number of iterations, either as a template argument or as
+         * as the first parameter to the function. Adjusting the factor by which
+         * pi is multiplied is also supported.
+         *
+         * Since the template is fairly clean you shouldn't have any issues
+         * using it as a temporary, either:
+         *
+         * \code{.cpp}
+         * (double)math::pi<double>();
+         * \endcode
+         *
+         * And finally, in case you're wondering why this has been implemented
+         * as a class template that acts like a function template, as opposed to
+         * an actual function template, consider this: you can re-specialise
+         * templates and operators based on the input types. Which means, you
+         * could specialise a multiplication by pi using this template, if your
+         * numeric type would do something special then - like, say, you had a
+         * type that represents sines or cosines, and you multiplied the result
+         * of that with pi, you could just reverse the result's sign as opposed
+         * to performing a potentially lengthy floating point operation. I know
+         * that at this point that's all theoretical, but it's getting there and
+         * I really do think this would be a good thing in the end.
          */
         template <typename Q, unsigned int iterations = 3>
         class pi
         {
             public:
-                /**\brief The base data type's rational type
-                 *
-                 * Used to make sure that type casts work as intended.
-                 */
-                typedef typename numeric::traits<Q>::rational rational;
-
                 /**\brief Default constructor
                  *
                  * Initialises the object so that it creates an approximation
                  * of 1*pi.
                  */
-                pi(void)
+                constexpr pi(void)
                     : factor(Q(1))
                     {}
 
@@ -100,7 +139,7 @@ namespace efgy
                  *
                  * \param[in] pFactor The factor to multiply pi with.
                  */
-                pi(const Q &pFactor)
+                constexpr pi(const Q &pFactor)
                     : factor(pFactor)
                     {}
 
@@ -111,16 +150,26 @@ namespace efgy
                  *
                  * \return The approximation of pi with the given parameters.
                  */
-                operator Q (void) const
+                constexpr operator Q (void) const
                 {
-                    Q rv = Q();
+                    return sumSequenceTo(iterations-1, factor, Q(0));
+                }
 
-                    for (int i : range<int>(0, iterations, false))
-                    {
-                        rv = rv + getSequenceMemberAt (i);
-                    }
-
-                    return rv;
+                /**\brief Calculate approximation of pi without object
+                 *
+                 * Calculates pi without needing a class instance; this is a
+                 * proper, static constexpr method, so it should probably get
+                 * evaluated at compile time.
+                 *
+                 * \param[in] n The number of iterations to use.
+                 * \param[in] f The factor to multiply pi with.
+                 *
+                 * \returns pi, after running Bailey's algorithm for n
+                 *         iterations, multiplied by f.
+                 */
+                constexpr static Q get (const unsigned int &n = iterations, const Q &f = Q(1))
+                {
+                    return sumSequenceTo (n-1, f, Q(0));
                 }
 
             protected:
@@ -131,25 +180,38 @@ namespace efgy
                  * sequence members.
                  *
                  * \param[in] n Which sequence member to return.
+                 * \param[in] f Factor to multiply the sequence member with.
                  *
                  * \return The requested sequence member.
                  */
-                Q getSequenceMemberAt (const unsigned int &n) const
+                constexpr static Q getSequenceMemberAt (const unsigned int &n, const Q &f)
                 {
-                    const Q d = rational(1) / Q(16);
+                    return f
+                       *   exponentiate::integral<Q>::raise(Q(1) / Q(16), n)
+                       * ( Q(4)/(Q(8)*Q(n)+Q(1))
+                         - Q(2)/(Q(8)*Q(n)+Q(4))
+                         - Q(1)/(Q(8)*Q(n)+Q(5))
+                         - Q(1)/(Q(8)*Q(n)+Q(6)) );
+                }
 
-                    Q rv = rational(1);
-
-                    for (int i : range<int>(0, n, false))
-                    {
-                        rv = rv * d;
-                    }
-
-                    return factor * rv *
-                       (   rational(4)/(rational(8)*rational(n)+rational(1))
-                         - rational(2)/(rational(8)*rational(n)+rational(4))
-                         - rational(1)/(rational(8)*rational(n)+rational(5))
-                         - rational(1)/(rational(8)*rational(n)+rational(6)) );
+                /**\brief Constant summation function
+                 *
+                 * Used to sum up the first n+1 members of the sequence. This
+                 * method is tail-recursive so it shouldn't make your stack
+                 * explode, either.
+                 *
+                 * \param[in] n   Up to which sequence member to accumulate.
+                 * \param[in] f   Factor to multiply the sequence members with.
+                 * \param[in] acc The initial (or current) value; used for tail
+                 *                recursion.
+                 *
+                 * \returns The sum of the 0th to the nth sequence member.
+                 */
+                constexpr static Q sumSequenceTo (const unsigned int &n, const Q &f, const Q &acc)
+                {
+                    return n == 0
+                         ?                        acc + getSequenceMemberAt (0, f)
+                         : sumSequenceTo (n-1, f, acc + getSequenceMemberAt (n, f));
                 }
 
                 /**\brief The factor to multiply pi with

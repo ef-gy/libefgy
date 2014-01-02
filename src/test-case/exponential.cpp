@@ -5,7 +5,7 @@
  * intended.
  *
  * \copyright
- * Copyright (c) 2012-2013, ef.gy Project Members
+ * Copyright (c) 2012-2014, ef.gy Project Members
  * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -117,4 +117,83 @@ int testIntegralExponents (std::ostream &log)
     return 0;
 }
 
-TEST_BATCH(testIntegralExponents)
+/**\brief Integer exponents, function parameter base
+ * \test Same test procedure as testIntegralExponents, but this test cases uses
+ *       the two-parameter variant of the exponentiate::integral instead of
+ *       specifying the exponent as a template parameter.
+ *
+ * \param[out] log A stream for test cases to log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
+int testFunctionalIntegralExponents (std::ostream &log)
+{
+    if (exponentiate::integral<fraction>::raise(fraction(21,5),0) != fraction(1,1))
+    {
+        log << "(21/5)^0 should be (1/1) but is " << (std::string)exponentiate::integral<fraction>::raise(fraction(21,5),0) << "\n";
+        return 1;
+    }
+
+    if (exponentiate::integral<fraction>::raise(fraction(21,5),1) != fraction(21,5))
+    {
+        log << "(21/5)^1 should be (21/5) but is " << (std::string)exponentiate::integral<fraction>::raise(fraction(21,5),1) << "\n";
+        return 2;
+    }
+
+    if (exponentiate::integral<fraction>::raise(fraction(21,5),2) != fraction(441,25))
+    {
+        log << "(21/5)^2 should be (441/25) but is " << (std::string)exponentiate::integral<fraction>::raise(fraction(21,5),2) << "\n";
+        return 3;
+    }
+
+    if (exponentiate::integral<fraction>::raise(fraction(21,5),3) != fraction(9261,125))
+    {
+        log << "(21/5)^3 should be (9261/125) but is " << (std::string)exponentiate::integral<fraction>::raise(fraction(21,5),3) << "\n";
+        return 4;
+    }
+
+    if (exponentiate::integral<fraction>::raise(fraction(21,5),4) != fraction(194481,625))
+    {
+        log << "(21/5)^4 should be (194481/625) but is " << (std::string)exponentiate::integral<fraction>::raise(fraction(21,5),4) << "\n";
+        return 5;
+    }
+
+    if (exponentiate::integral<fraction>::raise(fraction(21,5),5) != fraction(4084101l,3125))
+    {
+        log << "(21/5)^5 should be (4084101/3125) but is " << (std::string)exponentiate::integral<fraction>::raise(fraction(21,5),5) << "\n";
+        return 6;
+    }
+
+    if (exponentiate::integral<fraction>::raise(fraction(21,5),-1) != fraction(5,21))
+    {
+        log << "(21/5)^(-1) should be (5/21) but is " << (std::string)exponentiate::integral<fraction>::raise(fraction(21,5),-1) << "\n";
+        return 7;
+    }
+
+    if (exponentiate::integral<fraction>::raise(fraction(21,5),-2) != fraction(25,441))
+    {
+        log << "(21/5)^(-2) should be (25/441) but is " << (std::string)exponentiate::integral<fraction>::raise(fraction(21,5),-2) << "\n";
+        return 8;
+    }
+
+    if (exponentiate::integral<fraction>::raise(fraction(21,5),-3) != fraction(125,9261))
+    {
+        log << "(21/5)^(-3) should be (125/9261) but is " << (std::string)exponentiate::integral<fraction>::raise(fraction(21,5),-3) << "\n";
+        return 9;
+    }
+
+    if (exponentiate::integral<fraction>::raise(fraction(21,5),-4) != fraction(625,194481))
+    {
+        log << "(21/5)^(-4) should be (625/194481) but is " << (std::string)exponentiate::integral<fraction>::raise(fraction(21,5),-4) << "\n";
+        return 10;
+    }
+
+    if (exponentiate::integral<fraction>::raise(fraction(21,5),-5) != fraction(3125,4084101l))
+    {
+        log << "(21/5)^(-5) should be (3125/4084101) but is " << (std::string)exponentiate::integral<fraction>::raise(fraction(21,5),-5) << "\n";
+        return 11;
+    }
+
+    return 0;
+}
+TEST_BATCH(testIntegralExponents, testFunctionalIntegralExponents)

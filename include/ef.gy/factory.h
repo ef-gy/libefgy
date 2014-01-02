@@ -11,7 +11,7 @@
  * should no longer require code changes other than UI cosmetics.
  *
  * \copyright
- * Copyright (c) 2012-2013, ef.gy Project Members
+ * Copyright (c) 2012-2014, ef.gy Project Members
  * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +42,10 @@
 #include <ef.gy/parametric.h>
 #include <ef.gy/flame.h>
 
+#include <set>
+#include <string>
+#include <iostream>
+
 namespace efgy
 {
     namespace geometry
@@ -53,122 +57,181 @@ namespace efgy
             {
                 public:
                     typedef std::ostream &argument;
+                    typedef std::ostream &output;
 
-                    bool operator () (argument &out)
+                    static output apply (argument out)
                     {
-                        out << d << "-" << T<Q,d,render::null<Q,e>,e>::id() << "@" << e << "\n";
-                        return true;
+                        return out << d << "-" << T<Q,d,render::null<Q,e>,e>::id() << "@" << e << "\n";
+                    }
+
+                    static output pass (argument out)
+                    {
+                        return out;
+                    }
+            };
+
+            template<typename Q, template <class,unsigned int,class,unsigned int> class T, unsigned int d, unsigned int e>
+            class models
+            {
+                public:
+                    typedef std::set<const char *> &argument;
+                    typedef std::set<const char *> &output;
+
+                    static output apply (argument out)
+                    {
+                        out.insert(T<Q,d,render::null<Q,e>,e>::id());
+                        return out;
+                    }
+
+                    static output pass (argument out)
+                    {
+                        return out;
                     }
             };
         };
 
-        template<typename Q, template <class,unsigned int,class,unsigned int> class T,
+        /**
+         * \tparam Q Base data type for calculations
+         * \tparam T Model template, e.g. efgy::geometry::cube
+         * \tparam d Model depth, e.g. 4 for a tesseract
+         * \tparam e Model render depth, e.g. >= 4 when rendering a tesseract
+         */
+        template<typename Q,
                  template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 template <class,unsigned int,class,unsigned int> class T,
                  unsigned int d, unsigned int e = d>
         class model
         {
             public:
-                static bool with (typename func<Q,T,d,e>::argument &arg, const unsigned int &dims = 0, const unsigned int &rdims = 0)
+                constexpr static typename func<Q,T,d,e>::output with
+                    (typename func<Q,T,d,e>::argument arg,
+                     const unsigned int &dims = 0,
+                     const unsigned int &rdims = 0)
                 {
-                    if (d < T<Q,d,render::null<Q,e>,e>::modelDimensionMinimum)
-                    {
-                        return (dims == 0);
-                    }
-
-                    if (   (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0)
-                        && (d > T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum))
-                    {
-                        return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
-                    }
-
-                    if (e < T<Q,d,render::null<Q,e>,e>::renderDimensionMinimum)
-                    {
-                        return (rdims == 0);
-                    }
-
-                    if (   (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0)
-                        && (e > T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum))
-                    {
-                        return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
-                    }
-
-                    if (rdims == 0)
-                    {
-                        if (dims == 0)
-                        {
-                            func<Q,T,d,e>()(arg);
-                            (void) model<Q,T,func,d,e-1>::with (arg, dims, rdims);
-                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
-                        }
-                        else if (d == dims)
-                        {
-                            func<Q,T,d,e>()(arg);
-                            return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
-                        }
-                        else if (d < dims)
-                        {
-                            return (dims == 0);
-                        }
-                        else
-                        {
-                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
-                        }
-                    }
-                    else if (e == rdims)
-                    {
-                        if (dims == 0)
-                        {
-                            func<Q,T,d,e>()(arg);
-                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
-                        }
-                        else if (d == dims)
-                        {
-                            func<Q,T,d,e>()(arg);
-                            return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
-                        }
-                        else if (d < dims)
-                        {
-                            return (dims == 0);
-                        }
-                        else
-                        {
-                            return model<Q,T,func,d-1,e>::with (arg, dims, rdims);
-                        }
-                    }
-                    else if (e < rdims)
-                    {
-                        return (rdims == 0);
-                    }
-                    else
-                    {
-                        return model<Q,T,func,d,e-1>::with (arg, dims, rdims);
-                    }
+                    return d < T<Q,d,render::null<Q,e>,e>::modelDimensionMinimum ? func<Q,T,d,e>::pass(arg)
+                         : (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0) && (d > T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum) ? model<Q,func,T,d-1,e>::with (arg, dims, rdims)
+                         : e < T<Q,d,render::null<Q,e>,e>::renderDimensionMinimum ? func<Q,T,d,e>::pass(arg)
+                         : (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0) && (e > T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum) ? model<Q,func,T,d,e-1>::with (arg, dims, rdims)
+                         : 0 == rdims
+                            ? (   0 == dims ? func<Q,T,d,e>::apply(arg), model<Q,func,T,d,e-1>::with (arg, dims, rdims), model<Q,func,T,d-1,e>::with (arg, dims, rdims)
+                                : d == dims ? func<Q,T,d,e>::apply(arg), model<Q,func,T,d,e-1>::with (arg, dims, rdims)
+                                : d  < dims ? func<Q,T,d,e>::pass(arg)
+                                : model<Q,func,T,d-1,e>::with (arg, dims, rdims) )
+                         : e == rdims
+                            ? (   0 == dims ? func<Q,T,d,e>::apply(arg), model<Q,func,T,d-1,e>::with (arg, dims, rdims)
+                                : d == dims ? func<Q,T,d,e>::apply(arg), model<Q,func,T,d,e-1>::with (arg, dims, rdims)
+                                : d  < dims ? func<Q,T,d,e>::pass(arg)
+                                : model<Q,func,T,d-1,e>::with (arg, dims, rdims) )
+                         : e < rdims ? func<Q,T,d,e>::pass(arg)
+                         : model<Q,func,T,d,e-1>::with (arg, dims, rdims);
                 }
         };
 
-        template<typename Q, template <class,unsigned int,class,unsigned int> class T,
+        /**\brief Model factory helper; e=2 fix point
+         *
+         * The model factory helper, geometry::model, works by calling itself
+         * recursively with different template parameters. This is one of these
+         * parameters' fix points, which prevents an infinite template
+         * recursion.
+         *
+         * \tparam Q Base data type for calculations
+         * \tparam T Model template, e.g. efgy::geometry::cube
+         * \tparam d Model depth, e.g. 4 for a tesseract
+         */
+        template<typename Q,
                  template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 template <class,unsigned int,class,unsigned int> class T,
                  unsigned int d>
-        class model<Q,T,func,d,2>
+        class model<Q,func,T,d,2>
         {
             public:
-                static bool with (typename func<Q,T,d,2>::argument &, const unsigned int &, const unsigned int &rdims)
+                /**\brief Call func with parameters; e=2 fix point
+                 *
+                 * This is a fix point stub of the model::with() method; all
+                 * arguments are ignored and this fix point will simply return
+                 * the first argument. The func template parameter is not
+                 * called.
+                 *
+                 * \returns Always the first argument.
+                 */
+                constexpr static typename func<Q,T,d,2>::output with
+                    (typename func<Q,T,d,2>::argument arg,
+                     const unsigned int &,
+                     const unsigned int &)
                 {
-                    return (rdims == 0);
+                    return func<Q,T,d,2>::pass(arg);
                 }
         };
 
-        template<typename Q, template <class,unsigned int,class,unsigned int> class T,
+        /**\brief Model factory helper; d=1 fix point
+         *
+         * The model factory helper, geometry::model, works by calling itself
+         * recursively with different template parameters. This is one of these
+         * parameters' fix points, which prevents an infinite template
+         * recursion.
+         *
+         * \tparam Q Base data type for calculations
+         * \tparam T Model template, e.g. efgy::geometry::cube
+         * \tparam e Model render depth, e.g. >= 4 when rendering a tesseract
+         */
+        template<typename Q,
                  template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 template <class,unsigned int,class,unsigned int> class T,
                  unsigned int e>
-        class model<Q,T,func,1,e>
+        class model<Q,func,T,1,e>
         {
             public:
-                static bool with (typename func<Q,T,1,e>::argument &, const unsigned int &dims, const unsigned int &)
+                /**\brief Call func with parameters; d=1 fix point
+                 *
+                 * This is a fix point stub of the model::with() method; all
+                 * arguments but the first are ignored and this fix point will
+                 * simply return the result of applying func's pass method to
+                 * the first argument.
+                 *
+                 * \returns func::pass(arg).
+                 */
+                constexpr static typename func<Q,T,1,e>::output with
+                    (typename func<Q,T,1,e>::argument arg,
+                     const unsigned int &,
+                     const unsigned int &)
                 {
-                    return (dims == 0);
+                    return func<Q,T,1,e>::pass(arg);
                 }
         };
+
+        template<typename Q,
+                 template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 unsigned int d,
+                 unsigned int e = d>
+        static inline typename func<Q,cube,d,e>::output with
+            (typename func<Q,cube,d,e>::argument arg,
+             const std::string &type,
+             const unsigned int &dims,
+             const unsigned int &rdims)
+        {
+            if ((type == "*") || (type == "simplex"))
+                model<Q,func,simplex,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "plane"))
+                model<Q,func,plane,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "cube"))
+                model<Q,func,cube,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "sphere"))
+                model<Q,func,sphere,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "moebius-strip"))
+                model<Q,func,moebiusStrip,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "klein-bagel"))
+                model<Q,func,kleinBagel,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "sierpinski-gasket"))
+                model<Q,func,sierpinski::gasket,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "sierpinski-carpet"))
+                model<Q,func,sierpinski::carpet,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "random-affine-ifs"))
+                model<Q,func,randomAffineIFS,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "random-flame"))
+                model<Q,func,flame::random,d,e>::with(arg, dims, rdims);
+
+            return func<Q,cube,d,e>::pass(arg);
+        }
     };
 };
 

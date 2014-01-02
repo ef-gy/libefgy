@@ -9,7 +9,7 @@
  * \image html matrix.png "Screenshot of the programme running in Terminal.app"
  *
  * \copyright
- * Copyright (c) 2012-2013, ef.gy Project Members
+ * Copyright (c) 2012-2014, ef.gy Project Members
  * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
