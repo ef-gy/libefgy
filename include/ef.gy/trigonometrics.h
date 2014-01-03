@@ -28,6 +28,8 @@
 #if !defined(EF_GY_TRIGONOMETRICS_H)
 #define EF_GY_TRIGONOMETRICS_H
 
+#include <ef.gy/complex.h>
+
 namespace efgy
 {
     namespace math

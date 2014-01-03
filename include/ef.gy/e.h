@@ -32,7 +32,9 @@
 #if !defined(EF_GY_E_H)
 #define EF_GY_E_H
 
+#include <ef.gy/factorial.h>
 #include <ef.gy/exponential.h>
+#include <ef.gy/traits.h>
 
 namespace efgy
 {
@@ -79,7 +81,7 @@ namespace efgy
                  *
                  * Used to make sure that type casts work as intended.
                  */
-                typedef typename Q::integer integer;
+                typedef typename numeric::traits<Q>::integral integer;
 
                 /**\brief Default constructor
                  *
@@ -145,7 +147,7 @@ namespace efgy
                  *
                  * \return The requested sequence member.
                  */
-                constexpr static Q getSequenceMemberAt (const unsigned int &n) const
+                constexpr Q getSequenceMemberAt (const unsigned int &n) const
                 {
                     return factor
                        * ( (exponentiate::integral<Q>::raise(exponent, n))
