@@ -45,9 +45,9 @@ namespace efgy
         }
 
         template <>
-        std::string xml (const colour::HSL<math::fraction>::value &pValue, bool small, const long &precision)
+        std::string xml (const colour::HSL<math::fraction>::vector &pValue, bool small, const long &precision)
         {
-            colour::HSL<math::fraction>::value value = pValue;
+            colour::HSL<math::fraction>::vector value = pValue;
             value.hue = math::numeric::round(value.hue, precision);
             value.saturation = math::numeric::round(value.saturation, precision);
             value.lightness = math::numeric::round(value.lightness, precision);
@@ -70,9 +70,9 @@ namespace efgy
         }
 
         template <>
-        std::string xml (const colour::RGB<math::fraction>::value &pValue, bool small, const long &precision)
+        std::string xml (const colour::RGB<math::fraction>::vector &pValue, bool small, const long &precision)
         {
-            colour::RGB<math::fraction>::value value = pValue;
+            colour::RGB<math::fraction>::vector value = pValue;
             value.red = math::numeric::round(value.red, precision);
             value.green = math::numeric::round(value.green, precision);
             value.blue = math::numeric::round(value.blue, precision);
@@ -104,10 +104,10 @@ namespace efgy
         static const int pickerResolution = 8;
 
         template <class Q>
-        std::string xmlpicker3d (const typename Q::value &value, const long &precision = 24)
+        std::string xmlpicker3d (const typename Q::vector &value, const long &precision = 24)
         {
             std::string s = "<picker xmlns='http://colouri.se/2012'>";
-            typename Q::value v = value;
+            typename Q::vector v = value;
             if (v[0].denominator == math::numeric::zero())
             {
                 v[0] = typename Q::scalar(0);
@@ -154,13 +154,13 @@ namespace efgy
         }
 
         template <>
-        std::string xmlpicker (const colour::HSL<math::fraction>::value &value, const long &precision)
+        std::string xmlpicker (const colour::HSL<math::fraction>::vector &value, const long &precision)
         {
             return xmlpicker3d<colour::HSL<math::fraction> > (value, precision);
         }
 
         template <>
-        std::string xmlpicker (const colour::RGB<math::fraction>::value &value, const long &precision)
+        std::string xmlpicker (const colour::RGB<math::fraction>::vector &value, const long &precision)
         {
             return xmlpicker3d<colour::RGB<math::fraction> > (value, precision);
         }

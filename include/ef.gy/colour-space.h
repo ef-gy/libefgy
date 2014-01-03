@@ -35,13 +35,7 @@ namespace efgy
     namespace colour
     {
         template <typename Q, unsigned int n>
-        class space : public math::coordinateSpace<Q,n>
-        {
-            public:
-                using typename math::coordinateSpace<Q,n>::base;
-                using typename math::coordinateSpace<Q,n>::scalar;
-                typedef typename math::coordinateSpace<Q,n>::vector value;
-        };
+        using space = math::coordinateSpace<Q,n>;
     };
 };
 

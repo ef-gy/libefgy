@@ -44,37 +44,37 @@ namespace efgy
                 using typename space<Q,3>::base;
                 using typename space<Q,3>::scalar;
 
-                class value : public space<Q,3>::value
+                class vector : public space<Q,3>::vector
                 {
                     public:
                         typedef typename HSL<Q>::scalar scalar;
 
-                        value ()
-                            : space<Q,3>::value(),
+                        vector ()
+                            : space<Q,3>::vector(),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {}
-                        value (const scalar s[3])
-                            : space<Q,3>::value(s),
+                        vector (const scalar s[3])
+                            : space<Q,3>::vector(s),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {}
-                        value (const typename HSL<Q>::value &v)
-                            : space<Q,3>::value(),
+                        vector (const typename HSL<Q>::vector &v)
+                            : space<Q,3>::vector(),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {
                                 hue        = v.hue;
                                 saturation = v.saturation;
                                 lightness  = v.lightness;
                             }
-                        value (const typename HSLA<Q>::value &v)
-                            : space<Q,3>::value(),
+                        vector (const typename HSLA<Q>::vector &v)
+                            : space<Q,3>::vector(),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {
                                 hue        = v.hue        * v.alpha;
                                 saturation = v.saturation * v.alpha;
                                 lightness  = v.lightness  * v.alpha;
                             }
-                        value (const scalar &pHue, const scalar &pSaturation, const scalar &pLightness)
-                            : space<Q,3>::value(),
+                        vector (const scalar &pHue, const scalar &pSaturation, const scalar &pLightness)
+                            : space<Q,3>::vector(),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {
                                 hue        = pHue;
@@ -86,8 +86,8 @@ namespace efgy
                         scalar &saturation;
                         scalar &lightness;
 
-                        value (const typename RGB<Q>::value &v)
-                            : space<Q,3>::value(),
+                        vector (const typename RGB<Q>::vector &v)
+                            : space<Q,3>::vector(),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                             {
                                 scalar min = v.red;
@@ -133,7 +133,7 @@ namespace efgy
                                 }
                             }
 
-                        operator typename RGB<Q>::value (void) const
+                        operator typename RGB<Q>::vector (void) const
                         {
                             scalar a = scalar(2)*lightness - 1;
                             if (a < math::numeric::zero())
@@ -188,7 +188,7 @@ namespace efgy
 
                             scalar m = lightness - chroma / scalar(2);
 
-                            return typename RGB<Q>::value(r1 + m, g1 + m, b1 + m);
+                            return typename RGB<Q>::vector(r1 + m, g1 + m, b1 + m);
                         }
                 };
         };
@@ -200,21 +200,21 @@ namespace efgy
                 using typename space<Q,4>::base;
                 using typename space<Q,4>::scalar;
 
-                class value : public space<Q,4>::value
+                class vector : public space<Q,4>::vector
                 {
                     public:
                         typedef typename HSLA<Q>::scalar scalar;
 
-                        value ()
-                            : space<Q,4>::value(),
+                        vector ()
+                            : space<Q,4>::vector(),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {}
-                        value (const scalar s[4])
-                            : space<Q,4>::value(s),
+                        vector (const scalar s[4])
+                            : space<Q,4>::vector(s),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {}
-                        value (const typename HSL<Q>::value &v)
-                            : space<Q,4>::value(),
+                        vector (const typename HSL<Q>::vector &v)
+                            : space<Q,4>::vector(),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {
                                 hue        = v.hue;
@@ -222,8 +222,8 @@ namespace efgy
                                 lightness  = v.lightness;
                                 alpha      = scalar(1);
                             }
-                        value (const scalar &pHue, const scalar &pSaturation, const scalar &pLightness)
-                            : space<Q,4>::value(),
+                        vector (const scalar &pHue, const scalar &pSaturation, const scalar &pLightness)
+                            : space<Q,4>::vector(),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {
                                 hue        = pHue;
@@ -231,8 +231,8 @@ namespace efgy
                                 lightness  = pLightness;
                                 alpha      = scalar(1);
                             }
-                        value (const scalar &pHue, const scalar &pSaturation, const scalar &pLightness, const scalar &pAlpha)
-                            : space<Q,4>::value(),
+                        vector (const scalar &pHue, const scalar &pSaturation, const scalar &pLightness, const scalar &pAlpha)
+                            : space<Q,4>::vector(),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {
                                 hue        = pHue;
@@ -240,8 +240,8 @@ namespace efgy
                                 lightness  = pLightness;
                                 alpha      = pAlpha;
                             }
-                        value (const value &pV)
-                            : space<Q,4>::value(pV),
+                        vector (const vector &pV)
+                            : space<Q,4>::vector(pV),
                               hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                             {
                             /*
@@ -252,7 +252,7 @@ namespace efgy
                             */
                             }
 
-                        value &operator = (const value &pV)
+                        vector &operator = (const vector &pV)
                             {
                                 hue        = pV.hue;
                                 saturation = pV.saturation;
@@ -266,7 +266,7 @@ namespace efgy
                         scalar &lightness;
                         scalar &alpha;
 
-                        operator typename RGBA<Q>::value (void) const
+                        operator typename RGBA<Q>::vector (void) const
                         {
                             scalar a = scalar(2)*lightness - 1;
                             if (a < math::numeric::zero())
@@ -321,7 +321,7 @@ namespace efgy
 
                             scalar m = lightness - chroma / scalar(2);
 
-                            return typename RGBA<Q>::value(r1 + m, g1 + m, b1 + m, alpha);
+                            return typename RGBA<Q>::vector(r1 + m, g1 + m, b1 + m, alpha);
                         }
                 };
         };

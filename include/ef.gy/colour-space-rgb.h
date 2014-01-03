@@ -44,38 +44,38 @@ namespace efgy
                 using typename space<Q,3>::base;
                 using typename space<Q,3>::scalar;
 
-                class value : public space<Q,3>::value
+                class vector : public space<Q,3>::vector
                 {
                     public:
                         typedef typename RGB<Q>::scalar scalar;
-                        using space<Q,3>::value::data;
+                        using space<Q,3>::vector::data;
 
-                        value ()
-                            : space<Q,3>::value(),
+                        vector ()
+                            : space<Q,3>::vector(),
                               red((*this)[0]), green((*this)[1]), blue((*this)[2])
                             {}
-                        value (const scalar s[3])
-                            : space<Q,3>::value(s),
+                        vector (const scalar s[3])
+                            : space<Q,3>::vector(s),
                               red((*this)[0]), green((*this)[1]), blue((*this)[2])
                             {}
-                        value (const typename RGB<Q>::value &v)
-                            : space<Q,3>::value(),
+                        vector (const typename RGB<Q>::vector &v)
+                            : space<Q,3>::vector(),
                               red((*this)[0]), green((*this)[1]), blue((*this)[2])
                             {
                                 red   = v.red;
                                 green = v.green;
                                 blue  = v.blue;
                             }
-                        value (const typename RGBA<Q>::value &v)
-                            : space<Q,3>::value(),
+                        vector (const typename RGBA<Q>::vector &v)
+                            : space<Q,3>::vector(),
                               red((*this)[0]), green((*this)[1]), blue((*this)[2])
                             {
                                 red   = v.red   * v.alpha;
                                 green = v.green * v.alpha;
                                 blue  = v.blue  * v.alpha;
                             }
-                        value (const scalar &pRed, const scalar &pGreen, const scalar &pBlue)
-                            : space<Q,3>::value(),
+                        vector (const scalar &pRed, const scalar &pGreen, const scalar &pBlue)
+                            : space<Q,3>::vector(),
                               red((*this)[0]), green((*this)[1]), blue((*this)[2])
                             {
                                 red   = pRed;
@@ -96,22 +96,22 @@ namespace efgy
                 using typename space<Q,4>::base;
                 using typename space<Q,4>::scalar;
 
-                class value : public space<Q,4>::value
+                class vector : public space<Q,4>::vector
                 {
                     public:
                         typedef typename RGBA<Q>::scalar scalar;
                         using space<Q,4>::vector::data;
 
-                        value ()
-                            : space<Q,4>::value(),
+                        vector ()
+                            : space<Q,4>::vector(),
                               red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                             {}
-                        value (const scalar s[4])
-                            : space<Q,4>::value(s),
+                        vector (const scalar s[4])
+                            : space<Q,4>::vector(s),
                               red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                             {}
-                        value (const typename RGB<Q>::value &v)
-                            : space<Q,4>::value(),
+                        vector (const typename RGB<Q>::vector &v)
+                            : space<Q,4>::vector(),
                               red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                             {
                                 red   = v.red;
@@ -119,8 +119,8 @@ namespace efgy
                                 blue  = v.blue;
                                 alpha = scalar(1);
                             }
-                        value (const scalar &pRed, const scalar &pGreen, const scalar &pBlue)
-                            : space<Q,4>::value(),
+                        vector (const scalar &pRed, const scalar &pGreen, const scalar &pBlue)
+                            : space<Q,4>::vector(),
                               red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                             {
                                 red   = pRed;
@@ -128,8 +128,8 @@ namespace efgy
                                 blue  = pBlue;
                                 alpha = scalar(1);
                             }
-                        value (const scalar &pRed, const scalar &pGreen, const scalar &pBlue, const scalar &pAlpha)
-                            : space<Q,4>::value(),
+                        vector (const scalar &pRed, const scalar &pGreen, const scalar &pBlue, const scalar &pAlpha)
+                            : space<Q,4>::vector(),
                               red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                             {
                                 red   = pRed;
