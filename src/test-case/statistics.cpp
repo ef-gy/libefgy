@@ -29,6 +29,7 @@
  */
 
 #include <iostream>
+#include <math.h>
 
 #include <ef.gy/test-case.h>
 #include <ef.gy/statistics.h>
@@ -37,7 +38,8 @@ using namespace efgy;
 using namespace efgy::statistics;
 using namespace efgy::test;
 
-int testAverage(std::ostream &log)
+
+int testStatistics(std::ostream &log)
 {
     std::vector<int> v;
     maybe<int> avg = average<int>(v);
@@ -63,7 +65,42 @@ int testAverage(std::ostream &log)
         log << "averages of {1, 3, -10} and {-10, 1, 3} expected to be equal";
         return next_integer();
     }
+
+    std::vector<double> v4;
+    auto var0 = variance<double>(v4);
+    if (var0)
+    {
+        log << "variance of an empty list is not defined.";
+        return next_integer();
+    }
+
+    std::vector<double> v5 = {1, 1, 1, 1};
+    auto var1 = variance<double>(v5.begin(), v5.end());
+    if ((double) var1 != 0.0)
+    {
+        log << "variance of equal values (1) differs from zero.\n";
+        return next_integer();
+    }
+
+    std::vector<double> v6 = {1, 2, 3, 4};
+    auto var2 = variance<double>(v6.begin(), v6.end());
+
+    if (fabs((double) var2 - 1.25) >= 1e-14)
+    {
+        log << "variance of ascending values (1...4) differs from expected value.\n";
+        return next_integer();
+    }
+
+    std::vector<double> v7 = {1, 2, 3, 4};
+    auto var3 = variance(v7);
+
+    if (fabs((double) var3 - 1.25) >= 1e-14)
+    {
+        log << "variance of a vector (1...4) without iterators differs from expected value.\n";
+        return next_integer();
+    }
+
     return 0;
 }
 
-TEST_BATCH(testAverage)
+TEST_BATCH(testStatistics)
