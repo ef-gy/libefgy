@@ -46,6 +46,23 @@ int testAverage(std::ostream &log)
         log << "average of an empty set is not defined";
         return next_integer();
     }
+
+    std::vector<int> v2 {1, 3, -10};
+
+    maybe<int> avg2 = average<int>(v2);
+    if(((int) avg2) != -2) 
+    {
+        log << "average of {1, 3, -10} expected to be -2";
+        return next_integer();
+    }
+
+    std::vector<int> v3 {-10, 1, 3};
+    maybe<int> avg3 = average<int>(v3);
+    if(((int) avg2) != ((int) avg3)) 
+    {
+        log << "averages of {1, 3, -10} and {-10, 1, 3} expected to be equal";
+        return next_integer();
+    }
     return 0;
 }
 
