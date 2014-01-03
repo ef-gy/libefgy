@@ -420,6 +420,15 @@ namespace efgy
                 return zero();
             }
 
+            /**
+             * Generic square template.
+             */
+            template <typename T>
+            T pow2(T value)
+            {
+                return value * value;
+            }
+
             /* generic factorial operator */
 
             template <typename T>
