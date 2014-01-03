@@ -47,9 +47,7 @@ namespace efgy
                     {
                         public:
                             vector () : math::coordinateSpace<F,n>::vector() {}
-                            vector (const scalar t[n]) : math::coordinateSpace<F,n>::vector(t) {}
                             vector (const std::array<scalar, n> &t) : math::coordinateSpace<F,n>::vector(t) {}
-                            explicit vector (const typename math::coordinateSpace<F,n>::vector &t) : math::coordinateSpace<F,n>::vector(t) {}
 
                             operator typename euclidian::space<F,n>::vector () const
                             {

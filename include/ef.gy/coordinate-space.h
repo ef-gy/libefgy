@@ -46,7 +46,6 @@ namespace efgy
                 {
                     public:
                         constexpr vector () : std::array<scalar, n>() {}
-                        vector (const scalar t[n]) : std::array<scalar, n>() { std::copy(t, t+n, std::array<scalar, n>::begin()); }
                         constexpr vector (const std::array<scalar, n> &t) : std::array<scalar, n>(t) {}
 
                         using std::array<scalar, n>::operator =;
@@ -101,7 +100,7 @@ namespace efgy
 
                         vector operator + (const vector &v) const
                         {
-                            scalar r[n];
+                            std::array<scalar,n> r;
 
                             for (unsigned int i = 0; i < n; i++)
                             {
@@ -118,7 +117,7 @@ namespace efgy
 
                         vector operator - (const vector &v) const
                         {
-                            scalar r[n];
+                            std::array<scalar,n> r;
 
                             for (unsigned int i = 0; i < n; i++)
                             {
