@@ -39,36 +39,7 @@ namespace efgy
         namespace euclidian
         {
             template <typename F, unsigned int n>
-            class space : public math::coordinateSpace<F,n>
-            {
-                public:
-                    typedef typename math::coordinateSpace<F,n>::base base;
-                    typedef typename math::coordinateSpace<F,n>::scalar scalar;
-
-                    class vector : public math::coordinateSpace<F,n>::vector
-                    {
-                        public:
-                            vector () : math::coordinateSpace<F,n>::vector() {}
-                            vector (const scalar t[n]) : math::coordinateSpace<F,n>::vector(t) {}
-                            vector (const std::array<scalar, n> &t) : math::coordinateSpace<F,n>::vector(t) {}
-                            explicit vector (const typename math::coordinateSpace<F,n>::vector &t) : math::coordinateSpace<F,n>::vector(t) {}
-
-                            template<unsigned int nd>
-                            typename space<F,nd>::vector expand (void) const
-                            {
-                                typename space<F,nd>::vector rv;
-                                for (unsigned int i = 0; (i < n) && (i < nd); i++)
-                                {
-                                    rv[i] = (*this)[i];
-                                }
-                                for (unsigned int i = n; (i < nd); i++)
-                                {
-                                    rv[i] = typename space<F,nd>::scalar();
-                                }
-                                return rv;
-                            }
-                    };
-            };
+            using space = math::coordinateSpace<F,n>;
 
             template <typename F, unsigned int n>
             typename space<F,n>::scalar lengthSquared
