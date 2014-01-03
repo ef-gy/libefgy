@@ -30,9 +30,11 @@
 
 #include <array>
 #include <ef.gy/maybe.h>
+#include <ef.gy/numeric.h>
 #include <numeric>
 
 using std::accumulate;
+using efgy::math::numeric::pow2;
 
 namespace efgy
 {
@@ -99,6 +101,36 @@ namespace efgy
         static maybe<T> variance(const std::vector<T> &input)
         {
             return variance<T>(input.begin(), input.end());
+        }
+
+        /**
+         * Calculates chi^2 for statistics.
+         */
+        template<typename T, typename _InputIterator>
+        static maybe<T> chi_square(_InputIterator begin, _InputIterator end, _InputIterator measurement_begin, _InputIterator measurement_end)
+        {
+            T var = variance<double>(measurement_begin, measurement_end);
+            // TODO Check for 0 variances.
+            if (begin == end)
+            {
+                return maybe<T>();
+            }
+
+            unsigned int count_elements = end - begin;
+
+            T sum = 0.0;
+            for (; begin != end, measurement_begin != measurement_end; ++begin, ++measurement_begin)
+            {
+                sum += pow2((*measurement_begin - *begin) / (T) var);
+            }
+
+            return sum;
+        }
+
+        template<typename T>
+        static maybe<T> chi_square(const std::vector<T> values, const std::vector<T> measurements)
+        {
+           return chi_square<T>(values.begin(), values.end(), measurements.begin(), measurements.end());
         }
     };
 };
