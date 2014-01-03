@@ -32,6 +32,8 @@
 #if !defined(EF_GY_E_H)
 #define EF_GY_E_H
 
+#include <ef.gy/exponential.h>
+
 namespace efgy
 {
     namespace math
@@ -55,6 +57,19 @@ namespace efgy
          *                    constant in the hope that the compiler will be
          *                    able to substitute a constant value for base data
          *                    types.
+         *
+         * \section Usage
+         *
+         * Usage of this class, and the reasoning behind that usage, is the same
+         * as for the math::pi template. In short, you can use either of these:
+         *
+         * \code{.cpp}
+         * double myE = math::e<double>();
+         * double myE = math::e<double>::get();
+         * (double)math::e<double>();
+         * \endcode
+         *
+         * \see For more details, see math::pi#Usage.
          */
         template <typename Q, unsigned int iterations = 10>
         class e
@@ -130,9 +145,11 @@ namespace efgy
                  *
                  * \return The requested sequence member.
                  */
-                Q getSequenceMemberAt (const unsigned int &n) const
+                constexpr static Q getSequenceMemberAt (const unsigned int &n) const
                 {
-                    return factor * ((exponent^(integer(n))) / Q(factorial<integer>(integer(n))));
+                    return factor
+                       * ( (exponentiate::integral<Q>::raise(exponent, n))
+                         / Q(factorial<integer>(integer(n))));
                 }
         };
     };

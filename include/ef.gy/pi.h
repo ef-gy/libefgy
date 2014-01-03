@@ -152,7 +152,7 @@ namespace efgy
                  */
                 constexpr operator Q (void) const
                 {
-                    return sumSequenceTo(iterations-1, factor, Q(0));
+                    return get (iterations, factor);
                 }
 
                 /**\brief Calculate approximation of pi without object
