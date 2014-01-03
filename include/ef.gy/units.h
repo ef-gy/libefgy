@@ -432,11 +432,6 @@ namespace efgy
                  */
                 typedef unitValue<Q, unitSymbol, unitExponent> unit;
 
-/*
-                typedef scaledUnitValue<unit, unsigned long long, 1, 1000> milli;
-                typedef scaledUnitValue<unit, unsigned long long, 1, 1000000> micro;
-                */
-
                 /**\brief Yotta prefix
                  *
                  * Type for values with a yotta prefix. A yotta-something is
