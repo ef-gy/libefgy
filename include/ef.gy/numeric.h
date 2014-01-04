@@ -420,6 +420,15 @@ namespace efgy
                 return zero();
             }
 
+            /**
+             * Generic power2 template.
+             */
+            template <typename T>
+            T pow2(const T &a)
+            {
+                return a * a;
+            }
+
             /* generic factorial operator */
 
             template <typename T>
