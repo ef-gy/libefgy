@@ -84,9 +84,10 @@ namespace efgy
     template<typename T, int genomeLength, typename Fitness, typename Mutate, typename hasTerminated, template <typename S> class Select, typename Initialise, int populationSize, typename Q>
     class geneticAlgorithm
     {
+        public:
+        typedef Q base;
        
 
-       protected:
         typedef Fitness FitnessFunctor;
 
        /// an individual for genetic algorithms
@@ -102,9 +103,10 @@ namespace efgy
 
         std::mt19937 rng; 
 
+       protected:
         void breedNextGeneration()
         {
-           Select<geneticAlgorithm<T, genomeLength, Fitness, Mutate,  hasTerminated, selectNull, Initialise, populationSize, Q > > sel(&this);
+           Select<geneticAlgorithm> sel(*this);
            std::vector<individual > parents = sel(populationSize, population);
            
            std::vector<individual > children;
@@ -130,11 +132,11 @@ namespace efgy
 
               r = std::generate_canonical<double, 10>(rng);
               if(r < pMutate) {
-                mutate(offspring.first());
-                mutate(offspring.second());
+                mutate(offspring.first);
+                mutate(offspring.second);
               }
-              children.push_back(offspring.first());
-              children.push_back(offspring.second());
+              children.push_back(offspring.first);
+              children.push_back(offspring.second);
 
            }
 
@@ -146,8 +148,8 @@ namespace efgy
         {
            std::uniform_int_distribution<> dis(0, genomeLength);
            int position = dis(rng);
-            
-           individual.set(position, Mutate(individual[position]));
+           Mutate mut;
+           individual[position] = mut(individual[position]);
         }
        
         std::pair<individual , individual>  onePointCrossover(individual &i1, individual &i2)
@@ -157,9 +159,9 @@ namespace efgy
 
            for(int k = 0; k < position; k++)
             {
-                T tmp = i1.genome[k];
-                i1.genome[k] = i2.genome[k];
-                i2.genome[k] = tmp;
+                T tmp = i1[k];
+                i1[k] = i2[k];
+                i2[k] = tmp;
             }
            return std::pair<individual , individual> (i1, i2);
         }
@@ -179,18 +181,28 @@ namespace efgy
 
         individual  start()
         {
-            while(!hasTerminated())
+            hasTerminated terminated;
+            while(!terminated())
               {
                 breedNextGeneration();
               }
 
             std::map<Q, individual > lastGeneration;
+            Fitness fitness;
+
             for(typename std::vector<individual >::iterator it = population.begin(); it != population.end(); it++)
             {
-                lastGeneration.insert(std::pair<Q, individual > (Fitness(*it), *it));
+                lastGeneration.insert(std::pair<Q, individual > (fitness(*it), *it));
             }
 
-            return lastGeneration.end().second;            
+            if (lastGeneration.size())
+            {
+                return (lastGeneration.end()--)->second;            
+            }
+            else
+            {
+                return individual();
+            }
         }
 
     };
@@ -227,37 +239,38 @@ namespace efgy
             {
                std::random_device rd;
                std::mt19937 rng(rd());
-               std::map<typename S::Q, typename S::individual > current;
+               std::map<typename S::base, typename S::individual > current;
                for(typename std::vector<typename S::individual >::iterator it = population.begin(); it != population.end(); it++)
                {
-                    current.insert(std::pair<typename S::Q, typename S::individual > (typename S::FitnessFunctor(*it), *it));
+                   typename S::FitnessFunctor fitness;
+                    current.insert(std::pair<typename S::base, typename S::individual > (fitness(*it), *it));
                }
                
                std::vector<typename S::individual > newPopulation; 
 
                while (newPopulation.size () < targetSize)
                {
-                    std::map<typename S::Q, typename S::individual > tournament;
+                    std::map<typename S::base, typename S::individual > tournament;
                     for(int i = 0; i < tournamentSize; i++)
                     {
                         std::uniform_int_distribution<> dis(0, tournament.size());
                         int r = dis(rng);
                     {
-                        typename std::map<typename S::Q, typename S::individual >::iterator it = current.begin();
+                        typename std::map<typename S::base, typename S::individual >::iterator it = current.begin();
                         for(int k = 0;
-                            (it != current.end) && (k < r);
+                            (it != current.end()) && (k < r);
                             k++, it++)
                         {
-                            std::pair<typename S::Q, typename S::individual> p = *it;
+                            std::pair<typename S::base, typename S::individual> p = *it;
                             tournament.insert(p);
                         }
                     }
 
                     for(int i = 0; i < tournamentSize; i++)
                     {
-                        typename std::map<typename S::Q, typename S::individual >::iterator it;
-                        it = tournament.upper_bound(std::numeric_limits<typename S::Q>::max());
-                        if(newPopulation.size < targetSize)
+                        typename std::map<typename S::base, typename S::individual >::iterator it;
+                        it = tournament.upper_bound(std::numeric_limits<typename S::base>::max());
+                        if(newPopulation.size() < targetSize)
                         {
                             newPopulation.push_back(it->second);
                         }
@@ -266,6 +279,8 @@ namespace efgy
 
             }
             GA.population.swap(newPopulation);
+
+            return newPopulation;
            }
 
             private:
@@ -321,7 +336,7 @@ namespace efgy
             void operator() (bool *array, int length)
             {
                std::random_device rd;
-               std::mt19937 rng(rd);
+               std::mt19937 rng(rd());
                std::uniform_int_distribution<> dis(0, 1);
                for(int i = 0; i < length; i++) {
                   bool r = (dis(rng) % 2) == 0;
