@@ -1,7 +1,7 @@
 /**\file
- * \brief Test cases for the VT100 I/O code
+ * \brief Sequences
  *
- * Covers the functionality in the terminal.h and vt100.h headers.
+ * Contains supporting types for infinite sequences.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -28,57 +28,32 @@
  * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
  */
 
-#include <iostream>
+#if !defined(EF_GY_SEQUENCES_H)
+#define EF_GY_SEQUENCES_H
 
-#include <ef.gy/test-case.h>
-#include <ef.gy/vt100.h>
-#include <ef.gy/random.h>
-
-using namespace efgy;
-
-/**\brief VT100 output tests
- * \test Tries to create some output on the current terminal using the vt100
- *       helpers.
- *
- * \param[out] log A stream for test cases to log messages to.
- *
- * \return Zero when everything went as expected, nonzero otherwise.
- */
-int testVT100 (std::ostream &log)
+namespace efgy
 {
-    terminal::vt100<> output;
-    random::mersenneTwister<> mt(1337);
-
-    output.resize(output.getOSDimensions());
-
-    std::array<std::size_t,2> s = output.size();
-
-    log << s[0] << "x" << s[1] << "\n";
-
-    for (unsigned int i = 0; i < 100000; i++)
+    namespace math
     {
-        std::size_t l = mt() % s[1];
-        std::size_t c = mt() % s[0];
-        output.target[l][c].content = mt() % (1<<7);
-        output.target[l][c].foregroundColour = mt() % 256;
-        output.target[l][c].backgroundColour = mt() % 256;
-
-        if ((i % 100) == 0)
+        /**\brief Infinite sequence
+         *
+         * Represents an infinite sequence. You need to provide an algrithm to
+         * calculate arbitrary members of these sequences.
+         *
+         * \tparam Q         Base type for calculations.
+         * \tparam algorithm The algorithm to calculate the sequence members.
+         * \tparam N         Base integral type.
+         */
+        template<typename Q, template<typename Q, typename N> class algorithm, typename N = unsigned long long>
+        class sequence : public algorithm<Q, N>
         {
-            output.flush(0, 2048);
-        }
-    }
+            public:
+                constexpr static get (const N &n)
+                {
+                    return at(n);
+                }
+        };
+    };
+};
 
-    int i = 0;
-    std::size_t ops;
-    while ((ops = output.flush()) > 0)
-    {
-        i++;
-    }
-
-    std::cout << "iterations: " << i << "\n";
-
-    return 0;
-}
-
-TEST_BATCH(testVT100)
+#endif

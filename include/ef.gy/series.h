@@ -1,5 +1,7 @@
 /**\file
- * \brief Test cases for the set templates
+ * \brief Series
+ *
+ * Contains supporting types for infinite series.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -26,49 +28,14 @@
  * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
  */
 
-#include <iostream>
+#if !defined(EF_GY_SERIES_H)
+#define EF_GY_SERIES_H
 
-#include <ef.gy/test-case.h>
-#include <ef.gy/set.h>
-
-using namespace efgy;
-using namespace efgy::math;
-using efgy::test::next_integer;
-
-int testSet(std::ostream &log)
+namespace efgy
 {
-    set<unsigned int> empty();
-
-    set<unsigned int> empty2();
-    
-    if(empty != empty2)
+    namespace math
     {
-	log << "two empty sets cannot be inequal to each other ";
-	return next_integer();
-    }
-    
-    const int a[4] = {0, 1, 2, 3};
+    };
+};
 
-    set<int> s_a(&a[0], 4);
-
-    int b[3] = {0, 1, 2};
-    set<int> s_b(&b[0], 3);
-
-    if(s_a == s_b)
-    {
-	log << "sets of two different sizes cannot be equal to each other";
-    	return next_integer();
-    }
-
-    const int a_permuted[4] = {3, 2, 1, 0};
-    set<int> s_a_permuted(&a_permuted[0], 3);
-
-    if(!(s_a == s_a_permuted))
-    {
-        log << "sets with the same elements in different order should be equal";
-        return next_integer();
-    }
-    return 0; 
-}
-
-TEST_BATCH(testSet)
+#endif
