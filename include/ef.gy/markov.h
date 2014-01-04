@@ -39,7 +39,7 @@
 #include <map>
 #include <numeric>
 #include <algorithm>
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 namespace efgy
