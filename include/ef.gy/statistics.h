@@ -119,7 +119,7 @@ namespace efgy
             unsigned int count_elements = end - begin;
 
             T sum = 0.0;
-            for (; begin != end, measurement_begin != measurement_end; ++begin, ++measurement_begin)
+            for (; begin != end && measurement_begin != measurement_end; ++begin, ++measurement_begin)
             {
                 sum += pow2((*measurement_begin - *begin) / (T) var);
             }
