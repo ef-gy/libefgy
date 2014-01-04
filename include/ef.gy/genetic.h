@@ -287,65 +287,6 @@ namespace efgy
                 S& GA;
     };
 
-    /** \brief Implements GA termination after N generations.
-
-        \tparam N is the number of generations after which the GA should terminate. 
-    */
-    template <int N>
-    class terminateGenerations
-    {
-        public:
-            terminateGenerations() : current(0) {};
-            bool operator() (void)
-            {
-                return (++current > N); 
-            }
-        private:
-            int current;
-    };
-
-    /** \brief Functor that initialises an array of float with randomly generated numbers between 0 and 1.
-    
-    */
-   class initialiseFloatsRandomly
-   {
-        public:
-            initialiseFloatsRandomly() {
-               
-            };
-
-            void operator() (float* array, int length) 
-            {
-               std::random_device rd;
-               std::mt19937 rng(rd()); 
-               for(int i = 0; i < length; i++) {
-                 float r = std::generate_canonical<float, 10>(rng); 
-                 array[i] = r;
-               }
-            }
-
-
-   };
-
-    /** \brief Functor that initialises an array of booleans randomly..*/
-    class initialiseBooleansRandomly
-    {
-        public:
-            initialiseBooleansRandomly() {};
-
-            void operator() (bool *array, int length)
-            {
-               std::random_device rd;
-               std::mt19937 rng(rd());
-               std::uniform_int_distribution<> dis(0, 1);
-               for(int i = 0; i < length; i++) {
-                  bool r = (dis(rng) % 2) == 0;
-                  array [i] = r; 
-               }
-               
-            }
-    };
-
    }
 }
 
