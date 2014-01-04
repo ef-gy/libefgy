@@ -37,9 +37,8 @@ using efgy::test::next_integer;
 
 int testSet(std::ostream &log)
 {
-    set<unsigned int> empty();
-
-    set<unsigned int> empty2();
+    set<unsigned int> empty;
+    set<unsigned int> empty2;
     
     if(empty != empty2)
     {
