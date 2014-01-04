@@ -78,13 +78,8 @@ namespace efgy
                 return maybe<T>();
             }
 
-            struct square_functor {
-                T operator()(T first, T element) { return first + element * element; };
-            } square;
-
             T sum = accumulate(begin, end, 0.0);
-            // TODO Require C14 to be able to use a lambda expression here.
-            T sum_square = accumulate(begin, end, 0.0, square);
+            T sum_square = accumulate(begin, end, 0.0, [](T first, T element) { return first + element * element; });
             unsigned int count_elements = end - begin;
 
             T var = (sum_square - sum * sum / count_elements) / count_elements;
