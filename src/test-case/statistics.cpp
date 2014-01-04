@@ -87,7 +87,7 @@ int testStatistics(std::ostream &log)
 
     if (fabs((double) var2 - 1.25) >= 1e-14)
     {
-        log << "variance of ascending values (1...4) differs from expected value.\n";
+        log << "variance of descending values (1...4) differs from expected value.\n";
         return next_integer();
     }
 
@@ -97,6 +97,35 @@ int testStatistics(std::ostream &log)
     if (fabs((double) var3 - 1.25) >= 1e-14)
     {
         log << "variance of a vector (1...4) without iterators differs from expected value.\n";
+        return next_integer();
+    }
+
+    std::vector<double> v1111 {0.0, 2.0, 4.0};
+
+    std::vector<double> v8_measurement;
+    std::vector<double> v8;
+    auto chi0 = chi_square(v8, v8_measurement);
+    if (chi0)
+    {
+        log << "chi_square of no measurements is not defined\n";
+        return next_integer();
+    }
+
+//     std::vector<double> v9_measurement {1.0, 1.0, 1.0};
+//     std::vector<double> v9 {1.0, 1.0, 1.0};
+//     auto chi1 = chi_square(v9, v9_measurement);
+//     if (chi1)
+//     {
+//         log << "chi_square of no variance is not defined\n";
+//         return next_integer();
+//     }
+
+    std::vector<double> v10_measurement {0.0, 2.0, 4.0};
+    std::vector<double> v10 {0.0, 1.0, 2.0};
+    auto chi2 = chi_square(v10, v10_measurement);
+    if (fabs((double) chi2 - (45.0/64.0)) > 1e-14)
+    {
+        log << "chi_square of descending values is not the expected value\n";
         return next_integer();
     }
 
