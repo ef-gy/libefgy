@@ -39,10 +39,10 @@ int testConstruction (std::ostream &log)
      matrix<int, 3, 4> m;
      for(int i = 0; i < 3; i++)
      {
-	for(int k = 0; k < 4; k++)
+    	for(int k = 0; k < 4; k++)
         {
-		m[i][k] = i * k;
-	}
+	    	m[i][k] = i * k;
+	    }
      }
 
      matrix<int, 3, 4> m2(m);
@@ -50,16 +50,16 @@ int testConstruction (std::ostream &log)
      bool allCorrect = true;
      for(int i = 0; i < 3; i++)
      {
-	for(int k = 0; k < 4; k++)
+    	for(int k = 0; k < 4; k++)
         {
-	    allCorrect &= (m2[i][k] == (i * k));
-	}
+	        allCorrect &= (m2[i][k] == (i * k));
+	    }
      }
 
      if(!allCorrect) 
      {
-	log << "Actual and expected value in result of copy constructor are different";
-	return next_integer();
+	    log << "Actual and expected value in result of copy constructor are different";
+	    return next_integer();
      }
      return 0;
 }
