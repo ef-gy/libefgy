@@ -112,7 +112,7 @@ namespace efgy
 
                 matrix<Q,n,m> operator + (const matrix<Q,n,m> &b) const
                 {
-                    matrix<Q,m,n> r;
+                    matrix<Q,n,m> r;
 
                     for (unsigned int i = 0; i < n; i++)
                     {
