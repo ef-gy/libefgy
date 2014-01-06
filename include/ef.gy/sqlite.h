@@ -1,4 +1,9 @@
 /**\file
+ * \brief SQLite3 database wrapper
+ *
+ * Contains wrappers to access SQLite3 databases in a more C++-y way. The
+ * wrappers are designed to help with general resource management and data
+ * access.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -35,6 +40,11 @@
 
 namespace efgy
 {
+    /**\brief Database helpers
+     *
+     * Contains database abstraction code - database access, SQL file import
+     * functionality, prepared statements, etc.
+     */
     namespace database
     {
         class sqlite
@@ -157,7 +167,7 @@ namespace efgy
                         {
                             if (sqlite3_bind_null (stmt, i) != SQLITE_OK)
                             {
-                                throw sqlite::exception("sqlite3_bind_int64", sql);
+                                throw sqlite::exception("sqlite3_bind_null", sql);
                                 return false;
                             }
 
@@ -240,6 +250,8 @@ namespace efgy
 
                     return true;
                 }
+
+                typedef int id;
 
             protected:
                 sqlite3 *database;
