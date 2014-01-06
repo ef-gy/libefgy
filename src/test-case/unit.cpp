@@ -152,31 +152,31 @@ int testMetricMultipliers (std::ostream &log)
 {
     if (metricMultiplier<fraction,1,1>::get() != fraction(10))
     {
-        log << "metric multiplier <1,1> is " << (std::string)metricMultiplier<fraction,1,1>::get() << " but should have been 10/1\n";
+        log << "metric multiplier <1,1> is " << metricMultiplier<fraction,1,1>::get() << " but should have been 10/1\n";
         return -1;
     }
 
     if (metricMultiplier<fraction,1,2>::get() != fraction(100))
     {
-        log << "metric multiplier <1,2> is " << (std::string)metricMultiplier<fraction,1,2>::get() << " but should have been 100/1\n";
+        log << "metric multiplier <1,2> is " << metricMultiplier<fraction,1,2>::get() << " but should have been 100/1\n";
         return -2;
     }
 
     if (metricMultiplier<fraction,0,2>::get() != fraction(1))
     {
-        log << "metric multiplier <0,2> is " << (std::string)metricMultiplier<fraction,0,2>::get() << " but should have been 1/1\n";
+        log << "metric multiplier <0,2> is " << metricMultiplier<fraction,0,2>::get() << " but should have been 1/1\n";
         return -3;
     }
 
     if (metricMultiplier<fraction,3,2>::get() != fraction(1000000))
     {
-        log << "metric multiplier <3,2> is " << (std::string)metricMultiplier<fraction,3,2>::get() << " but should have been 1000000/1\n";
+        log << "metric multiplier <3,2> is " << metricMultiplier<fraction,3,2>::get() << " but should have been 1000000/1\n";
         return -4;
     }
 
     if (metricMultiplier<fraction,3,3>::get() != fraction(1000000000))
     {
-        log << "metric multiplier <3,3> is " << (std::string)metricMultiplier<fraction,3,3>::get() << " but should have been 1000000000/1\n";
+        log << "metric multiplier <3,3> is " << metricMultiplier<fraction,3,3>::get() << " but should have been 1000000000/1\n";
         return -5;
     }
 
@@ -242,7 +242,7 @@ int testUnitBinary (std::ostream &log)
 
     if (fraction(2) != fraction(kib_2))
     {
-        log << "variable was not initialised to the expected value: " << (std::string)kib_2 << " instead of 2/1\n";
+        log << "variable was not initialised to the expected value: " << kib_2 << " instead of 2/1\n";
         return -1;
     }
 
@@ -250,7 +250,7 @@ int testUnitBinary (std::ostream &log)
 
     if (fraction(2048) != b_2)
     {
-        log << "variable was not converted to the expected value: " << (std::string)b_2 << " instead of 2048/1\n";
+        log << "variable was not converted to the expected value: " << b_2 << " instead of 2048/1\n";
         return -2;
     }
 
@@ -258,7 +258,7 @@ int testUnitBinary (std::ostream &log)
 
     if (fraction(1,512) != mib_2)
     {
-        log << "variable was not converted to the expected value: " << (std::string)mib_2 << " instead of 1/512\n";
+        log << "variable was not converted to the expected value: " << mib_2 << " instead of 1/512\n";
         return -3;
     }
 
@@ -266,7 +266,7 @@ int testUnitBinary (std::ostream &log)
 
     if (fraction(256,125) != kb_2)
     {
-        log << "variable was not converted to the expected value: " << (std::string)kb_2 << " instead of 256/125\n";
+        log << "variable was not converted to the expected value: " << kb_2 << " instead of 256/125\n";
         return -4;
     }
 
@@ -274,7 +274,7 @@ int testUnitBinary (std::ostream &log)
 
     if (fraction(32,15625) != mb_2)
     {
-        log << "variable was not converted to the expected value: " << (std::string)mb_2 << " instead of 32/15625\n";
+        log << "variable was not converted to the expected value: " << mb_2 << " instead of 32/15625\n";
         return -5;
     }
 

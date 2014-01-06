@@ -33,6 +33,7 @@
 #include <ef.gy/test-case.h>
 
 #include <iostream>
+#include <sstream>
 
 #include <ef.gy/big-integers.h>
 #include <vector>
@@ -318,18 +319,22 @@ int testBigIntegerBitShifts(std::ostream &log)
     for (unsigned int i = 0; i < 256; i++)
     {
         z <<= 1;
-        if (reference[i] != (string)z)
+        std::ostringstream s("");
+        s << z;
+        if (reference[i] != s.str())
         {
-            log << "big integer string conversion mismatch: #" << i << " was '" << (string)z << "'; should have been '" << reference[i] << "'\n";
+            log << "big integer string conversion mismatch: #" << i << " was '" << z << "'; should have been '" << reference[i] << "'\n";
             return -1;
         }
     }
 
     for (int i = 255; i >= 0; i--)
     {
-        if (reference[i] != (string)z)
+        std::ostringstream s("");
+        s << z;
+        if (reference[i] != s.str())
         {
-            log << "big integer string conversion mismatch: #" << i << " was '" << (string)z << "'; should have been '" << reference[i] << "'\n";
+            log << "big integer string conversion mismatch: #" << i << " was '" << z << "'; should have been '" << reference[i] << "'\n";
             return -2;
         }
         z >>= 1;

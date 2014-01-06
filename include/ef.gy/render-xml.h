@@ -32,6 +32,7 @@
 #include <ef.gy/string.h>
 #include <ef.gy/continued-fractions.h>
 #include <string>
+#include <sstream>
 
 namespace efgy
 {
@@ -52,21 +53,30 @@ namespace efgy
             value.saturation = math::numeric::round(value.saturation, precision);
             value.lightness = math::numeric::round(value.lightness, precision);
 
-            return std::string("<colour xmlns='http://colouri.se/2012' space='hsl'")
-                 + (small ? " type='small'" : "")
-                 + " hue='" + intToString(value.hue.numerator) + "'"
-                 + (value.hue.denominator != math::numeric::one()
-                   ? " hueDenominator='" + intToString(value.hue.denominator) + "'"
-                   : "")
-                 + " saturation='" + intToString(value.saturation.numerator) + "'"
-                 + (value.saturation.denominator != math::numeric::one()
-                   ? " saturationDenominator='" + intToString(value.saturation.denominator) + "'"
-                   : "")
-                 + " lightness='" + intToString(value.lightness.numerator) + "'"
-                 + (value.lightness.denominator != math::numeric::one()
-                   ? " lightnessDenominator='" + intToString(value.lightness.denominator) + "'"
-                   : "")
-                 + "/>";
+            std::ostringstream s("");
+            
+            s << std::string("<colour xmlns='http://colouri.se/2012' space='hsl'")
+              << (small ? " type='small'" : "")
+              << " hue='" << value.hue.numerator << "'"
+              << " saturation='" << value.saturation.numerator << "'"
+              << " lightness='" << value.lightness.numerator << "'";
+
+            if (value.hue.denominator != math::numeric::one())
+            {
+                s << " hueDenominator='" << value.hue.denominator << "'";
+            }
+            if (value.saturation.denominator != math::numeric::one())
+            {
+                s << " saturationDenominator='" << value.saturation.denominator << "'";
+            }
+            if (value.lightness.denominator != math::numeric::one())
+            {
+                s << " lightnessDenominator='" << value.lightness.denominator << "'";
+            }
+
+            s << "/>";
+
+            return s.str();
         }
 
         template <>
@@ -77,21 +87,30 @@ namespace efgy
             value.green = math::numeric::round(value.green, precision);
             value.blue = math::numeric::round(value.blue, precision);
 
-            return std::string("<colour xmlns='http://colouri.se/2012' space='rgb'")
-                 + (small ? " type='small'" : "")
-                 + " red='" + intToString(value.red.numerator) + "'"
-                 + (value.red.denominator != math::numeric::one()
-                   ? " redDenominator='" + intToString(value.red.denominator) + "'"
-                   : "")
-                 + " green='" + intToString(value.green.numerator) + "'"
-                 + (value.green.denominator != math::numeric::one()
-                   ? " greenDenominator='" + intToString(value.green.denominator) + "'"
-                   : "")
-                 + " blue='" + intToString(value.blue.numerator) + "'"
-                 + (value.blue.denominator != math::numeric::one()
-                   ? " blueDenominator='" + intToString(value.blue.denominator) + "'"
-                   : "")
-                 + "/>";
+            std::ostringstream s("");
+            
+            s << std::string("<colour xmlns='http://colouri.se/2012' space='rgb'")
+              << (small ? " type='small'" : "")
+              << " red='" << value.red.numerator << "'"
+              << " green='" << value.green.numerator << "'"
+              << " blue='" << value.blue.numerator << "'";
+
+            if (value.red.denominator != math::numeric::one())
+            {
+                s << " redDenominator='" << value.red.denominator << "'";
+            }
+            if (value.green.denominator != math::numeric::one())
+            {
+                s << " greenDenominator='" << value.green.denominator << "'";
+            }
+            if (value.blue.denominator != math::numeric::one())
+            {
+                s << " blueDenominator='" << value.blue.denominator << "'";
+            }
+
+            s << "/>";
+
+            return s.str();
         }
 
         template <class Q>

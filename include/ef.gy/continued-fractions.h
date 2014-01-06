@@ -30,6 +30,7 @@
 
 #include <ef.gy/fractions.h>
 #include <vector>
+#include <ostream>
 
 namespace efgy
 {
@@ -214,37 +215,6 @@ namespace efgy
                     }
 
                     // missing: !
-
-                    operator std::string (void) const
-                    {
-                        if (coefficient.size() == N(0))
-                        {
-                            return std::string("[ 0 ]");
-                        }
-
-                        std::string r = "[";
-                        if (negative)
-                        {
-                            r = "- " + r;
-                        }
-                        for (N i = N(0); i < coefficient.size(); i++)
-                        {
-                            if (i == N(0))
-                            {
-                                r += " " + intToString(coefficient[i]);
-                            }
-                            else if (i == N(1))
-                            {
-                                r += "; " + intToString(coefficient[i]);
-                            }
-                            else
-                            {
-                                r += ", " + intToString(coefficient[i]);
-                            }
-                        }
-
-                        return r + " ]";
-                    }
 
                     operator fractional<N> (void) const
                     {
@@ -487,6 +457,38 @@ namespace efgy
                     q = cf;
                 }
                 return q;
+            }
+
+            template <typename C, typename N>
+            std::basic_ostream<C> &operator << (std::basic_ostream<C> &out, const continuedFractional<N> &f)
+            {
+                if (f.coefficient.size() == N(0))
+                {
+                    return out << "[ 0 ]";
+                }
+
+                if (f.negative)
+                {
+                    out << "- ";
+                }
+                out << "[";
+                for (N i = N(0); i < f.coefficient.size(); i++)
+                {
+                    if (i == N(0))
+                    {
+                        out << " " << f.coefficient[i];
+                    }
+                    else if (i == N(1))
+                    {
+                        out << "; " << f.coefficient[i];
+                    }
+                    else
+                    {
+                        out << ", " << f.coefficient[i];
+                    }
+                }
+
+                return out << " ]";
             }
         };
     };

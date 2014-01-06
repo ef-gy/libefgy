@@ -130,10 +130,10 @@ int testPi (std::ostream &log)
     e<fraction,8> eQ3;
     e<fraction,12> eQ4;
 
-    log << "e<fraction,1> = " << (string)fraction(eQ1) << "\n";
-    log << "e<fraction,4> = " << (string)fraction(eQ2) << "\n";
-    log << "e<fraction,8> = " << (string)fraction(eQ3) << "\n";
-    log << "e<fraction,12> = " << (string)fraction(eQ4) << "\n";
+    log << "e<fraction,1> = " << fraction(eQ1) << "\n";
+    log << "e<fraction,4> = " << fraction(eQ2) << "\n";
+    log << "e<fraction,8> = " << fraction(eQ3) << "\n";
+    log << "e<fraction,12> = " << fraction(eQ4) << "\n";
 
 #if 0
     if (fraction(eQ1) != e<fraction>::get(1))

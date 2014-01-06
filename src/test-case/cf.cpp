@@ -52,11 +52,11 @@ int testContinuedFractionArithmetic (std::ostream &log)
     numeric::continuedFractional<number> a(af), b(bf), r;
 
     rf = af + bf;
-    log << string(af) << " + " << string(bf) << " = " << string(rf) << "\n";
+    log << af << " + " << bf << " = " << rf << "\n";
 
     r = a + b;
     rf = r;
-    log << string(a)  << " + " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
+    log << a  << " + " << b  << " = " << r  << " = " << rf << "\n";
 
     if (rf != r)
     {
@@ -64,11 +64,11 @@ int testContinuedFractionArithmetic (std::ostream &log)
     }
 
     rf = af - bf;
-    log << string(af) << " - " << string(bf) << " = " << string(rf) << "\n";
+    log << af << " - " << bf << " = " << rf << "\n";
 
     r = a - b;
     rf = r;
-    log << string(a)  << " - " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
+    log << a  << " - " << b  << " = " << r  << " = " << rf << "\n";
 
     if (rf != r)
     {
@@ -76,11 +76,11 @@ int testContinuedFractionArithmetic (std::ostream &log)
     }
 
     rf = af * bf;
-    log << string(af) << " * " << string(bf) << " = " << string(rf) << "\n";
+    log << af << " * " << bf << " = " << rf << "\n";
 
     r = a * b;
     rf = r;
-    log << string(a)  << " * " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
+    log << a  << " * " << b  << " = " << r  << " = " << rf << "\n";
 
     if (rf != r)
     {
@@ -88,11 +88,11 @@ int testContinuedFractionArithmetic (std::ostream &log)
     }
 
     rf = af / bf;
-    log << string(af) << " / " << string(bf) << " = " << string(rf) << "\n";
+    log << af << " / " << bf << " = " << rf << "\n";
 
     r = a / b;
     rf = r;
-    log << string(a)  << " / " << string(b)  << " = " << string(r)  << " = " << string(rf) << "\n";
+    log << a  << " / " << b  << " = " << r  << " = " << rf << "\n";
 
     if (rf != r)
     {

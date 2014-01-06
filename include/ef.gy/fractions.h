@@ -300,11 +300,6 @@ namespace efgy
                         return numerator.toDouble() / denominator.toDouble();
                     }
 
-                    operator std::string (void) const
-                    {
-                        return intToString(numerator) + "/" + intToString(denominator);
-                    }
-
                     operator N (void) const
                     {
                         N rv = this->numerator;
@@ -341,6 +336,13 @@ namespace efgy
                         }
                     }
             };
+
+            template <typename C, typename N>
+            std::basic_ostream<C> &operator<< (std::basic_ostream<C> &out, const fractional<N> &f)
+            {
+                return out << f.numerator << "/" << f.denominator;
+            }
+
 
             template <typename N>
             fractional<N> reciprocal (const fractional<N> &f)
