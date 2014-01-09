@@ -34,6 +34,7 @@
 #define EF_GY_MATRIX_H
 
 #include <array>
+#include <iostream>
 
 namespace efgy
 {
@@ -220,7 +221,25 @@ namespace efgy
                     
                     return r;
                 }
+
         };
+
+        /* \brief Displays each matrix row in a separate line. Values within rows
+               are separated by tabs.
+         */
+        template <typename Q, unsigned int n, unsigned int m>
+        std::ostream& operator<< (std::ostream& stream, const matrix<Q, n, m>& matrix)
+        {
+            for(int i = 0; i < n; i++)
+            {
+               for(int k = 0; k < m; k++)
+               {
+                   stream << matrix[i][k] << "\t";
+               }
+               stream << "\n";
+            }
+            return stream; 
+        }
 
         template <typename Q, unsigned int d>
         Q determinant (const matrix<Q,d,d> &pM)
@@ -331,6 +350,8 @@ namespace efgy
 
             return rv / determinant(pM);
         }
+
+        
     };
 };
 
