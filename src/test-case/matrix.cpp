@@ -27,6 +27,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 
 #include <ef.gy/test-case.h>
 #include <ef.gy/matrix.h>
@@ -214,4 +215,37 @@ int testAddition (std::ostream &log)
      return 0;
 }
 
-TEST_BATCH(testConstruction, testAssignment, testAddition)
+int testStream(std::ostream & log)
+{
+    std::ostringstream stream;
+
+    matrix<int, 3, 4> m;
+    for(int i = 0; i < 3; i++)
+    {
+       for (int k = 0; k < 4; k++)
+       {
+          m[i][k] = i*k;
+       }
+    }
+
+    stream << m;
+
+    std::stringstream expected;
+
+    expected << "0\t0\t0\t0\t\n";
+    expected << "0\t1\t2\t3\t\n";
+    expected << "0\t2\t4\t6\t\n";
+
+    if(stream.str() != expected.str())
+    {
+        log << "Unexpected characters in printable representation of matrix.\n";
+        log << "Matrix: \n";
+        log << m;
+        log << "\nExpected:\n";
+        log << expected;
+
+        return next_integer();
+    }
+    return 0;
+}
+TEST_BATCH(testConstruction, testAssignment, testAddition, testStream)
