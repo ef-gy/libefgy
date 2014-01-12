@@ -42,7 +42,7 @@ using std::string;
 
 typedef primitive<long double, unsigned long long> longDouble;
 
-/**\brief 'Pi' initialisation and type cast tests
+/**\brief 'E' initialisation and type cast tests
  * \test Initialises several instances of the 'e' template with different base
  *       types and precisions. The instances are then cast to different types
  *       and written to the log to verify that the template comeles cleanly.
