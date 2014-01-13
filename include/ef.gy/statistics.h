@@ -1,4 +1,8 @@
 /**\file
+ * \brief Contains the basic statistics tools
+ *
+ * Contains the efgy::statistics namespace and some basic tools that come in
+ * handy with test cases.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -33,13 +37,26 @@
 #include <ef.gy/numeric.h>
 #include <numeric>
 
-using std::accumulate;
-using efgy::math::numeric::pow2;
-
 namespace efgy
 {
+    /**\brief Statistical functions
+     *
+     * Contains functions related to the field of statistics, which among other
+     * uses tends to come in handy when writing test cases over random input.
+     */
     namespace statistics
     {
+        /**\brief Calculate the average of a vector
+         *
+         * Calculates the average of all values in a vector by adding all of the
+         * items and then dividing by the number of items in the vector.
+         *
+         * \tparam Q The data type of the vector elements.
+         *
+         * \param[in] input The vector over which to calculate the average.
+         *
+         * \returns The average of the values in the input vector.
+         */
         template<typename Q>
         static maybe<Q> average (const std::vector<Q> &input)
         {
@@ -56,32 +73,33 @@ namespace efgy
             return maybe<Q>(s / Q(input.size()));
         }
 
-        /**
-         * Calculates the variance of a range.
+        /**\brief Calculates the variance of a range.
+         *
+         * Calculates the variance of a range given by a two iterators.
          *
          * \tparam T The type of the actual values.
          * \tparam _InputIterator The type of iterators for begin and end.
          *
-         * \param _InputIterator begin The start of the range.
-         * \param _InputIterator end The end of the range.
+         * \param[in] begin The start of the range.
+         * \param[in] end The end of the range.
          *
          * \code
          * vector<double> list = {1.0, 2.0, 1.0};
          * double var = variance<double>(list.begin(), list.end());
          * \endcode
          *
-         * \return T Result of the calculat ion.
+         * \returns The resulting variance.
          */
         template<typename T, typename _InputIterator>
-        static maybe<T> variance(_InputIterator begin, _InputIterator end)
+        static maybe<T> variance(_InputIterator begin, const _InputIterator &end)
         {
             if (begin == end)
             {
                 return maybe<T>();
             }
 
-            T sum = accumulate(begin, end, 0.0);
-            T sum_square = accumulate(begin, end, 0.0, [](T first, T element) { return first + element * element; });
+            T sum = std::accumulate(begin, end, 0.0);
+            T sum_square = std::accumulate(begin, end, 0.0, [](T first, T element) { return first + element * element; });
             unsigned int count_elements = end - begin;
 
             T var = (sum_square - sum * sum / count_elements) / count_elements;
@@ -89,8 +107,16 @@ namespace efgy
             return maybe<T>(var);
         }
 
-        /**
-         * Calculates the variance for a vector.
+        /**\brief Calculate the variance of a vector
+         *
+         * Same as variance() over a range, but over a vector instead of two
+         * iterators.
+         *
+         * \tparam T The type of the actual values.
+         *
+         * \param[in] input The input vector to process.
+         *
+         * \returns The resulting variance.
          */
         template<typename T>
         static maybe<T> variance(const std::vector<T> &input)
@@ -116,7 +142,7 @@ namespace efgy
             T sum = 0.0;
             for (; begin != end && measurement_begin != measurement_end; ++begin, ++measurement_begin)
             {
-                sum += pow2((*measurement_begin - *begin) / (T) var);
+                sum += efgy::math::numeric::pow2((*measurement_begin - *begin) / (T) var);
             }
 
             return sum;
