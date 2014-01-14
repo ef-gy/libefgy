@@ -45,16 +45,6 @@ namespace efgy
          */
         namespace tracer
         {
-            template<typename T, typename S>
-            class coalesce;
-
-            template<typename T>
-            class coalesce<T,T>
-            {
-                public:
-                    typedef T type;
-            };
-
             template<typename T, typename S, char op, bool runtime, typename format>
             class tracer;
 
