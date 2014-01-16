@@ -1,7 +1,7 @@
 /**\file
  * \brief Series
  *
- * Contains supporting types for infinite series.
+ * Contains supporting types for (potentially infinite) series.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -31,10 +31,113 @@
 #if !defined(EF_GY_SERIES_H)
 #define EF_GY_SERIES_H
 
+#include <ef.gy/sequence.h>
+
 namespace efgy
 {
     namespace math
     {
+        /**\brief Mathematical series
+         *
+         * Represents a (potentially infinite) series. Infinite series will be
+         * truncated in the process of casting this to the base type.
+         *
+         * \tparam Q         Base type for calculations.
+         * \tparam algorithm The algorithm to calculate the sequence members.
+         * \tparam N         Base integral type; used for indices into the
+         *                   sequence.
+         */
+        template<typename Q, template<typename, typename> class algorithm, typename N = unsigned long long>
+        class series : public sequence<Q,algorithm,N>
+        {
+            public:
+                using typename sequence<Q,algorithm,N>::sequenceAlgorithm;
+
+                /**\brief Construct with factor and iterations
+                 *
+                 * Initialises a new series instance with the given factor and
+                 * number of iterations.
+                 *
+                 * \param[in] pFactor     The factor to apply to the sequence
+                 *                        members. Defaults to '1'.
+                 * \param[in] pIterations The default number of iterations to
+                 *                        use when approximating the series.
+                 */
+                series
+                    (const Q pFactor = Q(1),
+                     const N &pIterations = sequenceAlgorithm::defaultSeriesIterations)
+                    : factor(pFactor), iterations(pIterations) {}
+
+                /**\brief Get sum of first n+1 items
+                 *
+                 * Used to sum up the first n+1 sequence members when it becomes
+                 * necessary to provide an approximation of the sequence.
+                 *
+                 * \param[in] n   Up to which sequence member to accumulate.
+                 * \param[in] f   Factor to multiply the sequence members with.
+                 *
+                 * \returns The sum of the 0th to the nth sequence member.
+                 */
+                constexpr static Q get (const N &n, const Q &f = Q(1))
+                {
+                    return sumTo (n, f, Q(0));
+                }
+
+                /**\brief Calculate approximation
+                 *
+                 * Cast an actual instance of the series to its base type to get
+                 * an approximation with the parameters stored in the type.
+                 *
+                 * \return The approximation of the series with the parameters
+                 *         in the instance.
+                 */
+                constexpr operator Q (void) const
+                {
+                    return get (iterations, factor);
+                }
+
+            protected:
+                /**\brief Base sequence
+                 *
+                 * The sequence that is used as the basis for the series.
+                 */
+                typedef sequence<Q,algorithm,N> sequence;
+
+                /**\brief Constant summation function
+                 *
+                 * Used to sum up the first n+1 members of the sequence. This
+                 * method is tail-recursive so it shouldn't make your stack
+                 * explode. It is also static and constexpr, meaning it should
+                 * be evaluated at compile time.
+                 *
+                 * \param[in] n   Up to which sequence member to accumulate.
+                 * \param[in] f   Factor to multiply the sequence members with.
+                 * \param[in] acc The initial (or current) value; used for tail
+                 *                recursion.
+                 *
+                 * \returns The sum of the 0th to the nth sequence member.
+                 */
+                constexpr static Q sumTo (const N &n, const Q &f, const Q &acc)
+                {
+                    return n == 0
+                         ?                acc + (sequence::at (0) * f)
+                         : sumTo (n-1, f, acc + (sequence::at (n) * f));
+                }
+
+                /**\brief Number of iterations
+                 *
+                 * When approximating the sequence, this determines up to which
+                 * element the series is summed up to.
+                 */
+                const N iterations;
+
+                /**\brief Series factor
+                 *
+                 * This factor is applied to each sequence member when
+                 * approximating an instance of the series.
+                 */
+                const Q factor;
+        };
     };
 };
 

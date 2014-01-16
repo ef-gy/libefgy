@@ -34,6 +34,7 @@
 #define EF_GY_PI_H
 
 #include <ef.gy/exponential.h>
+#include <ef.gy/series.h>
 
 namespace efgy
 {
@@ -52,6 +53,56 @@ namespace efgy
      */
     namespace math
     {
+        /**\brief Contains assorted algorithms
+         *
+         * This namespace contains various algorithms that came up when
+         * implementing the functionality of the library.
+         */
+        namespace algorithm
+        {
+            /**\brief Bailey et al's pi algorithm
+             *
+             * This is an implementation of the algorithm described by Bailey et
+             * al in 1997, which calculates an approximation of pi using an
+             * infinite series. This class in particular implements the part of
+             * the algorithm that comes up with the individual sequence members
+             * for the series to sum up.
+             *
+             * \tparam Q The data type to use in the calculations, e.g. double.
+             * \tparam N Sequence index type. 
+             */
+            template<typename Q, typename N>
+            class bailey1997
+            {
+                public:
+                    /**\brief Default number of iterations
+                     *
+                     * This is the number of iterations used when approximating
+                     * the sequence and the number of iterations to use is not
+                     * specified explicitly.
+                     */
+                    static const N defaultSeriesIterations = 3;
+
+                    /**\brief Get sequence member
+                     *
+                     * Calculates a member of the sequence described in Bailey's
+                     * algorithm.
+                     *
+                     * \param[in] n The sequence member to calculate.
+                     *
+                     * \returns The sequence member that was to be calculated.
+                     */
+                    static constexpr Q at (const N &n)
+                    {
+                        return exponentiate::integral<Q>::raise(Q(1) / Q(16), n)
+                           * ( Q(4)/(Q(8)*Q(n)+Q(1))
+                             - Q(2)/(Q(8)*Q(n)+Q(4))
+                             - Q(1)/(Q(8)*Q(n)+Q(5))
+                             - Q(1)/(Q(8)*Q(n)+Q(6)) );
+                    }
+            };
+        };
+
         /**\brief Calculate 'pi' with arbitrary precision
          *
          * This class is used to handle (and calculate) pi with arbitrary
@@ -68,10 +119,6 @@ namespace efgy
          * \tparam Q          The data type to use in the calculations -
          *                    should be rational or similar. Must be a type
          *                    with numeric::traits<Q> defined.
-         * \tparam iterations The number of iterations to run Bailey's
-         *                    algorithm. This is a compile time constant in
-         *                    the hope that the compiler will be able to
-         *                    substitute a constant value for base data types.
          *
          * \section Usage
          *
@@ -119,107 +166,8 @@ namespace efgy
          * that at this point that's all theoretical, but it's getting there and
          * I really do think this would be a good thing in the end.
          */
-        template <typename Q, unsigned int iterations = 3>
-        class pi
-        {
-            public:
-                /**\brief Default constructor
-                 *
-                 * Initialises the object so that it creates an approximation
-                 * of 1*pi.
-                 */
-                constexpr pi(void)
-                    : factor(Q(1))
-                    {}
-
-                /**\brief Construct with factor
-                 *
-                 * Initialises the object so that it creates an approximation
-                 * of pFactor * pi.
-                 *
-                 * \param[in] pFactor The factor to multiply pi with.
-                 */
-                constexpr pi(const Q &pFactor)
-                    : factor(pFactor)
-                    {}
-
-                /**\brief Calculate approximation of pi
-                 *
-                 * Cast a pi object to the type you specified with the template
-                 * parameter Q to access an appropriate approximation of pi.
-                 *
-                 * \return The approximation of pi with the given parameters.
-                 */
-                constexpr operator Q (void) const
-                {
-                    return get (iterations, factor);
-                }
-
-                /**\brief Calculate approximation of pi without object
-                 *
-                 * Calculates pi without needing a class instance; this is a
-                 * proper, static constexpr method, so it should probably get
-                 * evaluated at compile time.
-                 *
-                 * \param[in] n The number of iterations to use.
-                 * \param[in] f The factor to multiply pi with.
-                 *
-                 * \returns pi, after running Bailey's algorithm for n
-                 *         iterations, multiplied by f.
-                 */
-                constexpr static Q get (const unsigned int &n = iterations, const Q &f = Q(1))
-                {
-                    return sumSequenceTo (n-1, f, Q(0));
-                }
-
-            protected:
-                /**\brief Get specific member of sequence
-                 *
-                 * Bailey's algorithm uses a sequence that converges to pi
-                 * fairly quickly. This function generates the individual
-                 * sequence members.
-                 *
-                 * \param[in] n Which sequence member to return.
-                 * \param[in] f Factor to multiply the sequence member with.
-                 *
-                 * \return The requested sequence member.
-                 */
-                constexpr static Q getSequenceMemberAt (const unsigned int &n, const Q &f)
-                {
-                    return f
-                       *   exponentiate::integral<Q>::raise(Q(1) / Q(16), n)
-                       * ( Q(4)/(Q(8)*Q(n)+Q(1))
-                         - Q(2)/(Q(8)*Q(n)+Q(4))
-                         - Q(1)/(Q(8)*Q(n)+Q(5))
-                         - Q(1)/(Q(8)*Q(n)+Q(6)) );
-                }
-
-                /**\brief Constant summation function
-                 *
-                 * Used to sum up the first n+1 members of the sequence. This
-                 * method is tail-recursive so it shouldn't make your stack
-                 * explode, either.
-                 *
-                 * \param[in] n   Up to which sequence member to accumulate.
-                 * \param[in] f   Factor to multiply the sequence members with.
-                 * \param[in] acc The initial (or current) value; used for tail
-                 *                recursion.
-                 *
-                 * \returns The sum of the 0th to the nth sequence member.
-                 */
-                constexpr static Q sumSequenceTo (const unsigned int &n, const Q &f, const Q &acc)
-                {
-                    return n == 0
-                         ?                        acc + getSequenceMemberAt (0, f)
-                         : sumSequenceTo (n-1, f, acc + getSequenceMemberAt (n, f));
-                }
-
-                /**\brief The factor to multiply pi with
-                 *
-                 * This is set to an appropriate value in the constructor.
-                 */
-                const Q factor;
-        };
+        template <typename Q>
+        using pi = series<Q,algorithm::bailey1997>;
     };
 };
 

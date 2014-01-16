@@ -53,10 +53,10 @@ typedef primitive<long double, unsigned long long> longDouble;
  */
 int testPi (std::ostream &log)
 {
-    pi<longDouble,1> piD1;
-    pi<longDouble,2> piD2;
-    pi<longDouble,3> piD3;
-    pi<longDouble,4> piD4;
+    pi<longDouble> piD1(1,1);
+    pi<longDouble> piD2(1,2);
+    pi<longDouble> piD3(1,3);
+    pi<longDouble> piD4(1,4);
 
     log << "pi<longDouble,1> = " << (long double)longDouble(piD1) << "\n";
     log << "pi<longDouble,2> = " << (long double)longDouble(piD2) << "\n";
@@ -87,10 +87,10 @@ int testPi (std::ostream &log)
         return 4;
     }
 
-    pi<long double,1> piDL1;
-    pi<long double,2> piDL2;
-    pi<long double,3> piDL3;
-    pi<long double,4> piDL4;
+    pi<long double> piDL1(1,1);
+    pi<long double> piDL2(1,2);
+    pi<long double> piDL3(1,3);
+    pi<long double> piDL4(1,4);
 
     if ((long double)(piDL1) != pi<long double>::get(1))
     {
@@ -121,10 +121,10 @@ int testPi (std::ostream &log)
     log << "pi<long double,3> = " << (long double)piDL3 << "\n";
     log << "pi<long double,4> = " << (long double)piDL4 << "\n";
 
-    pi<fraction,1> piQ1;
-    pi<fraction,2> piQ2;
-    pi<fraction,3> piQ3;
-    pi<fraction,4> piQ4;
+    pi<fraction> piQ1(fraction(1),1);
+    pi<fraction> piQ2(fraction(1),2);
+    pi<fraction> piQ3(fraction(1),3);
+    pi<fraction> piQ4(fraction(1),4);
 
     log << "pi<fraction,1> = " << fraction(piQ1) << "\n";
     log << "pi<fraction,2> = " << fraction(piQ2) << "\n";

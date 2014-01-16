@@ -42,16 +42,34 @@ namespace efgy
          *
          * \tparam Q         Base type for calculations.
          * \tparam algorithm The algorithm to calculate the sequence members.
-         * \tparam N         Base integral type.
+         * \tparam N         Base integral type; used for indices into the
+         *                   sequence.
          */
-        template<typename Q, template<typename Q, typename N> class algorithm, typename N = unsigned long long>
-        class sequence : public algorithm<Q, N>
+        template<typename Q, template<typename, typename> class algorithm, typename N = unsigned long long>
+        class sequence : public algorithm<Q,N>
         {
             public:
-                constexpr static get (const N &n)
+                /**\brief Get n'th sequence member
+                 *
+                 * Uses the algorithm template to calculate the n'th member of
+                 * the sequence.
+                 *
+                 * \param[in] n The sequence member to return.
+                 *
+                 * \returns The n'th sequence member.
+                 */
+                constexpr static Q at (const N &n)
                 {
-                    return at(n);
+                    return sequenceAlgorithm::at (n);
                 }
+
+            protected:
+                /**\brief Sequence algorithm
+                 *
+                 * This is a convenient typedef that allows easy access to the
+                 * sequence algorithm.
+                 */
+                typedef algorithm<Q,N> sequenceAlgorithm;
         };
     };
 };
