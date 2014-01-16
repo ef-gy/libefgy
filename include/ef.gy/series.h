@@ -78,7 +78,9 @@ namespace efgy
                  *
                  * \returns The sum of the 0th to the nth sequence member.
                  */
-                constexpr static Q get (const N &n, const Q &f = Q(1))
+                constexpr static Q get
+                    (const N &n = sequenceAlgorithm::defaultSeriesIterations,
+                     const Q &f = Q(1))
                 {
                     return sumTo (n, f, Q(0));
                 }
