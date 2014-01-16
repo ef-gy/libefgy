@@ -36,13 +36,24 @@
 
 namespace efgy
 {
-	/** \brief A cons expression
+	
+    class sexp
+    {
+        public:
+            virtual std::ostream& operator<<(std::ostream& str) = 0;
+            virtual std::istream& operator>>(std::istream& str) = 0;
+        
+        private:
+
+    };
+    
+    /** \brief A cons expression
 	*
 	* \tparam T1 type of first element
 	* \tparam T2 type of second element
 	*/
 	template<typename T1, typename T2>
-	class cons
+	class cons : sexp
 	{
 	    public:
 	        /*\brief Constructor for a cons of the form (x.y) where x and y 
@@ -60,7 +71,7 @@ namespace efgy
 	};
 	
 	template<typename T>
-	class atom
+	class atom : sexp
 	{
 	    public:
 	        atom(T data_) : data(data_)
