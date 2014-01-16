@@ -162,10 +162,8 @@ namespace efgy
      *
      * \tparam T The data type for the range elements.
      * \tparam n The amount of elements in the range.
-     * \tparam c A helper template argument to be used as internal counter for
-     *           the recursive template call.
      */
-    template<typename T, std::size_t n = 0, std::size_t c = n>
+    template<typename T, std::size_t n = 0>
     class range
     {
         public:
@@ -177,12 +175,12 @@ namespace efgy
 
             typedef rangeIterator<T> iterator;
 
-            constexpr iterator begin (void)
+            constexpr iterator begin (void) const
             {
                 return iterator(start, stride, 0);
             }
 
-            constexpr iterator end (void)
+            constexpr iterator end (void) const
             {
                 return iterator(start, stride, n);
             }
@@ -196,6 +194,8 @@ namespace efgy
              * \param start  The start of the range.
              * \param stride The step size of the array.
              * \param p      The array that is filled with the range.
+             * \param c      Used internally to remember where in the array we
+             *               currently are.
              *
              * One example:
              * \code{.cpp}
@@ -205,36 +205,19 @@ namespace efgy
              *
              * \returns A std::array of the range.
              */
-            constexpr static std::array<T,n> get (T start = 0, T stride = 1, std::array<T,n> p = {{}})
+            constexpr static std::array<T,n> get
+                (T start = 0,
+                 T stride = 1,
+                 std::array<T,n> p = {{}},
+                 const std::size_t c = n)
             {
-                return (p[c] = (start+(stride * c))), range<T,n,c-1>::get(start, stride, p);
+                return (p[c] = (start+(stride * c))),
+                       c == 0 ? p
+                              : get(start, stride, p, c-1);
             }
 
             T start;
             T stride;
-    };
-
-    /**\brief Generic range class; c=0 fix point
-     * \copydetails range
-     *
-     * This fix point is used to terminate the static constexpr get method of
-     * the range class template. It does not provide most of the features of
-     * the range class itself, only that static method.
-     */
-    template<typename T, std::size_t n>
-    class range<T,n,0>
-    {
-        public:
-            /**\copydoc range::get
-             *
-             * This is the c=0 fix point of the function, i.e. this method
-             * will fill in the last remaining element in the array, then
-             * return the actual value instead of recursing further.
-             */
-            constexpr static std::array<T,n> get (T start = 0, T stride = 1, std::array<T,n> p = {{}})
-            {
-                return (p[0] = start), p;
-            }
     };
 
     template<typename T, T start, T end, bool inclusive = true>
@@ -242,9 +225,15 @@ namespace efgy
     {
         return range<T,(inclusive ? 1 : 0)+((end-start) < 0 ? (start-end) : (end-start))>::get (start, (end-start) < 0 ? -1 : 1);
     }
-    
+
+    /**\brief Generic range class; n=0 fix point
+     * \copydetails range
+     *
+     * This is the instance of the class that is used when no length is
+     * explicitly specified.
+     */
     template<typename T>
-    class range<T,0,0>
+    class range<T,0>
     {
         public:
             constexpr range (const T &pEnd, const bool inclusive)
@@ -264,17 +253,26 @@ namespace efgy
 
             typedef rangeIterator<T> iterator;
 
-            constexpr iterator begin (void)
+            constexpr iterator begin (void) const
             {
                 return iterator(start, stride, 0);
             }
 
-            constexpr iterator end (void)
+            constexpr iterator end (void) const
             {
                 return iterator(start, stride, steps);
             }
 
-            constexpr static std::array<T,0> get (T start = 0, T stride = 1, std::array<T,0> p = {{}})
+            /**\copydoc range::get
+             *
+             * With n = 0 this function becomes rather trivial, as it'll simply
+             * return a zero-length array.
+             */
+            constexpr static std::array<T,0> get
+                (T start = 0,
+                 T stride = 1,
+                 std::array<T,0> p = {{}},
+                 const std::size_t c = 0)
             {
                 return std::array<T, 0> {};
             }
