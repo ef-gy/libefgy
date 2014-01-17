@@ -107,7 +107,7 @@ namespace efgy
          * (double)math::e<double>();
          * \endcode
          *
-         * \see For more details, see #pi-usage.
+         * \see For more details, see math::pi.
          */
         template <typename Q>
         using e = series::power<Q,algorithm::powerSeriesE>;
