@@ -120,7 +120,7 @@ namespace efgy
          *                    should be rational or similar. Must be a type
          *                    with numeric::traits<Q> defined.
          *
-         * \section Usage
+         * \section pi-usage Usage
          *
          * This class may look rather curious, so I should probably explain how
          * to use it. The idea is to create an instance of the pi class with the
