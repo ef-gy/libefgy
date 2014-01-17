@@ -64,6 +64,12 @@ namespace efgy
 	        /*\brief Constructor for a cons of the form (x.nil)*/
 	        cons(T1 car_) : car(car_), cdr(efgy::maybe<T2>())
 	        {}
+
+            std::ostream& operator<<(std::ostream& str)
+            {
+                str << "(" << car << " . " << cdr << ")";
+                return str;
+            }
 	
 	    private:
 	        T1 car;
@@ -76,6 +82,12 @@ namespace efgy
 	    public:
 	        atom(T data_) : data(data_)
 	        {}
+
+            std::ostream& operator<<(std::ostream& str)
+            {
+                str << data;
+                return str;
+            }
 	
 	    private:
 	        T data;
