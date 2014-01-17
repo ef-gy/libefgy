@@ -53,113 +53,35 @@ typedef primitive<long double, unsigned long long> longDouble;
  */
 int testPi (std::ostream &log)
 {
-    e<longDouble,1> eD1;
-    e<longDouble,4> eD2;
-    e<longDouble,8> eD3;
-    e<longDouble,12> eD4;
+    e<longDouble> eD1 (1, 1, 0, 1);
+    e<longDouble> eD2 (1, 1, 0, 4);
+    e<longDouble> eD3 (1, 1, 0, 8);
+    e<longDouble> eD4 (1, 1, 0, 12);
 
     log << "e<longDouble,1> = " << (long double)longDouble(eD1) << "\n";
     log << "e<longDouble,4> = " << (long double)longDouble(eD2) << "\n";
     log << "e<longDouble,8> = " << (long double)longDouble(eD3) << "\n";
     log << "e<longDouble,12> = " << (long double)longDouble(eD4) << "\n";
 
-#if 0
-    if (longDouble(eD1) != e<longDouble>::get(1))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 1;
-    }
-
-    if (longDouble(eD2) != e<longDouble>::get(2))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 2;
-    }
-
-    if (longDouble(eD3) != e<longDouble>::get(3))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 3;
-    }
-
-    if (longDouble(eD4) != e<longDouble>::get(4))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 4;
-    }
-#endif
-
-    e<long double,1> eDL1;
-    e<long double,4> eDL2;
-    e<long double,8> eDL3;
-    e<long double,12> eDL4;
-
-#if 0
-    if ((long double)(eDL1) != e<long double>::get(1))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 11;
-    }
-
-    if ((long double)(eDL2) != e<long double>::get(2))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 12;
-    }
-
-    if ((long double)(eDL3) != e<long double>::get(3))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 13;
-    }
-
-    if ((long double)(eDL4) != e<long double>::get(4))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 14;
-    }
-#endif
+    e<long double> eDL1 (1, 1, 0, 1);
+    e<long double> eDL2 (1, 1, 0, 4);
+    e<long double> eDL3 (1, 1, 0, 8);
+    e<long double> eDL4 (1, 1, 0, 12);
 
     log << "e<long double,1> = " << (long double)eDL1 << "\n";
     log << "e<long double,4> = " << (long double)eDL2 << "\n";
     log << "e<long double,8> = " << (long double)eDL3 << "\n";
     log << "e<long double,12> = " << (long double)eDL4 << "\n";
 
-    e<fraction,1> eQ1;
-    e<fraction,4> eQ2;
-    e<fraction,8> eQ3;
-    e<fraction,12> eQ4;
+    e<fraction> eQ1 (fraction(1), fraction(1), fraction(0), 1);
+    e<fraction> eQ2 (fraction(1), fraction(1), fraction(0), 4);
+    e<fraction> eQ3 (fraction(1), fraction(1), fraction(0), 8);
+    e<fraction> eQ4 (fraction(1), fraction(1), fraction(0), 12);
 
     log << "e<fraction,1> = " << fraction(eQ1) << "\n";
     log << "e<fraction,4> = " << fraction(eQ2) << "\n";
     log << "e<fraction,8> = " << fraction(eQ3) << "\n";
     log << "e<fraction,12> = " << fraction(eQ4) << "\n";
-
-#if 0
-    if (fraction(eQ1) != e<fraction>::get(1))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 21;
-    }
-
-    if (fraction(eQ2) != e<fraction>::get(2))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 22;
-    }
-
-    if (fraction(eQ3) != e<fraction>::get(3))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 23;
-    }
-
-    if (fraction(eQ4) != e<fraction>::get(4))
-    {
-        log << "constexpr method returned unexpected result\n";
-        return 24;
-    }
-#endif
 
     return 0;
 }

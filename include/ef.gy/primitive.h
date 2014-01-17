@@ -328,11 +328,11 @@ namespace efgy
                     return data >= pQ.data;
                 }
 
-                constexpr primitive operator ^ (const Q &pQ)
+                constexpr primitive operator ^ (const Q &pQ) const
                 {
                     return primitive(pow(data, pQ));
                 }
-                constexpr primitive operator ^ (const primitive &pQ)
+                constexpr primitive operator ^ (const primitive &pQ) const
                 {
                     return primitive(pow(data, pQ.data));
                 }

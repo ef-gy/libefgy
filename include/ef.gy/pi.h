@@ -167,7 +167,7 @@ namespace efgy
          * I really do think this would be a good thing in the end.
          */
         template <typename Q>
-        using pi = series<Q,algorithm::bailey1997>;
+        using pi = series::series<Q,algorithm::bailey1997>;
     };
 };
 

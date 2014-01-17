@@ -33,13 +33,54 @@
 #define EF_GY_E_H
 
 #include <ef.gy/factorial.h>
-#include <ef.gy/exponential.h>
+#include <ef.gy/series.h>
 #include <ef.gy/traits.h>
 
 namespace efgy
 {
     namespace math
     {
+        namespace algorithm
+        {
+            /**\brief 'e' power series sequence
+             *
+             * This algorithm calculates the power series sequence members to
+             * calculate the exponential function.
+             *
+             * \tparam Q The data type to use in the calculations, e.g. double.
+             * \tparam N Sequence index type. 
+             */
+            template<typename Q, typename N>
+            class powerSeriesE
+            {
+                public:
+                    /**\copydoc bailey1997::defaultSeriesIterations */
+                    static const N defaultSeriesIterations = 10;
+
+                    /**\brief Get sequence member
+                     *
+                     * Calculates a single member of the sequence used to
+                     * calculate the exponential function.
+                     *
+                     * \param[in] n The sequence member to calculate.
+                     *
+                     * \returns The sequence member that was to be calculated.
+                     */
+                    static constexpr Q at (const N &n)
+                    {
+                        return Q(1)
+                             / Q(factorial<integer>(integer(n)));
+                    }
+
+                protected:
+                    /**\brief The base data type's integer type
+                     *
+                     * Used to make sure that type casts work as intended.
+                     */
+                    typedef typename numeric::traits<Q>::integral integer;
+            };
+        };
+
         /**\brief Calculate 'e' with arbitrary precision
          *
          * This class is used to handle (and calculate) e^q with arbitrary
@@ -54,11 +95,6 @@ namespace efgy
          *                    should be rational or similar. Must be a class
          *                    that defines an integer subtype and behaves like
          *                    a typical numeric data type.
-         * \tparam iterations The number of iterations to use when calculating
-         *                    the approximation. This is a compile time
-         *                    constant in the hope that the compiler will be
-         *                    able to substitute a constant value for base data
-         *                    types.
          *
          * \section Usage
          *
@@ -73,87 +109,8 @@ namespace efgy
          *
          * \see For more details, see math::pi#Usage.
          */
-        template <typename Q, unsigned int iterations = 10>
-        class e
-        {
-            public:
-                /**\brief The base data type's integer type
-                 *
-                 * Used to make sure that type casts work as intended.
-                 */
-                typedef typename numeric::traits<Q>::integral integer;
-
-                /**\brief Default constructor
-                 *
-                 * Initialises the object so that it creates an approximation
-                 * of 1*e^1.
-                 */
-                e()
-                    : factor(integer(1)), exponent(integer(1))
-                    {}
-
-                /**\brief Construct with factor
-                 *
-                 * Initialises the object so that it creates an approximation
-                 * of pFactor * e^1.
-                 *
-                 * \param[in] pFactor The factor to multiply e with.
-                 */
-                e(const Q &pFactor)
-                    : factor(pFactor), exponent(Q(1))
-                    {}
-
-                /**\brief Construct with factor and exponent
-                 *
-                 * Initialises the object so that it creates an approximation
-                 * of pFactor * e^pExponent.
-                 *
-                 * \param[in] pFactor   The factor to multiply e with.
-                 * \param[in] pExponent The exponent to raise e to.
-                 */
-                e(const Q &pFactor, const Q &pExponent)
-                    : factor(pFactor), exponent(pExponent)
-                    {}
-
-                /**\brief Calculate approximation of e
-                 *
-                 * Cast an e object to the type you specified with the template
-                 * parameter Q to access an appropriate approximation of e.
-                 *
-                 * \return The approximation of e with the given parameters.
-                 */
-                operator Q (void) const
-                {
-                    Q rv = Q();
-
-                    for (unsigned int i = 0; i < iterations; i++)
-                    {
-                        rv = rv + getSequenceMemberAt (i);
-                    }
-
-                    return rv;
-                }
-
-                Q factor;
-                Q exponent;
-
-            protected:
-                /**\brief Get specific member of sequence
-                 *
-                 * Calculates the member at position 'n' in the infinite series
-                 * we use to calculate 'e'.
-                 *
-                 * \param[in] n Which sequence member to return.
-                 *
-                 * \return The requested sequence member.
-                 */
-                constexpr Q getSequenceMemberAt (const unsigned int &n) const
-                {
-                    return factor
-                       * ( (exponentiate::integral<Q>::raise(exponent, n))
-                         / Q(factorial<integer>(integer(n))));
-                }
-        };
+        template <typename Q>
+        using e = series::power<Q,algorithm::powerSeriesE>;
     };
 };
 
