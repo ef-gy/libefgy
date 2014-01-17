@@ -96,7 +96,7 @@ namespace efgy
          *                    that defines an integer subtype and behaves like
          *                    a typical numeric data type.
          *
-         * \section Usage
+         * \section e-usage Usage
          *
          * Usage of this class, and the reasoning behind that usage, is the same
          * as for the math::pi template. In short, you can use either of these:
@@ -107,7 +107,7 @@ namespace efgy
          * (double)math::e<double>();
          * \endcode
          *
-         * \see For more details, see math::pi#Usage.
+         * \see For more details, see #pi-usage.
          */
         template <typename Q>
         using e = series::power<Q,algorithm::powerSeriesE>;
