@@ -50,39 +50,114 @@ namespace efgy
 {
     namespace geometry
     {
+        /**\brief Assorted functors
+         *
+         * Contains functors for use with other geometric templates. Currently
+         * only used for functors that are passed to geometry::with().
+         */
         namespace functor
         {
+            /**\brief Geometry factory functor: echo qualified model names
+             *
+             * This is a sample functor that echoes all the matching types to a
+             * standard output stream.
+             *
+             * \tparam Q Base data type for calculations
+             * \tparam T Model template, e.g. efgy::geometry::cube
+             * \tparam d Model depth, e.g. 4 for a tesseract
+             * \tparam e Model render depth, e.g. >= 4 when rendering a tesseract
+             */
             template<typename Q, template <class,unsigned int,class,unsigned int> class T, unsigned int d, unsigned int e>
             class echo
             {
                 public:
+                    /**\brief Argument type
+                     *
+                     * This functor takes the stream to output to as its
+                     * argument.
+                     */
                     typedef std::ostream &argument;
+
+                    /**\brief Return type
+                     *
+                     * This functor returns a reference to the stream that was
+                     * provided as an argument to the function.
+                     */
                     typedef std::ostream &output;
 
+                    /**\brief Echo model parameters to stream
+                     *
+                     * This method will echo the model, along with the template
+                     * parameters, to the provided stream.
+                     *
+                     * \param[out] out The stream to write to.
+                     *
+                     * \returns out, after writing the model information to it.
+                     */
                     static output apply (argument out)
                     {
                         return out << d << "-" << T<Q,d,render::null<Q,e>,e>::id() << "@" << e << "\n";
                     }
 
+                    /**\brief Pass argument
+                     *
+                     * Simply returns the provided argument verbatim; no further
+                     * processing is performed.
+                     *
+                     * \param[out] out Not used in this function.
+                     *
+                     * \returns out, without modifications.
+                     */
                     static output pass (argument out)
                     {
                         return out;
                     }
             };
 
+            /**\brief Geometry factory functor: add model names to set
+             *
+             * Another sample functor; this one adds all the model types that
+             * are encountered to a set of strings.
+             *
+             * \tparam Q Base data type for calculations
+             * \tparam T Model template, e.g. efgy::geometry::cube
+             * \tparam d Model depth, e.g. 4 for a tesseract
+             * \tparam e Model render depth, e.g. >= 4 when rendering a tesseract
+             */
             template<typename Q, template <class,unsigned int,class,unsigned int> class T, unsigned int d, unsigned int e>
             class models
             {
                 public:
+                    /**\brief Argument type
+                     *
+                     * This functor takes a reference to a set of C strings.
+                     */
                     typedef std::set<const char *> &argument;
+
+                    /**\brief Return type
+                     *
+                     * This functor returns a reference to the given set.
+                     */
                     typedef std::set<const char *> &output;
 
+                    /**\brief Add model ID to set
+                     *
+                     * Adds the current model's ID to the std::set that is
+                     * provided as the argument ot this function. Useful when
+                     * calling geometry::with() with the model name set to "*",
+                     * which would return all the available models.
+                     *
+                     * \param[out] out The set to modify.
+                     *
+                     * \returns out, after adding the new model ID.
+                     */
                     static output apply (argument out)
                     {
                         out.insert(T<Q,d,render::null<Q,e>,e>::id());
                         return out;
                     }
 
+                    /**\copydoc echo::pass */
                     static output pass (argument out)
                     {
                         return out;
@@ -90,11 +165,16 @@ namespace efgy
             };
         };
 
-        /**
-         * \tparam Q Base data type for calculations
-         * \tparam T Model template, e.g. efgy::geometry::cube
-         * \tparam d Model depth, e.g. 4 for a tesseract
-         * \tparam e Model render depth, e.g. >= 4 when rendering a tesseract
+        /**\brief Model factory helper
+         *
+         * A helper for geometry::with, which provides a ::with method that has
+         * the type already specified as a template argument.
+         *
+         * \tparam Q    Base data type for calculations
+         * \tparam func The function to call.
+         * \tparam T    Model template, e.g. efgy::geometry::cube
+         * \tparam d    Model depth, e.g. 4 for a tesseract
+         * \tparam e    Model render depth, e.g. >= 4 when rendering a tesseract
          */
         template<typename Q,
                  template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
@@ -103,6 +183,20 @@ namespace efgy
         class model
         {
             public:
+                /**\brief Call func with parameters
+                 *
+                 * Calls func::pass(arg) or func::apply(arg), depending on
+                 * whether the function can resolve the conundrum posed by the
+                 * dimensionality parameters.
+                 *
+                 * \param[out] arg   The argument to func::...().
+                 * \param[in]  dims  The target number of model dimensions.
+                 * \param[in]  rdims The target number of render dimensions.
+                 *
+                 * \returns The return value of either func::pass or
+                 *          func::apply, depending on whether the call
+                 *          'succeeded'.
+                 */
                 constexpr static typename func<Q,T,d,e>::output with
                     (typename func<Q,T,d,e>::argument arg,
                      const unsigned int &dims = 0,
@@ -134,9 +228,10 @@ namespace efgy
          * parameters' fix points, which prevents an infinite template
          * recursion.
          *
-         * \tparam Q Base data type for calculations
-         * \tparam T Model template, e.g. efgy::geometry::cube
-         * \tparam d Model depth, e.g. 4 for a tesseract
+         * \tparam Q    Base data type for calculations
+         * \tparam func The function to call.
+         * \tparam T    Model template, e.g. efgy::geometry::cube
+         * \tparam d    Model depth, e.g. 4 for a tesseract
          */
         template<typename Q,
                  template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
@@ -148,11 +243,11 @@ namespace efgy
                 /**\brief Call func with parameters; e=2 fix point
                  *
                  * This is a fix point stub of the model::with() method; all
-                 * arguments are ignored and this fix point will simply return
-                 * the first argument. The func template parameter is not
-                 * called.
+                 * arguments but the first are ignored and this fix point will
+                 * simply return the result of applying func's pass method to
+                 * the first argument.
                  *
-                 * \returns Always the first argument.
+                 * \returns func::pass(arg).
                  */
                 constexpr static typename func<Q,T,d,2>::output with
                     (typename func<Q,T,d,2>::argument arg,
@@ -170,9 +265,10 @@ namespace efgy
          * parameters' fix points, which prevents an infinite template
          * recursion.
          *
-         * \tparam Q Base data type for calculations
-         * \tparam T Model template, e.g. efgy::geometry::cube
-         * \tparam e Model render depth, e.g. >= 4 when rendering a tesseract
+         * \tparam Q    Base data type for calculations
+         * \tparam func The function to call.
+         * \tparam T    Model template, e.g. efgy::geometry::cube
+         * \tparam e    Model render depth, e.g. >= 4 when rendering a tesseract
          */
         template<typename Q,
                  template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
@@ -199,6 +295,25 @@ namespace efgy
                 }
         };
 
+        /**\brief Call template function with geometric type(s)
+         *
+         * This is the main entry function for the geometric type factory. This
+         * function allows you to specify the type of geometric primitive that
+         * you're interested in at run time, as well as the dimensional
+         * parameters for those primitives.
+         *
+         * \tparam Q    Base datatype for model geometry.
+         * \tparam func The function to call.
+         * \tparam d    Maximum number of model dimensions.
+         * \tparam e    Maximum number of render dimensions.
+         *
+         * \param[out] arg   The argument to func::...().
+         * \param[in]  type  The model to pass to func, or "*" for "all models".
+         * \param[in]  dims  The target number of model dimensions.
+         * \param[in]  rdims The target number of render dimensions.
+         *
+         * \returns Whatever func::pass returns.
+         */
         template<typename Q,
                  template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
                  unsigned int d,
