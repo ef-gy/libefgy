@@ -29,12 +29,13 @@
  */
 
 #include <iostream>
-
+#include <sstream>
 #include <ef.gy/test-case.h>
 #include <ef.gy/maybe.h>
 
 using namespace efgy;
 using namespace std;
+using efgy::test::next_integer;
 
 /**\brief 'Maybe' assignment and initialisation tests
  * \test Initialises several instances of the 'maybe' template of different
@@ -159,4 +160,36 @@ int testMaybeNontrivial (std::ostream &log)
     return 0;
 }
 
-TEST_BATCH(testMaybe, testMaybeNontrivial)
+/** \brief Stream output test for maybes
+ *  \test Tests stream output for both nontrivial maybes and nothings.
+ *
+ *  \param[out] log A stream for test cases to log messages to.
+ *
+ *  \return Zero when everything went as expected, nonzero otherwise.
+ */
+int testMaybeStreamOutput (std::ostream &log)
+{
+    maybe<int> trivial; 
+    maybe<int> nontrivial(42);
+
+    std::ostringstream test;
+    test << trivial;
+    test << "\n";
+    test << nontrivial;
+
+    std::stringstream expected;
+    expected << "nothing" << "\n" << "42";
+
+    if(test.str() != expected.str())
+    {
+        log << "Unexpected characters in stream output.\n";
+        log << "Expected: \n";
+        log << expected.str();
+        log << "\n\nActual:\n";
+        log << test.str();
+        return next_integer();
+    }
+    return 0;
+}
+
+TEST_BATCH(testMaybe, testMaybeNontrivial, testMaybeStreamOutput)
