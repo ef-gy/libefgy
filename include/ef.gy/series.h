@@ -220,7 +220,15 @@ namespace efgy
                         return sumTo (n, f, x, c, Q(0));
                     }
 
-                    /**\copydoc "series::operator Q" */
+                    /**\brief Calculate approximation
+                     *
+                     * Cast an actual instance of the series to its base type to
+                     * get an approximation with the parameters stored in the
+                     * type.
+                     *
+                     * \return The approximation of the series with the
+                     *         parameters in the instance.
+                     */
                     constexpr operator Q (void) const
                     {
                         return get (iterations, factor, powerFactor, centre);
