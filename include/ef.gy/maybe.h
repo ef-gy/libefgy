@@ -212,15 +212,24 @@ namespace efgy
              */
             bool nothing;
 
-            std::ostream& operator << (std::ostream& str)
+            /** \brief Stream output for maybes
+             *
+             * Overloads the stream insertion operator for maybes.
+             * If the maybe contains 'nothing', the output to the stream will 
+             * be the string literal "nothing"; 
+             * if it contains a proper value, the value will be inserted
+             * into the stream (so its type ought to have a stream insertion 
+             * operator as well).
+             */
+            friend std::ostream& operator << (std::ostream& str, const maybe &b)
             {
-                if(nothing) 
+                if(b.nothing) 
                 {
                     str << "nothing";
                 }
                 else
                 {
-                    str << just;
+                    str << b.just;
                 }
                 return str;
             }
