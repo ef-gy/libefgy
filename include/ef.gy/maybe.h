@@ -211,6 +211,19 @@ namespace efgy
              * and 'false' if it contains a proper value.
              */
             bool nothing;
+
+            std::ostream& operator << (std::ostream& str)
+            {
+                if(nothing) 
+                {
+                    str << "nothing";
+                }
+                else
+                {
+                    str << just;
+                }
+                return str;
+            }
     };
 };
 
