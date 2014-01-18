@@ -41,9 +41,7 @@ namespace efgy
         template <typename Q, typename N = unsigned long long>
         Q sine (const Q &pTheta, Q &oCosine, const N &iterations = N(10))
         {
-            e<complex<Q>> re (complex<Q>(Q(1),Q(0)), complex<Q>(Q(0),pTheta), complex<Q>(Q(0),Q(0)), iterations);
-
-            complex<Q> z = re;
+            complex<Q> z = e<complex<Q>>(complex<Q>(Q(1),Q(0)), complex<Q>(Q(0),pTheta), complex<Q>(Q(0),Q(0)), iterations);
 
             oCosine = z.one;
 
@@ -53,9 +51,7 @@ namespace efgy
         template <typename Q, typename N = unsigned long long>
         Q secant (const Q &pTheta, Q &oCosecant, const N &iterations = N(10))
         {
-            e<complex<Q>> re (complex<Q>(Q(1),Q(0)), complex<Q>(Q(0),pTheta), complex<Q>(Q(0),Q(0)), iterations);
-
-            complex<Q> z = re;
+            complex<Q> z = e<complex<Q>>(complex<Q>(Q(1),Q(0)), complex<Q>(Q(0),pTheta), complex<Q>(Q(0),Q(0)), iterations);
 
             oCosecant = Q(1)/z.i;
 

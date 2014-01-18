@@ -45,21 +45,11 @@ namespace efgy
                 typedef typename numeric::traits<Q>::integral integral;
                 typedef Q rational;
 
-                complex ()
-                    : one(Q(0)), i(Q(0))
-                    {}
+                constexpr complex () : one(Q(0)), i(Q(0)) {}
 
-                complex (const Q &pOne)
-                    : one(pOne), i(Q(0))
-                    {}
+                constexpr complex (const Q &pOne) : one(pOne), i(Q(0)) {}
 
-                complex (const Q &pOne, const Q &pI)
-                    : one(pOne), i(pI)
-                    {}
-
-                complex (const integral &pOne, const integral &pI)
-                    : one(Q(pOne)), i(Q(pI))
-                    {}
+                constexpr complex (const Q &pOne, const Q &pI) : one(pOne), i(pI) {}
 
                 complex &operator = (const complex &b)
                 {
@@ -77,7 +67,7 @@ namespace efgy
                     return *this;
                 }
 
-                complex operator + (const complex &b) const
+                constexpr complex operator + (const complex &b) const
                 {
                     return complex (one + b.one, i + b.i);
                 }
@@ -89,7 +79,7 @@ namespace efgy
                     return ((*this) = r);
                 }
 
-                complex operator - (const complex &b) const
+                constexpr complex operator - (const complex &b) const
                 {
                     return complex (one - b.one, i - b.i);
                 }
@@ -101,7 +91,7 @@ namespace efgy
                     return ((*this) = r);
                 }
 
-                complex operator * (const complex &b) const
+                constexpr complex operator * (const complex &b) const
                 {
                     // (a + bi) * (c + di) = (ac - bd) + (bc + ad)*i
                     return complex (one * b.one - i * b.i, i * b.one + one * b.i);
@@ -140,7 +130,7 @@ namespace efgy
                     return ((*this) = r);
                 }
 
-                complex operator / (const complex &b) const
+                constexpr complex operator / (const complex &b) const
                 {
                     // (a + bi) / (c + di) = (ac + bd)/(c*c + d*d) + (bc - ad)/(c*c + d*d)*i
                     return complex
