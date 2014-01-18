@@ -1,4 +1,7 @@
 /**\file
+ * \brief Complex numbers
+ *
+ * Contains templates dealing with complex numbers.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -29,6 +32,7 @@
 #define EF_GY_COMPLEX_H
 
 #include <ef.gy/fractions.h>
+#include <ef.gy/traits.h>
 
 namespace efgy
 {
@@ -38,26 +42,22 @@ namespace efgy
         class complex
         {
             public:
-                typedef typename Q::integer integer;
+                typedef typename numeric::traits<Q>::integral integral;
                 typedef Q rational;
 
                 complex ()
                     : one(Q(0)), i(Q(0))
                     {}
 
-                complex (Q pOne)
+                complex (const Q &pOne)
                     : one(pOne), i(Q(0))
-                    {}
-
-                complex (const integer &pOne)
-                    : one(Q(pOne)), i(Q(0))
                     {}
 
                 complex (const Q &pOne, const Q &pI)
                     : one(pOne), i(pI)
                     {}
 
-                complex (const integer &pOne, const integer &pI)
+                complex (const integral &pOne, const integral &pI)
                     : one(Q(pOne)), i(Q(pI))
                     {}
 
@@ -72,7 +72,7 @@ namespace efgy
                 complex &operator = (const Q &b)
                 {
                     one = b;
-                    i = integer(0);
+                    i = integral(0);
 
                     return *this;
                 }
@@ -114,17 +114,17 @@ namespace efgy
                     return ((*this) = r);
                 }
 
-                complex operator ^ (const integer &b) const
+                complex operator ^ (const integral &b) const
                 {
-                    if (b == integer(0))
+                    if (b == integral(0))
                     {
-                        return complex(integer(1));
+                        return complex(integral(1));
                     }
                     else
                     {
                         complex rv = *this;
 
-                        for (integer i = integer(1); i < b; i++)
+                        for (integral i = integral(1); i < b; i++)
                         {
                             rv *= (*this);
                         }
@@ -133,7 +133,7 @@ namespace efgy
                     }
                 }
 
-                complex &operator ^= (const integer &b)
+                complex &operator ^= (const integral &b)
                 {
                     complex r = (*this) ^ b;
 
@@ -157,6 +157,21 @@ namespace efgy
 
                 Q one;
                 Q i;
+        };
+
+        namespace numeric
+        {
+            template<typename Q>
+            class traits<complex<Q>>
+            {
+                public:
+                    typedef typename traits<Q>::integral integral;
+                    typedef typename traits<Q>::rational rational;
+                    typedef complex<Q> self;
+                    typedef complex<Q> derivable;
+
+                    static const bool stable = false;
+            };
         };
     };
 };

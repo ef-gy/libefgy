@@ -51,7 +51,7 @@ typedef primitive<long double, unsigned long long> longDouble;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testPi (std::ostream &log)
+int testE (std::ostream &log)
 {
     e<longDouble> eD1 (1, 1, 0, 1);
     e<longDouble> eD2 (1, 1, 0, 4);
@@ -86,4 +86,4 @@ int testPi (std::ostream &log)
     return 0;
 }
 
-TEST_BATCH(testPi)
+TEST_BATCH(testE)
