@@ -95,6 +95,8 @@ namespace efgy
          *                    should be rational or similar. Must be a class
          *                    that defines an integer subtype and behaves like
          *                    a typical numeric data type.
+         * \tparam N          Base integral type; used to specify the
+         *                    precision.
          *
          * \section e-usage Usage
          *
@@ -109,8 +111,8 @@ namespace efgy
          *
          * \see For more details, see math::pi.
          */
-        template <typename Q>
-        using e = series::power<Q,algorithm::powerSeriesE>;
+        template <typename Q, typename N = unsigned long long>
+        using e = series::power<Q,algorithm::powerSeriesE,N>;
     };
 };
 

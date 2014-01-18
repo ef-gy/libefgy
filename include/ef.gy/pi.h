@@ -119,6 +119,8 @@ namespace efgy
          * \tparam Q          The data type to use in the calculations -
          *                    should be rational or similar. Must be a type
          *                    with numeric::traits<Q> defined.
+         * \tparam N          Base integral type; used to specify the
+         *                    precision.
          *
          * \section pi-usage Usage
          *
@@ -166,8 +168,8 @@ namespace efgy
          * that at this point that's all theoretical, but it's getting there and
          * I really do think this would be a good thing in the end.
          */
-        template <typename Q>
-        using pi = series::series<Q,algorithm::bailey1997>;
+        template <typename Q, typename N = unsigned long long>
+        using pi = series::series<Q,algorithm::bailey1997,N>;
     };
 };
 

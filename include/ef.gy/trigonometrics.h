@@ -38,44 +38,185 @@ namespace efgy
 {
     namespace math
     {
+        /**\brief Calculate sine and cosine
+         *
+         * Uses the complex exponential function to calculate both the sine and
+         * cosine at the same time.
+         *
+         * \tparam Q Base data type, e.g. double.
+         * \tparam N Data type for the number of iterations.
+         *
+         * \param[in]  pTheta     The angle to calculate the sine and cosine of.
+         * \param[out] oCosine    Where to write the cosine to.
+         * \param[in]  iterations Number of iterations for the e function.
+         *
+         * \returns The sine of pTheta.
+         */
         template <typename Q, typename N = unsigned long long>
-        Q sine (const Q &pTheta, Q &oCosine, const N &iterations = N(10))
+        static inline Q sines (const Q &pTheta, Q &oCosine, const N &iterations = N(10))
         {
-            complex<Q> z = e<complex<Q>>(complex<Q>(Q(1),Q(0)), complex<Q>(Q(0),pTheta), complex<Q>(Q(0),Q(0)), iterations);
+            complex<Q> z = e<complex<Q>,N>(complex<Q>(Q(1),Q(0)),
+                                           complex<Q>(Q(0),pTheta),
+                                           complex<Q>(Q(0),Q(0)),
+                                           iterations);
 
             oCosine = z.one;
 
             return z.i;
         }
 
+        /**\brief Calculate sine
+         *
+         * Uses the complex exponential function to calculate the sine of a
+         * given angle.
+         *
+         * \tparam Q Base data type, e.g. double.
+         * \tparam N Data type for the number of iterations.
+         *
+         * \param[in] pTheta     The angle to calculate the sine of.
+         * \param[in] iterations Number of iterations for the e function.
+         *
+         * \returns The sine of pTheta.
+         */
         template <typename Q, typename N = unsigned long long>
-        Q secant (const Q &pTheta, Q &oCosecant, const N &iterations = N(10))
+        constexpr static inline Q sine (const Q &pTheta, const N &iterations = N(10))
         {
-            complex<Q> z = e<complex<Q>>(complex<Q>(Q(1),Q(0)), complex<Q>(Q(0),pTheta), complex<Q>(Q(0),Q(0)), iterations);
+            return complex<Q>(e<complex<Q>,N>(complex<Q>(Q(1),Q(0)),
+                                              complex<Q>(Q(0),pTheta),
+                                              complex<Q>(Q(0),Q(0)),
+                                              iterations)).i;
+        }
+
+        /**\brief Calculate cosine
+         *
+         * Uses the complex exponential function to calculate the cosine of a
+         * given angle.
+         *
+         * \tparam Q Base data type, e.g. double.
+         * \tparam N Data type for the number of iterations.
+         *
+         * \param[in] pTheta     The angle to calculate the cosine of.
+         * \param[in] iterations Number of iterations for the e function.
+         *
+         * \returns The cosine of pTheta.
+         */
+        template <typename Q, typename N = unsigned long long>
+        constexpr static inline Q cosine (const Q &pTheta, const N &iterations = N(10))
+        {
+            return complex<Q>(e<complex<Q>,N>(complex<Q>(Q(1),Q(0)),
+                                              complex<Q>(Q(0),pTheta),
+                                              complex<Q>(Q(0),Q(0)),
+                                              iterations)).one;
+        }
+
+        /**\brief Calculate secant and cosecant
+         *
+         * Uses the complex exponential function to calculate both the secant
+         * and cosecant at the same time.
+         *
+         * \tparam Q Base data type, e.g. double.
+         * \tparam N Data type for the number of iterations.
+         *
+         * \param[in]  pTheta     The angle to calculate the secant and cosecant
+         *                        of.
+         * \param[out] oCosecant  Where to write the cosecant to.
+         * \param[in]  iterations Number of iterations for the e function.
+         *
+         * \returns The secant of pTheta.
+         */
+        template <typename Q, typename N = unsigned long long>
+        static inline Q secants (const Q &pTheta, Q &oCosecant, const N &iterations = N(10))
+        {
+            complex<Q> z = e<complex<Q>,N>(complex<Q>(Q(1),Q(0)),
+                                           complex<Q>(Q(0),pTheta),
+                                           complex<Q>(Q(0),Q(0)),
+                                           iterations);
 
             oCosecant = Q(1)/z.i;
 
             return Q(1)/z.one;
         }
 
+        /**\brief Calculate secant
+         *
+         * Uses the complex exponential function to calculate the secant of a
+         * given angle.
+         *
+         * \tparam Q Base data type, e.g. double.
+         * \tparam N Data type for the number of iterations.
+         *
+         * \param[in] pTheta     The angle to calculate the secant of.
+         * \param[in] iterations Number of iterations for the e function.
+         *
+         * \returns The secant of pTheta.
+         */
         template <typename Q, typename N = unsigned long long>
-        Q tangent (const Q &pTheta, const N &iterations = N(10))
+        constexpr static inline Q secant (const Q &pTheta, const N &iterations = N(10))
         {
-            Q s, c;
-
-            s = sine (pTheta, c);
-
-            return s / c;
+            return Q(1) / complex<Q>(e<complex<Q>,N>(complex<Q>(Q(1),Q(0)),
+                                                     complex<Q>(Q(0),pTheta),
+                                                     complex<Q>(Q(0),Q(0)),
+                                                     iterations)).i;
         }
 
+        /**\brief Calculate cosecant
+         *
+         * Uses the complex exponential function to calculate the cosecant of a
+         * given angle.
+         *
+         * \tparam Q Base data type, e.g. double.
+         * \tparam N Data type for the number of iterations.
+         *
+         * \param[in] pTheta     The angle to calculate the cosecant of.
+         * \param[in] iterations Number of iterations for the e function.
+         *
+         * \returns The cosecant of pTheta.
+         */
         template <typename Q, typename N = unsigned long long>
-        Q cotangent (const Q &pTheta, const N &iterations = N(10))
+        constexpr static inline Q cosecant (const Q &pTheta, const N &iterations = N(10))
         {
-            Q s, c;
+            return Q(1) / complex<Q>(e<complex<Q>,N>(complex<Q>(Q(1),Q(0)),
+                                                     complex<Q>(Q(0),pTheta),
+                                                     complex<Q>(Q(0),Q(0)),
+                                                     iterations)).one;
+        }
 
-            s = sine (pTheta, c);
+        /**\brief Calculate tangent
+         *
+         * Uses the complex exponential function to calculate the tangent of a
+         * given angle.
+         *
+         * \tparam Q Base data type, e.g. double.
+         * \tparam N Data type for the number of iterations.
+         *
+         * \param[in] pTheta     The angle to calculate the tangent of.
+         * \param[in] iterations Number of iterations for the e function.
+         *
+         * \returns The tangent of pTheta.
+         */
+        template <typename Q, typename N = unsigned long long>
+        constexpr static inline Q tangent (const Q &pTheta, const N &iterations = N(10))
+        {
+            return sine(pTheta, iterations) / cosine(pTheta, iterations);
+        }
 
-            return c / s;
+        /**\brief Calculate cotangent
+         *
+         * Uses the complex exponential function to calculate the cotangent of a
+         * given angle.
+         *
+         * \tparam Q Base data type, e.g. double.
+         * \tparam N Data type for the number of iterations.
+         *
+         * \param[in] pTheta     The angle to calculate the cotangent of.
+         * \param[in] iterations Number of iterations for the e function.
+         *
+         * \returns The cotangent of pTheta.
+         */
+        template <typename Q, typename N = unsigned long long>
+        constexpr static inline Q cotangent (const Q &pTheta, const N &iterations = N(10))
+        {
+            return cosine(pTheta, iterations) / sine(pTheta, iterations);
         }
     };
 };

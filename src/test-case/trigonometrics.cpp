@@ -53,7 +53,7 @@ int testSine (std::ostream &log)
 
     for (double x : range<double>(0,3.14,30,true))
     {
-        s = sine(x, c);
+        s = sines(x, c);
 
         log << "sine(" << x << ") = " << s << ":" << c << "\n";
     }
