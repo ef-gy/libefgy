@@ -203,12 +203,10 @@ namespace efgy
                         typename euclidian::space<Q,(d-1)>::vector result;
                     
                         typename euclidian::space<Q,d>::vector R = affine<Q,d>(*this) * pP;
-                    
-                        Q S = 1 / R[(d-1)];
-                    
+
                         for (unsigned int i = 0; i < (d-1); i++)
                         {
-                            result[i] = S * R[i];
+                            result[i] = R[i] / R[(d-1)];
                         }
                     
                         return result;
