@@ -220,12 +220,6 @@ namespace efgy
             T stride;
     };
 
-    template<typename T, T start, T end, bool inclusive = true>
-    constexpr static inline std::array<T,(inclusive ? 1 : 0)+((end-start) < 0 ? (start-end) : (end-start))> sequence (void)
-    {
-        return range<T,(inclusive ? 1 : 0)+((end-start) < 0 ? (start-end) : (end-start))>::get (start, (end-start) < 0 ? -1 : 1);
-    }
-
     /**\brief Generic range class; n=0 fix point
      * \copydetails range
      *

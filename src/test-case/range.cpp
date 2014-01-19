@@ -60,13 +60,18 @@ int testRange (std::ostream &log)
         return -2;
     }
 
-    if (sequence<int,49,42>() != std::array<int,8>({{ 49, 48, 47, 46, 45, 44, 43, 42 }}))
+    if (range<int,8>::get(49,-1) != std::array<int,8>({{ 49, 48, 47, 46, 45, 44, 43, 42 }}))
     {
         log << "8-element sequence does not have the expected value.\n";
         return -3;
     }
 
-    std::array<int,8> a1 = sequence<int,42,49>();
+    for (int i : range<int>(0,4))
+    {
+        std::cerr << i << "\n";
+    }
+
+    std::array<int,8> a1 = range<int,8>::get(42);
     std::size_t p = 0;
 
     for (int i : range<int,8>(42))
@@ -86,7 +91,7 @@ int testRange (std::ostream &log)
         return -5;
     }
 
-    std::array<int,8> a2 = sequence<int,49,42>();
+    std::array<int,8> a2 = range<int,8>::get(49,-1);
 
     if (!std::equal (a2.begin(), a2.end(), range<int,8>(49,42).begin()))
     {

@@ -63,7 +63,7 @@ namespace efgy
                         const typename euclidian::space<Q,d>::vector V = affine<Q,d>(*this) * pV;
                         typename euclidian::space<Q,d>::vector rv = V * coefficient[0];
 
-                        for (unsigned int i : sequence<unsigned int, 1, coefficients, false>())
+                        for (unsigned int i : range<unsigned int>(1, coefficients, false))
                         {
                             rv = rv + apply(i, V);
                         }

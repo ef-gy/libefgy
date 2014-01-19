@@ -389,7 +389,7 @@ namespace efgy
 
                     points.push_back (typename euclidian::space<Q,d>::vector());
 
-                    for (unsigned int i : sequence<unsigned int,0,od,false>())
+                    for (unsigned int i : range<int>(0,4,false))
                     {
                         std::vector<typename euclidian::space<Q,d>::vector> newPoints;
                         std::vector<std::array<typename euclidian::space<Q,d>::vector,2> > newLines;
