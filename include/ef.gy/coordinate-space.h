@@ -28,6 +28,7 @@
 #if !defined(EF_GY_COORDINATE_SPACE_H)
 #define EF_GY_COORDINATE_SPACE_H
 
+#include <ef.gy/vector.h>
 #include <ef.gy/traits.h>
 #include <array>
 
@@ -41,97 +42,7 @@ namespace efgy
             public:
                 typedef F base;
                 typedef F scalar;
-
-                class vector : public std::array<scalar, n>
-                {
-                    public:
-                        constexpr vector () : std::array<scalar, n>() {}
-                        constexpr vector (const std::array<scalar, n> &t) : std::array<scalar, n>(t) {}
-
-                        using std::array<scalar, n>::operator =;
-
-                        vector operator * (const scalar &s) const
-                        {
-                            vector r = *this;
-
-                            for (unsigned int i = 0; i < n; i++)
-                            {
-                                r[i] *= s;
-                            }
-
-                            return r;
-                        }
-
-                        scalar operator * (const vector &v) const
-                        {
-                            scalar s = scalar();
-
-                            for (unsigned int i = 0; i < n; i++)
-                            {
-                                s = s + ((*this)[i] * v[i]);
-                            }
-
-                            return s;
-                        }
-
-                        vector operator / (const scalar &s) const
-                        {
-                            vector r = *this;
-
-                            for (unsigned int i = 0; i < n; i++)
-                            {
-                                r[i] /= s;
-                            }
-
-                            return r;
-                        }
-
-                        scalar operator / (const vector &v) const
-                        {
-                            scalar s = scalar();
-
-                            for (unsigned int i = 0; i < n; i++)
-                            {
-                                s = s + ((*this)[i] / v[i]);
-                            }
-
-                            return s;
-                        }
-
-                        vector operator + (const vector &v) const
-                        {
-                            std::array<scalar,n> r;
-
-                            for (unsigned int i = 0; i < n; i++)
-                            {
-                                r[i] = ((*this)[i] + v[i]);
-                            }
-
-                            return vector(r);
-                        }
-
-                        vector &operator += (const vector &v)
-                        {
-                            return (*this) = ((*this) + v);
-                        }
-
-                        vector operator - (const vector &v) const
-                        {
-                            std::array<scalar,n> r;
-
-                            for (unsigned int i = 0; i < n; i++)
-                            {
-                                r[i] = ((*this)[i] - v[i]);
-                            }
-
-                            return vector(r);
-                        }
-
-                        vector &operator -= (const vector &v)
-                        {
-                            return (*this) = ((*this) - v);
-                        }
-                };
+                typedef vector<scalar, n, space::real> vector;
         };
     };
 };

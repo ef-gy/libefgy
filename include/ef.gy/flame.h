@@ -213,7 +213,7 @@ namespace efgy
                                         case 0: rv[i] = cos(thpo); break;
                                         case 1: rv[i] = sin(thpo); break;
                                     }
-                                rv = rv * sqrt(r);
+                                rv = rv * Q(sqrt(r));
                             }
                                 break;
                             case 14: // "bent"
@@ -257,7 +257,7 @@ namespace efgy
                                         case 0: rv[i] = cos(M_PI*V[1]); break;
                                         case 1: rv[i] = sin(M_PI*V[1]); break;
                                     }
-                                rv = rv * exp(V[0]-Q(1));
+                                rv = rv * Q(exp(V[0]-Q(1)));
                                 break;
                             default:
                                return rv;

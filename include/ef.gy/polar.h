@@ -32,47 +32,57 @@
 
 namespace efgy
 {
+    namespace math
+    {
+        namespace space
+        {
+            class polar {};
+        };
+
+        template <typename F, unsigned int n>
+        class vector<F,n,space::polar> : public std::array<F,n>
+        {
+            public:
+                constexpr vector () : std::array<F, n>() {}
+                constexpr vector (const std::array<F, n> &t) : std::array<F, n>(t) {}
+
+                operator vector<F,n,space::real> () const
+                {
+                    vector<F,n,space::real> v;
+
+                    for (unsigned int i = 0; i < n; i++)
+                    {
+                        v[i] = (*this)[0];
+                    }
+
+                    for (unsigned int i = 0; i < (n-1); i++)
+                    {
+                        const unsigned int p = i + 1;
+
+                        v[i] *= cos((*this)[p]);
+
+                        for (unsigned int j = p; j < n; j++)
+                        {
+                            v[j] *= sin((*this)[p]);
+                        }
+                    }
+
+                    return v;
+                }
+        };
+    }
+
     namespace geometry
     {
         namespace polar
         {
             template <typename F, unsigned int n>
-            class space : public math::coordinateSpace<F,n>
+            class space
             {
                 public:
-                    typedef typename math::coordinateSpace<F,n>::base base;
-                    typedef typename math::coordinateSpace<F,n>::scalar scalar;
-
-                    class vector : public math::coordinateSpace<F,n>::vector
-                    {
-                        public:
-                            vector () : math::coordinateSpace<F,n>::vector() {}
-                            vector (const std::array<scalar, n> &t) : math::coordinateSpace<F,n>::vector(t) {}
-
-                            operator typename euclidian::space<F,n>::vector () const
-                            {
-                                typename euclidian::space<F,n>::vector v;
-
-                                for (unsigned int i = 0; i < n; i++)
-                                {
-                                    v[i] = (*this)[0];
-                                }
-
-                                for (unsigned int i = 0; i < (n-1); i++)
-                                {
-                                    const unsigned int p = i + 1;
-
-                                    v[i] *= cos((*this)[p]);
-
-                                    for (unsigned int j = p; j < n; j++)
-                                    {
-                                        v[j] *= sin((*this)[p]);                                            
-                                    }
-                                }
-
-                                return v;
-                            }
-                    };
+                    typedef F base;
+                    typedef F scalar;
+                    typedef math::vector<scalar, n, math::space::polar> vector;
             };
         };
     };
