@@ -38,19 +38,68 @@ namespace efgy
 {
     namespace math
     {
+        /**\brief Coordinate space tags
+         *
+         * Contains tags for different coordinate spaces. These are used in the
+         * math::vector template to distinguish between different kinds of
+         * vectors.
+         */
         namespace space
         {
+            /**\brief Real coordinate space tag
+             *
+             * This is the default coordinate space tag, which indicates that
+             * the coordinate space is the typical real coordinate space.
+             */
             class real {};
         };
 
+        /**\brief Generic vector
+         *
+         * Implements a generic vector type over a field, which is tagged with a
+         * coordinate space that describes what kind of vector the class
+         * represents.
+         *
+         * \tparam F     Base type for the vector; should have field-like
+         *               properties.
+         * \tparam n     Number of vector elements.
+         * \tparam space Coordinate space tag, defaults to space::real.
+         */
         template <typename F, unsigned int n, typename space = space::real>
         class vector : public std::array<F,n>
         {
             public:
-                constexpr vector () : std::array<F, n>() {}
-                constexpr vector (const std::array<F, n> &t) : std::array<F, n>(t) {}
+                /**\brief Default constructor
+                 *
+                 * Construct an instance of the vector with all elements
+                 * initialised to their default values.
+                 */
+                constexpr vector () : std::array<F,n>() {}
+
+                /**\brief Construct with array
+                 *
+                 * Construct an instance of the vector with the elements
+                 * specified as a C++-style array.
+                 */
+                constexpr vector (const std::array<F,n> &t) : std::array<F, n>(t) {}
         };
 
+        /**\brief Scalar multiplication
+         *
+         * Implements the scalar multiplication of a vector with a scalar; the
+         * result in the most common vector spaces is that the vector is scaled
+         * by the scalar and retains its orientation.
+         *
+         * \tparam F     Base type for the vector; should have field-like
+         *               properties.
+         * \tparam n     Number of vector elements.
+         * \tparam space Coordinate space tag, defaults to space::real.
+         *
+         * \param[in] a The vector to scale.
+         * \param[in] s The scale to apply to the vector.
+         *
+         * \returns The modified, scaled vector.
+         */
         template <typename F, unsigned int n, typename space>
         vector<F,n,space> operator * (vector<F,n,space> a, const F &s)
         {
@@ -61,6 +110,21 @@ namespace efgy
             return a;
         }
 
+        /**\brief Dot product
+         *
+         * Implements the generic dot product, which is the sum of all the
+         * products of corresponding vector elements of both vectors.
+         *
+         * \tparam F     Base type for the vector; should have field-like
+         *               properties.
+         * \tparam n     Number of vector elements.
+         * \tparam space Coordinate space tag, defaults to space::real.
+         *
+         * \param[in] a First input vector.
+         * \param[in] b Second input vector.
+         *
+         * \returns The dot product of a and b.
+         */
         template <typename F, unsigned int n, typename space>
         F operator * (const vector<F,n,space> &a, const vector<F,n,space> &b)
         {
@@ -72,6 +136,23 @@ namespace efgy
             return s;
         }
 
+        /**\brief Scalar multiplication with reciprocal
+         *
+         * Analogous to the scalar multiplication, this is equivalent to
+         * multiplying a vector with the reciprocal of the given vector, except
+         * that you don't have to calculate this reciprocal separately. It
+         * seemed like a logical extension.
+         *
+         * \tparam F     Base type for the vector; should have field-like
+         *               properties.
+         * \tparam n     Number of vector elements.
+         * \tparam space Coordinate space tag, defaults to space::real.
+         *
+         * \param[in] a The vector to scale.
+         * \param[in] s The reciprocal of this is multiplied with the vector.
+         *
+         * \returns The modified, scaled vector.
+         */
         template <typename F, unsigned int n, typename space>
         vector<F,n,space> operator / (vector<F,n,space> a, const F &s)
         {
@@ -82,6 +163,21 @@ namespace efgy
             return a;
         }
 
+        /**\brief Dot product with reciprocals of second vector
+         *
+         * This is an extension of the dot product where the right hand side
+         * elements serve as the divisor instead of as a factor.
+         *
+         * \tparam F     Base type for the vector; should have field-like
+         *               properties.
+         * \tparam n     Number of vector elements.
+         * \tparam space Coordinate space tag, defaults to space::real.
+         *
+         * \param[in] a First input vector.
+         * \param[in] b Second input vector.
+         *
+         * \returns The "dot quotient" of a and b.
+         */
         template <typename F, unsigned int n, typename space>
         F operator / (const vector<F,n,space> &a, const vector<F,n,space> &b)
         {
