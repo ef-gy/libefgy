@@ -103,6 +103,15 @@ namespace efgy
                      const space &s = space())
                     : std::array<F, n>(t) {}
 
+                /**\brief Query space tag
+                 *
+                 * Returns an instance of the applicable space tag. Simple
+                 * vector spaces will quite likely return a synthesised instance
+                 * here. More complicated spaces may keep track of the space
+                 * layout in such a tag.
+                 *
+                 * \returns A space tag instance for this vector.
+                 */
                 constexpr const space tag (void) const { return space(); }
         };
 
@@ -211,6 +220,21 @@ namespace efgy
             return s;
         }
 
+        /**\brief Vector addition
+         *
+         * Implements the addition of two vectors. The two vectors are added
+         * component-wise.
+         *
+         * \tparam F     Base type for the vector; should have field-like
+         *               properties.
+         * \tparam n     Number of vector elements.
+         * \tparam space Coordinate space tag, defaults to space::real.
+         *
+         * \param[in] a First input vector.
+         * \param[in] b Second input vector.
+         *
+         * \returns The sum of the two provided vectors.
+         */
         template <typename F, unsigned int n, typename space>
         vector<F,n,space> operator + (vector<F,n,space> a, const vector<F,n,space> &b)
         {
@@ -221,6 +245,21 @@ namespace efgy
             return a;
         }
 
+        /**\brief Vector addition
+         *
+         * Performs the same operation as the regular vector addition, but
+         * modifies the first vector in the process.
+         *
+         * \tparam F     Base type for the vector; should have field-like
+         *               properties.
+         * \tparam n     Number of vector elements.
+         * \tparam space Coordinate space tag, defaults to space::real.
+         *
+         * \param[in] a First input vector.
+         * \param[in] b Second input vector.
+         *
+         * \returns The first argument, after adding the second to it.
+         */
         template <typename F, unsigned int n, typename space>
         vector<F,n,space> &operator += (vector<F,n,space> &a, const vector<F,n,space> &b)
         {
@@ -231,6 +270,22 @@ namespace efgy
             return a;
         }
 
+        /**\brief Vector subtraction
+         *
+         * Implements the subtraction of two vectors. The values of the second
+         * vector are subtracted from the values of the first vector, component
+         * by component.
+         *
+         * \tparam F     Base type for the vector; should have field-like
+         *               properties.
+         * \tparam n     Number of vector elements.
+         * \tparam space Coordinate space tag, defaults to space::real.
+         *
+         * \param[in] a First input vector.
+         * \param[in] b Second input vector.
+         *
+         * \returns The difference of the two provided vectors.
+         */
         template <typename F, unsigned int n, typename space>
         vector<F,n,space> operator - (vector<F,n,space> a, const vector<F,n,space> &b)
         {
@@ -241,6 +296,21 @@ namespace efgy
             return a;
         }
 
+        /**\brief Vector subtraction
+         *
+         * Performs the same operation as the regular vector subtraction, but
+         * modifies the first vector in the process.
+         *
+         * \tparam F     Base type for the vector; should have field-like
+         *               properties.
+         * \tparam n     Number of vector elements.
+         * \tparam space Coordinate space tag, defaults to space::real.
+         *
+         * \param[in] a First input vector.
+         * \param[in] b Second input vector.
+         *
+         * \returns The first argument, after subtracting the second from it.
+         */
         template <typename F, unsigned int n, typename space>
         vector<F,n,space> &operator -= (vector<F,n,space> &a, const vector<F,n,space> &b)
         {
@@ -251,6 +321,22 @@ namespace efgy
             return a;
         }
 
+        /**\brief Vector stream output
+         *
+         * Writes the contents of a vector to a std::ostream. The function will
+         * write both the tag and the actual array contents to the stream.
+         *
+         * \tparam C     The character type of the stream.
+         * \tparam F     Base type for the vector; should have field-like
+         *               properties.
+         * \tparam n     Number of vector elements.
+         * \tparam space Coordinate space tag, defaults to space::real.
+         *
+         * \param[out] stream The stream to write to.
+         * \param[in]  v      The vector to write to the stream.
+         *
+         * \returns The provided stream after writing to it.
+         */
         template <typename C, typename F, unsigned int n, typename space>
         std::basic_ostream<C> &operator << (std::basic_ostream<C> &stream, const vector<F,n,space> &v)
         {

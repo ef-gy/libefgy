@@ -1,4 +1,8 @@
 /**\file
+ * \brief Polar coordinate vectors
+ *
+ * Contains a specialisation of the generic vector interface that uses polar
+ * coordinates instead of the regular real/cartesian coordinates.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -70,6 +74,16 @@ namespace efgy
             }
         };
 
+        /**\brief Polar coordinate vector
+         *
+         * Specialisation of the generic vectors that uses polar coordinates as
+         * opposed to real coordinates.
+         *
+         * \tparam F     Base type for the vector; should have field-like
+         *               properties.
+         * \tparam n     Number of vector elements.
+         * \tparam space Coordinate space tag, defaults to space::real.
+         */
         template <typename F, unsigned int n>
         class vector<F,n,space::polar> : public std::array<F,n>
         {
@@ -90,6 +104,16 @@ namespace efgy
                       spaceTag(s)
                     {}
 
+                /**\brief Convert to real space vector
+                 *
+                 * This operator converts the vector to a real space vector.
+                 * The conversion that is employed is generally not lossless, so
+                 * you should avoid converting back and forth between the two
+                 * spaces if you can do so.
+                 *
+                 * \returns Real space vector with approximation of the polar
+                 *          coordinates.
+                 */
                 operator vector<F,n,space::real> () const
                 {
                     vector<F,n,space::real> v;
@@ -114,9 +138,16 @@ namespace efgy
                     return v;
                 }
 
+                /**\copydoc vector::tag */
                 constexpr const space::polar &tag (void) const { return spaceTag; }
 
             protected:
+                /**\brief Space tag instance
+                 *
+                 * Polar coordinates need to keep track of the precision to
+                 * employ when converting between real and polar coordinates;
+                 * the space tag contains a field for this precision.
+                 */
                 space::polar spaceTag;
         };
     }
