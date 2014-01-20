@@ -1,8 +1,8 @@
 /**\file
- * \brief Test cases for trigonometrics
+ * \brief Test cases for trigonometric
  *
- * Contains test cases that test libefgy's trigonometrics.h and the functions
- * within.
+ * Contains test cases that test libefgy's trigonometric.h and the functions
+ * therein.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -32,7 +32,7 @@
 #include <iostream>
 
 #include <ef.gy/test-case.h>
-#include <ef.gy/trigonometrics.h>
+#include <ef.gy/trigonometric.h>
 #include <ef.gy/fractions.h>
 #include <ef.gy/range.h>
 

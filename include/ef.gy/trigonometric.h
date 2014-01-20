@@ -1,5 +1,5 @@
 /**\file
- * \brief Trigonometrics
+ * \brief Trigonometric
  *
  * Contains common trigonometric functions: sine, secant, tangent, cotangent.
  *
@@ -28,8 +28,8 @@
  * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
  */
 
-#if !defined(EF_GY_TRIGONOMETRICS_H)
-#define EF_GY_TRIGONOMETRICS_H
+#if !defined(EF_GY_TRIGONOMETRIC_H)
+#define EF_GY_TRIGONOMETRIC_H
 
 #include <ef.gy/complex.h>
 #include <ef.gy/e.h>

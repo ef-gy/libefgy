@@ -33,7 +33,7 @@
 #define EF_GY_POLAR_H
 
 #include <ef.gy/euclidian.h>
-#include <ef.gy/trigonometrics.h>
+#include <ef.gy/trigonometric.h>
 
 namespace efgy
 {
