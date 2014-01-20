@@ -32,62 +32,62 @@
 #define EF_GY_SEXP_H
 
 #include "maybe.h"
-#include <iostream>
 
 namespace efgy
 {
-	
-    class sexp
-    {
-        public:
-            virtual std::ostream& operator<<(std::ostream& str) = 0;
-            virtual std::istream& operator>>(std::istream& str) = 0;
-        
-        private:
-
-    };
-    
-    /** \brief A cons expression
+	/** \brief A cons expression
+    *
+    * Represents a cons expression which consists of two
+    * other S-expressions. A cons can either combine two
+    * nontrivial S-expressions, or combine one S-expression
+    * with the special S-expression NIL, which is represented
+    * through the 'nothing' value of the 'maybe' class here.
 	*
 	* \tparam T1 type of first element
 	* \tparam T2 type of second element
+    *
+    * \sa \ref maybe
 	*/
 	template<typename T1, typename T2>
-	class cons : sexp
+	class cons
 	{
 	    public:
-	        /*\brief Constructor for a cons of the form (x.y) where x and y 
+	        /*\brief Constructor for a cons with two elements
+            
+            Constructs a cons of the form (x.y) where x and y 
 	        are both s-expressions not equal to NIL*/
-	        cons(T1 car_, T2 cdr_) : car(car_), cdr(cdr_)
+	        cons(T1 car_, T2 cdr_) : car(car_), cdr(efgy::maybe<T2>(cdr_))
 	        {}
 	
-	        /*\brief Constructor for a cons of the form (x.nil)*/
+	        /*\brief Constructor for a cons with one element
+            
+            Constructs a cons of the form (x.nil)*/
 	        cons(T1 car_) : car(car_), cdr(efgy::maybe<T2>())
 	        {}
-
-            std::ostream& operator<<(std::ostream& str)
-            {
-                str << "(" << car << " . " << cdr << ")";
-                return str;
-            }
 	
 	    private:
 	        T1 car;
 	        efgy::maybe<T2> cdr;
 	};
 	
+    /** \brief An atomic S-expression
+    *
+    * Represents an atomic S-expression, which is a value
+    * of some type T. T ought to be a truly atomic type,
+    * not a cons type.
+    *
+    * \tparam T type of atomic expression
+    */
 	template<typename T>
-	class atom : sexp
+	class atom
 	{
 	    public:
-	        atom(T data_) : data(data_)
+	        /* \brief Constructs an atomic S-expression.
+            *
+            * Constructs an atomic S-expression.
+            */
+            atom(T data_) : data(data_)
 	        {}
-
-            std::ostream& operator<<(std::ostream& str)
-            {
-                str << data;
-                return str;
-            }
 	
 	    private:
 	        T data;

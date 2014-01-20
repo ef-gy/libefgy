@@ -38,6 +38,8 @@
 #if !defined(EF_GY_MAYBE_H)
 #define EF_GY_MAYBE_H
 
+#include <iostream>
+
 namespace efgy
 {
     /**\brief Haskell-like "maybe" template
