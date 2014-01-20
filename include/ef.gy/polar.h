@@ -49,10 +49,24 @@ namespace efgy
             class polar
             {
                 public:
-                    polar(unsigned long long pPrecision = 10)
+                    /**\brief Construct with precision
+                     *
+                     * Constructs a coordinate space tag with an optional
+                     * precision. The default precision is '10'.
+                     *
+                     * \param[in] pPrecision The precision to use.
+                     */
+                    polar(unsigned long pPrecision = 10)
                         : precision(pPrecision) {}
 
-                    unsigned long long precision;
+                    /**\brief Desired conversion precision
+                     *
+                     * Specifies the precision to use for real<>polar vector
+                     * space conversions. This precision refers to the
+                     * iterations parameter in the trigonometric functions,
+                     * which in turn is passed along to the complex e function.
+                     */
+                    unsigned long precision;
             };
 
             /**\brief Stream output operator for the polar space tag
@@ -106,7 +120,8 @@ namespace efgy
                  * the contents of a real-valued vector to their polar
                  * equivalents. Like any other operation that involves
                  * trigonometrics, this is not going to produce entirely
-                 * accurate results.
+                 * accurate results. A desired precision can be specified using
+                 * the coordinate space tag.
                  *
                  * \param[in] v The source vector.
                  * \param[in] s An instance of the space tag; may be used to
@@ -120,6 +135,7 @@ namespace efgy
                     : std::array<F, n>(),
                       spaceTag(s)
                     {
+                        ;
                     }
 
                 /**\brief Convert to real space vector
