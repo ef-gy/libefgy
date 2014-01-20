@@ -97,7 +97,6 @@ namespace efgy
          * \tparam F     Base type for the vector; should have field-like
          *               properties.
          * \tparam n     Number of vector elements.
-         * \tparam space Coordinate space tag, defaults to space::real.
          */
         template <typename F, unsigned int n>
         class vector<F,n,space::polar> : public std::array<F,n>
