@@ -33,7 +33,6 @@
 #define EF_GY_BIG_INTEGERS_H
 
 #include <ef.gy/numeric.h>
-#include <ef.gy/string.h>
 #include <vector>
 #include <ostream>
 

@@ -29,7 +29,6 @@
 #define EF_GY_RENDER_XML_H
 
 #include <ef.gy/render.h>
-#include <ef.gy/string.h>
 #include <ef.gy/continued-fractions.h>
 #include <string>
 #include <sstream>
