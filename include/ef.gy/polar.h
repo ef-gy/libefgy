@@ -89,12 +89,7 @@ namespace efgy
         class vector<F,n,space::polar> : public std::array<F,n>
         {
             public:
-                /**\brief Construct with array
-                 *
-                 * Construct an instance of the vector with the elements
-                 * specified as a C++-style array.
-                 *
-                 * \param[in] t The array to copy.
+                /**\copydoc vector::vector
                  * \param[in] s An instance of the space tag; may be used to
                  *              specify a precision for conversion operations.
                  */
@@ -104,6 +99,28 @@ namespace efgy
                     : std::array<F, n>(t),
                       spaceTag(s)
                     {}
+
+                /**\brief Construct with real-space vector
+                 *
+                 * Initialises a new instance of a polar vector by converting
+                 * the contents of a real-valued vector to their polar
+                 * equivalents. Like any other operation that involves
+                 * trigonometrics, this is not going to produce entirely
+                 * accurate results.
+                 *
+                 * \param[in] v The source vector.
+                 * \param[in] s An instance of the space tag; may be used to
+                 *              specify a precision for conversion operations.
+                 *
+                 * \todo This constructor has not yet been implemented.
+                 */
+                constexpr vector
+                    (const vector<F,n,space::real> &v,
+                     const space::polar &s = space::polar())
+                    : std::array<F, n>(),
+                      spaceTag(s)
+                    {
+                    }
 
                 /**\brief Convert to real space vector
                  *

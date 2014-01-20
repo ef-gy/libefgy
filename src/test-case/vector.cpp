@@ -77,6 +77,10 @@ int testRealVectors (std::ostream &log)
 
     log << rp << " = " << rpc << "\n";
 
+    vector<double,3,space::polar> rpcr = rpc;
+
+    log << rpc << " = " << rpcr << "\n";
+
     return 0;
 }
 
