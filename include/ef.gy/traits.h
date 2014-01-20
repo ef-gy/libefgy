@@ -52,6 +52,18 @@ namespace efgy
             };
 
             template<>
+            class traits<float>
+            {
+                public:
+                    typedef long integral;
+                    typedef float rational;
+                    typedef float self;
+                    typedef primitive<float, unsigned long> derivable;
+
+                    static const bool stable = false;
+            };
+
+            template<>
             class traits<double>
             {
                 public:
