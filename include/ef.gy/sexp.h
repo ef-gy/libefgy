@@ -35,7 +35,23 @@
 
 namespace efgy
 {
-	/** \brief A cons expression
+    /* \brief Abstract base class for s-expressions
+    *
+    *  Abstract base class for s-expression.s
+    *  In this implementation, you should instantiate
+    *  the concrete derived  classes, efgy::cons and efgy:.atom.
+    */
+    class sexp
+    {
+        public:
+            virtual std::ostream& operator<<(std::ostream& str) = 0;
+            virtual std::istream& operator>>(std::istream& str) = 0;
+        
+        private:
+
+    };
+    
+    /** \brief A cons expression
     *
     * Represents a cons expression which consists of two
     * other S-expressions. A cons can either combine two
@@ -47,7 +63,7 @@ namespace efgy
 	* \tparam T2 type of second element
     *
     * \sa \ref maybe
-	*/
+	
 	template<typename T1, typename T2>
 	class cons
 	{
@@ -61,9 +77,20 @@ namespace efgy
 	
 	        /*\brief Constructor for a cons with one element
             
-            Constructs a cons of the form (x.nil)*/
+                Constructs a cons of the form (x.nil)*/
 	        cons(T1 car_) : car(car_), cdr(efgy::maybe<T2>())
 	        {}
+	       
+	        /* \brief Stream insertion operator
+	        *
+	        * Displays the cons expression in a std::ostream.
+	        * The expression is displayed as (car . cdr).
+	        */
+	        std::ostream& operator<<(std::ostream& str)
+            	{
+        	    str << "(" << car << " . " << cdr << ")";
+                    return str;
+                }
 	
 	    private:
 	        T1 car;
@@ -88,6 +115,17 @@ namespace efgy
             */
             atom(T data_) : data(data_)
 	        {}
+	        
+	    /* \brief Stream insertion operator
+	    * 
+	    * Displays the atomic value, as defined in the
+	    * stream insertion operator of type T.*/
+	    std::ostream& operator<<(std::ostream& str)
+            {
+                str << data;
+                return str;
+            }
+
 	
 	    private:
 	        T data;
