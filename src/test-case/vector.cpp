@@ -32,6 +32,7 @@
 
 #include <ef.gy/test-case.h>
 #include <ef.gy/vector.h>
+#include <ef.gy/polar.h>
 
 using namespace efgy::math;
 
@@ -46,13 +47,30 @@ int testRealVectors (std::ostream &log)
 {
     vector<int,3> v1 = {{1,2,3}};
     vector<int,3> v2 = {{2,3,4}};
+    vector<int,3> r  = v1 + v2;
 
-    log << v1 << " + " << v2 << " = " << (v1+v2) << "\n";
+    log << v1 << " + " << v2 << " = " << r << "\n";
+    log << "sizeof(int) = " << sizeof(int) << "\n";
+    log << "sizeof(vector<int,3>) = " << sizeof(vector<int,3>) << "\n";
 
-    if ((v1+v2) != vector<int,3>({3,5,7}))
+    if (r != vector<int,3>({3,5,7}))
     {
-        log << "unexpected result after vector addition; expected ([real] 3, 5, 7) but have " << (v1+v2) << "\n";
+        log << "unexpected result after vector addition; expected ([real] 3, 5, 7) but have " << r << "\n";
         return 1;
+    }
+
+    vector<double,3,space::polar> vp1 = {{1,2,3}};
+    vector<double,3,space::polar> vp2 = {{2,3,4}};
+    vector<double,3,space::polar> rp  = vp1 + vp2;
+
+    log << vp1 << " + " << vp2 << " = " << rp << "\n";
+    log << "sizeof(double) = " << sizeof(double) << "\n";
+    log << "sizeof(vector<double,3,space::polar>) = " << sizeof(vector<double,3,space::polar>) << "\n";
+
+    if (rp != vector<double,3,space::polar>({3,5,7}))
+    {
+        log << "unexpected result after vector addition; expected ([polar:10] 3, 5, 7) but have " << rp << "\n";
+        return 2;
     }
 
     return 0;

@@ -36,15 +36,59 @@ namespace efgy
     {
         namespace space
         {
-            class polar {};
+            /**\brief Polar coordinate space tag
+             *
+             * This coordinate space tag identifies vectors as containing polar
+             * coordinates as opposed to regular cartesian coordinates.
+             */
+            class polar
+            {
+                public:
+                    polar(unsigned long long pPrecision = 10)
+                        : precision(pPrecision) {}
+
+                    unsigned long long precision;
+            };
+
+            /**\brief Stream output operator for the polar space tag
+             *
+             * Writes the contents of a polar space tag to an output stream;
+             * Polar space tags contain a precision parameter, which is also
+             * written to the provided stream.
+             *
+             * \tparam C The character type of the stream.
+             *
+             * \param[out] stream The stream to write to.
+             * \param[in]  space  The space tag to write to the stream.
+             *
+             + \returns The parameter 'stream' after writing to it.
+             */
+            template <typename C>
+            constexpr inline std::basic_ostream<C> &operator << (std::basic_ostream<C> &stream, const polar &s)
+            {
+                return stream << "[polar:" << s.precision << "]";
+            }
         };
 
         template <typename F, unsigned int n>
         class vector<F,n,space::polar> : public std::array<F,n>
         {
             public:
-                constexpr vector () : std::array<F, n>() {}
-                constexpr vector (const std::array<F, n> &t) : std::array<F, n>(t) {}
+                /**\brief Construct with array
+                 *
+                 * Construct an instance of the vector with the elements
+                 * specified as a C++-style array.
+                 *
+                 * \param[in] t The array to copy.
+                 * \param[in] s An instance of the space tag; may be used to
+                 *              specify a precision for conversion operations.
+                 */
+                constexpr vector
+                    (const std::array<F,n> &t = {{}},
+                     const space::polar &s = space::polar())
+                    : std::array<F, n>(t),
+                      spaceTag(s)
+                    {}
 
                 operator vector<F,n,space::real> () const
                 {
@@ -69,6 +113,11 @@ namespace efgy
 
                     return v;
                 }
+
+                constexpr const space::polar &tag (void) const { return spaceTag; }
+
+            protected:
+                space::polar spaceTag;
         };
     }
 

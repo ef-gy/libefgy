@@ -54,6 +54,18 @@ namespace efgy
              */
             class real {};
 
+            /**\brief Stream output operator for the real space tag
+             *
+             * Writes the contents of a real space tag to an output stream;
+             * since these tags do not contain any actual data, this operator
+             * really just writes a string to the stream.
+             *
+             * \tparam C The character type of the stream.
+             *
+             * \param[out] stream The stream to write to.
+             *
+             + \returns The parameter 'stream' after writing to it.
+             */
             template <typename C>
             constexpr inline std::basic_ostream<C> &operator << (std::basic_ostream<C> &stream, const real &)
             {
@@ -76,19 +88,22 @@ namespace efgy
         class vector : public std::array<F,n>
         {
             public:
-                /**\brief Default constructor
-                 *
-                 * Construct an instance of the vector with all elements
-                 * initialised to their default values.
-                 */
-                constexpr vector () : std::array<F,n>() {}
-
                 /**\brief Construct with array
                  *
                  * Construct an instance of the vector with the elements
                  * specified as a C++-style array.
+                 *
+                 * \param[in] t The array to copy.
+                 * \param[in] s An instance of the space tag; typically not
+                 *              used, but might be used to specify additional
+                 *              parameters.
                  */
-                constexpr vector (const std::array<F,n> &t) : std::array<F, n>(t) {}
+                constexpr vector
+                    (const std::array<F,n> &t = {{}},
+                     const space &s = space())
+                    : std::array<F, n>(t) {}
+
+                constexpr const space tag (void) const { return space(); }
         };
 
         /**\brief Scalar multiplication
@@ -239,7 +254,7 @@ namespace efgy
         template <typename C, typename F, unsigned int n, typename space>
         std::basic_ostream<C> &operator << (std::basic_ostream<C> &stream, const vector<F,n,space> &v)
         {
-            stream << "(" << space();
+            stream << "(" << v.tag();
             for (unsigned int i = 0; i < n; i++)
             {
                 stream << (i > 0 ? ", " : " ") << v[i];
