@@ -247,7 +247,7 @@ namespace efgy
                     return "simplex";
                 }
 
-                void recurse (const int r, typename polar::space<Q,d>::vector v, std::vector<typename euclidian::space<Q,d>::vector> &points)
+                void recurse (const int r, math::vector<Q,d,math::space::polar> v, std::vector<typename euclidian::space<Q,d>::vector> &points)
                 {
                     if (r == 0)
                     {
@@ -273,7 +273,7 @@ namespace efgy
 
                     std::vector<typename euclidian::space<Q,d>::vector> points;
 
-                    typename polar::space<Q,d>::vector v;
+                    math::vector<Q,d,math::space::polar> v;
                     v[0] = radius;
                     
                     const int r = od-1;
@@ -514,7 +514,7 @@ namespace efgy
                     return "sphere";
                 }
 
-                void recurse (const int r, typename polar::space<Q,d>::vector v)
+                void recurse (const int r, math::vector<Q,d,math::space::polar> v)
                 {
                     if (r == 0)
                     {
@@ -523,7 +523,7 @@ namespace efgy
 //                        for (unsigned int i : range<unsigned int>(1, od, true))
                         for (unsigned int i = 1; i <= od; i++)
                         {
-                            typename polar::space<Q,d>::vector v1 = v;
+                            math::vector<Q,d,math::space::polar> v1 = v;
 
                             v1[i] += loopRange.stride;
 
@@ -575,7 +575,7 @@ namespace efgy
 
                     faces.clear();
 
-                    typename polar::space<Q,d>::vector v {{ radius }};
+                    math::vector<Q,d,math::space::polar> v {{ radius }};
 
                     const int r = od;
                     const int q = r-1;

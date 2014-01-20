@@ -183,21 +183,6 @@ namespace efgy
                  */
                 space::polar spaceTag;
         };
-    }
-
-    namespace geometry
-    {
-        namespace polar
-        {
-            template <typename F, unsigned int n>
-            class space
-            {
-                public:
-                    typedef F base;
-                    typedef F scalar;
-                    typedef math::vector<scalar, n, math::space::polar> vector;
-            };
-        };
     };
 };
 
