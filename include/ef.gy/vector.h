@@ -33,6 +33,7 @@
 
 #include <ef.gy/traits.h>
 #include <array>
+#include <ostream>
 
 namespace efgy
 {
@@ -52,6 +53,12 @@ namespace efgy
              * the coordinate space is the typical real coordinate space.
              */
             class real {};
+
+            template <typename C>
+            constexpr inline std::basic_ostream<C> &operator << (std::basic_ostream<C> &stream, const real &)
+            {
+                return stream << "[real]";
+            }
         };
 
         /**\brief Generic vector
@@ -227,6 +234,17 @@ namespace efgy
                 a[i] -= b[i];
             }
             return a;
+        }
+
+        template <typename C, typename F, unsigned int n, typename space>
+        std::basic_ostream<C> &operator << (std::basic_ostream<C> &stream, const vector<F,n,space> &v)
+        {
+            stream << "(" << space();
+            for (unsigned int i = 0; i < n; i++)
+            {
+                stream << (i > 0 ? ", " : " ") << v[i];
+            }
+            return stream << ")";
         }
     };
 };
