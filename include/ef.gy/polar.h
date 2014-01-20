@@ -68,9 +68,9 @@ namespace efgy
              + \returns The parameter 'stream' after writing to it.
              */
             template <typename C>
-            constexpr inline std::basic_ostream<C> &operator << (std::basic_ostream<C> &stream, const polar &s)
+            constexpr inline std::basic_ostream<C> &operator << (std::basic_ostream<C> &stream, const polar &space)
             {
-                return stream << "[polar:" << s.precision << "]";
+                return stream << "[polar:" << space.precision << "]";
             }
         };
 
