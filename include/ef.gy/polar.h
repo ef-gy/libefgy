@@ -33,6 +33,7 @@
 #define EF_GY_POLAR_H
 
 #include <ef.gy/euclidian.h>
+#include <ef.gy/trigonometrics.h>
 
 namespace efgy
 {
@@ -127,11 +128,11 @@ namespace efgy
                     {
                         const unsigned int p = i + 1;
 
-                        v[i] *= cos((*this)[p]);
+                        v[i] *= math::cosine((*this)[p], spaceTag.precision);
 
                         for (unsigned int j = p; j < n; j++)
                         {
-                            v[j] *= sin((*this)[p]);
+                            v[j] *= math::sine((*this)[p], spaceTag.precision);
                         }
                     }
 
