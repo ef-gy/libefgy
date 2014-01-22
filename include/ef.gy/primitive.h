@@ -309,18 +309,68 @@ namespace efgy
                 {
                     return data != pQ;
                 }
+
+                /**\brief Test if base type value is greater than object's
+                 *        value.
+                 *
+                 * Compares the object's value and a provided value to see if
+                 * the inherent value compares as less than the provided value.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value is less than the
+                 *         provided value, 'false' otherwise.
+                 */
                 constexpr bool operator < (const Q &pQ) const
                 {
                     return data < pQ;
                 }
+
+                /**\brief Test if base type value is less than object's value.
+                 *
+                 * Compares the object's value and a provided value to see if
+                 * the inherent value compares as greater than the provided
+                 * value.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value is greater than the
+                 *         provided value, 'false' otherwise.
+                 */
                 constexpr bool operator > (const Q &pQ) const
                 {
                     return data > pQ;
                 }
+
+                /**\brief Test if base type value is greater than or equal to
+                 *        the object's value.
+                 *
+                 * Compares the object's value and a provided value to see if
+                 * the inherent value compares as less than or equal to the
+                 * provided value.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value is less than or equal
+                 *         to the provided value, 'false' otherwise.
+                 */
                 constexpr bool operator <= (const Q &pQ) const
                 {
                     return data <= pQ;
                 }
+
+                /**\brief Test if base type value is less than or equal to the
+                 *        object's value.
+                 *
+                 * Compares the object's value and a provided value to see if
+                 * the inherent value compares as greater than or equal to the
+                 * provided value.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value is greater than or
+                 *         equal to the provided value, 'false' otherwise.
+                 */
                 constexpr bool operator >= (const Q &pQ) const
                 {
                     return data >= pQ;
