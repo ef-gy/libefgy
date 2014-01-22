@@ -45,6 +45,7 @@
 #include <set>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 namespace efgy
 {
@@ -130,7 +131,7 @@ namespace efgy
                 public:
                     /**\brief Argument type
                      *
-                     * This functor takes a reference to a set of C strings.
+                     * This functor takes a reference to a set of strings.
                      */
                     typedef std::set<const char *> &argument;
 
@@ -143,7 +144,7 @@ namespace efgy
                     /**\brief Add model ID to set
                      *
                      * Adds the current model's ID to the std::set that is
-                     * provided as the argument ot this function. Useful when
+                     * provided as the argument to this function. Useful when
                      * calling geometry::with() with the model name set to "*",
                      * which would return all the available models.
                      *
@@ -158,6 +159,50 @@ namespace efgy
                     }
 
                     /**\copydoc echo::pass */
+                    static output pass (argument out)
+                    {
+                        return out;
+                    }
+            };
+
+            /**\brief Geometry factory functor: add model names w/ depth to set
+            /**\copydetails models
+             *
+             * This variant of the 'models' functor also adds the valid depths
+             * to the strings so that they're of the form 'depth-name'.
+             */
+            template<typename Q, template <class,unsigned int,class,unsigned int> class T, unsigned int d, unsigned int e>
+            class modelsWithDepth
+            {
+                public:
+                    /**\copydoc models::argument */
+                    typedef std::set<std::string> &argument;
+
+                    /**\copydoc models::output */
+                    typedef std::set<std::string> &output;
+
+                    /**\brief Add model ID to set
+                     *
+                     * Adds the current model's depth and ID to the std::set
+                     * that is provided as the argument to this function. Useful
+                     * when calling geometry::with() with the model name set to
+                     * "*", which would return all the available models along
+                     * any valid depths they can be used in.
+                     *
+                     * \param[out] out The set to modify.
+                     *
+                     * \returns out, after adding the new string.
+                     */
+                    static output apply (argument out)
+                    {
+                        std::ostringstream os;
+                        os        << T<Q,d,render::null<Q,e>,e>::depth()
+                           << "-" << T<Q,d,render::null<Q,e>,e>::id();
+                        out.insert(os.str());
+                        return out;
+                    }
+
+                    /**\copydoc models::pass */
                     static output pass (argument out)
                     {
                         return out;
