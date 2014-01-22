@@ -205,36 +205,106 @@ namespace efgy
                     return primitive(data % pQ);
                 }
 
+                /**\brief Add and assign base type value
+                 *
+                 * Modifies the primitive object by adding the given parameter
+                 * to it.
+                 *
+                 * \param[in] pQ The value to add to this object.
+                 *
+                 * \return Reference to this object.
+                 */
                 primitive &operator += (const Q &pQ)
                 {
                     data += pQ;
                     return *this;
                 }
+
+                /**\brief Subtract and assign base type value
+                 *
+                 * Modifies the primitive object by subtracting the given
+                 * parameter from it.
+                 *
+                 * \param[in] pQ The value to subtract from this object.
+                 *
+                 * \return Reference to the object.
+                 */
                 primitive &operator -= (const Q &pQ)
                 {
                     data -= pQ;
                     return *this;
                 }
+
+                /**\brief Multiplies and assign base type value
+                 *
+                 * Modifies the primitive object by multiplying the given
+                 * parameter with it.
+                 *
+                 * \param[in] pQ The value to multiply with this object.
+                 *
+                 * \return Reference to the object.
+                 */
                 primitive &operator *= (const Q &pQ)
                 {
                     data *= pQ;
                     return *this;
                 }
+
+                /**\brief Divide and assign base type value
+                 *
+                 * Modifies the primitive object by dividing it by the given
+                 * parameter.
+                 *
+                 * \param[in] pQ The value to divide this object by.
+                 *
+                 * \return Reference to the object.
+                 */
                 primitive &operator /= (const Q &pQ)
                 {
                     data /= pQ;
                     return *this;
                 }
+
+                /**\brief Assign remainder of division with base type value
+                 *
+                 * Modifies the primitive object by dividing it by the given
+                 * parameter and assigning it the remainder of that division.
+                 *
+                 * \param[in] pQ The value to divide this object by.
+                 *
+                 * \return Reference to the object.
+                 */
                 primitive &operator %= (const Q &pQ)
                 {
                     data %= pQ;
                     return *this;
                 }
 
+                /**\brief Compare for equality with base type value
+                 *
+                 * Compares the data member to a value of the base type to
+                 * determine if the two should be considered equal.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value and the argument
+                 *         compare as equal, 'false' otherwise.
+                 */
                 constexpr bool operator == (const Q &pQ) const
                 {
                     return data == pQ;
                 }
+
+                /**\brief Compare for inequality with base type value
+                 *
+                 * Compares the data member to a value of the base type to
+                 * determine if the two should be considered not equal.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value and the argument
+                 *         compare as not equal, 'false' otherwise.
+                 */
                 constexpr bool operator != (const Q &pQ) const
                 {
                     return data != pQ;
@@ -359,36 +429,6 @@ namespace efgy
         constexpr primitive<Q,u> sqrt (const primitive<Q,u> &vA)
         {
             return primitive<Q,u>(std::sqrt(vA.data));
-        }
-
-        template <typename Q, typename u>
-        constexpr primitive<Q,u> sin (const primitive<Q,u> &vA)
-        {
-            return primitive<Q,u>(std::sin(vA.data));
-        }
-
-        template <typename Q, typename u>
-        constexpr primitive<Q,u> cos (const primitive<Q,u> &vA)
-        {
-            return primitive<Q,u>(std::cos(vA.data));
-        }
-
-        template <typename Q, typename u>
-        constexpr primitive<Q,u> tan (const primitive<Q,u> &vA)
-        {
-            return primitive<Q,u>(std::tan(vA.data));
-        }
-
-        template <typename Q, typename u>
-        constexpr primitive<Q,u> atan (const primitive<Q,u> &vA)
-        {
-            return primitive<Q,u>(std::atan(vA.data));
-        }
-
-        template <typename Q, typename u>
-        constexpr primitive<Q,u> atan2 (const primitive<Q,u> &vA, const primitive<Q,u> &vB)
-        {
-            return primitive<Q,u>(std::atan2(vA.data, vB.data));
         }
     };
 };
