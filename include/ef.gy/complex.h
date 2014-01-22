@@ -32,7 +32,6 @@
 #define EF_GY_COMPLEX_H
 
 #include <ef.gy/fractions.h>
-#include <ef.gy/traits.h>
 
 namespace efgy
 {

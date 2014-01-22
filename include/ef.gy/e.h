@@ -34,7 +34,6 @@
 
 #include <ef.gy/factorial.h>
 #include <ef.gy/series.h>
-#include <ef.gy/traits.h>
 
 namespace efgy
 {
