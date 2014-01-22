@@ -580,7 +580,7 @@ namespace efgy
                     const int r = od;
                     const int q = r-1;
 
-                    for (Q i : loopRange)
+                    for (Q i : range<Q>(-M_PI, M_PI, precision, false))
                     {
                         v[r] = i;
                         recurse (q, v);
