@@ -100,9 +100,9 @@ namespace efgy
                     return Q(0);
                 }
 
-                typename euclidian::space<Q,d>::vector getCoordinates (Q r, Q u, Q v) const
+                math::vector<Q,d> getCoordinates (Q r, Q u, Q v) const
                 {
-                    typename euclidian::space<Q,d>::vector res;
+                    math::vector<Q,d> res;
 
                     res[0] = getCoordinate(0, r, u, v);
                     res[1] = getCoordinate(1, r, u, v);
@@ -178,9 +178,9 @@ namespace efgy
                     return Q(0);
                 }
 
-                typename euclidian::space<Q,d>::vector getCoordinates (Q r, Q u, Q v) const
+                math::vector<Q,d> getCoordinates (Q r, Q u, Q v) const
                 {
-                    typename euclidian::space<Q,d>::vector res;
+                    math::vector<Q,d> res;
 
                     res[0] = getCoordinate(0, r, u, v);
                     res[1] = getCoordinate(1, r, u, v);

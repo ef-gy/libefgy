@@ -57,11 +57,11 @@ namespace efgy
 
                     using affine<Q,d>::transformationMatrix;
 
-                    typename euclidian::space<Q,d>::vector operator *
-                        (const typename euclidian::space<Q,d>::vector &pV) const
+                    math::vector<Q,d> operator *
+                        (const math::vector<Q,d> &pV) const
                     {
-                        const typename euclidian::space<Q,d>::vector V = affine<Q,d>(*this) * pV;
-                        typename euclidian::space<Q,d>::vector rv = V * coefficient[0];
+                        const math::vector<Q,d> V = affine<Q,d>(*this) * pV;
+                        math::vector<Q,d> rv = V * coefficient[0];
 
                         for (int i : range<int>(1, coefficients, false))
                         {
@@ -75,10 +75,10 @@ namespace efgy
                     Q coefficient[coefficients];
 
                 protected:
-                    typename euclidian::space<Q,d>::vector apply
-                        (unsigned int f, const typename euclidian::space<Q,d>::vector &V) const
+                    math::vector<Q,d> apply
+                        (unsigned int f, const math::vector<Q,d> &V) const
                     {
-                        typename euclidian::space<Q,d>::vector rv;
+                        math::vector<Q,d> rv;
 
                         if (coefficient[f] <= Q(0))
                         {

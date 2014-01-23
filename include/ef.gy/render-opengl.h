@@ -532,16 +532,16 @@ namespace efgy
                  */
                 template<std::size_t q>
                 void drawFace
-                    (const std::array<typename geometry::euclidian::space<Q,d>::vector,q> &pV, const Q &index = 0.5) const
+                    (const std::array<math::vector<Q,d>,q> &pV, const Q &index = 0.5) const
                 {
                     if (prepared) return;
 
-                    std::array<typename geometry::euclidian::space<Q,d-1>::vector,q> V;
+                    std::array<math::vector<Q,d-1>,q> V;
 
                     std::transform
                         (pV.begin(), pV.end(), V.begin(),
-                         [&](const typename geometry::euclidian::space<Q,d>::vector &s)
-                          -> typename geometry::euclidian::space<Q,d-1>::vector
+                         [&](const math::vector<Q,d> &s)
+                          -> math::vector<Q,d-1>
                     {
                         return combined * s;
                     });
@@ -772,16 +772,16 @@ namespace efgy
                  */
                 template<std::size_t q>
                 void drawFace
-                    (const std::array<typename geometry::euclidian::space<Q,3>::vector,q> &pV, const Q &index = 0.5)
+                    (const std::array<math::vector<Q,3>,q> &pV, const Q &index = 0.5)
                 {
                     if (prepared) return;
 
-                    typename geometry::euclidian::space<Q,3>::vector R
+                    math::vector<Q,3> R
                         = geometry::euclidian::normalise<Q,3>
                             (geometry::euclidian::crossProduct<Q>
                                 (pV[1] - pV[0], pV[2] - pV[0]));
 
-                    typename geometry::euclidian::space<Q,3>::vector RN
+                    math::vector<Q,3> RN
                         = geometry::euclidian::normalise<Q,3>
                             (geometry::euclidian::crossProduct<Q>
                         (pV[2] - pV[0], pV[1] - pV[0]));

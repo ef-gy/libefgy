@@ -109,9 +109,9 @@ namespace efgy
                  */
                 template<std::size_t q>
                 void drawFace
-                    (const std::array<typename geometry::euclidian::space<Q,d>::vector,q> &pV, const Q &index = 0.5) const
+                    (const std::array<math::vector<Q,d>,q> &pV, const Q &index = 0.5) const
                 {
-                    std::array<typename geometry::euclidian::space<Q,d-1>::vector,q> V;
+                    std::array<math::vector<Q,d-1>,q> V;
 
                     for (unsigned int i = 0; i < q; i++)
                     {
@@ -232,7 +232,7 @@ namespace efgy
                  */
                 template<std::size_t q>
                 void drawFace
-                    (const std::array<typename geometry::euclidian::space<Q,2>::vector,q> &pV, const Q &index = 0.5)
+                    (const std::array<math::vector<Q,2>,q> &pV, const Q &index = 0.5)
                 {
                     output << "<path d='";
                     for (unsigned int i = 0; i < q; i++)
@@ -240,7 +240,7 @@ namespace efgy
                         std::stringstream sbuf1;
                         std::stringstream sbuf2;
                         
-                        const typename geometry::euclidian::space<Q,2>::vector V = transformation * pV[i];
+                        const math::vector<Q,2> V = transformation * pV[i];
                         
                         const double a0 =  Q(V[0]);
                         const double a1 = -Q(V[1]);
@@ -252,7 +252,7 @@ namespace efgy
                         }
                         else
                         {
-                            const typename geometry::euclidian::space<Q,2>::vector V1 = transformation * pV[(i-1)];
+                            const math::vector<Q,2> V1 = transformation * pV[(i-1)];
                             
                             const double a0r = a0 - Q(V1[0]);
                             const double a1r = a1 + Q(V1[1]);

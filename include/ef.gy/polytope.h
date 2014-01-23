@@ -217,7 +217,7 @@ namespace efgy
                 }
 
             protected:
-                typedef std::array<typename euclidian::space<Q,d>::vector,f> face;
+                typedef std::array<math::vector<Q,d>,f> face;
                 render &renderer;
                 const parameters<Q> &parameter;
 
@@ -247,11 +247,11 @@ namespace efgy
                     return "simplex";
                 }
 
-                void recurse (const int r, math::vector<Q,d,math::space::polar> v, std::vector<typename euclidian::space<Q,d>::vector> &points)
+                void recurse (const int r, math::vector<Q,d,math::space::polar> v, std::vector<math::vector<Q,d>> &points)
                 {
                     if (r == 0)
                     {
-                        typename euclidian::space<Q,d>::vector A = v;
+                        math::vector<Q,d> A = v;
                         points.push_back(A);
                     }
                     else
@@ -271,7 +271,7 @@ namespace efgy
 
                     faces.clear();
 
-                    std::vector<typename euclidian::space<Q,d>::vector> points;
+                    std::vector<math::vector<Q,d>> points;
 
                     math::vector<Q,d,math::space::polar> v;
                     v[0] = radius;
@@ -286,9 +286,9 @@ namespace efgy
                     v[r] = Q(M_PI)/Q(1.5);
                     recurse (q, v, points);
 
-                    std::vector<typename euclidian::space<Q,d>::vector> points2;
+                    std::vector<math::vector<Q,d>> points2;
 
-                    std::for_each (points.begin(), points.end(), [&] (const typename euclidian::space<Q,d>::vector &point)
+                    std::for_each (points.begin(), points.end(), [&] (const math::vector<Q,d> &point)
                     {
                         if (std::find (points2.begin(), points2.end(), point) == points2.end())
                         {
@@ -298,15 +298,15 @@ namespace efgy
 
                     points = points2;
 
-                    std::vector<typename euclidian::space<Q,d>::vector> usedPoints;
+                    std::vector<math::vector<Q,d>> usedPoints;
 
-                    std::for_each (points.begin(), points.end(), [&] (const typename euclidian::space<Q,d>::vector &A)
+                    std::for_each (points.begin(), points.end(), [&] (const math::vector<Q,d> &A)
                     {
-                        std::vector<typename euclidian::space<Q,d>::vector> usedPoints2;
+                        std::vector<math::vector<Q,d>> usedPoints2;
 
-                        std::for_each (usedPoints.begin(), usedPoints.end(), [&] (const typename euclidian::space<Q,d>::vector &B)
+                        std::for_each (usedPoints.begin(), usedPoints.end(), [&] (const math::vector<Q,d> &B)
                         {
-                            std::for_each (usedPoints2.begin(), usedPoints2.end(), [&] (const typename euclidian::space<Q,d>::vector &C)
+                            std::for_each (usedPoints2.begin(), usedPoints2.end(), [&] (const math::vector<Q,d> &C)
                             {
                                 faces.push_back ({{ A, B, C }});
                             });
@@ -382,25 +382,25 @@ namespace efgy
                 {
                     Q diameter = parameter.polarRadius * Q(0.5);
                     
-                    std::vector<std::array<typename euclidian::space<Q,d>::vector,2> > lines;
+                    std::vector<std::array<math::vector<Q,d>,2> > lines;
                     faces.clear();
                     
-                    std::vector<typename euclidian::space<Q,d>::vector> points;
+                    std::vector<math::vector<Q,d>> points;
 
-                    points.push_back (typename euclidian::space<Q,d>::vector());
+                    points.push_back (math::vector<Q,d>());
 
                     for (unsigned int i : range<int>(0,od,false))
                     {
-                        std::vector<typename euclidian::space<Q,d>::vector> newPoints;
-                        std::vector<std::array<typename euclidian::space<Q,d>::vector,2> > newLines;
-                        std::vector<std::array<typename euclidian::space<Q,d>::vector,4> > newFaces;
+                        std::vector<math::vector<Q,d>> newPoints;
+                        std::vector<std::array<math::vector<Q,d>,2> > newLines;
+                        std::vector<std::array<math::vector<Q,d>,4> > newFaces;
                         
-                        std::for_each (lines.begin(), lines.end(), [&] (std::array<typename euclidian::space<Q,d>::vector,2> &line)
+                        std::for_each (lines.begin(), lines.end(), [&] (std::array<math::vector<Q,d>,2> &line)
                         {
                             line[0][i] = -diameter;
                             line[1][i] = -diameter;
 
-                            std::array<typename euclidian::space<Q,d>::vector,2> newLine = line;
+                            std::array<math::vector<Q,d>,2> newLine = line;
 
                             newLine[0][i] = diameter;
                             newLine[1][i] = diameter;
@@ -424,11 +424,11 @@ namespace efgy
                             newFaces.push_back(newFace);
                         });
 
-                        std::for_each (points.begin(), points.end(), [&] (typename euclidian::space<Q,d>::vector &v)
+                        std::for_each (points.begin(), points.end(), [&] (math::vector<Q,d> &v)
                         {
                             v[i] = -diameter;
 
-                            std::array<typename euclidian::space<Q,d>::vector,2> newLine {{ v, v }};
+                            std::array<math::vector<Q,d>,2> newLine {{ v, v }};
 
                             newLine[1][i] = diameter;
                             
@@ -518,7 +518,7 @@ namespace efgy
                 {
                     if (r == 0)
                     {
-                        const typename euclidian::space<Q,d>::vector A = v;
+                        const math::vector<Q,d> A = v;
 
 //                        for (unsigned int i : range<unsigned int>(1, od, true))
                         for (unsigned int i = 1; i <= od; i++)
@@ -527,9 +527,9 @@ namespace efgy
 
                             v1[i] += loopRange.stride;
 
-                            const typename euclidian::space<Q,d>::vector B = v1;
+                            const math::vector<Q,d> B = v1;
 
-                            std::array<typename euclidian::space<Q,d>::vector,3> newFace {{A, B}};
+                            std::array<math::vector<Q,d>,3> newFace {{A, B}};
 
 //                            for (unsigned int j : range<unsigned int>(1, od, true))
                             for (unsigned int j = 1; j <= od; j++)
@@ -539,7 +539,7 @@ namespace efgy
                                     v1 = v;
                                     v1[j] -= loopRange.stride;
 
-                                    const typename euclidian::space<Q,d>::vector C = v1;
+                                    const math::vector<Q,d> C = v1;
                                     newFace[2] = C;
 
                                     faces.push_back(newFace);

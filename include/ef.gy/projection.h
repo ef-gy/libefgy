@@ -40,7 +40,7 @@ namespace efgy
         class lookAt : public transformation::affine<Q,d>
         {
             public:
-                lookAt(typename euclidian::space<Q,d>::vector pFrom, typename euclidian::space<Q,d>::vector pTo)
+                lookAt(math::vector<Q,d> pFrom, math::vector<Q,d> pTo)
                     : from(pFrom), to(pTo)
                     {
                         for (unsigned int i = 0; i < (d-2); i++)
@@ -63,7 +63,7 @@ namespace efgy
 
                     for (int i = 0; i < (d-1); i++)
                     {
-                        std::array<typename euclidian::space<Q,d>::vector,d-1> crossVectors;
+                        std::array<math::vector<Q,d>,d-1> crossVectors;
 
                         for (int j = i - (d - 2), c = 0; c < (d-1); j++, c++)
                         {
@@ -109,15 +109,15 @@ namespace efgy
                     }
                 }
 
-                std::array<typename euclidian::space<Q,d>::vector,d> columns;
+                std::array<math::vector<Q,d>,d> columns;
 
                 using transformation::affine<Q,d>::transformationMatrix;
 
             protected:
-                typename euclidian::space<Q,d>::vector from;
-                typename euclidian::space<Q,d>::vector to;
+                math::vector<Q,d> from;
+                math::vector<Q,d> to;
 
-                std::array<typename euclidian::space<Q,d>::vector,d-2> orthogonalVector;
+                std::array<math::vector<Q,d>,d-2> orthogonalVector;
         };
 
         template <typename Q, unsigned int d>
@@ -175,7 +175,7 @@ namespace efgy
         class projection : public transformation::projective<Q,d>
         {
             public:
-                projection(typename euclidian::space<Q,d>::vector pFrom, typename euclidian::space<Q,d>::vector pTo, const Q &pEyeAngle = M_PI_4, const Q &pAspect = 1.8, const bool &initialiseMatrix = true)
+                projection(math::vector<Q,d> pFrom, math::vector<Q,d> pTo, const Q &pEyeAngle = M_PI_4, const Q &pAspect = 1.8, const bool &initialiseMatrix = true)
                     : from(pFrom), to(pTo), eyeAngle(pEyeAngle), aspect(pAspect)
                     {
                         if (initialiseMatrix)
@@ -196,8 +196,8 @@ namespace efgy
                       * perspectiveTransformation ).transformationMatrix;
                 }
 
-                typename euclidian::space<Q,d>::vector from;
-                typename euclidian::space<Q,d>::vector to;
+                math::vector<Q,d> from;
+                math::vector<Q,d> to;
                 const Q eyeAngle;
                 Q aspect;
 

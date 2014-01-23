@@ -65,6 +65,11 @@ namespace efgy
                      * space conversions. This precision refers to the
                      * iterations parameter in the trigonometric functions,
                      * which in turn is passed along to the complex e function.
+                     *
+                     * \note The precision is ignored when using the float,
+                     *       double or long double types, as these automatically
+                     *       use the trigonometric functions in the std
+                     *       namespace which do not have a precision parameter.
                      */
                     unsigned long precision;
             };

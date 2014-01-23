@@ -83,7 +83,7 @@ namespace efgy
                  */
                 template<std::size_t q>
                 void drawFace
-                    (const std::array<typename geometry::euclidian::space<Q,d>::vector,q> &, const Q & = 0.5) const {}
+                    (const std::array<math::vector<Q,d>,q> &, const Q & = 0.5) const {}
         };
 
         /**\brief Null renderer (2D fix point)
@@ -126,7 +126,7 @@ namespace efgy
                  */
                 template<std::size_t q>
                 void drawFace
-                    (const std::array<typename geometry::euclidian::space<Q,2>::vector,q> &, const Q & = 0.5) const {}
+                    (const std::array<math::vector<Q,2>,q> &, const Q & = 0.5) const {}
         };
     };
 };

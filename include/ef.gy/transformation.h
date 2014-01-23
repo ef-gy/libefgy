@@ -62,10 +62,10 @@ namespace efgy
                             }
                         }
 
-                    typename euclidian::space<Q,d>::vector operator *
-                        (const typename euclidian::space<Q,d>::vector &pV) const
+                    math::vector<Q,d> operator *
+                        (const math::vector<Q,d> &pV) const
                     {
-                        typename euclidian::space<Q,d>::vector rv;
+                        math::vector<Q,d> rv;
 
                         math::matrix<Q,1,d> vectorMatrix;
 
@@ -144,10 +144,10 @@ namespace efgy
                             transformationMatrix[d][d] = Q(1);
                         }
 
-                    typename euclidian::space<Q,d>::vector operator *
-                        (const typename euclidian::space<Q,d>::vector &pV) const
+                    math::vector<Q,d> operator *
+                        (const math::vector<Q,d> &pV) const
                     {
-                        typename euclidian::space<Q,d>::vector rv;
+                        math::vector<Q,d> rv;
 
                         math::matrix<Q,1,d+1> vectorMatrix;
 
@@ -197,12 +197,12 @@ namespace efgy
                         : affine<Q,d>()
                         {}
 
-                    typename euclidian::space<Q,(d-1)>::vector operator *
-                        (const typename euclidian::space<Q,d>::vector &pP) const
+                    math::vector<Q,d-1> operator *
+                        (const math::vector<Q,d> &pP) const
                     {
-                        typename euclidian::space<Q,(d-1)>::vector result;
+                        math::vector<Q,d-1> result;
                     
-                        typename euclidian::space<Q,d>::vector R = affine<Q,d>(*this) * pP;
+                        math::vector<Q,d> R = affine<Q,d>(*this) * pP;
 
                         for (unsigned int i = 0; i < (d-1); i++)
                         {
@@ -318,7 +318,7 @@ namespace efgy
             class translation : public affine<Q,d>
             {
                 public:
-                    translation(const typename euclidian::space<Q,d>::vector &pFrom)
+                    translation(const math::vector<Q,d> &pFrom)
                         : from(pFrom)
                         {
                             updateMatrix();
@@ -355,7 +355,7 @@ namespace efgy
                     using affine<Q,d>::transformationMatrix;
 
                 protected:
-                    typename euclidian::space<Q,d>::vector from;
+                    math::vector<Q,d> from;
             };
         };
     };

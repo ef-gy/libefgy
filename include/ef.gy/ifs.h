@@ -120,7 +120,7 @@ namespace efgy
 
                         std::vector<Q> rindices = indices;
                         indices.clear();
-                        std::vector<std::array<typename euclidian::space<Q,d>::vector,faceVertices> > rfaces;
+                        std::vector<std::array<math::vector<Q,d>,faceVertices> > rfaces;
 
                         while (faces.size() > 0)
                         {
@@ -138,19 +138,19 @@ namespace efgy
                     }
                 }
             
-                typename euclidian::space<Q,d>::vector apply
+                math::vector<Q,d> apply
                     (const unsigned int &f,
-                     const typename euclidian::space<Q,d>::vector &v)
+                     const math::vector<Q,d> &v)
                 {
                     return functions[f] * v;
                 }
             
                 template<std::size_t fdim>
-                std::array<typename euclidian::space<Q,d>::vector,fdim> apply
+                std::array<math::vector<Q,d>,fdim> apply
                     (const unsigned int &f,
-                     const std::array<typename euclidian::space<Q,d>::vector,fdim> &l)
+                     const std::array<math::vector<Q,d>,fdim> &l)
                 {
-                    std::array<typename euclidian::space<Q,d>::vector,fdim> r;
+                    std::array<math::vector<Q,d>,fdim> r;
 
                     for (int i = 0; i < fdim; i++)
                     {
@@ -173,7 +173,7 @@ namespace efgy
                         : parent(pRenderer, pParameter)
                         {
                             const unsigned int nfunctions = (1<<(od-1))+1;
-                            std::array<typename euclidian::space<Q,d>::vector,nfunctions> translations;
+                            std::array<math::vector<Q,d>,nfunctions> translations;
 
                             translations[0][0] = Q(0.25);
 
@@ -228,7 +228,7 @@ namespace efgy
                         : parent(pRenderer, pParameter)
                         {
                             const unsigned int nfunctions = od == 2 ? 8 : 20;
-                            std::array<typename euclidian::space<Q,d>::vector,nfunctions> translations;
+                            std::array<math::vector<Q,d>,nfunctions> translations;
 
                             if (od > 1)
                             {
@@ -316,7 +316,7 @@ namespace efgy
                     {
                         random::mersenneTwister<> PRNG (seed);
 
-                        typename euclidian::space<Q,d>::vector V;
+                        math::vector<Q,d> V;
                         const Q s(Q(PRNG.rand()%6000)/Q(10000)+Q(.2));
                         const Q r1(Q(PRNG.rand()%20000)/Q(10000)*Q(M_PI));
                         unsigned int a1 = PRNG.rand() % od;
