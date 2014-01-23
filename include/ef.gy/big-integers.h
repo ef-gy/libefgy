@@ -33,6 +33,7 @@
 #define EF_GY_BIG_INTEGERS_H
 
 #include <ef.gy/numeric.h>
+#include <ef.gy/traits.h>
 #include <vector>
 #include <ostream>
 
@@ -48,12 +49,26 @@ namespace efgy
             template <typename N>
             class factorial;
 
-            template <typename Ts = signed long long, typename Tu = unsigned long long, typename cellType = unsigned int, unsigned int cellBitCount = 32>
+            /**\brief Big integers
+             *
+             * This template implements big integers, which allow arbitrarily
+             * large integers to be stored and manipulated like any other
+             * variable in C++.
+             *
+             * \tparam Ts           Base signed integer type.
+             * \tparam Tu           Base unsigned integer type.
+             * \tparam cellType     Integer type used for the individual memory
+             *                      cells.
+             * \tparam cellBitCount The number of bits in a single cellType
+             *                      variable.
+             */
+            template <typename Ts = signed long long,
+                      typename Tu = unsigned long long,
+                      typename cellType = unsigned int,
+                      unsigned int cellBitCount = 32>
             class bigIntegers : public numeric
             {
                 public:
-                    typedef Ts integer;
-
                     bigIntegers ()
                         : cell(0), negative (false)
                         {}
@@ -728,12 +743,7 @@ namespace efgy
                                     overflow = (cell[i] & mask) >> negQ;
                                     cell[i] = newContent;
                                 }
-/*
-                                if (overflow)
-                                {
-                                    extend (overflow);
-                                }
-*/
+
                                 return *this;
                             }
                         }
@@ -741,9 +751,21 @@ namespace efgy
                         return (*this = (*this << b));
                     }
 
-
+                    /**\brief Is this number negative?
+                     *
+                     * Set to 'true' when this instance of the class contains a
+                     * value that is smaller than zero, and 'false' otherwise.
+                     */
                     bool negative;
 
+                    /**\brief Storage memory cells
+                     *
+                     * The actual number is stored in this variable. cell[0], if
+                     * it exists, is the least significant set of bits that make
+                     * up the number, cell[1] continues this series of bits by
+                     * containing the bits shifted to the left by as many bits
+                     * as would fit in cellType, and so forth.
+                     */
                     std::vector<cellType> cell;
 
                 protected:
@@ -753,11 +775,6 @@ namespace efgy
 
                     static const Tu cellsPerLong = sizeof(Tu) / sizeof(cellType);
                     static const Tu longBitCount = cellsPerLong * cellBitCount;
-
-                    void extend (cellType pValue)
-                    {
-                        cell.push_back(pValue);
-                    }
 
                     void shrink (void)
                     {
@@ -845,7 +862,7 @@ namespace efgy
 
                         if (overflow) // overflow in the most significant cell, add extra cell
                         {
-                            extend (cellType(1));
+                            cell.push_back (cellType(1));
                         }
                     }
 
@@ -1143,6 +1160,18 @@ namespace efgy
                             }
                         }
                     }
+            };
+
+            template <typename Ts, typename Tu, typename cellType, unsigned int cellBitCount>
+            class traits<bigIntegers<Ts,Tu,cellType,cellBitCount>>
+            {
+                public:
+                    typedef bigIntegers<Ts,Tu,cellType,cellBitCount>             integral;
+                    typedef fractional<bigIntegers<Ts,Tu,cellType,cellBitCount>> rational;
+                    typedef bigIntegers<Ts,Tu,cellType,cellBitCount>             self;
+                    typedef bigIntegers<Ts,Tu,cellType,cellBitCount>             derivable;
+
+                    static const bool stable = true;
             };
 
             template <typename C, typename Ts, typename Tu, typename cellType, unsigned int cellBitCount>
