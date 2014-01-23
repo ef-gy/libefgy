@@ -42,6 +42,13 @@ namespace efgy
     {
         namespace space
         {
+            /**\brief RGB colour space tag
+             *
+             * This tag indicates that a vector is of the RGB(A) colour space;
+             * since all vectors are tagged with a vector space tag class, this
+             * makes it possible for vectors of different spaces to be converted
+             * to be converted properly.
+             */
             class RGB {};
         };
 
@@ -55,7 +62,7 @@ namespace efgy
                       red((*this)[0]), green((*this)[1]), blue((*this)[2])
                     {}
                 vector (const Q &pRed, const Q &pGreen, const Q &pBlue)
-                    : std::array<Q,4>({ pRed, pGreen, pBlue }),
+                    : std::array<Q,3>({ pRed, pGreen, pBlue }),
                       red((*this)[0]), green((*this)[1]), blue((*this)[2])
                     {}
 
