@@ -28,8 +28,8 @@
 #if !defined(EF_GY_EUCLIDIAN_H)
 #define EF_GY_EUCLIDIAN_H
 
-#include <ef.gy/coordinate-space.h>
 #include <ef.gy/matrix.h>
+#include <ef.gy/vector.h>
 #include <array>
 
 namespace efgy
@@ -39,13 +39,10 @@ namespace efgy
         namespace euclidian
         {
             template <typename F, unsigned int n>
-            using space = math::coordinateSpace<F,n>;
-
-            template <typename F, unsigned int n>
-            typename space<F,n>::scalar lengthSquared
-                (const typename space<F,n>::vector &pV)
+            F lengthSquared
+                (const math::vector<F,n> &pV)
             {
-                typename space<F,n>::scalar rv = typename space<F,n>::scalar(F(0));
+                F rv = F(F(0));
 
                 for (int i = 0; i < n; i++)
                 {
@@ -56,10 +53,10 @@ namespace efgy
             }
 
             template <typename F, unsigned int n>
-            typename space<F,n>::vector normalise
-                (const typename space<F,n>::vector &pV)
+            math::vector<F,n> normalise
+                (const math::vector<F,n> &pV)
             {
-                typename space<F,n>::vector rv;
+                math::vector<F,n> rv;
                 
                 const F l = sqrt(lengthSquared<F,n>(pV));
 
@@ -72,10 +69,10 @@ namespace efgy
             }
 
             template <typename Q, unsigned int n>
-            typename space <Q,n>::scalar dotProduct
-                (const typename space<Q,n>::vector &a, const typename space<Q,n>::vector &b)
+            Q dotProduct
+                (const math::vector<Q,n> &a, const math::vector<Q,n> &b)
             {
-                typename space <Q,n>::scalar rv = Q(0);
+                Q rv = Q(0);
 
                 for (unsigned int i = 0; i < n; i++)
                 {
@@ -86,10 +83,10 @@ namespace efgy
             }
 
             template <typename F>
-            typename space<F,3>::vector crossProduct
-                (const typename space<F,3>::vector &a, const typename space<F,3>::vector &b)
+            math::vector<F,3> crossProduct
+                (const math::vector<F,3> &a, const math::vector<F,3> &b)
             {
-                typename space<F,3>::vector rv;
+                math::vector<F,3> rv;
 
                 rv[0] = a[1] * b[2] - a[2] * b[1]; 
                 rv[1] = a[2] * b[0] - a[0] * b[2]; 
@@ -99,10 +96,10 @@ namespace efgy
             }
 
             template <typename Q>
-            typename space <Q,2>::vector getPerpendicular
-                (const typename space<Q,2>::vector &v)
+            math::vector<Q,2> getPerpendicular
+                (const math::vector<Q,2> &v)
             {
-                typename space<Q,2>::vector r;
+                math::vector<Q,2> r;
                 
                 r[0] = v[1] * Q(-1);
                 r[1] = v[0];
@@ -111,18 +108,18 @@ namespace efgy
             }
 
             template <typename Q>
-            typename space <Q,3>::vector getPerpendicular
-                (const typename space<Q,3>::vector &v1, const typename space<Q,3>::vector &v2)
+            math::vector<Q,3> getPerpendicular
+                (const math::vector<Q,3> &v1, const math::vector<Q,3> &v2)
             {
                 return crossProduct<Q>(v1, v2);
             }
 
             template <typename Q, unsigned int d>
-            typename space <Q,d>::vector getNormal
-                (const typename std::array<typename space<Q,d>::vector,d-1> &pV)
+            math::vector<Q,d> getNormal
+                (const std::array<math::vector<Q,d>,d-1> &pV)
             {
                 math::matrix<Q,d,d> pM;
-                typename std::array<typename space<Q,d>::vector,d> baseVectors;
+                std::array<math::vector<Q,d>,d> baseVectors;
 
                 for (unsigned int i = 0; i < (d-1); i++)
                 {
@@ -139,7 +136,7 @@ namespace efgy
                     baseVectors[i][j] = ((i == j) ? 1 : 0);
                 }
 
-                typename space<Q,d>::vector rv = typename space<Q,d>::vector();
+                math::vector<Q,d> rv = math::vector<Q,d>();
 
                 for (unsigned int i = 0; i < d; i++)
                 {
@@ -174,16 +171,11 @@ namespace efgy
             }
 
             template <typename Q>
-            typename space <Q,3>::vector getNormal
-                (const typename std::array<typename space<Q,3>::vector,2> &pV)
+            math::vector<Q,3> getNormal
+                (const std::array<math::vector<Q,3>,2> &pV)
             {
                 return crossProduct<Q>(pV[0], pV[1]);
             }
-
-#if defined(EF_GY_FRACTIONS_H)
-            typedef space<math::Q,2> Q2;
-            typedef space<math::Q,3> Q3;
-#endif
         };
     };
 };
