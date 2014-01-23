@@ -28,7 +28,6 @@
 #if !defined(EF_GY_FRACTIONS_H)
 #define EF_GY_FRACTIONS_H
 
-#include <ef.gy/integers.h>
 #include <ef.gy/big-integers.h>
 #include <ef.gy/traits.h>
 
@@ -368,7 +367,7 @@ namespace efgy
             };
         };
 
-        typedef numeric::fractional<number> fraction;
+        typedef numeric::fractional<long long> fraction;
         typedef numeric::fractional<Z> Q;
     };
 };

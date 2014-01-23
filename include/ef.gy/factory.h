@@ -166,7 +166,7 @@ namespace efgy
             };
 
             /**\brief Geometry factory functor: add model names w/ depth to set
-            /**\copydetails models
+             * \copydetails models
              *
              * This variant of the 'models' functor also adds the valid depths
              * to the strings so that they're of the form 'depth-name'.

@@ -48,8 +48,8 @@ using std::string;
  */
 int testContinuedFractionArithmetic (std::ostream &log)
 {
-    numeric::fractional<number> af(6,11), bf(4,5), rf;
-    numeric::continuedFractional<number> a(af), b(bf), r;
+    numeric::fractional<long long> af(6,11), bf(4,5), rf;
+    numeric::continuedFractional<long long> a(af), b(bf), r;
 
     rf = af + bf;
     log << af << " + " << bf << " = " << rf << "\n";
