@@ -59,15 +59,15 @@ int testRealVectors (std::ostream &log)
         return 1;
     }
 
-    vector<double,3,space::polar> vp1 = {{1,2,3}};
-    vector<double,3,space::polar> vp2 = {{2,3,4}};
-    vector<double,3,space::polar> rp  = vp1 + vp2;
+    vector<double,3,format::polar> vp1 = {{1,2,3}};
+    vector<double,3,format::polar> vp2 = {{2,3,4}};
+    vector<double,3,format::polar> rp  = vp1 + vp2;
 
     log << vp1 << " + " << vp2 << " = " << rp << "\n";
     log << "sizeof(double) = " << sizeof(double) << "\n";
-    log << "sizeof(vector<double,3,space::polar>) = " << sizeof(vector<double,3,space::polar>) << "\n";
+    log << "sizeof(vector<double,3,format::polar>) = " << sizeof(vector<double,3,space::polar>) << "\n";
 
-    if (rp != vector<double,3,space::polar>({3,5,7}))
+    if (rp != vector<double,3,format::polar>({3,5,7}))
     {
         log << "unexpected result after vector addition; expected ([polar:10] 3, 5, 7) but have " << rp << "\n";
         return 2;
@@ -77,7 +77,7 @@ int testRealVectors (std::ostream &log)
 
     log << rp << " = " << rpc << "\n";
 
-    vector<double,3,space::polar> rpcr = rpc;
+    vector<double,3,format::polar> rpcr = rpc;
 
     log << rpc << " = " << rpcr << "\n";
 
