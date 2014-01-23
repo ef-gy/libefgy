@@ -212,30 +212,6 @@ namespace efgy
                 }
         };
     };
-
-    namespace colour
-    {
-        template <typename Q>
-        class HSLA;
-
-        template <typename Q>
-        class HSL
-        {
-            public:
-                typedef Q base;
-                typedef Q scalar;
-                typedef math::vector<Q,3,math::space::HSL> vector;
-        };
-
-        template <typename Q>
-        class HSLA
-        {
-            public:
-                typedef Q base;
-                typedef Q scalar;
-                typedef math::vector<Q,3,math::space::HSL> vector;
-        };
-    };
 };
 
 #endif

@@ -90,27 +90,6 @@ namespace efgy
                 Q &alpha;
         };
     };
-
-    namespace colour
-    {
-        template <typename Q>
-        class RGB
-        {
-            public:
-                typedef Q base;
-                typedef Q scalar;
-                typedef math::vector<Q,3,math::space::RGB> vector;
-        };
-
-        template <typename Q>
-        class RGBA
-        {
-            public:
-                typedef Q base;
-                typedef Q scalar;
-                typedef math::vector<Q,4,math::space::RGB> vector;
-        };
-    };
 };
 
 #endif
