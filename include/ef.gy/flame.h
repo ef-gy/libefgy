@@ -87,7 +87,7 @@ namespace efgy
 
                         const Q theta = atan(V[0]/V[1]);
                         const Q phi   = atan(V[1]/V[0]);
-                        const Q r2    = euclidian::lengthSquared<Q,d>(V);
+                        const Q r2    = math::lengthSquared(V);
                         const Q r     = sqrt(r2);
                         const Q omega = Q(std::rand() % 2) * Q(M_PI);
                         const Q delta = (std::rand() % 2) == 1 ? Q(1) : Q(-1);
@@ -125,7 +125,7 @@ namespace efgy
                             case 5: // "polar"
                                 rv = V;
                                 rv[0] = theta/Q(M_PI);
-                                rv[1] = sqrt(euclidian::lengthSquared<Q,d>(V)) - Q(1);
+                                rv[1] = sqrt(math::lengthSquared(V)) - Q(1);
                                 break;
                             case 6: // "handkerchief"
                                 for (unsigned int i : range<unsigned int>(0,depth,depth,false))

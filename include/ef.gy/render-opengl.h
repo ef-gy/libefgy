@@ -777,13 +777,13 @@ namespace efgy
                     if (prepared) return;
 
                     math::vector<Q,3> R
-                        = geometry::euclidian::normalise<Q,3>
-                            (geometry::euclidian::crossProduct<Q>
+                        = math::normalise
+                            (math::crossProduct
                                 (pV[1] - pV[0], pV[2] - pV[0]));
 
                     math::vector<Q,3> RN
-                        = geometry::euclidian::normalise<Q,3>
-                            (geometry::euclidian::crossProduct<Q>
+                        = math::normalise
+                            (crossProduct
                         (pV[2] - pV[0], pV[1] - pV[0]));
 
                     triindices.push_back(addVertex(GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2]),

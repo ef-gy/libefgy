@@ -59,7 +59,7 @@ namespace efgy
                 void updateMatrix (void)
                 {
                     columns[(d-1)] = to - from;
-                    columns[(d-1)] = euclidian::normalise<Q,d>(columns[(d-1)]);
+                    columns[(d-1)] = math::normalise(columns[(d-1)]);
 
                     for (int i = 0; i < (d-1); i++)
                     {
@@ -81,11 +81,11 @@ namespace efgy
                             }
                         }
 
-                        columns[i] = euclidian::getNormal<Q,d>(crossVectors);
+                        columns[i] = math::normal(crossVectors);
 
                         if (i != (d-2))
                         {
-                            columns[i] = euclidian::normalise<Q,d>(columns[i]);
+                            columns[i] = math::normalise(columns[i]);
                         }
                     }
 
