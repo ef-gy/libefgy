@@ -124,7 +124,7 @@ namespace efgy
                                 }
                                 else
                                 {
-                                    scalar a = scalar(2) * lightness - 1;
+                                    scalar a = scalar(2) * lightness - scalar(1);
                                     if (a < math::numeric::zero())
                                     {
                                         a = -a;
@@ -135,7 +135,7 @@ namespace efgy
 
                         operator typename RGB<Q>::vector (void) const
                         {
-                            scalar a = scalar(2)*lightness - 1;
+                            scalar a = scalar(2)*lightness - scalar(1);
                             if (a < math::numeric::zero())
                             {
                                 a = -a;

@@ -149,10 +149,10 @@ namespace efgy
             for (int y = -pickerResolution; y <= pickerResolution; y++)
             {
                 s += "<set>";
-                v[1] = (y < 0) ? (value[1] - bl * -y) : (value[1] + br * y);
+                v[1] = (y < 0) ? (value[1] - bl * typename Q::scalar(-y)) : (value[1] + br * typename Q::scalar(y));
                 for (int x = -pickerResolution; x <= pickerResolution; x++)
                 {
-                    v[0] = (x < 0) ? (value[0] - al * -x) : (value[0] + ar * x);
+                    v[0] = (x < 0) ? (value[0] - al * typename Q::scalar(-x)) : (value[0] + ar * typename Q::scalar(x));
                     s += xml (v, true, precision);
                 }
                 s += "</set>";
@@ -163,7 +163,7 @@ namespace efgy
             v[1] = value[1];
             for (int z = -pickerResolution; z <= pickerResolution; z++)
             {
-                v[2] = (z < 0) ? (value[2] - cl * -z) : (value[2] + cr * z);
+                v[2] = (z < 0) ? (value[2] - cl * typename Q::scalar(-z)) : (value[2] + cr * typename Q::scalar(z));
                 s += xml (v, true, precision);
             }
             s += "</set>";
