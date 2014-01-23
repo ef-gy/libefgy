@@ -1,4 +1,9 @@
 /**\file
+ * \brief RGB colour vectors
+ *
+ * Contains colour vectors in the (s)RGB colour space. Currently only 3D and 4D
+ * vectors are supported directly, which refer to RGB and RGBA vectors,
+ * respectively.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -29,120 +34,78 @@
 #define EF_GY_COLOUR_SPACE_RGB_H
 
 #include <ef.gy/colour-space.h>
+#include <ef.gy/vector.h>
 
 namespace efgy
 {
-    namespace colour
+    namespace math
     {
-        template <typename Q>
-        class RGBA;
-
-        template <typename Q>
-        class RGB : public space<Q,3>
+        namespace space
         {
-            public:
-                using typename space<Q,3>::base;
-                using typename space<Q,3>::scalar;
-
-                class vector : public space<Q,3>::vector
-                {
-                    public:
-                        typedef typename RGB<Q>::scalar scalar;
-                        using space<Q,3>::vector::data;
-
-                        vector ()
-                            : space<Q,3>::vector(),
-                              red((*this)[0]), green((*this)[1]), blue((*this)[2])
-                            {}
-                        vector (const scalar s[3])
-                            : space<Q,3>::vector(s),
-                              red((*this)[0]), green((*this)[1]), blue((*this)[2])
-                            {}
-                        vector (const typename RGB<Q>::vector &v)
-                            : space<Q,3>::vector(),
-                              red((*this)[0]), green((*this)[1]), blue((*this)[2])
-                            {
-                                red   = v.red;
-                                green = v.green;
-                                blue  = v.blue;
-                            }
-                        vector (const typename RGBA<Q>::vector &v)
-                            : space<Q,3>::vector(),
-                              red((*this)[0]), green((*this)[1]), blue((*this)[2])
-                            {
-                                red   = v.red   * v.alpha;
-                                green = v.green * v.alpha;
-                                blue  = v.blue  * v.alpha;
-                            }
-                        vector (const scalar &pRed, const scalar &pGreen, const scalar &pBlue)
-                            : space<Q,3>::vector(),
-                              red((*this)[0]), green((*this)[1]), blue((*this)[2])
-                            {
-                                red   = pRed;
-                                green = pGreen;
-                                blue  = pBlue;
-                            }
-
-                        scalar &red;
-                        scalar &green;
-                        scalar &blue;
-                };
+            class RGB {};
         };
 
         template <typename Q>
-        class RGBA : public space<Q,4>
+        class vector<Q,3,space::RGB> : public std::array<Q,3>
         {
             public:
-                using typename space<Q,4>::base;
-                using typename space<Q,4>::scalar;
+                vector (const std::array<Q,3> &v = {{}},
+                        const space::RGB & = space::RGB())
+                    : std::array<Q,3>(v),
+                      red((*this)[0]), green((*this)[1]), blue((*this)[2])
+                    {}
+                vector (const Q &pRed, const Q &pGreen, const Q &pBlue)
+                    : red((*this)[0]), green((*this)[1]), blue((*this)[2])
+                    {
+                        red   = pRed;
+                        green = pGreen;
+                        blue  = pBlue;
+                    }
 
-                class vector : public space<Q,4>::vector
-                {
-                    public:
-                        typedef typename RGBA<Q>::scalar scalar;
-                        using space<Q,4>::vector::data;
+                Q &red;
+                Q &green;
+                Q &blue;
+        };
 
-                        vector ()
-                            : space<Q,4>::vector(),
-                              red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
-                            {}
-                        vector (const scalar s[4])
-                            : space<Q,4>::vector(s),
-                              red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
-                            {}
-                        vector (const typename RGB<Q>::vector &v)
-                            : space<Q,4>::vector(),
-                              red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
-                            {
-                                red   = v.red;
-                                green = v.green;
-                                blue  = v.blue;
-                                alpha = scalar(1);
-                            }
-                        vector (const scalar &pRed, const scalar &pGreen, const scalar &pBlue)
-                            : space<Q,4>::vector(),
-                              red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
-                            {
-                                red   = pRed;
-                                green = pGreen;
-                                blue  = pBlue;
-                                alpha = scalar(1);
-                            }
-                        vector (const scalar &pRed, const scalar &pGreen, const scalar &pBlue, const scalar &pAlpha)
-                            : space<Q,4>::vector(),
-                              red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
-                            {
-                                red   = pRed;
-                                green = pGreen;
-                                blue  = pBlue;
-                                alpha = pAlpha;
-                            }
+        template <typename Q>
+        class vector<Q,4,space::RGB> : public std::array<Q,4>
+        {
+            public:
+                vector (const std::array<Q,4> &v = {{}},
+                        const space::RGB & = space::RGB())
+                    : std::array<Q,4>(v),
+                      red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
+                    {}
+                vector (const Q &pRed, const Q &pGreen, const Q &pBlue, const Q &pAlpha = Q(1))
+                    : std::array<Q,4>({ pRed, pGreen, pBlue, pAlpha }),
+                      red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
+                    {}
 
-                        scalar &red;
-                        scalar &green;
-                        scalar &blue;
-                        scalar &alpha;
-                };
+                Q &red;
+                Q &green;
+                Q &blue;
+                Q &alpha;
+        };
+    };
+
+    namespace colour
+    {
+        template <typename Q>
+        class RGB
+        {
+            public:
+                typedef Q base;
+                typedef Q scalar;
+                typedef math::vector<Q,3,math::space::RGB> vector;
+        };
+
+        template <typename Q>
+        class RGBA
+        {
+            public:
+                typedef Q base;
+                typedef Q scalar;
+                typedef math::vector<Q,4,math::space::RGB> vector;
         };
     };
 };
