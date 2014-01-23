@@ -55,12 +55,9 @@ namespace efgy
                       red((*this)[0]), green((*this)[1]), blue((*this)[2])
                     {}
                 vector (const Q &pRed, const Q &pGreen, const Q &pBlue)
-                    : red((*this)[0]), green((*this)[1]), blue((*this)[2])
-                    {
-                        red   = pRed;
-                        green = pGreen;
-                        blue  = pBlue;
-                    }
+                    : std::array<Q,4>({ pRed, pGreen, pBlue }),
+                      red((*this)[0]), green((*this)[1]), blue((*this)[2])
+                    {}
 
                 Q &red;
                 Q &green;
