@@ -31,7 +31,6 @@
 #if !defined(EF_GY_VECTOR_H)
 #define EF_GY_VECTOR_H
 
-#include <ef.gy/traits.h>
 #include <array>
 #include <ostream>
 

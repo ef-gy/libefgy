@@ -28,8 +28,6 @@
 #if !defined(EF_GY_TRAITS_H)
 #define EF_GY_TRAITS_H
 
-#include <array>
-
 namespace efgy
 {
     namespace math
