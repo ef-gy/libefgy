@@ -38,11 +38,27 @@
 #include <ef.gy/matrix.h>
 #include <ef.gy/vector.h>
 #include <array>
+#include <cmath>
 
 namespace efgy
 {
     namespace math
     {
+        /**\brief Calculate squared length of a vector
+         *
+         * Calculates the squared length of a vector with the default Euclidian
+         * metric; It might seem weird to use this instead of the proper length,
+         * but calculating the proper length of a vector involves taking a
+         * square root, which tends to be a rather involved operation and is not
+         * really necessary when merely comparing the length of two vectors.
+         *
+         * \tparam F The base type for calculations.
+         * \tparam n The number of dimensions of the input vector.
+         *
+         * \param[in] pV The vector to calculate the length of.
+         *
+         * \returns The squared length of the given vector.
+         */
         template <typename F, unsigned int n>
         constexpr F lengthSquared
             (const math::vector<F,n> &pV)
@@ -50,13 +66,47 @@ namespace efgy
             return pV * pV;
         }
 
+        /**\brief Calculate length of a vector
+         *
+         * Calculates the proper length of a vector with the default Euclidian
+         * metric. As noted in lengthSquared(), if you only need to compare
+         * vectors to sort them by length, then the square root that this
+         * function involves is overkill.
+         *
+         * \tparam F The base type for calculations.
+         * \tparam n The number of dimensions of the input vector.
+         *
+         * \param[in] pV The vector to calculate the length of.
+         *
+         * \returns The squared length of the given vector.
+         */
+        template <typename F, unsigned int n>
+        constexpr F length
+            (const math::vector<F,n> &pV)
+        {
+            return std::sqrt(lengthSquared(pV));
+        }
+
+        /**\brief Calculate unit vector
+         *
+         * Given an input vector, this function returns the unit vector,
+         * sometimes also called the 'norm', not to be confused with the a
+         * 'normal', which is a vector pointing in the same direction but being
+         * of length '1' - or of 'unit length'.
+         *
+         * \tparam F The base type for calculations.
+         * \tparam n The number of dimensions of the input vector.
+         *
+         * \param[in] pV The vector to calculate the unit vector of.
+         *
+         * \returns The unit vector for the given input vector.
+         */
         template <typename F, unsigned int n>
         math::vector<F,n> normalise
             (const math::vector<F,n> &pV)
         {
             math::vector<F,n> rv;
-                
-            const F l = sqrt(lengthSquared<F,n>(pV));
+            const F l = length(pV);
 
             for (unsigned int i = 0; i < n; i++)
             {
@@ -66,6 +116,21 @@ namespace efgy
             return rv;
         }
 
+        /**\brief Calculate cross product
+         *
+         * Given two 3-space real vectors, calculate the cross product of the
+         * two. The cross product is only defined in 3 and 7 dimensions; see the
+         * math::normal and math::perpendicular functions for the operation that
+         * is commonly intended when using the cross product, which are also
+         * defined in higher-dimensional euclidian spaces.
+         *
+         * \tparam F The base type for calculations
+         *
+         * \param[in] a First input vector.
+         * \param[in] b Second input vector.
+         *
+         * \returns The cross product of the two input vectors.
+         */
         template <typename F>
         constexpr math::vector<F,3> crossProduct
             (const math::vector<F,3> &a, const math::vector<F,3> &b)
@@ -78,7 +143,7 @@ namespace efgy
 
         /**\brief Calculate normal
          *
-         * Given any (d-1) d-spave vectors, this function will calculate one of
+         * Given any (d-1) d-space vectors, this function will calculate one of
          * the vectors that is perpendicular to all of them. Since there's no
          * such thing as a cross product in arbitrary real spaces, we use an
          * implicit Laplace expansion of a specially crafted matrix to calculate
@@ -184,7 +249,7 @@ namespace efgy
          *
          * \tparam Q The base type for calculations
          *
-         * \param[in] v The vector to calculate the cross product of.
+         * \param[in] v The vector to calculate the "cross product" of.
          *
          * \returns One of the perpendicular vectors of the input vector.
          */
