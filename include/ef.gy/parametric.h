@@ -1,4 +1,8 @@
 /**\file
+ * \brief Models based on parametric formulae
+ *
+ * This header contains a template to generate models using very simple
+ * parametric formulae, which describes a wide range of very common models.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -34,164 +38,109 @@ namespace efgy
 {
     namespace geometry
     {
-        template <typename Q, unsigned int od, unsigned int d, unsigned int f, typename render>
-        using parametric = polytope<Q,od,d,f,render>;
+        namespace formula
+        {
+            template <typename Q, unsigned int od, unsigned int d>
+            class moebiusStrip
+            {
+                public:
+                    static const unsigned int faceVertices           = 4;
+                    static const unsigned int modelDimensionMaximum  = 2;
+                    static const unsigned int renderDimensionMinimum = od + 1;
 
-        template <typename Q, unsigned int od, typename render, unsigned int d = 3>
-        class moebiusStrip : public parametric<Q,od,d,4,render>
+                    static const char *id (void) { return "moebius-strip"; }
+
+                    static range<Q> getRange (const parameters<Q> &parameter, unsigned int i)
+                    {
+                        return i == 0 ? range<Q>(0, M_PI * Q(2), parameter.polarPrecision*Q(2), false)
+                                      : range<Q>(-parameter.polarRadius, parameter.polarRadius, parameter.polarPrecision, false);
+                    }
+
+                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, Q u, Q v)
+                    {
+                        Q r = parameter.polarRadius;
+
+                        return {{ Q((r + v/Q(2) * cos(u/Q(2))) * cos(u)),
+                                  Q((r + v/Q(2) * cos(u/Q(2))) * sin(u)),
+                                  Q(v/Q(2) * sin(u/Q(2))) }};
+                    }
+            };
+
+            template <typename Q, unsigned int od, unsigned int d>
+            class kleinBagel
+            {
+                public:
+                    static const unsigned int faceVertices           = 4;
+                    static const unsigned int modelDimensionMaximum  = 2;
+                    static const unsigned int renderDimensionMinimum = od + 1;
+                    
+                    static const char *id (void) { return "klein-bagel"; }
+                    
+                    static range<Q> getRange (const parameters<Q> &parameter, unsigned int)
+                    {
+                        return range<Q>(0, M_PI * Q(2), parameter.polarPrecision*Q(2), false);
+                    }
+
+                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, Q u, Q v)
+                    {
+                        Q r = parameter.polarRadius;
+
+                        return {{ Q((r + cos(u/Q(2))*sin(v) - sin(u/Q(2))*sin(Q(2)*v)) * cos(u)),
+                                  Q((r + cos(u/Q(2))*sin(v) - sin(u/Q(2))*sin(Q(2)*v)) * sin(u)),
+                                  Q(sin(u/Q(2))*sin(v) - cos(u/Q(2))*sin(Q(2)*v)) }};
+                    }
+            };
+        }
+
+        template <typename Q, unsigned int od, unsigned int d, template <typename, unsigned int, unsigned int> class formula, typename render>
+        class parametric : public polytope<Q,od,d,formula<Q,od,d>::faceVertices,render>
         {
             public:
-                typedef parametric<Q,od,d,4,render> parent;
-
-                moebiusStrip (render &pRenderer, const parameters<Q> &pParameter)
+                typedef formula<Q,od,d> source;
+                typedef polytope<Q,od,d,source::faceVertices,render> parent;
+            
+                parametric (render &pRenderer, const parameters<Q> &pParameter)
                     : parent(pRenderer, pParameter)
                     {
                         calculateObject();
                     }
-
+                
                 using parent::parameter;
                 using parent::faces;
+                
+                static const unsigned int modelDimensionMaximum = source::modelDimensionMaximum;
 
-                static const unsigned int modelDimensionMaximum = 2;
-
-                static const char *id (void) { return "moebius-strip"; }
+                static const char *id (void) { return source::id(); }
 
                 void calculateObject(void)
                 {
-                    Q radius = parameter.polarRadius;
-                    Q precision = parameter.polarPrecision;
-
-                    usedRadius = radius;
-                    usedPrecision = precision;
-
-                    precision = ceil(precision);
-                    const Q stepU = Q(M_PI/(precision*Q(2)));
-                    const Q stepV = Q((2*radius)/precision);
-
                     faces.clear();
 
-                    for (Q u = 0; u < Q(2*M_PI); u += stepU)
-                    {
-                        for (Q v = -radius; v <= radius; v += stepV)
-                        {
-                            Q un = (u + stepU) <= Q(2*M_PI) ? (u + stepU) : Q(2*M_PI);
-                            Q vn = (v + stepV) <= Q(radius) ? (v + stepV) : radius;
+                    const range<Q> us = source::getRange(parameter, 0);
+                    const range<Q> vs = source::getRange(parameter, 1);
 
+                    for (const Q &u : us)
+                    {
+                        for (const Q &v : vs)
+                        {
+                            Q un = u + us.stride;
+                            Q vn = v + vs.stride;
+                            
                             faces.push_back
-                                ({{ getCoordinates(radius, u, v),
-                                    getCoordinates(radius, un, v),
-                                    getCoordinates(radius, un, vn),
-                                    getCoordinates(radius, u, vn) }});
+                                ({{ source::getCoordinates(parameter, u,  v),
+                                    source::getCoordinates(parameter, un, v),
+                                    source::getCoordinates(parameter, un, vn),
+                                    source::getCoordinates(parameter, u,  vn) }});
                         }
                     }
                 }
-
-                Q getCoordinate (unsigned int i, Q r, Q u, Q v) const
-                {
-                    switch (i)
-                    {
-                        case 0:
-                            return (r + v/Q(2) * cos(u/Q(2))) * cos(u);
-                        case 1:
-                            return (r + v/Q(2) * cos(u/Q(2))) * sin(u);
-                        case 2:
-                            return v/Q(2) * sin(u/Q(2));
-                    }
-                    return Q(0);
-                }
-
-                math::vector<Q,d> getCoordinates (Q r, Q u, Q v) const
-                {
-                    math::vector<Q,d> res;
-
-                    res[0] = getCoordinate(0, r, u, v);
-                    res[1] = getCoordinate(1, r, u, v);
-                    res[2] = getCoordinate(2, r, u, v);
-
-                    return res;
-                }
-
-                Q usedRadius;
-                Q usedPrecision;
         };
 
-        template <typename Q, unsigned int od, typename render, unsigned int d = 3>
-        class kleinBagel : public parametric<Q,od,d,4,render>
-        {
-            public:
-                typedef parametric<Q,od,d,4,render> parent;
+        template <typename Q, unsigned int od, typename render, unsigned int d>
+        using moebiusStrip = parametric<Q,od,d,formula::moebiusStrip,render>;
 
-                kleinBagel (render &pRenderer, const parameters<Q> &pParameter)
-                    : parent(pRenderer, pParameter)
-                    {
-                        calculateObject();
-                    }
-
-                using parent::parameter;
-                using parent::faces;
-
-                static const unsigned int modelDimensionMaximum = 2;
-
-                static const char *id (void) { return "klein-bagel"; }
-
-                void calculateObject(void)
-                {
-                    Q radius = parameter.polarRadius;
-                    Q precision = parameter.polarPrecision;
-
-                    usedRadius = radius;
-                    usedPrecision = precision;
-
-                    precision = ceil(precision*Q(2));
-                    const Q stepU = Q(M_PI/(precision));
-                    const Q stepV = stepU;
-
-                    faces.clear();
-
-                    for (Q u = 0; u < Q(2*M_PI); u += stepU)
-                    {
-                        for (Q v = 0; v <= Q(2*M_PI); v += stepV)
-                        {
-                            Q un = (u + stepU) <= Q(2*M_PI) ? (u + stepU) : Q(2*M_PI);
-                            Q vn = (v + stepV) <= Q(2*M_PI) ? (v + stepV) : Q(2*M_PI);
-
-                            faces.push_back
-                                ({{ getCoordinates(radius, u, v),
-                                    getCoordinates(radius, un, v),
-                                    getCoordinates(radius, un, vn),
-                                    getCoordinates(radius, u, vn) }});
-                        }
-                    }
-                }
-
-                Q getCoordinate (unsigned int i, Q r, Q u, Q v) const
-                {
-                    switch (i)
-                    {
-                        case 0:
-                            return (r + cos(u/Q(2))*sin(v) - sin(u/Q(2))*sin(Q(2)*v)) * cos(u);
-                        case 1:
-                            return (r + cos(u/Q(2))*sin(v) - sin(u/Q(2))*sin(Q(2)*v)) * sin(u);
-                        case 2:
-                            return sin(u/Q(2))*sin(v) - cos(u/Q(2))*sin(Q(2)*v);
-                    }
-                    return Q(0);
-                }
-
-                math::vector<Q,d> getCoordinates (Q r, Q u, Q v) const
-                {
-                    math::vector<Q,d> res;
-
-                    res[0] = getCoordinate(0, r, u, v);
-                    res[1] = getCoordinate(1, r, u, v);
-                    res[2] = getCoordinate(2, r, u, v);
-
-                    return res;
-                }
-
-                Q usedRadius;
-                Q usedPrecision;
-        };
+        template <typename Q, unsigned int od, typename render, unsigned int d>
+        using kleinBagel = parametric<Q,od,d,formula::kleinBagel,render>;
     };
 };
 
