@@ -33,7 +33,6 @@
 #if !defined(EF_GY_COLOUR_SPACE_RGB_H)
 #define EF_GY_COLOUR_SPACE_RGB_H
 
-#include <ef.gy/colour-space.h>
 #include <ef.gy/vector.h>
 
 namespace efgy
