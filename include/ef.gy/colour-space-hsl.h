@@ -39,24 +39,24 @@ namespace efgy
 {
     namespace math
     {
-        namespace space
+        namespace format
         {
-            /**\brief HSL colour space tag
+            /**\brief HSL colour format tag
              *
              * This tag indicates that a vector is of the HSL(A) colour space;
-             * since all vectors are tagged with a vector space tag class, this
-             * makes it possible for vectors of different spaces to be converted
-             * to be converted properly.
+             * since all vectors are tagged with a vector format tag class, this
+             * makes it possible for vectors of different colour spaces to be
+             * converted properly.
              */
             class HSL {};
         };
 
         template <typename Q>
-        class vector<Q,3,space::HSL> : public std::array<Q,3>
+        class vector<Q,3,format::HSL> : public std::array<Q,3>
         {
             public:
                 vector (const std::array<Q,3> &v = {{}},
-                        const space::HSL & = space::HSL())
+                        const format::HSL & = format::HSL())
                     : std::array<Q,3>(v),
                       hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                     {}
@@ -69,7 +69,7 @@ namespace efgy
                 Q &saturation;
                 Q &lightness;
 
-                vector (const vector<Q,3,space::RGB> &v)
+                vector (const vector<Q,3,format::RGB> &v)
                     : std::array<Q,3>(),
                       hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2])
                     {
@@ -116,7 +116,7 @@ namespace efgy
                         }
                     }
 
-                operator vector<Q,3,space::RGB> (void) const
+                operator vector<Q,3,format::RGB> (void) const
                 {
                     Q a = Q(2)*lightness - Q(1);
                     if (a < math::numeric::zero())
@@ -176,11 +176,11 @@ namespace efgy
         };
 
         template <typename Q>
-        class vector<Q,4,space::HSL> : public std::array<Q,4>
+        class vector<Q,4,format::HSL> : public std::array<Q,4>
         {
             public:
                 vector (const std::array<Q,4> &v = {{}},
-                        const space::HSL & = space::HSL())
+                        const format::HSL & = format::HSL())
                     : std::array<Q,4>(v),
                       hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                     {}
@@ -194,20 +194,20 @@ namespace efgy
                 Q &lightness;
                 Q &alpha;
 
-                vector (const vector<Q,4,space::RGB> &v)
+                vector (const vector<Q,4,format::RGB> &v)
                     : std::array<Q,4>(),
                       hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]), alpha((*this)[3])
                     {
-                        vector<Q,3,space::HSL> hv ({ v[0], v[1], v[2] });
+                        vector<Q,3,format::HSL> hv ({ v[0], v[1], v[2] });
                         hue        = hv.hue;
                         saturation = hv.saturation;
                         lightness  = hv.lightness;
                         alpha      = v[3];
                     }
 
-                operator vector<Q,4,space::RGB> (void) const
+                operator vector<Q,4,format::RGB> (void) const
                 {
-                    vector<Q,3,space::RGB> rg = vector<Q,3,space::HSL>({ hue, saturation, lightness });
+                    vector<Q,3,format::RGB> rg = vector<Q,3,format::HSL>({ hue, saturation, lightness });
                     return {{ rg[0], rg[1], rg[2], alpha }};
                 }
         };

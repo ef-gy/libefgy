@@ -39,24 +39,24 @@ namespace efgy
 {
     namespace math
     {
-        namespace space
+        namespace format
         {
-            /**\brief RGB colour space tag
+            /**\brief RGB colour format tag
              *
              * This tag indicates that a vector is of the RGB(A) colour space;
-             * since all vectors are tagged with a vector space tag class, this
-             * makes it possible for vectors of different spaces to be converted
-             * to be converted properly.
+             * since all vectors are tagged with a vector format tag class, this
+             * makes it possible for vectors of different colour spaces to be
+             * converted properly.
              */
             class RGB {};
         };
 
         template <typename Q>
-        class vector<Q,3,space::RGB> : public std::array<Q,3>
+        class vector<Q,3,format::RGB> : public std::array<Q,3>
         {
             public:
                 vector (const std::array<Q,3> &v = {{}},
-                        const space::RGB & = space::RGB())
+                        const format::RGB & = format::RGB())
                     : std::array<Q,3>(v),
                       red((*this)[0]), green((*this)[1]), blue((*this)[2])
                     {}
@@ -71,11 +71,11 @@ namespace efgy
         };
 
         template <typename Q>
-        class vector<Q,4,space::RGB> : public std::array<Q,4>
+        class vector<Q,4,format::RGB> : public std::array<Q,4>
         {
             public:
                 vector (const std::array<Q,4> &v = {{}},
-                        const space::RGB & = space::RGB())
+                        const format::RGB & = format::RGB())
                     : std::array<Q,4>(v),
                       red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                     {}

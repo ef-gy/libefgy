@@ -45,9 +45,9 @@ namespace efgy
         }
 
         template <>
-        std::string xml (const math::vector<math::fraction,3,math::space::HSL> &pValue, bool small, const long &precision)
+        std::string xml (const math::vector<math::fraction,3,math::format::HSL> &pValue, bool small, const long &precision)
         {
-            math::vector<math::fraction,3,math::space::HSL> value = pValue;
+            math::vector<math::fraction,3,math::format::HSL> value = pValue;
             value.hue = math::numeric::round(value.hue, precision);
             value.saturation = math::numeric::round(value.saturation, precision);
             value.lightness = math::numeric::round(value.lightness, precision);
@@ -79,9 +79,9 @@ namespace efgy
         }
 
         template <>
-        std::string xml (const math::vector<math::fraction,3,math::space::RGB> &pValue, bool small, const long &precision)
+        std::string xml (const math::vector<math::fraction,3,math::format::RGB> &pValue, bool small, const long &precision)
         {
-            math::vector<math::fraction,3,math::space::RGB> value = pValue;
+            math::vector<math::fraction,3,math::format::RGB> value = pValue;
             value.red = math::numeric::round(value.red, precision);
             value.green = math::numeric::round(value.green, precision);
             value.blue = math::numeric::round(value.blue, precision);
@@ -172,13 +172,13 @@ namespace efgy
         }
 
         template <>
-        std::string xmlpicker (const math::vector<math::fraction,3,math::space::HSL> &value, const long &precision)
+        std::string xmlpicker (const math::vector<math::fraction,3,math::format::HSL> &value, const long &precision)
         {
             return xmlpicker3d(value, precision);
         }
 
         template <>
-        std::string xmlpicker (const math::vector<math::fraction,3,math::space::RGB> &value, const long &precision)
+        std::string xmlpicker (const math::vector<math::fraction,3,math::format::RGB> &value, const long &precision)
         {
             return xmlpicker3d(value, precision);
         }

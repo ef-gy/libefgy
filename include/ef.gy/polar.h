@@ -39,11 +39,11 @@ namespace efgy
 {
     namespace math
     {
-        namespace space
+        namespace format
         {
-            /**\brief Polar coordinate space tag
+            /**\brief Polar coordinate format tag
              *
-             * This coordinate space tag identifies vectors as containing polar
+             * This coordinate format tag identifies vectors as containing polar
              * coordinates as opposed to regular cartesian coordinates.
              */
             class polar
@@ -51,7 +51,7 @@ namespace efgy
                 public:
                     /**\brief Construct with precision
                      *
-                     * Constructs a coordinate space tag with an optional
+                     * Constructs a coordinate format tag with an optional
                      * precision. The default precision is '10'.
                      *
                      * \param[in] pPrecision The precision to use.
@@ -62,7 +62,7 @@ namespace efgy
                     /**\brief Desired conversion precision
                      *
                      * Specifies the precision to use for real<>polar vector
-                     * space conversions. This precision refers to the
+                     * format conversions. This precision refers to the
                      * iterations parameter in the trigonometric functions,
                      * which in turn is passed along to the complex e function.
                      *
@@ -74,23 +74,23 @@ namespace efgy
                     unsigned long precision;
             };
 
-            /**\brief Stream output operator for the polar space tag
+            /**\brief Stream output operator for the polar format tag
              *
-             * Writes the contents of a polar space tag to an output stream;
-             * Polar space tags contain a precision parameter, which is also
+             * Writes the contents of a polar format tag to an output stream;
+             * Polar format tags contain a precision parameter, which is also
              * written to the provided stream.
              *
              * \tparam C The character type of the stream.
              *
              * \param[out] stream The stream to write to.
-             * \param[in]  space  The space tag to write to the stream.
+             * \param[in]  format The format tag to write to the stream.
              *
              + \returns The parameter 'stream' after writing to it.
              */
             template <typename C>
-            constexpr inline std::basic_ostream<C> &operator << (std::basic_ostream<C> &stream, const polar &space)
+            constexpr inline std::basic_ostream<C> &operator << (std::basic_ostream<C> &stream, const polar &format)
             {
-                return stream << "[polar:" << space.precision << "]";
+                return stream << "[polar:" << format.precision << "]";
             }
         };
 
@@ -104,16 +104,16 @@ namespace efgy
          * \tparam n     Number of vector elements.
          */
         template <typename F, unsigned int n>
-        class vector<F,n,space::polar> : public std::array<F,n>
+        class vector<F,n,format::polar> : public std::array<F,n>
         {
             public:
                 /**\copydoc vector::vector
-                 * \param[in] s An instance of the space tag; may be used to
+                 * \param[in] s An instance of the format tag; may be used to
                  *              specify a precision for conversion operations.
                  */
                 constexpr vector
                     (const std::array<F,n> &t = {{}},
-                     const space::polar &s = space::polar())
+                     const format::polar &s = format::polar())
                     : std::array<F, n>(t),
                       spaceTag(s)
                     {}
@@ -134,8 +134,8 @@ namespace efgy
                  * \todo This constructor has not yet been implemented.
                  */
                 constexpr vector
-                    (const vector<F,n,space::real> &v,
-                     const space::polar &s = space::polar())
+                    (const vector<F,n,format::cartesian> &v,
+                     const format::polar &s = format::polar())
                     : std::array<F, n>(),
                       spaceTag(s)
                     {
@@ -152,9 +152,9 @@ namespace efgy
                  * \returns Real space vector with approximation of the polar
                  *          coordinates.
                  */
-                operator vector<F,n,space::real> () const
+                operator vector<F,n,format::cartesian> () const
                 {
-                    vector<F,n,space::real> v;
+                    vector<F,n,format::cartesian> v;
 
                     for (unsigned int i = 0; i < n; i++)
                     {
@@ -177,7 +177,7 @@ namespace efgy
                 }
 
                 /**\copydoc vector::tag */
-                constexpr const space::polar &tag (void) const { return spaceTag; }
+                constexpr const format::polar &tag (void) const { return spaceTag; }
 
             protected:
                 /**\brief Space tag instance
@@ -186,7 +186,7 @@ namespace efgy
                  * employ when converting between real and polar coordinates;
                  * the space tag contains a field for this precision.
                  */
-                space::polar spaceTag;
+                format::polar spaceTag;
         };
     };
 };
