@@ -65,7 +65,7 @@ int testRealVectors (std::ostream &log)
 
     log << vp1 << " + " << vp2 << " = " << rp << "\n";
     log << "sizeof(double) = " << sizeof(double) << "\n";
-    log << "sizeof(vector<double,3,format::polar>) = " << sizeof(vector<double,3,space::polar>) << "\n";
+    log << "sizeof(vector<double,3,format::polar>) = " << sizeof(vector<double,3,format::polar>) << "\n";
 
     if (rp != vector<double,3,format::polar>({3,5,7}))
     {
