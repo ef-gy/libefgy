@@ -77,7 +77,7 @@ namespace efgy
         {
             public:
                 parameters(void)
-                    : polarRadius(1),
+                    : radius(1),
                       polarPrecision(3),
                       iterations(4),
                       functions(3),
@@ -88,7 +88,7 @@ namespace efgy
                       vertexLimit(1000000)
                     {}
 
-                Q polarRadius;
+                Q radius;
                 Q polarPrecision;
                 unsigned int iterations;
                 unsigned int functions;
@@ -320,7 +320,7 @@ namespace efgy
 
                 void calculateObject (void)
                 {
-                    Q radius = parameter.polarRadius;
+                    Q radius = parameter.radius;
 
                     faces.clear();
 
@@ -390,7 +390,7 @@ namespace efgy
          * and deformations don't lose much information.
          *
          * In terms of parameters, this primitive only makes use of the
-         * parameter::polarRadius field, which i used to determine the size of
+         * parameter::radius field, which i used to determine the size of
          * the mesh. Confusingly, this radius is actually used as the edge
          * length for historical reasons.
          *
@@ -405,7 +405,7 @@ namespace efgy
          * \see http://en.wikipedia.org/wiki/Hypercube for more information on
          *      hypercubes in general.
          *
-         * \todo Use the parameter::polarRadius field properly; this should
+         * \todo Use the parameter::radius field properly; this should
          *       probably be half the diagonal of the resulting model.
          */
         template <typename Q, unsigned int od, typename render, unsigned int d = od>
@@ -462,7 +462,7 @@ namespace efgy
 
                 void calculateObject (void)
                 {
-                    Q diameter = parameter.polarRadius * Q(0.5);
+                    Q diameter = parameter.radius * Q(0.5);
                     
                     std::vector<std::array<math::vector<Q,d>,2> > lines;
                     faces.clear();
@@ -528,7 +528,7 @@ namespace efgy
                 /**\copydoc polytope::genome() */
                 std::array<Q,1> genome (void) const
                 {
-                    return {{ parameter.polarRadius }};
+                    return {{ parameter.radius }};
                 }
         };
 
@@ -557,7 +557,7 @@ namespace efgy
 
                 void calculateObject (void)
                 {
-                    const Q s = parameter.polarRadius * Q(2);
+                    const Q s = parameter.radius * Q(2);
                     const range<Q> r (-s, s, parameter.polarPrecision, false);
 
                     faces.clear();
@@ -643,7 +643,7 @@ namespace efgy
 
                 void calculateObject (void)
                 {
-                    Q radius = parameter.polarRadius;
+                    Q radius = parameter.radius;
                     Q precision = parameter.polarPrecision;
 
                     for (unsigned long long vertices = Q(2) * Q(M_PI) * Q(pow ((long double)precision, od));

@@ -58,12 +58,12 @@ namespace efgy
                     static range<Q> getRange (const parameters<Q> &parameter, unsigned int i)
                     {
                         return i == 0 ? range<Q>(0, M_PI * Q(2), parameter.polarPrecision*Q(2), false)
-                                      : range<Q>(-parameter.polarRadius, parameter.polarRadius, parameter.polarPrecision, false);
+                                      : range<Q>(-parameter.radius, parameter.radius, parameter.polarPrecision, false);
                     }
 
                     static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, Q u, Q v)
                     {
-                        Q r = parameter.polarRadius;
+                        Q r = parameter.radius;
 
                         return {{ Q((r + v/Q(2) * cos(u/Q(2))) * cos(u)),
                                   Q((r + v/Q(2) * cos(u/Q(2))) * sin(u)),
@@ -86,7 +86,7 @@ namespace efgy
 
                     static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, Q u, Q v)
                     {
-                        Q r = parameter.polarRadius;
+                        Q r = parameter.radius;
 
                         return {{ Q((r + cos(u/Q(2))*sin(v) - sin(u/Q(2))*sin(Q(2)*v)) * cos(u)),
                                   Q((r + cos(u/Q(2))*sin(v) - sin(u/Q(2))*sin(Q(2)*v)) * sin(u)),
