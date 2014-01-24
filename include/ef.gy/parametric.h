@@ -122,6 +122,30 @@ namespace efgy
                         return vp;
                     }
             };
+            
+            template <typename Q, unsigned int od, unsigned int d>
+            class plane
+            {
+                public:
+                    typedef dimensions<2, 2, 3, 0> dimensions;
+
+                    static const char *id (void) { return "plane"; }
+
+                    constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
+                    {
+                        return range<Q>(-parameter.radius*Q(2), parameter.radius*Q(2), parameter.precision, false);
+                    }
+
+                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    {
+                        math::vector<Q,d> v {{}};
+                        for (std::size_t i = 0; i < od; i++)
+                        {
+                            v[i] = ve[i];
+                        }
+                        return v;
+                    }
+            };
         };
 
         template <typename Q, unsigned int od, unsigned int d, template <typename, unsigned int, unsigned int> class formula, typename render>
@@ -223,6 +247,9 @@ namespace efgy
 
         template <typename Q, unsigned int od, typename render, unsigned int d>
         using sphere = parametric<Q,od,d,formula::sphere,render>;
+        
+        template <typename Q, unsigned int od, typename render, unsigned int d>
+        using plane = parametric<Q,od,d,formula::plane,render>;
     };
 };
 

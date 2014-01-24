@@ -4,7 +4,7 @@
  * This file contains code to create the meshes for basic primitives and to
  * present the results with the renderers provided by this library.
  *
- * 'Basic' primitives includes cubes, simplices, planes and spheres.
+ * 'Basic' primitives include cubes and simplices.
  *
  * \see parametric.h, ifs.h and flame.h for more complicated shapes, some of
  *      which are based on these primitives.
@@ -628,46 +628,6 @@ namespace efgy
                 std::array<Q,1> genome (void) const
                 {
                     return {{ parameter.radius }};
-                }
-        };
-
-        template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class plane : public polytope<Q,od,d,4,render>
-        {
-            public:
-                typedef polytope<Q,od,d,4,render> parent;
-
-                plane (render &pRenderer, const parameters<Q> &pParameter)
-                    : parent(pRenderer, pParameter)
-                    {
-                        calculateObject();
-                    }
-
-                using parent::parameter;
-                using parent::faces;
-
-                typedef dimensions<2, 2, 3, 0> dimensions;
-
-                /**\copydoc polytope::id() */
-                static const char *id (void)
-                {
-                    return "plane";
-                }
-
-                void calculateObject (void)
-                {
-                    const Q s = parameter.radius * Q(2);
-                    const range<Q> r (-s, s, parameter.precision, false);
-
-                    faces.clear();
-
-                    for (Q i : r)
-                    {
-                        for (Q j : r)
-                        {
-                            faces.push_back({{ {{i, j}}, {{i+r.stride, j}}, {{i+r.stride, j+r.stride}}, {{i, j+r.stride}} }});
-                        }
-                    }
                 }
         };
     };
