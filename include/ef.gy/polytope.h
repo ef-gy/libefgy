@@ -169,7 +169,7 @@ namespace efgy
          * \tparam render Renderer type; e.g. render::svg<Q,d>
          */
         template <typename Q, unsigned int od, unsigned int d, unsigned int f, typename render>
-        class polytope : public dimensions<>
+        class polytope
         {
             public:
                 polytope (render &pRenderer, const parameters<Q> &pParameter)
@@ -292,7 +292,7 @@ namespace efgy
                 using parent::parameter;
                 using parent::faces;
 
-                static const unsigned int modelDimensionMaximum = d;
+                typedef dimensions<2, d, 3, 0> dimensions;
 
                 /**\copydoc polytope::id() */
                 static const char *id (void)
@@ -452,7 +452,7 @@ namespace efgy
                     * ((long long)od - 2)
                     * ((long long)od - 1);
 
-                static const unsigned int modelDimensionMaximum = d;
+                typedef dimensions<2, d, 3, 0> dimensions;
 
                 /**\copydoc polytope::id() */
                 static const char *id (void)
@@ -547,7 +547,7 @@ namespace efgy
                 using parent::parameter;
                 using parent::faces;
 
-                static const unsigned int modelDimensionMaximum = 2;
+                typedef dimensions<2, 2, 3, 0> dimensions;
 
                 /**\copydoc polytope::id() */
                 static const char *id (void)
@@ -588,7 +588,7 @@ namespace efgy
                 using parent::parameter;
                 using parent::faces;
 
-                static const unsigned int modelDimensionMaximum = d - 1;
+                typedef dimensions<2, d - 1, 3, 0> dimensions;
 
                 /**\copydoc polytope::id() */
                 static const char *id (void)

@@ -90,11 +90,6 @@ namespace efgy
                 using parent::faces;
                 std::vector<Q> indices;
 
-                using parent::modelDimensionMinimum;
-                using parent::modelDimensionMaximum;
-                using parent::renderDimensionMinimum;
-                using parent::renderDimensionMaximum;
-
                 using parent::faceVertices;
 
                 std::vector<trans<Q,d> > functions;
@@ -203,10 +198,7 @@ namespace efgy
                     using parent::renderer;
                     using parent::faces;
 
-                    using parent::modelDimensionMinimum;
-                    static const unsigned int modelDimensionMaximum = d;
-                    using parent::renderDimensionMinimum;
-                    using parent::renderDimensionMaximum;
+                    typedef dimensions<2, d, 3, 0> dimensions;
 
                     using parent::faceVertices;
 
@@ -284,10 +276,7 @@ namespace efgy
                     using parent::renderer;
                     using parent::faces;
 
-                    using parent::modelDimensionMinimum;
-                    static const unsigned int modelDimensionMaximum = d == 2 ? d : 3;
-                    using parent::renderDimensionMinimum;
-                    using parent::renderDimensionMaximum;
+                    typedef dimensions<2, (d == 2 ? d : 3), 3, 0> dimensions;
 
                     using parent::faceVertices;
 
@@ -419,10 +408,7 @@ namespace efgy
                 using parent::renderer;
                 using parent::faces;
 
-                using parent::modelDimensionMinimum;
-                static const unsigned int modelDimensionMaximum = d;
-                using parent::renderDimensionMinimum;
-                using parent::renderDimensionMaximum;
+                typedef dimensions<2, d, 3, 0> dimensions;
 
                 using parent::faceVertices;
 

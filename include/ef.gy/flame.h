@@ -380,7 +380,7 @@ namespace efgy
 
                     using parent::parameter;
 
-                    static const unsigned int modelDimensionMaximum = d;
+                    typedef dimensions<2, d, 3, 0> dimensions;
 
                     using parent::functions;
                     using parent::calculateObject;

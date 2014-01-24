@@ -38,15 +38,20 @@ namespace efgy
 {
     namespace geometry
     {
+        /**\brief Formulae for meshes
+         *
+         * Contains assorted formulae that are used to calculate meshes for
+         * common shapes, such as moebius strips. The classes in here are
+         * intended to be used together with some sort of container template,
+         * such as the geometry::parametric template.
+         */
         namespace formula
         {
             template <typename Q, unsigned int od, unsigned int d>
             class moebiusStrip
             {
                 public:
-                    static const unsigned int faceVertices           = 4;
-                    static const unsigned int modelDimensionMaximum  = 2;
-                    static const unsigned int renderDimensionMinimum = od + 1;
+                    typedef dimensions<2, 2, od + 1, 0> dimensions;
 
                     static const char *id (void) { return "moebius-strip"; }
 
@@ -70,12 +75,10 @@ namespace efgy
             class kleinBagel
             {
                 public:
-                    static const unsigned int faceVertices           = 4;
-                    static const unsigned int modelDimensionMaximum  = 2;
-                    static const unsigned int renderDimensionMinimum = od + 1;
-                    
+                    typedef dimensions<2, 2, od + 1, 0> dimensions;
+
                     static const char *id (void) { return "klein-bagel"; }
-                    
+
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, unsigned int)
                     {
                         return range<Q>(0, M_PI * Q(2), parameter.polarPrecision*Q(2), false);
@@ -93,11 +96,11 @@ namespace efgy
         };
 
         template <typename Q, unsigned int od, unsigned int d, template <typename, unsigned int, unsigned int> class formula, typename render>
-        class parametric : public polytope<Q,od,d,formula<Q,od,d>::faceVertices,render>
+        class parametric : public polytope<Q,od,d,4,render>
         {
             public:
                 typedef formula<Q,od,d> source;
-                typedef polytope<Q,od,d,source::faceVertices,render> parent;
+                typedef polytope<Q,od,d,4,render> parent;
             
                 parametric (render &pRenderer, const parameters<Q> &pParameter)
                     : parent(pRenderer, pParameter)
@@ -107,8 +110,8 @@ namespace efgy
                 
                 using parent::parameter;
                 using parent::faces;
-                
-                static const unsigned int modelDimensionMaximum = source::modelDimensionMaximum;
+
+                typedef typename source::dimensions dimensions;
 
                 static const char *id (void) { return source::id(); }
 

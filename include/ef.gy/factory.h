@@ -247,10 +247,10 @@ namespace efgy
                      const unsigned int &dims = 0,
                      const unsigned int &rdims = 0)
                 {
-                    return d < T<Q,d,render::null<Q,e>,e>::modelDimensionMinimum ? func<Q,T,d,e>::pass(arg)
-                         : (T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum > 0) && (d > T<Q,d,render::null<Q,e>,e>::modelDimensionMaximum) ? model<Q,func,T,d-1,e>::with (arg, dims, rdims)
-                         : e < T<Q,d,render::null<Q,e>,e>::renderDimensionMinimum ? func<Q,T,d,e>::pass(arg)
-                         : (T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum > 0) && (e > T<Q,d,render::null<Q,e>,e>::renderDimensionMaximum) ? model<Q,func,T,d,e-1>::with (arg, dims, rdims)
+                    return d < T<Q,d,render::null<Q,e>,e>::dimensions::modelDimensionMinimum ? func<Q,T,d,e>::pass(arg)
+                         : (T<Q,d,render::null<Q,e>,e>::dimensions::modelDimensionMaximum > 0) && (d > T<Q,d,render::null<Q,e>,e>::dimensions::modelDimensionMaximum) ? model<Q,func,T,d-1,e>::with (arg, dims, rdims)
+                         : e < T<Q,d,render::null<Q,e>,e>::dimensions::renderDimensionMinimum ? func<Q,T,d,e>::pass(arg)
+                         : (T<Q,d,render::null<Q,e>,e>::dimensions::renderDimensionMaximum > 0) && (e > T<Q,d,render::null<Q,e>,e>::dimensions::renderDimensionMaximum) ? model<Q,func,T,d,e-1>::with (arg, dims, rdims)
                          : 0 == rdims
                             ? (   0 == dims ? func<Q,T,d,e>::apply(arg), model<Q,func,T,d,e-1>::with (arg, dims, rdims), model<Q,func,T,d-1,e>::with (arg, dims, rdims)
                                 : d == dims ? func<Q,T,d,e>::apply(arg), model<Q,func,T,d,e-1>::with (arg, dims, rdims)
