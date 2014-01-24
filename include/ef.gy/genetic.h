@@ -1,5 +1,9 @@
 /**\file
- *
+ * \brief Genetic algorithms
+ * 
+ * Defines a template for classic genetic algorithms. The parameters, as well as the
+ * fitness functor, are set at compile time.
+ * 
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
  * \copyright
