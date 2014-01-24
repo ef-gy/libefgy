@@ -99,6 +99,63 @@ namespace efgy
                 unsigned long long vertexLimit;
         };
 
+        /**\brief Dimensional constraints
+         *
+         * This class is used to hold dimensional constraints, which are in turn
+         * used by the geometric model factory to figure out which dimensions to
+         * allow a model to be instantiated in.
+         *
+         * These constraints have to be expressed at compile time using template
+         * parameters. Using '0' in modelMax and renderMax means that there are
+         * no constraints on the maximum number of supported dimensions.
+         *
+         * \note These parameters commonly depend on the model or render depth
+         *       of a model, so you will quite likely have to make these
+         *       parameters dependant on the depth of the model or the target
+         *       render depth. For example, if you had some kind of cube to be
+         *       rendered with a render depth of 'n', then you would have to set
+         *       the modelMax template argument to 'n', because you can't render
+         *       an (n+1)-cube in only 'n' dimensions.
+         *
+         * \tparam modelMin  Minimum number of model dimensions needed.
+         * \tparam modelMax  Maximum number of model dimensions supported.
+         * \tparam renderMin Minimum number of render dimensions needed.
+         * \tparam renderMax Maximum number of render dimensions supported.
+         */
+        template <std::size_t modelMin  = 2, std::size_t modelMax  = 0,
+                  std::size_t renderMin = 3, std::size_t renderMax = 0>
+        class dimensions
+        {
+            public:
+                /**\brief Minimum number of model dimensions needed
+                 *
+                 * Exports the 'modelMin' parameter, which is the number of
+                 * dimensions that the model needs to render properly.
+                 */
+                static const std::size_t modelDimensionMinimum  = modelMin;
+
+                /**\brief Maximum number of model dimensions supported
+                 *
+                 * Exports the 'modelMax' parameter, which is the number of
+                 * dimensions that the model could be rendered in.
+                 */
+                static const std::size_t modelDimensionMaximum  = modelMax;
+
+                /**\brief Minimum number of render dimensions needed
+                 *
+                 * Exports the 'renderMin' parameter, which is the number of
+                 * render dimensions that the model needs to render properly.
+                 */
+                static const std::size_t renderDimensionMinimum = renderMin;
+
+                /**\brief Maximum number of render dimensions supported
+                 *
+                 * Exports the 'renderMax' parameter, which is the number of
+                 * render dimensions that the model could be rendered in.
+                 */
+                static const std::size_t renderDimensionMaximum = renderMax;
+        };
+
         /**\brief Polytope base template
          *
          * Contains the base definitions for any polytope, i.e. code that
@@ -112,7 +169,7 @@ namespace efgy
          * \tparam render Renderer type; e.g. render::svg<Q,d>
          */
         template <typename Q, unsigned int od, unsigned int d, unsigned int f, typename render>
-        class polytope
+        class polytope : public dimensions<>
         {
             public:
                 polytope (render &pRenderer, const parameters<Q> &pParameter)
@@ -132,11 +189,6 @@ namespace efgy
                         renderer.drawFace(p);
                     }
                 }
-
-                static const unsigned int modelDimensionMinimum  = 2;
-                static const unsigned int modelDimensionMaximum  = 0;
-                static const unsigned int renderDimensionMinimum = 3;
-                static const unsigned int renderDimensionMaximum = 0;
 
                 /**\brief Number of face vertices
                  *
