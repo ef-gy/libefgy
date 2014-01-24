@@ -407,34 +407,34 @@ namespace efgy
 
                     std::vector<math::vector<Q,d>> points2;
 
-                    std::for_each (points.begin(), points.end(), [&] (const math::vector<Q,d> &point)
+                    for (const math::vector<Q,d> &point : points)
                     {
                         if (std::find (points2.begin(), points2.end(), point) == points2.end())
                         {
                             points2.push_back (point);
                         }
-                    });
+                    }
 
                     points = points2;
 
                     std::vector<math::vector<Q,d>> usedPoints;
 
-                    std::for_each (points.begin(), points.end(), [&] (const math::vector<Q,d> &A)
+                    for (const math::vector<Q,d> &A : points)
                     {
                         std::vector<math::vector<Q,d>> usedPoints2;
 
-                        std::for_each (usedPoints.begin(), usedPoints.end(), [&] (const math::vector<Q,d> &B)
+                        for (const math::vector<Q,d> &B : usedPoints)
                         {
-                            std::for_each (usedPoints2.begin(), usedPoints2.end(), [&] (const math::vector<Q,d> &C)
+                            for (const math::vector<Q,d> &C : usedPoints2)
                             {
                                 faces.push_back ({{ A, B, C }});
-                            });
+                            }
 
                             usedPoints2.push_back(B);
-                        });
+                        }
 
                         usedPoints.push_back(A);
-                    });
+                    }
                 }
         };
 
@@ -542,8 +542,8 @@ namespace efgy
                         std::vector<math::vector<Q,d>> newPoints;
                         std::vector<std::array<math::vector<Q,d>,2> > newLines;
                         std::vector<std::array<math::vector<Q,d>,4> > newFaces;
-                        
-                        std::for_each (lines.begin(), lines.end(), [&] (std::array<math::vector<Q,d>,2> &line)
+
+                        for (std::array<math::vector<Q,d>,2> &line : lines)
                         {
                             line[0][i] = -diameter;
                             line[1][i] = -diameter;
@@ -555,9 +555,9 @@ namespace efgy
 
                             newLines.push_back(newLine);
                             newFaces.push_back({{newLine[0], newLine[1], line[1], line[0]}});
-                        });
+                        }
 
-                        std::for_each (faces.begin(), faces.end(), [&] (typename parent::face &face)
+                        for (typename parent::face &face : faces)
                         {
                             face[0][i] = -diameter;
                             face[1][i] = -diameter;
@@ -570,9 +570,9 @@ namespace efgy
                             newFace[2][i] = diameter;
                             newFace[3][i] = diameter;
                             newFaces.push_back(newFace);
-                        });
+                        }
 
-                        std::for_each (points.begin(), points.end(), [&] (math::vector<Q,d> &v)
+                        for (math::vector<Q,d> &v : points)
                         {
                             v[i] = -diameter;
 
@@ -583,7 +583,7 @@ namespace efgy
                             newPoints.push_back(newLine[1]);
                             
                             lines.push_back(newLine);
-                        });
+                        }
 
                         points.insert(points.end(), newPoints.begin(), newPoints.end());
                         lines.insert(lines.end(), newLines.begin(), newLines.end());
