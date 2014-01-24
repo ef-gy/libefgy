@@ -238,6 +238,17 @@ namespace efgy
         class polytope
         {
             public:
+                /**\brief Construct with renderer and parameters
+                 *
+                 * Initialises an instance of the class using a renderer
+                 * instance and a set of parameters. The base template does not
+                 * generate an actual mesh, however the class does contain
+                 * everything needed to render an actual mesh, so derived
+                 * classes should easily be able to fill in the blanks.
+                 *
+                 * \param[out] pRenderer  Renderer instance to use.
+                 * \param[in]  pParameter Polytope parameters to apply.
+                 */
                 polytope (render &pRenderer, const parameters<Q> &pParameter)
                     : renderer(pRenderer), parameter(pParameter)
                     {}
@@ -336,11 +347,33 @@ namespace efgy
                 }
 
             protected:
+                /**\brief A 2D surface
+                 *
+                 * A convenient typedef for a 2D surface, commonly called a
+                 * 'face.'
+                 */
                 typedef std::array<math::vector<Q,d>,f> face;
-                render &renderer;
-                const parameters<Q> &parameter;
 
+                /**\brief The actual mesh data
+                 *
+                 * Contains all the faces that this polytope's mesh is composed
+                 * of. Set by deriving classes.
+                 */
                 std::vector<face> faces;
+
+                /**\brief Renderer reference
+                 *
+                 * A reference to the renderer that will be used to render this
+                 * model's data. Set in the constructor.
+                 */
+                render &renderer;
+
+                /**\brief Parameter reference
+                 *
+                 * A reference to the parameters used to generate the model; Set
+                 * in the constructor.
+                 */
+                const parameters<Q> &parameter;
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d = od>

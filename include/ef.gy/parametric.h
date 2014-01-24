@@ -55,15 +55,17 @@ namespace efgy
 
                     static const char *id (void) { return "moebius-strip"; }
 
-                    static range<Q> getRange (const parameters<Q> &parameter, unsigned int i)
+                    constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
                     {
                         return i == 0 ? range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false)
                                       : range<Q>(-parameter.radius, parameter.radius, parameter.precision, false);
                     }
 
-                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, Q u, Q v)
+                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
-                        Q r = parameter.radius;
+                        const Q &r = parameter.radius;
+                        const Q &u = ve[0];
+                        const Q &v = ve[1];
 
                         return {{ Q((r + v/Q(2) * cos(u/Q(2))) * cos(u)),
                                   Q((r + v/Q(2) * cos(u/Q(2))) * sin(u)),
@@ -79,14 +81,16 @@ namespace efgy
 
                     static const char *id (void) { return "klein-bagel"; }
 
-                    constexpr static range<Q> getRange (const parameters<Q> &parameter, unsigned int)
+                    constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t)
                     {
                         return range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false);
                     }
 
-                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, Q u, Q v)
+                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
-                        Q r = parameter.radius;
+                        const Q &r = parameter.radius;
+                        const Q &u = ve[0];
+                        const Q &v = ve[1];
 
                         return {{ Q((r + cos(u/Q(2))*sin(v) - sin(u/Q(2))*sin(Q(2)*v)) * cos(u)),
                                   Q((r + cos(u/Q(2))*sin(v) - sin(u/Q(2))*sin(Q(2)*v)) * sin(u)),
@@ -107,7 +111,8 @@ namespace efgy
                     {
                         calculateObject();
                     }
-                
+
+                using parent::renderer;
                 using parent::parameter;
                 using parent::faces;
 
@@ -115,27 +120,73 @@ namespace efgy
 
                 static const char *id (void) { return source::id(); }
 
-                void calculateObject(void)
+                void recurse
+                    (cube<Q,od,render> &cube,
+                     math::vector<Q,od> v,
+                     math::vector<Q,od> a)
                 {
-                    faces.clear();
-
-                    const range<Q> us = source::getRange(parameter, 0);
-                    const range<Q> vs = source::getRange(parameter, 1);
-
-                    for (const Q &u : us)
+                    for (std::array<math::vector<Q,od>,4> f : cube.faces)
                     {
-                        for (const Q &v : vs)
+                        std::array<math::vector<Q,d>,4> g;
+
+                        for (std::size_t i = 0; i < 4; i++)
                         {
-                            Q un = u + us.stride;
-                            Q vn = v + vs.stride;
-                            
-                            faces.push_back
-                                ({{ source::getCoordinates(parameter, u,  v),
-                                    source::getCoordinates(parameter, un, v),
-                                    source::getCoordinates(parameter, un, vn),
-                                    source::getCoordinates(parameter, u,  vn) }});
+                            for (std::size_t q = 0; q < od; q++)
+                            {
+                                f[i][q] *= a[q];
+                            }
+
+                            g[i] = source::getCoordinates(parameter, v+f[i]);
+                        }
+
+                        faces.push_back (g);
+                    }
+                }
+
+                void recurse
+                    (cube<Q,od,render> &cube,
+                     std::size_t dim,
+                     math::vector<Q,od> v,
+                     math::vector<Q,od> a)
+                {
+                    if (dim == od)
+                    {
+                        recurse (cube, v, a);
+                    }
+                    else
+                    {
+                        const range<Q> qs = source::getRange(parameter, dim);
+                        a[dim] = qs.stride;
+                        
+                        for (const Q &q : qs)
+                        {
+                            v[dim] = q;
+                            recurse (cube, dim+1, v, a);
                         }
                     }
+                }
+
+                void calculateObject(void)
+                {
+                    parameters<Q> cubeParameter;
+                    cube<Q,od,render> cube (renderer, cubeParameter);
+
+                    faces.clear();
+
+                    const Q r2 = cubeParameter.radius / Q(2);
+
+                    for (std::array<math::vector<Q,od>,4> &f : cube.faces)
+                    {
+                        for (std::size_t i = 0; i < 4; i++)
+                        {
+                            for (std::size_t q = 0; q < od; q++)
+                            {
+                                f[i][q] += r2;
+                            }
+                        }
+                    }
+
+                    recurse (cube, 0, {{}}, {{}});
                 }
         };
 
