@@ -76,7 +76,7 @@ namespace efgy
                     
                     static const char *id (void) { return "klein-bagel"; }
                     
-                    static range<Q> getRange (const parameters<Q> &parameter, unsigned int)
+                    constexpr static range<Q> getRange (const parameters<Q> &parameter, unsigned int)
                     {
                         return range<Q>(0, M_PI * Q(2), parameter.polarPrecision*Q(2), false);
                     }
@@ -90,7 +90,7 @@ namespace efgy
                                   Q(sin(u/Q(2))*sin(v) - cos(u/Q(2))*sin(Q(2)*v)) }};
                     }
             };
-        }
+        };
 
         template <typename Q, unsigned int od, unsigned int d, template <typename, unsigned int, unsigned int> class formula, typename render>
         class parametric : public polytope<Q,od,d,formula<Q,od,d>::faceVertices,render>

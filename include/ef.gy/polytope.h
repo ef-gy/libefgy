@@ -43,6 +43,7 @@
 #include <array>
 #include <algorithm>
 #include <ef.gy/range.h>
+#include <ef.gy/exponential.h>
 
 namespace efgy
 {
@@ -369,6 +370,35 @@ namespace efgy
 
                 using parent::parameter;
                 using parent::faces;
+
+                /**\brief Number of vertices
+                 *
+                 * This is the number of vertices that the hypercube has. This
+                 * may not be the same as the number of vertices that, say,
+                 * OpenGL would have to send to the graphics card, as this does
+                 * not account for vertex normals.
+                 *
+                 * \note The generel, closed formula for this is (n being the
+                 *       depth of the cube):
+                 *       2^n
+                 */
+                static const long long vertices
+                    = math::exponentiate::integral<long long,(long long)od>::raise((long long)2);
+
+                /**\brief Number of surfaces
+                 *
+                 * This is the number of 2D surfaces that the hypercube has. It
+                 * helps to know this when trying to impose a limit on the
+                 * number of vertices in certain derived classes.
+                 *
+                 * \note The general, closed formula for this is (n being the
+                 *       depth of the cube):
+                 *       (2^(n-4))*(n-2)*(n-1)
+                 */
+                static const long long surfaces
+                    = math::exponentiate::integral<long long,((long long)od-4)>::raise((long long)2)
+                    * ((long long)od - 2)
+                    * ((long long)od - 1);
 
                 static const unsigned int modelDimensionMaximum = d;
 
