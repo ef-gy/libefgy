@@ -1,4 +1,7 @@
 /**\file
+ * \brief Handles vector transformations.
+ * 
+ * Contains templates for transformations of vector space elements.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -46,11 +49,27 @@ namespace efgy
         namespace transformation
         {
             template <typename Q, unsigned int d> class projective;
-
+            
+            /**\brief Template for linear maps on the vector space Q^d
+             *
+             * Handles linear maps, or endomorphisms, on Q^d. Maps are
+             * described via their transformation matrices, using the
+             * standard basis on Q^d.
+             *
+             * \tparam Q The data type that describes the underlying field of 
+             * the vector space.
+             *
+             * \tparam d The dimension of the vector space.
+             */
             template <typename Q, unsigned int d>
             class linear
             {
                 public:
+                    /**\brief Constructor for the identity  map
+                     *
+                     * Constructs a transformation whose matrix is 
+                     * the identity matrix.
+                     */
                     linear ()
                         {
                             for (unsigned int i = 0; i < d; i++)
@@ -61,7 +80,16 @@ namespace efgy
                                 }
                             }
                         }
-
+                    /**\brief Applies a transformation to a vector.
+                     *
+                     * Applies a transformation to a vector by 
+                     * multiplying the transformation matrix to it.
+                     *
+                     * \param vector a vector from Q^d
+                     *
+                     * \returns The transformed vector, which is also
+                     * in Q^d.
+                     */
                     math::vector<Q,d> operator *
                         (const math::vector<Q,d> &pV) const
                     {
@@ -85,7 +113,17 @@ namespace efgy
 
                         return rv;
                     }
-
+                    /*\brief Composes two linear maps.
+                     *
+                     * Composes two linear maps on Q^d by multiplying 
+                     * their transformation matrices.
+                     *
+                     * \param pB The linear map object that will be composed
+                     * with the current object.
+                     *
+                     * \returns A linear map that is the composition of 
+                     * the current object and pB.
+                     */
                     linear operator *
                         (const linear &pB) const
                     {
@@ -93,16 +131,42 @@ namespace efgy
                         t.matrix = this->matrix * pB.matrix;
                         return t;
                     }
-
+                    
+                    /*\brief Composes a linear and a projective map.
+                     *
+                     * Composes a linear and a projective transformation.
+                     *
+                     * \param pB a projective transformation.
+                     *
+                     * \returns A projective transformation that is the 
+                     * composition of pB and the current object.
+                     */
                     projective<Q,d> operator *
                         (const projective<Q,d> &pB) const
                     {
                         return pB * (*this);
                     }
 
+                    /*\brief The transformation matrix.
+                     *
+                     * The transformation matrix of a linear map.
+                     */
                     math::matrix<Q,d,d> matrix;
             };
 
+            /* \brief The identity map on Q^d.
+             *
+             * Wrapper class for the identity map on Q^d.
+             *
+             * \tparam Q The underlying field of the vector space.
+             *
+             * \tparam d The dimension of the vector space
+             *
+             * \bug Assignments to the transformation matrix of objects
+             * of this class are possible, so an object to this class
+             * can have a non-identity transformation matrix (and thus
+             * not behave like an identity map). 
+             */ 
             template <typename Q, unsigned int d>
             class identity : public linear<Q,d>
             {
@@ -111,6 +175,7 @@ namespace efgy
                         : linear<Q,d>()
                         {}
             };
+
 
             template <typename Q, unsigned int d>
             class affine
