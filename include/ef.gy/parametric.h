@@ -97,6 +97,31 @@ namespace efgy
                                   Q(sin(u/Q(2))*sin(v) - cos(u/Q(2))*sin(Q(2)*v)) }};
                     }
             };
+
+            template <typename Q, unsigned int od, unsigned int d>
+            class sphere
+            {
+                public:
+                    typedef dimensions<2, d - 1, 3, 0> dimensions;
+
+                    static const char *id (void) { return "sphere"; }
+
+                    constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
+                    {
+                        return i == 0 ? range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false)
+                                      : range<Q>(0, M_PI, parameter.precision, false);
+                    }
+
+                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    {
+                        math::vector<Q,d,math::format::polar> vp {{ parameter.radius }};
+                        for (std::size_t i = 0; i < od; i++)
+                        {
+                            vp[(i+1)] = ve[i];
+                        }
+                        return vp;
+                    }
+            };
         };
 
         template <typename Q, unsigned int od, unsigned int d, template <typename, unsigned int, unsigned int> class formula, typename render>
@@ -195,6 +220,9 @@ namespace efgy
 
         template <typename Q, unsigned int od, typename render, unsigned int d>
         using kleinBagel = parametric<Q,od,d,formula::kleinBagel,render>;
+
+        template <typename Q, unsigned int od, typename render, unsigned int d>
+        using sphere = parametric<Q,od,d,formula::sphere,render>;
     };
 };
 
