@@ -76,6 +76,11 @@ namespace efgy
         class parameters
         {
             public:
+                /**\brief Construct with default parameters
+                 *
+                 * Initialises the parameter object with sane defaults for the
+                 * individual parameters.
+                 */
                 parameters(void)
                     : radius(1),
                       precision(3),
@@ -88,14 +93,75 @@ namespace efgy
                       vertexLimit(1000000)
                     {}
 
+                /**\brief Radius
+                 *
+                 * The radius of the object to be created; used by cubes,
+                 * simplices, spheres, most parametric surfaces, planes and just
+                 * about any instance of the IFS code.
+                 */
                 Q radius;
+
+                /**\brief Precision
+                 *
+                 * The precision that an object should be calculated in. Mostly
+                 * used to determine the smoothness of round surfaces, such as
+                 * those of spheres or parametric functions.
+                 */
                 Q precision;
+
+                /**\brief Number of iterations
+                 *
+                 * The iterations that should be used to calculate an object;
+                 * used primarily by the IFS code to determine the target
+                 * fidelity of the rendered object.
+                 */
                 unsigned int iterations;
+
+                /**\brief Number of functions
+                 *
+                 * Contains the number of functions for random iterated function
+                 * systems or fractal flames.
+                 */
                 unsigned int functions;
+
+                /**\brief PRNG seed
+                 *
+                 * The seed for any PRNG that is employed when creating a mesh;
+                 * primarily used by the random iterated function systems and
+                 * the random fractal flames.
+                 */
                 unsigned int seed;
+
+                /**\brief Allow pre-transformation rotations
+                 *
+                 * Used when generating random iterated function systems to
+                 * allow for a random rotation to be applied before the random
+                 * translation.
+                 */
                 bool preRotate;
+
+                /**\brief Allow post-transformation rotations
+                 *
+                 * Used when generating random iterated function systems to
+                 * allow for a random rotation to be applied after the random
+                 * translation.
+                 */
                 bool postRotate;
+
+                /**\brief Distinct nonzero flame coefficients
+                 *
+                 * How many distinct, nonzero flame variation coefficients to
+                 * allow when generating random fractal flames.
+                 */
                 unsigned int flameCoefficients;
+
+                /**\brief Vertex limit
+                 *
+                 * How many vertices to allow at most when generating geometry.
+                 * Different models deal differently with the vertex limit, but
+                 * generally the precision or number of iterations is reduced
+                 * when creating geometry that would exceed this limit.
+                 */
                 unsigned long long vertexLimit;
         };
 
