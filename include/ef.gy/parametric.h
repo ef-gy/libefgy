@@ -57,8 +57,8 @@ namespace efgy
 
                     static range<Q> getRange (const parameters<Q> &parameter, unsigned int i)
                     {
-                        return i == 0 ? range<Q>(0, M_PI * Q(2), parameter.polarPrecision*Q(2), false)
-                                      : range<Q>(-parameter.radius, parameter.radius, parameter.polarPrecision, false);
+                        return i == 0 ? range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false)
+                                      : range<Q>(-parameter.radius, parameter.radius, parameter.precision, false);
                     }
 
                     static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, Q u, Q v)
@@ -81,7 +81,7 @@ namespace efgy
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, unsigned int)
                     {
-                        return range<Q>(0, M_PI * Q(2), parameter.polarPrecision*Q(2), false);
+                        return range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false);
                     }
 
                     static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, Q u, Q v)

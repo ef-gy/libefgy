@@ -78,7 +78,7 @@ namespace efgy
             public:
                 parameters(void)
                     : radius(1),
-                      polarPrecision(3),
+                      precision(3),
                       iterations(4),
                       functions(3),
                       seed(0),
@@ -89,7 +89,7 @@ namespace efgy
                     {}
 
                 Q radius;
-                Q polarPrecision;
+                Q precision;
                 unsigned int iterations;
                 unsigned int functions;
                 unsigned int seed;
@@ -558,7 +558,7 @@ namespace efgy
                 void calculateObject (void)
                 {
                     const Q s = parameter.radius * Q(2);
-                    const range<Q> r (-s, s, parameter.polarPrecision, false);
+                    const range<Q> r (-s, s, parameter.precision, false);
 
                     faces.clear();
 
@@ -644,7 +644,7 @@ namespace efgy
                 void calculateObject (void)
                 {
                     Q radius = parameter.radius;
-                    Q precision = parameter.polarPrecision;
+                    Q precision = parameter.precision;
 
                     for (unsigned long long vertices = Q(2) * Q(M_PI) * Q(pow ((long double)precision, od));
                          vertices > parameter.vertexLimit;
