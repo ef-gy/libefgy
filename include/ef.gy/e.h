@@ -97,8 +97,6 @@ namespace efgy
          * \tparam N          Base integral type; used to specify the
          *                    precision.
          *
-         * \section e-usage Usage
-         *
          * Usage of this class, and the reasoning behind that usage, is the same
          * as for the math::pi template. In short, you can use either of these:
          *

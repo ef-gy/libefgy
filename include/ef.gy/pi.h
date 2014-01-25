@@ -122,8 +122,6 @@ namespace efgy
          * \tparam N          Base integral type; used to specify the
          *                    precision.
          *
-         * \section pi-usage Usage
-         *
          * This class may look rather curious, so I should probably explain how
          * to use it. The idea is to create an instance of the pi class with the
          * parameters you need, and to then cast or assign it to the data type
