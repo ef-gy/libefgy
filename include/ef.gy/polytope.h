@@ -83,6 +83,7 @@ namespace efgy
                  */
                 parameters(void)
                     : radius(1),
+                      radius2(0.5),
                       precision(3),
                       iterations(4),
                       functions(3),
@@ -100,6 +101,13 @@ namespace efgy
                  * about any instance of the IFS code.
                  */
                 Q radius;
+
+                /**\brief Secondary radius
+                 *
+                 * Some primitives, such as tori, require two radii, so this is
+                 * that second radius.
+                 */
+                Q radius2;
 
                 /**\brief Precision
                  *

@@ -377,6 +377,8 @@ namespace efgy
                 model<Q,func,cube,d,e>::with(arg, dims, rdims);
             if ((type == "*") || (type == "sphere"))
                 model<Q,func,sphere,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "torus"))
+                model<Q,func,torus,d,e>::with(arg, dims, rdims);
             if ((type == "*") || (type == "moebius-strip"))
                 model<Q,func,moebiusStrip,d,e>::with(arg, dims, rdims);
             if ((type == "*") || (type == "klein-bagel"))

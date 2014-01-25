@@ -146,6 +146,30 @@ namespace efgy
                         return v;
                     }
             };
+
+            template <typename Q, unsigned int od, unsigned int d>
+            class torus
+            {
+                public:
+                    typedef dimensions<2, 2, od + 1, 0> dimensions;
+
+                    static const char *id (void) { return "torus"; }
+
+                    constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
+                    {
+                        return range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false);
+                    }
+
+                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    {
+                        const Q &u = ve[0];
+                        const Q &v = ve[1];
+
+                        return {{ Q((parameter.radius + parameter.radius2 * cos(v)) * cos(u)),
+                                  Q((parameter.radius + parameter.radius2 * cos(v)) * sin(u)),
+                                  Q(parameter.radius2 * sin(v)) }};
+                    }
+            };
         };
 
         template <typename Q, unsigned int od, unsigned int d, template <typename, unsigned int, unsigned int> class formula, typename render>
@@ -247,9 +271,12 @@ namespace efgy
 
         template <typename Q, unsigned int od, typename render, unsigned int d>
         using sphere = parametric<Q,od,d,formula::sphere,render>;
-        
+
         template <typename Q, unsigned int od, typename render, unsigned int d>
         using plane = parametric<Q,od,d,formula::plane,render>;
+
+        template <typename Q, unsigned int od, typename render, unsigned int d>
+        using torus = parametric<Q,od,d,formula::torus,render>;
     };
 };
 
