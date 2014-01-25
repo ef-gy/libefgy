@@ -84,6 +84,7 @@ namespace efgy
                 parameters(void)
                     : radius(1),
                       radius2(0.5),
+                      constant(0.9),
                       precision(3),
                       iterations(4),
                       functions(3),
@@ -108,6 +109,14 @@ namespace efgy
                  * that second radius.
                  */
                 Q radius2;
+
+                /**\brief Constant
+                 *
+                 * Some formulae, e.g. the one for klein bottles, employ an
+                 * additional, unnamed constant that determines part of the
+                 * geometry.
+                 */
+                Q constant;
 
                 /**\brief Precision
                  *

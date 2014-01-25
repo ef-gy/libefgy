@@ -51,7 +51,7 @@ namespace efgy
             class moebiusStrip
             {
                 public:
-                    typedef dimensions<2, 2, od + 1, 0> dimensions;
+                    typedef dimensions<2, 2, 3, 0> dimensions;
 
                     static const char *id (void) { return "moebius-strip"; }
 
@@ -61,15 +61,11 @@ namespace efgy
                                       : range<Q>(-parameter.radius, parameter.radius, parameter.precision, false);
                     }
 
-                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    constexpr static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
-                        const Q &r = parameter.radius;
-                        const Q &u = ve[0];
-                        const Q &v = ve[1];
-
-                        return {{ Q((r + v/Q(2) * cos(u/Q(2))) * cos(u)),
-                                  Q((r + v/Q(2) * cos(u/Q(2))) * sin(u)),
-                                  Q(v/Q(2) * sin(u/Q(2))) }};
+                        return {{ Q((parameter.radius + ve[1]/Q(2) * cos(ve[0]/Q(2))) * cos(ve[0])),
+                                  Q((parameter.radius + ve[1]/Q(2) * cos(ve[0]/Q(2))) * sin(ve[0])),
+                                  Q(ve[1]/Q(2) * sin(ve[0]/Q(2))) }};
                     }
             };
 
@@ -77,7 +73,7 @@ namespace efgy
             class kleinBagel
             {
                 public:
-                    typedef dimensions<2, 2, od + 1, 0> dimensions;
+                    typedef dimensions<2, 2, 3, 0> dimensions;
 
                     static const char *id (void) { return "klein-bagel"; }
 
@@ -86,15 +82,39 @@ namespace efgy
                         return range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false);
                     }
 
+                    constexpr static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    {
+                        return {{ Q((parameter.radius + cos(ve[0]/Q(2))*sin(ve[1]) - sin(ve[0]/Q(2))*sin(Q(2)*ve[1])) * cos(ve[0])),
+                                  Q((parameter.radius + cos(ve[0]/Q(2))*sin(ve[1]) - sin(ve[0]/Q(2))*sin(Q(2)*ve[1])) * sin(ve[0])),
+                                  Q(sin(ve[0]/Q(2))*sin(ve[1]) - cos(ve[0]/Q(2))*sin(Q(2)*ve[1])) }};
+                    }
+            };
+
+            template <typename Q, unsigned int od, unsigned int d>
+            class kleinBottle
+            {
+                public:
+                    typedef dimensions<2, 2, 4, 0> dimensions;
+
+                    static const char *id (void) { return "klein-bottle"; }
+
+                    constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t)
+                    {
+                        return range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false);
+                    }
+
                     static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
-                        const Q &r = parameter.radius;
-                        const Q &u = ve[0];
-                        const Q &v = ve[1];
+                        math::vector<Q,d> r {{ Q(parameter.radius  * (cos(ve[0]/Q(2)) * cos(ve[1]) - sin(ve[0]/Q(2)) * sin(Q(2)*ve[1]))),
+                                               Q(parameter.radius  * (sin(ve[0]/Q(2)) * cos(ve[1]) + cos(ve[0]/Q(2)) * sin(Q(2)*ve[1]))),
+                                               Q(parameter.radius2 * cos(ve[0]) * (Q(1) + parameter.constant * sin(ve[1]))) }};
 
-                        return {{ Q((r + cos(u/Q(2))*sin(v) - sin(u/Q(2))*sin(Q(2)*v)) * cos(u)),
-                                  Q((r + cos(u/Q(2))*sin(v) - sin(u/Q(2))*sin(Q(2)*v)) * sin(u)),
-                                  Q(sin(u/Q(2))*sin(v) - cos(u/Q(2))*sin(Q(2)*v)) }};
+                        if (d >= 4)
+                        {
+                            r[3] = Q(parameter.radius2 * sin(ve[0]) * (Q(1) + parameter.constant * sin(ve[1])));
+                        }
+                        
+                        return r;
                     }
             };
 
@@ -151,7 +171,7 @@ namespace efgy
             class torus
             {
                 public:
-                    typedef dimensions<2, 2, od + 1, 0> dimensions;
+                    typedef dimensions<2, 2, 3, 0> dimensions;
 
                     static const char *id (void) { return "torus"; }
 
@@ -160,14 +180,11 @@ namespace efgy
                         return range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false);
                     }
 
-                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    constexpr static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
-                        const Q &u = ve[0];
-                        const Q &v = ve[1];
-
-                        return {{ Q((parameter.radius + parameter.radius2 * cos(v)) * cos(u)),
-                                  Q((parameter.radius + parameter.radius2 * cos(v)) * sin(u)),
-                                  Q(parameter.radius2 * sin(v)) }};
+                        return {{ Q((parameter.radius + parameter.radius2 * cos(ve[1])) * cos(ve[0])),
+                                  Q((parameter.radius + parameter.radius2 * cos(ve[1])) * sin(ve[0])),
+                                  Q(parameter.radius2 * sin(ve[1])) }};
                     }
             };
         };
@@ -268,7 +285,10 @@ namespace efgy
 
         template <typename Q, unsigned int od, typename render, unsigned int d>
         using kleinBagel = parametric<Q,od,d,formula::kleinBagel,render>;
-
+        
+        template <typename Q, unsigned int od, typename render, unsigned int d>
+        using kleinBottle = parametric<Q,od,d,formula::kleinBottle,render>;
+        
         template <typename Q, unsigned int od, typename render, unsigned int d>
         using sphere = parametric<Q,od,d,formula::sphere,render>;
 

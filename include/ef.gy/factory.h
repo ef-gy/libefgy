@@ -383,6 +383,8 @@ namespace efgy
                 model<Q,func,moebiusStrip,d,e>::with(arg, dims, rdims);
             if ((type == "*") || (type == "klein-bagel"))
                 model<Q,func,kleinBagel,d,e>::with(arg, dims, rdims);
+            if ((type == "*") || (type == "klein-bottle"))
+                model<Q,func,kleinBottle,d,e>::with(arg, dims, rdims);
             if ((type == "*") || (type == "sierpinski-gasket"))
                 model<Q,func,sierpinski::gasket,d,e>::with(arg, dims, rdims);
             if ((type == "*") || (type == "sierpinski-carpet"))
