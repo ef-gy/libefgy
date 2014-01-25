@@ -376,95 +376,245 @@ namespace efgy
                     return data >= pQ;
                 }
 
+                /**\brief Add value
+                 *
+                 * Creates a new primitive object with the given parameter added
+                 * to it.
+                 *
+                 * \param[in] pQ The value to add to this object.
+                 *
+                 * \return New object with the modified value.
+                 */
                 constexpr primitive operator + (const primitive &pQ) const
                 {
                     return primitive(data + pQ.data);
                 }
+
+                /**\brief Subtract value
+                 *
+                 * Creates a new primitive object with the given parameter
+                 * subtracted from it.
+                 *
+                 * \param[in] pQ The value to subtract from this object.
+                 *
+                 * \return New object with the modified value.
+                 */
                 constexpr primitive operator - (const primitive &pQ) const
                 {
                     return primitive(data - pQ.data);
                 }
+
+                /**\brief Multiply with value
+                 *
+                 * Creates a new primitive object with the given parameter
+                 * multiplied to it.
+                 *
+                 * \param[in] pQ The factor to multiply with this object.
+                 *
+                 * \return New object with the modified value.
+                 */
                 constexpr primitive operator * (const primitive &pQ) const
                 {
                     return primitive(data * pQ.data);
                 }
+
+                /**\brief Divide by value
+                 *
+                 * Creates a new primitive object by dividing the current value
+                 * by the given divisor.
+                 *
+                 * \param[in] pQ The divisor to divide this object by.
+                 *
+                 * \return New object with the modified value.
+                 */
                 constexpr primitive operator / (const primitive &pQ) const
                 {
                     return primitive(data / pQ.data);
                 }
+
+                /**\brief Calculate remainder of division by value
+                 *
+                 * Creates a new primitive object by dividing the current value
+                 * by the given divisor and then taking the remainder of that
+                 * division.
+                 *
+                 * \param[in] pQ The divisor to divide this object by.
+                 *
+                 * \return New object with the modified value.
+                 */
                 constexpr primitive operator % (const primitive &pQ) const
                 {
                     return primitive(data % pQ.data);
                 }
 
+                /**\brief Add and assign value
+                 *
+                 * Modifies the primitive object by adding the given parameter
+                 * to it.
+                 *
+                 * \param[in] pQ The value to add to this object.
+                 *
+                 * \return Reference to this object.
+                 */
                 primitive &operator += (const primitive &pQ)
                 {
                     data += pQ.data;
                     return *this;
                 }
+
+                /**\brief Subtract and assign value
+                 *
+                 * Modifies the primitive object by subtracting the given
+                 * parameter from it.
+                 *
+                 * \param[in] pQ The value to subtract from this object.
+                 *
+                 * \return Reference to the object.
+                 */
                 primitive &operator -= (const primitive &pQ)
                 {
                     data -= pQ.data;
                     return *this;
                 }
+
+                /**\brief Multiplies and assign base type value
+                 *
+                 * Modifies the primitive object by multiplying the given
+                 * parameter with it.
+                 *
+                 * \param[in] pQ The value to multiply with this object.
+                 *
+                 * \return Reference to the object.
+                 */
                 primitive &operator *= (const primitive &pQ)
                 {
                     data *= pQ.data;
                     return *this;
                 }
+
+                /**\brief Divide and assign value
+                 *
+                 * Modifies the primitive object by dividing it by the given
+                 * parameter.
+                 *
+                 * \param[in] pQ The value to divide this object by.
+                 *
+                 * \return Reference to the object.
+                 */
                 primitive &operator /= (const primitive &pQ)
                 {
                     data /= pQ.data;
                     return *this;
                 }
+
+                /**\brief Assign remainder of division with value
+                 *
+                 * Modifies the primitive object by dividing it by the given
+                 * parameter and assigning it the remainder of that division.
+                 *
+                 * \param[in] pQ The value to divide this object by.
+                 *
+                 * \return Reference to the object.
+                 */
                 primitive &operator %= (const primitive &pQ)
                 {
                     data %= pQ.data;
                     return *this;
                 }
 
+                /**\brief Compare for equality with argument value
+                 *
+                 * Compares the data member to a provided value to determine if
+                 * the two should be considered equal.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value and the argument
+                 *         compare as equal, 'false' otherwise.
+                 */
                 constexpr bool operator == (const primitive &pQ) const
                 {
                     return data == pQ.data;
                 }
+
+                /**\brief Compare for inequality with argument value
+                 *
+                 * Compares the data member to a provided value to determine if
+                 * the two should be considered not equal.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value and the argument
+                 *         compare as not equal, 'false' otherwise.
+                 */
                 constexpr bool operator != (const primitive &pQ) const
                 {
                     return data != pQ.data;
                 }
+
+                /**\brief Test if argument value is greater than object's value.
+                 *
+                 * Compares the object's value and a provided value to see if
+                 * the inherent value compares as less than the provided value.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value is less than the
+                 *         provided value, 'false' otherwise.
+                 */
                 constexpr bool operator < (const primitive &pQ) const
                 {
                     return data < pQ.data;
                 }
+
+                /**\brief Test if argument value is less than object's value.
+                 *
+                 * Compares the object's value and a provided value to see if
+                 * the inherent value compares as greater than the provided
+                 * value.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value is greater than the
+                 *         provided value, 'false' otherwise.
+                 */
                 constexpr bool operator > (const primitive &pQ) const
                 {
                     return data > pQ.data;
                 }
+
+                /**\brief Test if argument value is greater than or equal to
+                 *        the object's value.
+                 *
+                 * Compares the object's value and a provided value to see if
+                 * the inherent value compares as less than or equal to the
+                 * provided value.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value is less than or equal
+                 *         to the provided value, 'false' otherwise.
+                 */
                 constexpr bool operator <= (const primitive &pQ) const
                 {
                     return data <= pQ.data;
                 }
+
+                /**\brief Test if argument value is less than or equal to the
+                 *        object's value.
+                 *
+                 * Compares the object's value and a provided value to see if
+                 * the inherent value compares as greater than or equal to the
+                 * provided value.
+                 *
+                 * \param[in] pQ The value to compare this object with.
+                 *
+                 * \return 'true' if the instance's value is greater than or
+                 *         equal to the provided value, 'false' otherwise.
+                 */
                 constexpr bool operator >= (const primitive &pQ) const
                 {
                     return data >= pQ.data;
-                }
-
-                constexpr primitive operator ^ (const Q &pQ) const
-                {
-                    return primitive(pow(data, pQ));
-                }
-                constexpr primitive operator ^ (const primitive &pQ) const
-                {
-                    return primitive(pow(data, pQ.data));
-                }
-                primitive operator ^= (const Q &pQ)
-                {
-                    data = pow(data, pQ);
-                    return *this;
-                }
-                primitive operator ^= (const primitive &pQ)
-                {
-                    data = pow(data, pQ.data);
-                    return *this;
                 }
 
                 /**\brief Actual contents
@@ -474,12 +624,6 @@ namespace efgy
                  */
                 Q data;
         };
-
-        template <typename Q, typename u>
-        constexpr primitive<Q,u> sqrt (const primitive<Q,u> &vA)
-        {
-            return primitive<Q,u>(std::sqrt(vA.data));
-        }
     };
 };
 
