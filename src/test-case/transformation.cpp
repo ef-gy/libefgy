@@ -102,6 +102,7 @@ int testIdentity(std::ostream &log)
     return 0;
 }
 
+#if 0
 /*\brief Tests whether the identity class enforces an identity matrix.
  *
  * \test Initialises an object of the identity class, then attempts to 
@@ -113,6 +114,9 @@ int testIdentity(std::ostream &log)
  * \returns A nonzero integer in any case, since if this test compiles,
  * there is a bug.
  *
+ * \note This has been resolved so it is no longer compiled in. The function is
+ *       left here in case someone wants to verify that this doesn't compile at
+ *       some point in the future.
  */
 int testIdentityAssignment(std::ostream &log)
 {
@@ -130,5 +134,6 @@ int testIdentityAssignment(std::ostream &log)
     log << "is possible; this is a bug and should not compile.\n"; 
     return next_integer(); 
 }
+#endif
 
-TEST_BATCH (testIdentity, testIdentityAssignment)
+TEST_BATCH (testIdentity)

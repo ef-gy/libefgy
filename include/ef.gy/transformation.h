@@ -80,6 +80,7 @@ namespace efgy
                                 }
                             }
                         }
+
                     /**\brief Applies a transformation to a vector.
                      *
                      * Applies a transformation to a vector by 
@@ -113,6 +114,7 @@ namespace efgy
 
                         return rv;
                     }
+
                     /*\brief Composes two linear maps.
                      *
                      * Composes two linear maps on Q^d by multiplying 
@@ -171,9 +173,10 @@ namespace efgy
             class identity : public linear<Q,d>
             {
                 public:
-                    identity()
-                        : linear<Q,d>()
-                        {}
+                    identity() : linear<Q,d>() {}
+
+                protected:
+                    using linear<Q,d>::matrix;
             };
 
 
