@@ -86,7 +86,7 @@ namespace efgy
                      * Applies a transformation to a vector by 
                      * multiplying the transformation matrix to it.
                      *
-                     * \param vector a vector from Q^d
+                     * \param pV a vector from Q^d
                      *
                      * \returns The transformed vector, which is also
                      * in Q^d.
