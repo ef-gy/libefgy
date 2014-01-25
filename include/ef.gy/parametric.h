@@ -189,7 +189,30 @@ namespace efgy
             };
         };
 
-        template <typename Q, unsigned int od, unsigned int d, template <typename, unsigned int, unsigned int> class formula, typename render>
+        /**\brief Parametric formula wrapper
+         *
+         * This class is used to instantiate parametric formulae so they can
+         * produce meshes. To calculate meshes, the formulae provide ranges in
+         * all of their surface dimensions and the objects are created by
+         * sweeping over all points in these ranges, then the individual
+         * surfaces are created using the surfaces of a hypercube in the model
+         * dimension scaled by the step size of the ranges.
+         *
+         * For example, if the model depth is '2', then the area that is swept
+         * is a plane with the size and step size provided by the formula. The
+         * individual surfaces are squares that are scaled according to the step
+         * size of the two provided ranges, and each of the vertices is
+         * realigned using the formula.
+         *
+         * \tparam Q       Base type for calculations; should be a rational type
+         * \tparam od      Model depth, e.g. '2' for a square or '3' for a cube
+         * \tparam d       Number of dimensions of the vector space to use
+         * \tparam formula Formula for the target mesh, e.g. formula::plane 
+         * \tparam render  Renderer type; e.g. render::svg<Q,d>
+         */
+        template <typename Q, unsigned int od, unsigned int d,
+                  template <typename, unsigned int, unsigned int> class formula,
+                  typename render>
         class parametric : public polytope<Q,od,d,4,render>
         {
             public:
