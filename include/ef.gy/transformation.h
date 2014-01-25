@@ -179,7 +179,7 @@ namespace efgy
                     using linear<Q,d>::matrix;
             };
 
-
+            
             template <typename Q, unsigned int d>
             class affine
             {
@@ -201,7 +201,7 @@ namespace efgy
                             {
                                 for (unsigned int j = 0; j < d; j++)
                                 {
-                                    transformationMatrix[i][j] = L.data[i][j];
+                                    transformationMatrix[i][j] = L.matrix[i][j];
                                 }
                             }
                             for (unsigned int i = 0; i < d; i++)
