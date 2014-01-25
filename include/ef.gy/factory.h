@@ -340,52 +340,40 @@ namespace efgy
                 }
         };
 
-        /**\brief Model factory base type helper
+        /**\brief Call template function with class type
          *
-         * Provides a function that, given a basic geometric type, provides a
-         * with() method that checks if the given parameters apply to that basic
-         * geometric type and dispatches a function call as appropriate.
+         * Part of the geometric model type factory; called by the
+         * geometry::with function given a type to check if the type is
+         * compatible with the given parameters.
          *
-         * \tparam T Model template, e.g. efgy::geometry::cube
+         * \tparam Q    Base datatype for model geometry.
+         * \tparam func The function to call.
+         * \tparam d    Maximum number of model dimensions.
+         * \tparam e    Maximum number of render dimensions.
+         * \tparam T    Model template, e.g. efgy::geometry::cube
+         *
+         * \param[out] arg   The argument to func::...().
+         * \param[in]  type  The name to check, or "*" which always matches.
+         * \param[in]  dims  The target number of model dimensions.
+         * \param[in]  rdims The target number of render dimensions.
+         *
+         * \returns Whatever func::pass or func::with returns.
          */
-        template<template <class,unsigned int,class,unsigned int> class T>
-        class factory
+        template<typename Q,
+                 template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 unsigned int d,
+                 unsigned int e,
+                 template <class,unsigned int,class,unsigned int> class T>
+        static inline typename func<Q,T,d,e>::output with
+            (typename func<Q,T,d,e>::argument arg,
+             const std::string &type,
+             const unsigned int &dims,
+             const unsigned int &rdims)
         {
-            public:
-                /**\brief Call template function with class type
-                 *
-                 * Part of the geometric model type factory; called by the
-                 * geometry::with function given a type to check if the type is
-                 * compatible with the given parameters.
-                 *
-                 * \tparam Q    Base datatype for model geometry.
-                 * \tparam func The function to call.
-                 * \tparam d    Maximum number of model dimensions.
-                 * \tparam e    Maximum number of render dimensions.
-                 *
-                 * \param[out] arg   The argument to func::...().
-                 * \param[in]  type  The model to pass to func, or "*" for "all
-                 *                   models".
-                 * \param[in]  dims  The target number of model dimensions.
-                 * \param[in]  rdims The target number of render dimensions.
-                 *
-                 * \returns Whatever func::pass returns.
-                 */
-                template<typename Q,
-                         template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
-                         unsigned int d,
-                         unsigned int e>
-                static inline typename func<Q,T,d,e>::output with
-                    (typename func<Q,T,d,e>::argument arg,
-                     const std::string &type,
-                     const unsigned int &dims,
-                     const unsigned int &rdims)
-                    {
-                        return ((type == "*") || (type == T<Q,d,render::null<Q,e>,e>::id()))
-                             ? model<Q,func,T,d,e>::with(arg, dims, rdims)
-                             : func<Q,T,d,e>::pass(arg);
-                    }
-        };
+            return ((type == "*") || (type == T<Q,d,render::null<Q,e>,e>::id()))
+                 ? model<Q,func,T,d,e>::with(arg, dims, rdims)
+                 : func<Q,T,d,e>::pass(arg);
+        }
 
         /**\brief Call template function with geometric type(s)
          *
@@ -416,18 +404,18 @@ namespace efgy
              const unsigned int &dims,
              const unsigned int &rdims)
         {
-            factory<simplex>::with<Q,func,d,e>(arg,type,dims,rdims);
-            factory<plane>::with<Q,func,d,e>(arg,type,dims,rdims);
-            factory<cube>::with<Q,func,d,e>(arg,type,dims,rdims);
-            factory<sphere>::with<Q,func,d,e>(arg,type,dims,rdims);
-            factory<torus>::with<Q,func,d,e>(arg,type,dims,rdims);
-            factory<moebiusStrip>::with<Q,func,d,e>(arg,type,dims,rdims);
-            factory<kleinBagel>::with<Q,func,d,e>(arg,type,dims,rdims);
-            factory<kleinBottle>::with<Q,func,d,e>(arg,type,dims,rdims);
-            factory<sierpinski::gasket>::with<Q,func,d,e>(arg,type,dims,rdims);
-            factory<sierpinski::carpet>::with<Q,func,d,e>(arg,type,dims,rdims);
-            factory<randomAffineIFS>::with<Q,func,d,e>(arg,type,dims,rdims);
-            factory<flame::random>::with<Q,func,d,e>(arg,type,dims,rdims);
+            with<Q,func,d,e,simplex>(arg,type,dims,rdims);
+            with<Q,func,d,e,plane>(arg,type,dims,rdims);
+            with<Q,func,d,e,cube>(arg,type,dims,rdims);
+            with<Q,func,d,e,sphere>(arg,type,dims,rdims);
+            with<Q,func,d,e,torus>(arg,type,dims,rdims);
+            with<Q,func,d,e,moebiusStrip>(arg,type,dims,rdims);
+            with<Q,func,d,e,kleinBagel>(arg,type,dims,rdims);
+            with<Q,func,d,e,kleinBottle>(arg,type,dims,rdims);
+            with<Q,func,d,e,sierpinski::gasket>(arg,type,dims,rdims);
+            with<Q,func,d,e,sierpinski::carpet>(arg,type,dims,rdims);
+            with<Q,func,d,e,randomAffineIFS>(arg,type,dims,rdims);
+            with<Q,func,d,e,flame::random>(arg,type,dims,rdims);
 
             return func<Q,cube,d,e>::pass(arg);
         }
