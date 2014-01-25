@@ -375,6 +375,91 @@ namespace efgy
                  : func<Q,T,d,e>::pass(arg);
         }
 
+        /**\brief Model factory helper for parametric formulae
+         *
+         * Provides a function that, given a parametric formula, provides a
+         * with() method that checks if the given parameters apply to a
+         * parametric model with that formula and dispatches as usual. We sadly
+         * need to provide a class template for this, because we need to
+         * synthesise a type on the fly and we can't do that in an ordinary
+         * function.
+         *
+         * \tparam Q    Base datatype for model geometry.
+         * \tparam func The function to call.
+         * \tparam d    Maximum number of model dimensions.
+         * \tparam e    Maximum number of render dimensions.
+         * \tparam T    Parametric formula template, e.g. formula::plane
+         */
+        template <typename Q,
+                  template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                  unsigned int d,
+                  unsigned int e,
+                  template <class,unsigned int,unsigned int> class T>
+        class parametricFactory
+        {
+            public:
+                template <typename Qm, unsigned int odm, typename renderm, unsigned int dm>
+                using parametricModel = parametric<Qm,odm,dm,T,renderm>;
+
+                typedef typename func<Q,parametricModel,d,e>::output output;
+                typedef typename func<Q,parametricModel,d,e>::argument argument;
+
+                /**\brief Call template function with class type
+                 *
+                 * Part of the geometric model type factory; called by the
+                 * geometry::with function given a type to check if the type is
+                 * compatible with the given parameters.
+                 *
+                 * \param[out] arg   The argument to func::...().
+                 * \param[in]  type  The name to check, or "*" which always
+                 *                   matches.
+                 * \param[in]  dims  The target number of model dimensions.
+                 * \param[in]  rdims The target number of render dimensions.
+                 *
+                 * \returns Whatever func::pass returns.
+                 */
+                static inline output with
+                    (argument arg,
+                     const std::string &type,
+                     const unsigned int &dims,
+                     const unsigned int &rdims)
+                {
+                    return geometry::with<Q,func,d,e,parametricModel>(arg,type,dims,rdims);
+                }
+        };
+
+        /**\brief Call template function with parametric formula
+         *
+         * This is a wrapper for parametricFactory<T>::with for sheer
+         * convenience.
+         *
+         * \tparam Q    Base datatype for model geometry.
+         * \tparam func The function to call.
+         * \tparam d    Maximum number of model dimensions.
+         * \tparam e    Maximum number of render dimensions.
+         * \tparam T    Parametric formula template, e.g. formula::plane
+         *
+         * \param[out] arg   The argument to func::...().
+         * \param[in]  type  The name to check, or "*" which always matches.
+         * \param[in]  dims  The target number of model dimensions.
+         * \param[in]  rdims The target number of render dimensions.
+         *
+         * \returns Whatever func::pass or func::with returns.
+         */
+        template<typename Q,
+                 template<typename, template <class,unsigned int,class,unsigned int> class, unsigned int, unsigned int> class func,
+                 unsigned int d,
+                 unsigned int e,
+                 template <class,unsigned int,unsigned int> class T>
+        static inline typename parametricFactory<Q,func,d,e,T>::output with
+            (typename parametricFactory<Q,func,d,e,T>::argument arg,
+             const std::string &type,
+             const unsigned int &dims,
+             const unsigned int &rdims)
+        {
+            return parametricFactory<Q,func,d,e,T>::with(arg,type,dims,rdims);
+        }
+
         /**\brief Call template function with geometric type(s)
          *
          * This is the main entry function for the geometric type factory. This
@@ -407,11 +492,11 @@ namespace efgy
             with<Q,func,d,e,simplex>(arg,type,dims,rdims);
             with<Q,func,d,e,plane>(arg,type,dims,rdims);
             with<Q,func,d,e,cube>(arg,type,dims,rdims);
-            with<Q,func,d,e,sphere>(arg,type,dims,rdims);
-            with<Q,func,d,e,torus>(arg,type,dims,rdims);
-            with<Q,func,d,e,moebiusStrip>(arg,type,dims,rdims);
-            with<Q,func,d,e,kleinBagel>(arg,type,dims,rdims);
-            with<Q,func,d,e,kleinBottle>(arg,type,dims,rdims);
+            with<Q,func,d,e,formula::sphere>(arg,type,dims,rdims);
+            with<Q,func,d,e,formula::torus>(arg,type,dims,rdims);
+            with<Q,func,d,e,formula::moebiusStrip>(arg,type,dims,rdims);
+            with<Q,func,d,e,formula::kleinBagel>(arg,type,dims,rdims);
+            with<Q,func,d,e,formula::kleinBottle>(arg,type,dims,rdims);
             with<Q,func,d,e,sierpinski::gasket>(arg,type,dims,rdims);
             with<Q,func,d,e,sierpinski::carpet>(arg,type,dims,rdims);
             with<Q,func,d,e,randomAffineIFS>(arg,type,dims,rdims);

@@ -303,23 +303,22 @@ namespace efgy
                 }
         };
 
-        template <typename Q, unsigned int od, typename render, unsigned int d>
-        using moebiusStrip = parametric<Q,od,d,formula::moebiusStrip,render>;
-
-        template <typename Q, unsigned int od, typename render, unsigned int d>
-        using kleinBagel = parametric<Q,od,d,formula::kleinBagel,render>;
-        
-        template <typename Q, unsigned int od, typename render, unsigned int d>
-        using kleinBottle = parametric<Q,od,d,formula::kleinBottle,render>;
-        
-        template <typename Q, unsigned int od, typename render, unsigned int d>
-        using sphere = parametric<Q,od,d,formula::sphere,render>;
-
+        /**\brief The 2D plane
+         *
+         * One of the most simplest of models, this is a simple 2D plane using
+         * the radius and precision model parameters. This used to be its own
+         * proper type, but has since been redesigned to use the parametric
+         * model template and a very simple formula. This type alias is provided
+         * because the plane is often used as a base type for other, more
+         * complex models, such as the fractal flames.
+         *
+         * \tparam Q      Base type for calculations; should be a rational type
+         * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
+         * \tparam d      Number of dimensions of the vector space to use
+         * \tparam render Renderer type; e.g. render::svg<Q,d>
+         */
         template <typename Q, unsigned int od, typename render, unsigned int d>
         using plane = parametric<Q,od,d,formula::plane,render>;
-
-        template <typename Q, unsigned int od, typename render, unsigned int d>
-        using torus = parametric<Q,od,d,formula::torus,render>;
     };
 };
 
