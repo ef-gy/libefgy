@@ -136,4 +136,60 @@ int testIdentityAssignment(std::ostream &log)
 }
 #endif
 
-TEST_BATCH (testIdentity)
+/* \brief Tests construction of affine transformations.
+ *
+ * \param log Stream for output messages
+ *
+ * \test Constructs an affine transformation from a linear map.
+ * 
+ * \returns Zero if the test is successful, a nonzero integer otherwise.
+ */
+int testAffineConstruction(std::ostream &log)
+{
+    linear<double, 3> phi;
+
+    for(int i = 0; i < 3; i++)
+    {
+       for(int k = 0; k < 3; k++)
+       {
+            phi.matrix[i][k] = i * k; 
+       }
+    }
+
+    affine<double, 3> psi(phi);
+
+    bool allCorrect = true;
+    
+    // check if transformationMatrix entries of linear map are in place
+    for(int i = 0; i < 3; i++)
+    {
+       for(int k = 0; k < 3; k++)
+       {
+          allCorrect &= (psi.transformationMatrix[i][k] == i * k);
+       }
+    }
+
+    // check for zeroes in the last row and column
+    for(int i = 0; i < 3; i++)
+    {
+        allCorrect &= (psi.transformationMatrix[i][3] == 0);
+        allCorrect &= (psi.transformationMatrix[3][i] == 0);
+    }
+
+    allCorrect &= (psi.transformationMatrix[3][3] == 1);
+
+    if(!allCorrect)
+    {
+        log << "An error occurred in constructing an affine transformation";
+        log << " from a linear map.\n";
+
+        return next_integer();
+    }
+    else
+    {
+       return 0;
+    }
+}
+
+
+TEST_BATCH (testIdentity, testAffineConstruction)
