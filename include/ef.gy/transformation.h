@@ -179,11 +179,24 @@ namespace efgy
                     using linear<Q,d>::matrix;
             };
 
-            
+            /* \brief Affine transformation on Q^d
+             *
+             * Template for affine transformations on Q^d. An affine transformation
+             * is considered to be composed of a translation and a linear map.
+             *
+             * \tparam Q The underlying field of the corresponding 
+             * vector space
+             *
+             * \tparam d The dimension of the corresponding vector space
+             */
             template <typename Q, unsigned int d>
             class affine
             {
                 public:
+                    /* \brief Constructor for the identity transformation
+                     *
+                     * Constructor for the identity transformation
+                     * */
                     affine ()
                         {
                             for (unsigned int i = 0; i <= d; i++)
@@ -195,6 +208,13 @@ namespace efgy
                             }
                         }
 
+                    /* \brief Constructs an affine transformation from a linear map
+                     *
+                     * Constructs an affine transformation from a linear map,
+                     * with a translation of zero.
+                     *
+                     * \param L a linear map on Q^d
+                     */
                     affine (const linear<Q,d> &L)
                         {
                             for (unsigned int i = 0; i < d; i++)
@@ -212,6 +232,14 @@ namespace efgy
                             transformationMatrix[d][d] = Q(1);
                         }
 
+                    /* \brief Applies a transformation to a vector.
+                     *
+                     * Applies an affine transformation to a vector.
+                     *
+                     * \param pV The vector the transformation is applied to.
+                     *
+                     * \returns The transformed vector.
+                     */
                     math::vector<Q,d> operator *
                         (const math::vector<Q,d> &pV) const
                     {
@@ -238,6 +266,16 @@ namespace efgy
                         return rv;
                     }
 
+                    /* \brief Composes two affine transformations.
+                     *
+                     * Composes the current object with another transformation 
+                     * by multiplying their transformation matrices.
+                     *
+                     * \param pB The affine transformation that will be composed
+                     * with the current object.
+                     *
+                     * \returns The composition of the current object and pB.
+                     */
                     affine operator *
                         (const affine &pB) const
                     {
@@ -246,6 +284,17 @@ namespace efgy
                         return t;
                     }
 
+
+                    /* \brief Composes the current object with a projective transformation.
+                     *
+                     * Composes the current object with a projective transformation. 
+                     *
+                     * \param pB The projective transformation that will be composed
+                     * with the current object.
+                     *
+                     * \returns The projective transformation that is the composition
+                     * of the current object and pB.
+                     */
                     projective<Q,d> operator *
                         (const projective<Q,d> &pB) const
                     {
