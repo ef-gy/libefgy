@@ -35,7 +35,7 @@
 
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
-#include <ef.gy/opengl.h>
+#include <ef.gy/glsl.h>
 #include <map>
 #include <functional>
 #include <algorithm>
@@ -59,6 +59,8 @@ namespace efgy
          */
         static inline std::string getVertexShader (const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
         {
+            opengl::glsl::shader shader ();
+
             std::stringstream output ("");
             output << "#version 100\n";
             if (postProcess)
