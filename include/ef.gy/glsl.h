@@ -50,6 +50,12 @@ namespace efgy
                 gv_uniform
             };
 
+            enum version
+            {
+                ver_100,
+                ver_auto
+            };
+
             template <enum type T>
             class variable
             {
@@ -58,29 +64,34 @@ namespace efgy
                     std::string name;
             };
 
+            template <enum version V>
             class shader
             {
                 public:
-                    shader(void)
-                    {
-#if defined(GL_NUM_SHADING_LANGUAGE_VERSIONS)
-                        GLint versions;
-                        glGetIntegerv(GL_NUM_SHADING_LANGUAGE_VERSIONS, &versions);
-
-                        for (unsigned int i = 0; i < versions; i++)
-                        {
-                            const char *ver = (const char *)glGetStringi(GL_SHADING_LANGUAGE_VERSION, i);
-                            
-                            std::cerr << ver;
-                        }
-#else
-                        version = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
-#endif
-                        std::cerr << version << "\n";
-                    }
-
-                    std::string version;
+                    static const enum version version = V;
             };
+
+            template <typename C>
+            std::basic_ostream<C> &operator <<
+                (const std::basic_ostream<C> &out, const shader<ver_auto> &s)
+            {
+#if defined(GL_NUM_SHADING_LANGUAGE_VERSIONS)
+                GLint versions;
+                glGetIntegerv(GL_NUM_SHADING_LANGUAGE_VERSIONS, &versions);
+
+                for (unsigned int i = 0; i < versions; i++)
+                {
+                    const char *ver = (const char *)glGetStringi(GL_SHADING_LANGUAGE_VERSION, i);
+
+                    std::cerr << ver;
+                }
+#else
+                const char *ver = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
+                if (ver)
+                {
+                }
+#endif
+            }
         };
     };
 };

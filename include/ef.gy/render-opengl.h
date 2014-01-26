@@ -59,8 +59,6 @@ namespace efgy
          */
         static inline std::string getVertexShader (const bool fractalFlameColouring, const bool postProcess, const bool renderHistogram)
         {
-            opengl::glsl::shader shader ();
-
             std::stringstream output ("");
             output << "#version 100\n";
             if (postProcess)
