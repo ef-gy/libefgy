@@ -35,7 +35,7 @@
 
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
-#include <ef.gy/opengl.h>
+#include <ef.gy/glsl.h>
 #include <map>
 #include <functional>
 #include <algorithm>
