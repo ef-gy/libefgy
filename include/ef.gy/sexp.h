@@ -63,6 +63,7 @@ namespace efgy
 	* \tparam T2 type of second element
     *
     * \sa \ref maybe
+    */
 	
 	template<typename T1, typename T2>
 	class cons
@@ -93,7 +94,20 @@ namespace efgy
                 }
 	
 	    private:
-	        T1 car;
+	        /* \brief First element of the cons
+             *
+             * First element of the cons
+             */
+            T1 car;
+
+            /* \brief Second element of the cons
+             *
+             * Second element of the cons, represented as a maybe:
+             * it can either contain a value of type T2,
+             * or 'nothing' to represent the special S-expression
+             * NIL (which is used to indicate the end of a list,
+             * among other things)
+             */
 	        efgy::maybe<T2> cdr;
 	};
 	
@@ -128,6 +142,10 @@ namespace efgy
 
 	
 	    private:
+            /* \brief The atomic value
+             *
+             * The atomic value of the S-expression.
+             */
 	        T data;
 	};
 	
