@@ -40,11 +40,17 @@ namespace efgy
 {
     namespace opengl
     {
+        /**\brief GLSL synthesiser
+         *
+         * Contains templates to generate GLSL shaders in different dialects,
+         * depending on the GLSL version supported by the target graphics
+         * hardware.
+         */
         namespace glsl
         {
             enum type
             {
-                gv_input,
+                gv_attribute,
                 gv_output,
                 gv_varying,
                 gv_uniform
@@ -60,15 +66,21 @@ namespace efgy
             class variable
             {
                 public:
-                    static const enum type type = T;
                     std::string name;
+                    std::string type;
+                    std::string precision;
             };
 
             template <enum version V>
             class shader
             {
                 public:
-                    static const enum version version = V;
+                    std::vector<variable<gv_attribute>> attribute;
+                    std::vector<variable<gv_output>>    output;
+                    std::vector<variable<gv_varying>>   varying;
+                    std::vector<variable<gv_uniform>>   uniform;
+
+                    std::string main;
             };
 
             template <typename C>
@@ -91,6 +103,30 @@ namespace efgy
                 {
                 }
 #endif
+            }
+
+            template <typename C>
+            std::basic_ostream<C> &operator <<
+                (const std::basic_ostream<C> &out, const shader<ver_100> &s)
+            {
+                out << "#version 100\n";
+
+                for (const variable<gv_attribute> &v : s.attribute)
+                {
+                    out << "attribute " << v.precision << " " << v.type << " " << v.name << "\n";
+                }
+                for (const variable<gv_varying> &v : s.varying)
+                {
+                    out << "varying " << v.precision << " " << v.type << " " << v.name << "\n";
+                }
+                for (const variable<gv_uniform> &v : s.uniform)
+                {
+                    out << "uniform " << v.precision << " " << v.type << " " << v.name << "\n";
+                }
+
+                return out << "void main() {"
+                           << s.main
+                           << "}\n";
             }
         };
     };
