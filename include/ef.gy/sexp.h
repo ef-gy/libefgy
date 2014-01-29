@@ -37,9 +37,9 @@ namespace efgy
 {
     /* \brief Abstract base class for s-expressions
     *
-    *  Abstract base class for s-expression.s
+    *  Abstract base class for s-expressions
     *  In this implementation, you should instantiate
-    *  the concrete derived  classes, efgy::cons and efgy:.atom.
+    *  the concrete derived  classes, efgy::cons and efgy::atom.
     */
     class sexp
     {
@@ -66,7 +66,7 @@ namespace efgy
     */
 	
 	template<typename T1, typename T2>
-	class cons
+	class cons : public sexp
 	{
 	    public:
 	        /*\brief Constructor for a cons with two elements
@@ -120,7 +120,7 @@ namespace efgy
     * \tparam T type of atomic expression
     */
 	template<typename T>
-	class atom
+	class atom : public sexp
 	{
 	    public:
 	        /* \brief Constructs an atomic S-expression.
