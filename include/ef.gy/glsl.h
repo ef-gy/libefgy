@@ -75,6 +75,14 @@ namespace efgy
             class shader
             {
                 public:
+                    template <enum version R>
+                    shader(const shader<R> &s)
+                        : attribute(r.attribute),
+                          output(r.output),
+                          varying(r.varying),
+                          uniform(r.uniform),
+                          main(r.main) {}
+
                     std::vector<variable<gv_attribute>> attribute;
                     std::vector<variable<gv_output>>    output;
                     std::vector<variable<gv_varying>>   varying;
@@ -103,6 +111,7 @@ namespace efgy
                 {
                 }
 #endif
+                out << shader<ver_100>(s);
             }
 
             template <typename C>
@@ -113,15 +122,15 @@ namespace efgy
 
                 for (const variable<gv_attribute> &v : s.attribute)
                 {
-                    out << "attribute " << v.precision << " " << v.type << " " << v.name << "\n";
+                    out << "attribute " << v.precision << " " << v.type << " " << v.name << ";\n";
                 }
                 for (const variable<gv_varying> &v : s.varying)
                 {
-                    out << "varying " << v.precision << " " << v.type << " " << v.name << "\n";
+                    out << "varying " << v.precision << " " << v.type << " " << v.name << ";\n";
                 }
                 for (const variable<gv_uniform> &v : s.uniform)
                 {
-                    out << "uniform " << v.precision << " " << v.type << " " << v.name << "\n";
+                    out << "uniform " << v.precision << " " << v.type << " " << v.name << ";\n";
                 }
 
                 return out << "void main() {"
