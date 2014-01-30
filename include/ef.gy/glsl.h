@@ -77,11 +77,11 @@ namespace efgy
                 public:
                     template <enum version R>
                     shader(const shader<R> &s)
-                        : attribute(r.attribute),
-                          output(r.output),
-                          varying(r.varying),
-                          uniform(r.uniform),
-                          main(r.main) {}
+                        : attribute(s.attribute),
+                          output(s.output),
+                          varying(s.varying),
+                          uniform(s.uniform),
+                          main(s.main) {}
 
                     std::vector<variable<gv_attribute>> attribute;
                     std::vector<variable<gv_output>>    output;
