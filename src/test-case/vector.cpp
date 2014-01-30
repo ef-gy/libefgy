@@ -60,16 +60,16 @@ int testRealVectors (std::ostream &log)
     }
 
     vector<double,3,format::polar> vp1 = {{1,2,3}};
-    vector<double,3,format::polar> vp2 = {{2,3,4}};
+    vector<double,3,format::polar> vp2 = {{2,-1,1}};
     vector<double,3,format::polar> rp  = vp1 + vp2;
 
     log << vp1 << " + " << vp2 << " = " << rp << "\n";
     log << "sizeof(double) = " << sizeof(double) << "\n";
     log << "sizeof(vector<double,3,format::polar>) = " << sizeof(vector<double,3,format::polar>) << "\n";
 
-    if (rp != vector<double,3,format::polar>({3,5,7}))
+    if (rp != vector<double,3,format::polar>({3,1,4}))
     {
-        log << "unexpected result after vector addition; expected ([polar:10] 3, 5, 7) but have " << rp << "\n";
+        log << "unexpected result after vector addition; expected ([polar:10] 3, 1, 4) but have " << rp << "\n";
         return 2;
     }
 

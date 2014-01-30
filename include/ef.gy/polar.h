@@ -130,16 +130,35 @@ namespace efgy
                  * \param[in] v The source vector.
                  * \param[in] s An instance of the space tag; may be used to
                  *              specify a precision for conversion operations.
-                 *
-                 * \todo This constructor has not yet been implemented.
                  */
-                constexpr vector
+                vector
                     (const vector<F,n,format::cartesian> &v,
                      const format::polar &s = format::polar())
                     : std::array<F, n>(),
                       spaceTag(s)
                     {
-                        ;
+                        (*this)[0] = length(v);
+                        for (unsigned int k = 0; k < (n-1); k++)
+                        {
+                            F s = F(0);
+                            for (unsigned int i = k; i < n; i++)
+                            {
+                                s += v[i] * v[i];
+                            }
+                            s = v[k] / sqrt(s);
+                            if (k == (n-2))
+                            {
+                                (*this)[(n-1)] = arccosine(s);
+                                if (v[(n-1)] < F(0))
+                                {
+                                    (*this)[(n-1)] = M_PI * F(2) - (*this)[(n-1)];
+                                }
+                            }
+                            else
+                            {
+                                (*this)[(k+1)] = arccosine(s);
+                            }
+                        }
                     }
 
                 /**\brief Convert to real space vector
