@@ -209,15 +209,17 @@ namespace efgy
          * \tparam d       Number of dimensions of the vector space to use
          * \tparam formula Formula for the target mesh, e.g. formula::plane 
          * \tparam render  Renderer type; e.g. render::svg<Q,d>
+         * \tparam format  Vector coordinate format to work in.
          */
         template <typename Q, unsigned int od, unsigned int d,
                   template <typename, unsigned int, unsigned int> class formula,
-                  typename render>
-        class parametric : public polytope<Q,od,d,4,render>
+                  typename render,
+                  typename format>
+        class parametric : public polytope<Q,od,d,4,render,format>
         {
             public:
                 typedef formula<Q,od,d> source;
-                typedef polytope<Q,od,d,4,render> parent;
+                typedef polytope<Q,od,d,4,render,format> parent;
             
                 parametric (render &pRenderer, const parameters<Q> &pParameter)
                     : parent(pRenderer, pParameter)
@@ -234,7 +236,7 @@ namespace efgy
                 static const char *id (void) { return source::id(); }
 
                 void recurse
-                    (cube<Q,od,render> &cube,
+                    (cube<Q,od,render,od,format> &cube,
                      math::vector<Q,od> v,
                      math::vector<Q,od> a)
                 {
@@ -257,7 +259,7 @@ namespace efgy
                 }
 
                 void recurse
-                    (cube<Q,od,render> &cube,
+                    (cube<Q,od,render,od,format> &cube,
                      std::size_t dim,
                      math::vector<Q,od> v,
                      math::vector<Q,od> a)
@@ -282,7 +284,7 @@ namespace efgy
                 void calculateObject(void)
                 {
                     parameters<Q> cubeParameter;
-                    cube<Q,od,render> cube (renderer, cubeParameter);
+                    cube<Q,od,render,od,format> cube (renderer, cubeParameter);
 
                     faces.clear();
 
@@ -316,9 +318,11 @@ namespace efgy
          * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
          * \tparam d      Number of dimensions of the vector space to use
          * \tparam render Renderer type; e.g. render::svg<Q,d>
+         * \tparam format Vector coordinate format to work in.
          */
-        template <typename Q, unsigned int od, typename render, unsigned int d>
-        using plane = parametric<Q,od,d,formula::plane,render>;
+        template <typename Q, unsigned int od, typename render, unsigned int d,
+                  typename format>
+        using plane = parametric<Q,od,d,formula::plane,render,format>;
     };
 };
 

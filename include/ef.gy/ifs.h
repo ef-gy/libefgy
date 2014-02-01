@@ -39,13 +39,14 @@ namespace efgy
     namespace geometry
     {
         template <typename Q, unsigned int od, typename render, unsigned int d,
-                  template <class,unsigned int,class,unsigned int> class primitive,
+                  template <class,unsigned int,class,unsigned int,typename> class primitive,
                   unsigned int pd,
-                  template <class,unsigned int> class trans>
-        class ifs : public polytope<Q,od,d,primitive<Q,pd,render,d>::faceVertices,render>
+                  template <class,unsigned int> class trans,
+                  typename format>
+        class ifs : public polytope<Q,od,d,primitive<Q,pd,render,d,format>::faceVertices,render,format>
         {
             public:
-                typedef polytope<Q,od,d,primitive<Q,pd,render,d>::faceVertices,render> parent;
+                typedef polytope<Q,od,d,primitive<Q,pd,render,d,format>::faceVertices,render,format> parent;
 
                 ifs (render &pRenderer, const parameters<Q> &pParameter)
                     : parent(pRenderer, pParameter)
@@ -96,7 +97,7 @@ namespace efgy
 
                 void calculateObject (void)
                 {
-                    primitive<Q,pd,render,d> source(parent::renderer, parameter);
+                    primitive<Q,pd,render,d,format> source(parent::renderer, parameter);
 
                     faces = source.faces;
                     while (faces.size() > indices.size())
@@ -158,11 +159,11 @@ namespace efgy
 
         namespace sierpinski
         {
-            template <typename Q, unsigned int od, typename render, unsigned int d = od>
-            class gasket : public ifs<Q,od,render,d,cube,od,transformation::affine>
+            template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
+            class gasket : public ifs<Q,od,render,d,cube,od,transformation::affine,format>
             {
                 public:
-                    typedef ifs<Q,od,render,d,cube,od,transformation::affine> parent;
+                    typedef ifs<Q,od,render,d,cube,od,transformation::affine,format> parent;
 
                     gasket(render &pRenderer, const parameters<Q> &pParameter)
                         : parent(pRenderer, pParameter)
@@ -210,11 +211,11 @@ namespace efgy
                     static const char *id (void) { return "sierpinski-gasket"; }
             };
 
-            template <typename Q, unsigned int od, typename render, unsigned int d = od>
-            class carpet : public ifs<Q,od,render,d,cube,od,transformation::affine>
+            template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
+            class carpet : public ifs<Q,od,render,d,cube,od,transformation::affine,format>
             {
                 public:
-                    typedef ifs<Q,od,render,d,cube,od,transformation::affine> parent;
+                    typedef ifs<Q,od,render,d,cube,od,transformation::affine,format> parent;
 
                     carpet(render &pRenderer, const parameters<Q> &pParameter)
                         : parent(pRenderer, pParameter)
@@ -291,7 +292,7 @@ namespace efgy
 
         namespace transformation
         {
-            template <typename Q, unsigned int d, unsigned int od = d>
+            template <typename Q, unsigned int d, unsigned int od>
             class randomAffine : public affine<Q,d>
             {
                 public:
@@ -375,11 +376,11 @@ namespace efgy
             };
         };
 
-        template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class randomAffineIFS : public ifs<Q,od,render,d,cube,2,transformation::affine>
+        template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
+        class randomAffineIFS : public ifs<Q,od,render,d,cube,2,transformation::affine,format>
         {
             public:
-                typedef ifs<Q,od,render,d,cube,2,transformation::affine> parent;
+                typedef ifs<Q,od,render,d,cube,2,transformation::affine,format> parent;
 
                 randomAffineIFS(render &pRenderer, const parameters<Q> &pParameter)
                     : parent(pRenderer, pParameter)

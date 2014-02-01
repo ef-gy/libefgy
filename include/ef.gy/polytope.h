@@ -250,8 +250,11 @@ namespace efgy
          * \tparam d      Number of dimensions of the vector space to use
          * \tparam f      Number of vertices for mesh faces
          * \tparam render Renderer type; e.g. render::svg<Q,d>
+         * \tparam format Vector coordinate format to work in, e.g.
+         *                math::format::cartesian.
          */
-        template <typename Q, unsigned int od, unsigned int d, unsigned int f, typename render>
+        template <typename Q, unsigned int od, unsigned int d, unsigned int f,
+                  typename render, typename format>
         class polytope
         {
             public:
@@ -369,7 +372,7 @@ namespace efgy
                  * A convenient typedef for a 2D surface, commonly called a
                  * 'face.'
                  */
-                typedef std::array<math::vector<Q,d>,f> face;
+                typedef std::array<math::vector<Q,d,format>,f> face;
 
                 /**\brief The actual mesh data
                  *
@@ -393,11 +396,11 @@ namespace efgy
                 const parameters<Q> &parameter;
         };
 
-        template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class simplex : public polytope<Q,od,d,3,render>
+        template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
+        class simplex : public polytope<Q,od,d,3,render,format>
         {
             public:
-                typedef polytope<Q,od,d,3,render> parent;
+                typedef polytope<Q,od,d,3,render,format> parent;
 
                 simplex (render &pRenderer, const parameters<Q> &pParameter)
                     : parent(pRenderer, pParameter)
@@ -416,11 +419,11 @@ namespace efgy
                     return "simplex";
                 }
 
-                void recurse (const int r, math::vector<Q,d,math::format::polar> v, std::vector<math::vector<Q,d>> &points)
+                void recurse (const int r, math::vector<Q,d,math::format::polar> v, std::vector<math::vector<Q,d,format>> &points)
                 {
                     if (r == 0)
                     {
-                        math::vector<Q,d> A = v;
+                        math::vector<Q,d,format> A = v;
                         points.push_back(A);
                     }
                     else
@@ -440,7 +443,7 @@ namespace efgy
 
                     faces.clear();
 
-                    std::vector<math::vector<Q,d>> points;
+                    std::vector<math::vector<Q,d,format>> points;
 
                     math::vector<Q,d,math::format::polar> v;
                     v[0] = radius;
@@ -455,9 +458,9 @@ namespace efgy
                     v[r] = Q(M_PI)/Q(1.5);
                     recurse (q, v, points);
 
-                    std::vector<math::vector<Q,d>> points2;
+                    std::vector<math::vector<Q,d,format>> points2;
 
-                    for (const math::vector<Q,d> &point : points)
+                    for (const math::vector<Q,d,format> &point : points)
                     {
                         if (std::find (points2.begin(), points2.end(), point) == points2.end())
                         {
@@ -467,15 +470,15 @@ namespace efgy
 
                     points = points2;
 
-                    std::vector<math::vector<Q,d>> usedPoints;
+                    std::vector<math::vector<Q,d,format>> usedPoints;
 
-                    for (const math::vector<Q,d> &A : points)
+                    for (const math::vector<Q,d,format> &A : points)
                     {
-                        std::vector<math::vector<Q,d>> usedPoints2;
+                        std::vector<math::vector<Q,d,format>> usedPoints2;
 
-                        for (const math::vector<Q,d> &B : usedPoints)
+                        for (const math::vector<Q,d,format> &B : usedPoints)
                         {
-                            for (const math::vector<Q,d> &C : usedPoints2)
+                            for (const math::vector<Q,d,format> &C : usedPoints2)
                             {
                                 faces.push_back ({{ A, B, C }});
                             }
@@ -514,6 +517,7 @@ namespace efgy
          * \tparam od     The 'depth' of the hypercube; e.g. '3' for a cube
          * \tparam render Model renderer type; e.g. render::svg<Q,d>
          * \tparam d      The render depth of the model; must be >= 'od'
+         * \tparam format Vector coordinate format to work in.
          *
          * \see http://ef.gy/documentation/topologic - Topologic, the programme
          *      that was used to render the sample image.
@@ -524,11 +528,11 @@ namespace efgy
          * \todo Use the parameter::radius field properly; this should
          *       probably be half the diagonal of the resulting model.
          */
-        template <typename Q, unsigned int od, typename render, unsigned int d = od>
-        class cube : public polytope<Q,od,d,4,render>
+        template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
+        class cube : public polytope<Q,od,d,4,render,format>
         {
             public:
-                typedef polytope<Q,od,d,4,render> parent;
+                typedef polytope<Q,od,d,4,render,format> parent;
 
                 cube (render &pRenderer, const parameters<Q> &pParameter)
                     : parent(pRenderer, pParameter)
@@ -580,25 +584,25 @@ namespace efgy
                 {
                     Q diameter = parameter.radius * Q(0.5);
                     
-                    std::vector<std::array<math::vector<Q,d>,2> > lines;
+                    std::vector<std::array<math::vector<Q,d,format>,2> > lines;
                     faces.clear();
                     
-                    std::vector<math::vector<Q,d>> points;
+                    std::vector<math::vector<Q,d,format>> points;
 
-                    points.push_back (math::vector<Q,d>());
+                    points.push_back (math::vector<Q,d,format>());
 
                     for (unsigned int i : range<int>(0,od,false))
                     {
-                        std::vector<math::vector<Q,d>> newPoints;
-                        std::vector<std::array<math::vector<Q,d>,2> > newLines;
-                        std::vector<std::array<math::vector<Q,d>,4> > newFaces;
+                        std::vector<math::vector<Q,d,format>> newPoints;
+                        std::vector<std::array<math::vector<Q,d,format>,2> > newLines;
+                        std::vector<std::array<math::vector<Q,d,format>,4> > newFaces;
 
-                        for (std::array<math::vector<Q,d>,2> &line : lines)
+                        for (std::array<math::vector<Q,d,format>,2> &line : lines)
                         {
                             line[0][i] = -diameter;
                             line[1][i] = -diameter;
 
-                            std::array<math::vector<Q,d>,2> newLine = line;
+                            std::array<math::vector<Q,d,format>,2> newLine = line;
 
                             newLine[0][i] = diameter;
                             newLine[1][i] = diameter;
@@ -622,11 +626,11 @@ namespace efgy
                             newFaces.push_back(newFace);
                         }
 
-                        for (math::vector<Q,d> &v : points)
+                        for (math::vector<Q,d,format> &v : points)
                         {
                             v[i] = -diameter;
 
-                            std::array<math::vector<Q,d>,2> newLine {{ v, v }};
+                            std::array<math::vector<Q,d,format>,2> newLine {{ v, v }};
 
                             newLine[1][i] = diameter;
                             
