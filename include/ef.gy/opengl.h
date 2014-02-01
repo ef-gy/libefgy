@@ -31,6 +31,7 @@
 #if !defined(EF_GY_OPENGL_H)
 #define EF_GY_OPENGL_H
 
+#include <ef.gy/glsl.h>
 #include <vector>
 #include <sstream>
 #include <exception>
@@ -180,12 +181,15 @@ namespace efgy
          * it.
          *
          * \tparam Q              Base data type for calculations.
+         * \tparam V              GLSL shader target version.
          * \tparam vertexShader   The vertex shader to compile and link to the
          *                        programme.
          * \tparam fragmentShader The fragment shader to compile and link to the
          *                        programme.
          */
-        template<typename Q, typename vertexShader, typename fragmentShader>
+        template<typename Q, enum glsl::version V,
+                 template<enum glsl::version> class vertexShader,
+                 template<enum glsl::version> class fragmentShader>
         class programme
         {
             public:
@@ -617,7 +621,7 @@ namespace efgy
                     programmeID = glCreateProgram();
                     std::ostringstream shader ("");
 
-                    shader << vertexShader();
+                    shader << vertexShader<V>();
                     
                     if (!compile(vertShader, GL_VERTEX_SHADER, shader.str().c_str()))
                     {
@@ -628,7 +632,7 @@ namespace efgy
                     }
 
                     shader.str("");
-                    shader << fragmentShader();
+                    shader << fragmentShader<V>();
 
                     if (!compile(fragShader, GL_FRAGMENT_SHADER, shader.str().c_str()))
                     {
@@ -1235,6 +1239,7 @@ namespace efgy
          * easily render grab the output of a render pass.
          *
          * \tparam Q              Base data type for calculations.
+         * \tparam V              GLSL shader target version.
          * \tparam vertexShader   The vertex shader to compile and link to the
          *                        programme.
          * \tparam fragmentShader The fragment shader to compile and link to the
@@ -1248,9 +1253,11 @@ namespace efgy
          *      http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml for
          *      the possible values of the target, format and type parameters.
          */
-        template<typename Q, typename vertexShader, typename fragmentShader,
+        template<typename Q, enum glsl::version V,
+                 template<enum glsl::version> class vertexShader,
+                 template<enum glsl::version> class fragmentShader,
                  GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D>
-        class renderToTextureProgramme : public programme<Q,vertexShader,fragmentShader>, public framebufferTexture<Q,format,baseFormat,type,target>
+        class renderToTextureProgramme : public programme<Q,V,vertexShader,fragmentShader>, public framebufferTexture<Q,format,baseFormat,type,target>
         {
             public:
                 /**\brief Default constructor
@@ -1260,7 +1267,7 @@ namespace efgy
                  * bound or created using OpenGL until it is first used.
                  */
                 renderToTextureProgramme (void)
-                    : programme<Q,vertexShader,fragmentShader>(),
+                    : programme<Q,V,vertexShader,fragmentShader>(),
                       framebufferTexture<Q,format,baseFormat,type,target>() {}
 
                 /**\brief Use programme and render to associated texture
@@ -1288,7 +1295,7 @@ namespace efgy
                         glActiveTexture (GL_TEXTURE0 + textureUnit);
                     }
 
-                    if (programme<Q,vertexShader,fragmentShader>::use() && framebufferTexture<Q,format,baseFormat,type,target>::use(width, height))
+                    if (programme<Q,V,vertexShader,fragmentShader>::use() && framebufferTexture<Q,format,baseFormat,type,target>::use(width, height))
                     {
                         glViewport (0, 0, roundToPowerOf2(width), roundToPowerOf2(height));
 
@@ -1298,7 +1305,7 @@ namespace efgy
                     return false;
                 }
 
-                using programme<Q,vertexShader,fragmentShader>::use;
+                using programme<Q,V,vertexShader,fragmentShader>::use;
         };
 
         /**\brief OpenGL programme to render to a texture with depth buffer
@@ -1308,6 +1315,7 @@ namespace efgy
          * of a render pass.
          *
          * \tparam Q              Base data type for calculations.
+         * \tparam V              GLSL shader target version.
          * \tparam vertexShader   The vertex shader to compile and link to the
          *                        programme.
          * \tparam fragmentShader The fragment shader to compile and link to the
@@ -1324,9 +1332,11 @@ namespace efgy
          * \see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glRenderbufferStorage.xml
          *      for possible values of the depthFormat parameter.
          */
-        template<typename Q, typename vertexShader, typename fragmentShader,
+        template<typename Q, enum glsl::version V,
+                 template<enum glsl::version> class vertexShader,
+                 template<enum glsl::version> class fragmentShader,
                  GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D, GLenum depthFormat = GL_DEPTH_COMPONENT16>
-        class renderToTextureDepthProgramme : public programme<Q,vertexShader,fragmentShader>, public framebufferTextureDepth<Q,format,baseFormat,type,target,depthFormat>
+        class renderToTextureDepthProgramme : public programme<Q,V,vertexShader,fragmentShader>, public framebufferTextureDepth<Q,format,baseFormat,type,target,depthFormat>
         {
             public:
                 /**\brief Default constructor
@@ -1336,7 +1346,7 @@ namespace efgy
                  * bound or created using OpenGL until it is first used.
                  */
                 renderToTextureDepthProgramme (void)
-                    : programme<Q,vertexShader,fragmentShader>(),
+                    : programme<Q,V,vertexShader,fragmentShader>(),
                       framebufferTextureDepth<Q,format,baseFormat,type,target,depthFormat>() {}
                 
                 /**\brief Use programme and render to associated texture
@@ -1367,7 +1377,7 @@ namespace efgy
                         glActiveTexture (GL_TEXTURE0 + textureUnit);
                     }
                     
-                    if (programme<Q,vertexShader,fragmentShader>::use() && framebufferTextureDepth<Q,format,baseFormat,type,target>::use(swidth, sheight))
+                    if (programme<Q,V,vertexShader,fragmentShader>::use() && framebufferTextureDepth<Q,format,baseFormat,type,target>::use(swidth, sheight))
                     {
                         glViewport (0, 0, swidth, sheight);
                         
@@ -1377,7 +1387,7 @@ namespace efgy
                     return false;
                 }
 
-                using programme<Q,vertexShader,fragmentShader>::use;
+                using programme<Q,V,vertexShader,fragmentShader>::use;
         };
 
         /**\brief OpenGL programme to render to a generic framebuffer
@@ -1387,13 +1397,16 @@ namespace efgy
          * framebuffer and viewport selected.
          *
          * \tparam Q              Base data type for calculations.
+         * \tparam V              GLSL shader target version.
          * \tparam vertexShader   The vertex shader to compile and link to the
          *                        programme.
          * \tparam fragmentShader The fragment shader to compile and link to the
          *                        programme.
          */
-        template<typename Q, typename vertexShader, typename fragmentShader>
-        class renderToFramebufferProgramme : public programme<Q,vertexShader,fragmentShader>, public framebuffer<Q>
+        template<typename Q, enum glsl::version V,
+                 template<enum glsl::version> class vertexShader,
+                 template<enum glsl::version> class fragmentShader>
+        class renderToFramebufferProgramme : public programme<Q,V,vertexShader,fragmentShader>, public framebuffer<Q>
         {
             public:
                 /**\brief Default constructor
@@ -1403,7 +1416,7 @@ namespace efgy
                  * bound or created using OpenGL until it is first used.
                  */
                 renderToFramebufferProgramme ()
-                    : programme<Q,vertexShader,fragmentShader>(),
+                    : programme<Q,V,vertexShader,fragmentShader>(),
                       framebuffer<Q>() {}
 
                 /**\brief Use programme and render to associated framebuffer
@@ -1423,7 +1436,7 @@ namespace efgy
                  */
                 bool use (const GLuint &width, const GLuint &height)
                 {
-                    if (programme<Q,vertexShader,fragmentShader>::use() && framebuffer<Q>::use())
+                    if (programme<Q,V,vertexShader,fragmentShader>::use() && framebuffer<Q>::use())
                     {
                         glViewport (0, 0, width, height);
 
@@ -1433,7 +1446,7 @@ namespace efgy
                     return false;
                 }
 
-                using programme<Q,vertexShader,fragmentShader>::use;
+                using programme<Q,V,vertexShader,fragmentShader>::use;
                 using framebuffer<Q>::copy;
         };
 

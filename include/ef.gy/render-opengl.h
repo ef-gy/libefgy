@@ -35,7 +35,7 @@
 
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
-#include <ef.gy/glsl.h>
+#include <ef.gy/opengl.h>
 #include <map>
 #include <functional>
 #include <algorithm>
@@ -53,6 +53,10 @@ namespace efgy
          */
         namespace glsl
         {
+            /**\brief GLSL vertex shaders
+             *
+             * Contains the vertex shaders used by the default OpenGL renderer.
+             */
             namespace vertex
             {
                 /*
@@ -116,6 +120,11 @@ namespace efgy
                 };
             };
 
+            /**\brief GLSL fragment shaders
+             *
+             * Contains the fragment shaders used by the default OpenGL
+             * renderer.
+             */
             namespace fragment
             {
                 /*
@@ -196,7 +205,7 @@ namespace efgy
          * \tparam V GLSL shader version to produce.
          */
         template<typename Q, enum glsl::version V = glsl::ver_auto>
-        class renderProgramme : public renderToFramebufferProgramme<Q,render::glsl::vertex::regular<V>,render::glsl::fragment::regular<V>>
+        class renderProgramme : public renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>
         {
             public:
                 /**\brief Default constructor
@@ -206,7 +215,7 @@ namespace efgy
                  */
                 renderProgramme (void)
                     : initialised(false),
-                      renderToFramebufferProgramme<Q,render::glsl::vertex::regular<V>,render::glsl::fragment::regular<V>>
+                      renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>
                         ()
                     {}
             
@@ -225,11 +234,11 @@ namespace efgy
                  */
                 bool matrices (const geometry::transformation::projective<Q,3> &combined, const math::matrix<Q,3,3> &normalMatrix)
                 {
-                    return renderToFramebufferProgramme<Q,render::glsl::vertex::regular<V>,render::glsl::fragment::regular<V>>::uniform(uniformProjectionMatrix, combined.transformationMatrix)
-                        && renderToFramebufferProgramme<Q,render::glsl::vertex::regular<V>,render::glsl::fragment::regular<V>>::uniform(uniformNormalMatrix, normalMatrix);
+                    return renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>::uniform(uniformProjectionMatrix, combined.transformationMatrix)
+                        && renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>::uniform(uniformNormalMatrix, normalMatrix);
                 }
 
-                using renderToFramebufferProgramme<Q,render::glsl::vertex::regular<V>,render::glsl::fragment::regular<V>>::uniform;
+                using renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>::uniform;
             
                 /**\brief Render to current OpenGL context
                  *
@@ -251,10 +260,10 @@ namespace efgy
                     {
                         initialised = true;
 
-                        renderToFramebufferProgramme<Q,render::glsl::vertex::regular<V>,render::glsl::fragment::regular<V>>::copy();
+                        renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>::copy();
                     }
 
-                    renderToFramebufferProgramme<Q,render::glsl::vertex::regular<V>,render::glsl::fragment::regular<V>>::use(width, height);
+                    renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>::use(width, height);
                     glDepthMask(GL_TRUE);
                     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glEnable(GL_DEPTH_TEST);
@@ -450,7 +459,7 @@ namespace efgy
                  * texture for the flame algorithm. This colour information is
                  * used to sample the colour map.
                  */
-                renderToTextureProgramme<Q,render::glsl::vertex::fractalFlame<V>,render::glsl::fragment::fractalFlame<V>> colouring;
+                renderToTextureProgramme<Q,V,render::glsl::vertex::fractalFlame,render::glsl::fragment::fractalFlame> colouring;
 
                 /**\brief Histogram render pass programme
                  *
@@ -458,7 +467,7 @@ namespace efgy
                  * texture for the flame algorithm. This information is used to
                  * calculate the output intensity of individual fragments.
                  */
-                renderToTextureProgramme<Q,render::glsl::vertex::fractalFlame<V>,render::glsl::fragment::histogram<V>> histogram;
+                renderToTextureProgramme<Q,V,render::glsl::vertex::fractalFlame,render::glsl::fragment::histogram> histogram;
 
                 /**\brief Merge pass programme
                  *
@@ -466,7 +475,7 @@ namespace efgy
                  * creates in the first two passes to output fragments for the
                  * output framebuffer.
                  */
-                renderToFramebufferProgramme<Q,render::glsl::vertex::postProcess<V>,render::glsl::fragment::postProcess<V>> postProcess;
+                renderToFramebufferProgramme<Q,V,render::glsl::vertex::postProcess,render::glsl::fragment::postProcess> postProcess;
 
                 /**\brief Vertex array for fullscreen quad
                  *

@@ -32,11 +32,9 @@
 #define EF_GY_GLSL_H
 
 //#include <ef.gy/tracer.h>
-#include <ef.gy/opengl.h>
 #include <map>
 #include <string>
 #include <regex>
-#include <array>
 
 namespace efgy
 {
@@ -80,21 +78,55 @@ namespace efgy
                           */
             };
 
+            /**\brief GLSL variable specification
+             *
+             * Contains all the data related to a GLSL variable so that it can
+             * be written to a stream and used in a shader programme.
+             */
             template <enum type T>
             class variable
             {
                 public:
+                    /**\brief Construct with data
+                     *
+                     * Initialises a new variable specification with the name,
+                     * type and precision to use.
+                     *
+                     * \param[in] pName      Name of the variable.
+                     * \param[in] pType      The GLSL type of the variable.
+                     * \param[in] pPrecision The precision to use.
+                     */
                     constexpr variable
                         (const char *pName, const char *pType = "float", const char *pPrecision = "")
                         : name(pName), type(pType), precision(pPrecision)
                         {}
 
+                    /**\brief Variable name
+                     *
+                     * Name of the variable, as used in the source code.
+                     */
                     const char *name;
+
+                    /**\brief Variable type
+                     *
+                     * GLSL type string for the variable.
+                     */
                     const char *type;
+
+                    /**\brief Variable precision
+                     *
+                     * The floating-point precision for the variable.
+                     */
                     const char *precision;
             };
 
-            /*
+            /**\brief GLSL shader
+             *
+             * This is the base class for GLSL shaders; to specify a shader, you
+             * should derive from this class and design the derived version to
+             * only take a single version template parameter, and make sure the
+             * constructor does not take any arguments. This is how the OpenGL
+             * code uses them.
              *
              * \tparam V GLSL shader version to produce.
              */
@@ -102,6 +134,16 @@ namespace efgy
             class shader
             {
                 public:
+                    /**\brief Construct with shader data
+                     *
+                     * Initialises a new GLSL shader with all the details that
+                     * it consists of specified separately.
+                     *
+                     * \param[in] pMain      GLSL main() function source.
+                     * \param[in] pAttribute List of input vertex attributes.
+                     * \param[in] pVarying   List of input/output varyings.
+                     * \param[in] pUniform   List of input uniforms.
+                     */
                     shader(const std::string &pMain = "",
                            const std::vector<variable<gv_attribute>> &pAttribute = {},
                            const std::vector<variable<gv_varying>> &pVarying = {},
@@ -111,6 +153,17 @@ namespace efgy
                           varying(pVarying),
                           uniform(pUniform) {}
 
+                    /**\brief Construct without vertex attributes
+                     *
+                     * Initialises a new GLSL shader with all the details that
+                     * it consists of specified separately, except for the list
+                     * of vertex attributes. This is useful for specifying
+                     * fragment shaders, which do not use vertex attributes.
+                     *
+                     * \param[in] pMain      GLSL main() function source.
+                     * \param[in] pVarying   List of input/output varyings.
+                     * \param[in] pUniform   List of input uniforms.
+                     */
                     shader(const std::string &pMain,
                            const std::vector<variable<gv_varying>> &pVarying,
                            const std::vector<variable<gv_uniform>> &pUniform = {})
@@ -119,6 +172,15 @@ namespace efgy
                           varying(pVarying),
                           uniform(pUniform) {}
 
+                    /**\brief Template copy constructor
+                     *
+                     * Provides a copy constructor that can copy shaders of
+                     * arbitrary versions to a new instance.
+                     *
+                     * \tparam R The version of the shader to copy.
+                     *
+                     * \param[in] s The shader to copy.
+                     */
                     template <enum version R>
                     shader(const shader<R> &s)
                         : attribute(s.attribute),
@@ -126,13 +188,44 @@ namespace efgy
                           uniform(s.uniform),
                           main(s.main) {}
 
+                    /**\brief Shader vertex attributes
+                     *
+                     * Contains all the vertex attributes that the shader uses.
+                     */
                     std::vector<variable<gv_attribute>> attribute;
-                    std::vector<variable<gv_varying>>   varying;
-                    std::vector<variable<gv_uniform>>   uniform;
 
+                    /**\brief Shader varying variables
+                     *
+                     * Contains all the shader's varying input/output variables.
+                     */
+                    std::vector<variable<gv_varying>> varying;
+
+                    /**\brief Shader uniforms
+                     *
+                     * Contains all the shader's uniform input variables.
+                     */
+                    std::vector<variable<gv_uniform>> uniform;
+
+                    /**\brief Main GLSL shader sources
+                     *
+                     * Contains the sources of the shader's main() function.
+                     */
                     std::string main;
             };
 
+            /**\brief Write shader to stream and automatically detect version
+             *
+             * Tries to guess the GLSL version to use by querying the supported
+             * shader versions from the OpenGL runtime and producing output
+             * accordingly.
+             *
+             * \tparam C The character type of the stream.
+             *
+             * \param[out] out The stream to write to.
+             * \param[in]  s   The shader to write to the stream.
+             *
+             * \returns The 'out' stream after writing to it.
+             */
             template <typename C>
             std::basic_ostream<C> &operator <<
                 (std::basic_ostream<C> &out, const shader<ver_auto> &s)
@@ -163,6 +256,18 @@ namespace efgy
                 return out << shader<ver_100>(s);
             }
 
+            /**\brief Write version 100 shader to stream
+             *
+             * This will turn the given shader data into a version 100 GLSL
+             * shader and write it to the given output stream.
+             *
+             * \tparam C The character type of the stream.
+             *
+             * \param[out] out The stream to write to.
+             * \param[in]  s   The shader to write to the stream.
+             *
+             * \returns The 'out' stream after writing to it.
+             */
             template <typename C>
             std::basic_ostream<C> &operator <<
                 (std::basic_ostream<C> &out, const shader<ver_100> &s)
