@@ -179,28 +179,24 @@ namespace efgy
          * Encapsulates an OpenGL shader programme and the state associated with
          * it.
          *
-         * \tparam Q Base data type for calculations.
+         * \tparam Q              Base data type for calculations.
+         * \tparam vertexShader   The vertex shader to compile and link to the
+         *                        programme.
+         * \tparam fragmentShader The fragment shader to compile and link to the
+         *                        programme.
          */
-        template<typename Q>
+        template<typename Q, typename vertexShader, typename fragmentShader>
         class programme
         {
             public:
-                /**\brief Construct with shaders
+                /**\brief Default constructor
                  *
-                 * Initialises an instance of this class with a copy of a vertex
-                 * and a fragment shader. The programme is not compiled and
-                 * linked before it's used for the first time, so it's OK to
-                 * initialise the class before you have an active OpenGL
-                 * context.
-                 *
-                 * \param[in] pVertexShader   The vertex shader to compile and
-                 *                            link to the programme.
-                 * \param[in] pFragmentShader The fragment shader to compile and
-                 *                            link to the programme.
+                 * Initialises an instance of this class; The shaders are not
+                 * passed in explicitly, they need to be of types than can
+                 * produce valid shaders when written to a stream.
                  */
-                programme (const std::string &pVertexShader, const std::string &pFragmentShader)
-                    : programmeID(0), vertexShader(pVertexShader), fragmentShader(pFragmentShader) {}
-            
+                programme (void) : programmeID(0) {}
+
                 /**\brief Destructor
                  *
                  * Erases the programme if it has been compiled and linked; does
@@ -213,7 +209,7 @@ namespace efgy
                             glDeleteProgram(programmeID);
                         }
                     }
-            
+
                 /**\brief Use programme
                  *
                  * This is a wrapper for OpenGL's useProgram() that activates
@@ -605,20 +601,6 @@ namespace efgy
                  * as the programme has not been compiled, nonzero afterwards.
                  */
                 GLuint programmeID;
-            
-                /**\brief Vertex shader programme
-                 *
-                 * This is a copy of the vertex shader's source code; kept
-                 * around so it can be compiled when needed.
-                 */
-                const std::string vertexShader;
-
-                /**\brief Fragment shader programme
-                 *
-                 * This is a copy of the fragment shader's source code; kept
-                 * around so it can be compiled when needed.
-                 */
-                const std::string fragmentShader;
 
                 /**\brief Compile shader programme
                  *
@@ -633,16 +615,26 @@ namespace efgy
                     GLuint vertShader, fragShader;
                     
                     programmeID = glCreateProgram();
+                    std::ostringstream shader ("");
+
+                    shader << vertexShader();
                     
-                    if (!compile(vertShader, GL_VERTEX_SHADER, vertexShader.c_str()))
+                    if (!compile(vertShader, GL_VERTEX_SHADER, shader.str().c_str()))
                     {
-                        std::cerr << "Failed to compile vertex shader\n";
+                        std::cerr << "Failed to compile vertex shader:\n"
+                                  << shader.str()
+                                  << "\n";
                         return false;
                     }
-                    
-                    if (!compile(fragShader, GL_FRAGMENT_SHADER, fragmentShader.c_str()))
+
+                    shader.str("");
+                    shader << fragmentShader();
+
+                    if (!compile(fragShader, GL_FRAGMENT_SHADER, shader.str().c_str()))
                     {
-                        std::cerr << "Failed to compile fragment shader\n";
+                        std::cerr << "Failed to compile fragment shader:\n"
+                                  << shader.str()
+                                  << "\n";
                         return false;
                     }
                     
@@ -1242,39 +1234,34 @@ namespace efgy
          * Associates an OpenGL programme with a framebuffer and a texture to
          * easily render grab the output of a render pass.
          *
-         * \tparam Q Base data type for calculations.
-         * \tparam format Format of the texture to load or create.
-         * \tparam baseFormat External texture format.
-         * \tparam type   Type of the texture to load.
-         * \tparam target The texture target to bind to.
+         * \tparam Q              Base data type for calculations.
+         * \tparam vertexShader   The vertex shader to compile and link to the
+         *                        programme.
+         * \tparam fragmentShader The fragment shader to compile and link to the
+         *                        programme.
+         * \tparam format         Format of the texture to load or create.
+         * \tparam baseFormat     External texture format.
+         * \tparam type           Type of the texture to load.
+         * \tparam target         The texture target to bind to.
          *
          * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml and
          *      http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml for
          *      the possible values of the target, format and type parameters.
          */
-        template<typename Q, GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D>
-        class renderToTextureProgramme : public programme<Q>, public framebufferTexture<Q,format,baseFormat,type,target>
+        template<typename Q, typename vertexShader, typename fragmentShader,
+                 GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D>
+        class renderToTextureProgramme : public programme<Q,vertexShader,fragmentShader>, public framebufferTexture<Q,format,baseFormat,type,target>
         {
             public:
-                /**\brief Construct with shaders
+                /**\brief Default constructor
                  *
-                 * Initialises an instance of this class with a copy of a vertex
-                 * and a fragment shader. The programme is not compiled and
-                 * linked before it's used for the first time, so it's OK to
-                 * initialise the class before you have an active OpenGL
-                 * context.
-                 *
-                 * The framebuffer and texture objects are similarly initialised
-                 * with their default constructor; they're not created or bound
-                 * automatically either, only when the use() method is called.
-                 *
-                 * \param[in] pVertexShader   The vertex shader to compile and
-                 *                            link to the programme.
-                 * \param[in] pFragmentShader The fragment shader to compile and
-                 *                            link to the programme.
+                 * Initialises an instance of this class by using the default
+                 * constructors of the programme and framebuffer. Nothing is
+                 * bound or created using OpenGL until it is first used.
                  */
-                renderToTextureProgramme (const std::string &pVertexShader, const std::string &pFragmentShader)
-                    : programme<Q>(pVertexShader, pFragmentShader), framebufferTexture<Q,format,baseFormat,type,target>() {}
+                renderToTextureProgramme (void)
+                    : programme<Q,vertexShader,fragmentShader>(),
+                      framebufferTexture<Q,format,baseFormat,type,target>() {}
 
                 /**\brief Use programme and render to associated texture
                  *
@@ -1301,7 +1288,7 @@ namespace efgy
                         glActiveTexture (GL_TEXTURE0 + textureUnit);
                     }
 
-                    if (programme<Q>::use() && framebufferTexture<Q,format,baseFormat,type,target>::use(width, height))
+                    if (programme<Q,vertexShader,fragmentShader>::use() && framebufferTexture<Q,format,baseFormat,type,target>::use(width, height))
                     {
                         glViewport (0, 0, roundToPowerOf2(width), roundToPowerOf2(height));
 
@@ -1311,7 +1298,7 @@ namespace efgy
                     return false;
                 }
 
-                using programme<Q>::use;
+                using programme<Q,vertexShader,fragmentShader>::use;
         };
 
         /**\brief OpenGL programme to render to a texture with depth buffer
@@ -1320,12 +1307,16 @@ namespace efgy
          * renderbuffer for the depth component to easily render grab the output
          * of a render pass.
          *
-         * \tparam Q Base data type for calculations.
-         * \tparam format Format of the texture to load or create.
-         * \tparam baseFormat External texture format.
-         * \tparam type   Type of the texture to load.
-         * \tparam target The texture target to bind to.
-         * \tparam depthFormat Internal texture format of the depth buffer.
+         * \tparam Q              Base data type for calculations.
+         * \tparam vertexShader   The vertex shader to compile and link to the
+         *                        programme.
+         * \tparam fragmentShader The fragment shader to compile and link to the
+         *                        programme.
+         * \tparam format         Format of the texture to load or create.
+         * \tparam baseFormat     External texture format.
+         * \tparam type           Type of the texture to load.
+         * \tparam target         The texture target to bind to.
+         * \tparam depthFormat    Internal texture format of the depth buffer.
          *
          * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml and
          *      http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml for
@@ -1333,30 +1324,20 @@ namespace efgy
          * \see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glRenderbufferStorage.xml
          *      for possible values of the depthFormat parameter.
          */
-        template<typename Q, GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D, GLenum depthFormat = GL_DEPTH_COMPONENT16>
-        class renderToTextureDepthProgramme : public programme<Q>, public framebufferTextureDepth<Q,format,baseFormat,type,target,depthFormat>
+        template<typename Q, typename vertexShader, typename fragmentShader,
+                 GLenum format = GL_RGB, GLenum baseFormat = format, GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D, GLenum depthFormat = GL_DEPTH_COMPONENT16>
+        class renderToTextureDepthProgramme : public programme<Q,vertexShader,fragmentShader>, public framebufferTextureDepth<Q,format,baseFormat,type,target,depthFormat>
         {
             public:
-                /**\brief Construct with shaders
+                /**\brief Default constructor
                  *
-                 * Initialises an instance of this class with a copy of a vertex
-                 * and a fragment shader. The programme is not compiled and
-                 * linked before it's used for the first time, so it's OK to
-                 * initialise the class before you have an active OpenGL
-                 * context.
-                 *
-                 * The framebuffer, texture and renderbuffer objects are
-                 * similarly initialised with their default constructor; they're
-                 * not created or bound automatically either, only when the
-                 * use() method is called.
-                 *
-                 * \param[in] pVertexShader   The vertex shader to compile and
-                 *                            link to the programme.
-                 * \param[in] pFragmentShader The fragment shader to compile and
-                 *                            link to the programme.
+                 * Initialises an instance of this class by using the default
+                 * constructors of the programme and framebuffer. Nothing is
+                 * bound or created using OpenGL until it is first used.
                  */
-                renderToTextureDepthProgramme (const std::string &pVertexShader, const std::string &pFragmentShader)
-                    : programme<Q>(pVertexShader, pFragmentShader), framebufferTextureDepth<Q,format,baseFormat,type,target,depthFormat>() {}
+                renderToTextureDepthProgramme (void)
+                    : programme<Q,vertexShader,fragmentShader>(),
+                      framebufferTextureDepth<Q,format,baseFormat,type,target,depthFormat>() {}
                 
                 /**\brief Use programme and render to associated texture
                  *
@@ -1386,7 +1367,7 @@ namespace efgy
                         glActiveTexture (GL_TEXTURE0 + textureUnit);
                     }
                     
-                    if (programme<Q>::use() && framebufferTextureDepth<Q,format,baseFormat,type,target>::use(swidth, sheight))
+                    if (programme<Q,vertexShader,fragmentShader>::use() && framebufferTextureDepth<Q,format,baseFormat,type,target>::use(swidth, sheight))
                     {
                         glViewport (0, 0, swidth, sheight);
                         
@@ -1396,7 +1377,7 @@ namespace efgy
                     return false;
                 }
 
-                using programme<Q>::use;
+                using programme<Q,vertexShader,fragmentShader>::use;
         };
 
         /**\brief OpenGL programme to render to a generic framebuffer
@@ -1405,31 +1386,25 @@ namespace efgy
          * texture; this makes it easy to render things and have the correct
          * framebuffer and viewport selected.
          *
-         * \tparam Q Base data type for calculations.
+         * \tparam Q              Base data type for calculations.
+         * \tparam vertexShader   The vertex shader to compile and link to the
+         *                        programme.
+         * \tparam fragmentShader The fragment shader to compile and link to the
+         *                        programme.
          */
-        template<typename Q>
-        class renderToFramebufferProgramme : public programme<Q>, public framebuffer<Q>
+        template<typename Q, typename vertexShader, typename fragmentShader>
+        class renderToFramebufferProgramme : public programme<Q,vertexShader,fragmentShader>, public framebuffer<Q>
         {
             public:
-                /**\brief Construct with shaders
+                /**\brief Default constructor
                  *
-                 * Initialises an instance of this class with a copy of a vertex
-                 * and a fragment shader. The programme is not compiled and
-                 * linked before it's used for the first time, so it's OK to
-                 * initialise the class before you have an active OpenGL
-                 * context.
-                 *
-                 * The framebuffer object is similarly initialised with its
-                 * default constructor; it's not created or bound automatically
-                 * either, only when the use() method is called.
-                 *
-                 * \param[in] pVertexShader   The vertex shader to compile and
-                 *                            link to the programme.
-                 * \param[in] pFragmentShader The fragment shader to compile and
-                 *                            link to the programme.
+                 * Initialises an instance of this class by using the default
+                 * constructors of the programme and framebuffer. Nothing is
+                 * bound or created using OpenGL until it is first used.
                  */
-                renderToFramebufferProgramme (const std::string &pVertexShader, const std::string &pFragmentShader)
-                    : programme<Q>(pVertexShader, pFragmentShader),  framebuffer<Q>() {}
+                renderToFramebufferProgramme ()
+                    : programme<Q,vertexShader,fragmentShader>(),
+                      framebuffer<Q>() {}
 
                 /**\brief Use programme and render to associated framebuffer
                  *
@@ -1448,7 +1423,7 @@ namespace efgy
                  */
                 bool use (const GLuint &width, const GLuint &height)
                 {
-                    if (programme<Q>::use() && framebuffer<Q>::use())
+                    if (programme<Q,vertexShader,fragmentShader>::use() && framebuffer<Q>::use())
                     {
                         glViewport (0, 0, width, height);
 
@@ -1458,7 +1433,7 @@ namespace efgy
                     return false;
                 }
 
-                using programme<Q>::use;
+                using programme<Q,vertexShader,fragmentShader>::use;
                 using framebuffer<Q>::copy;
         };
 

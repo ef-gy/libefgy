@@ -35,6 +35,8 @@
 #include <ef.gy/opengl.h>
 #include <map>
 #include <string>
+#include <regex>
+#include <array>
 
 namespace efgy
 {
@@ -48,43 +50,83 @@ namespace efgy
          */
         namespace glsl
         {
+            /**\brief Shader variable type
+             *
+             * Determines the type of a variable.
+             */
             enum type
             {
-                gv_attribute,
-                gv_output,
-                gv_varying,
-                gv_uniform
+                gv_attribute, /**< Input variable from vertex data. */
+                gv_varying,   /**< Input or output varying variable. */
+                gv_uniform    /**< Input uniform variable. */
             };
 
+            /**\brief GLSL shader version
+             *
+             * The general layout of GLSL shaders varies significantly between
+             * versions; it is thus necessary to specify which shader version to
+             * produce.
+             */
             enum version
             {
-                ver_100,
-                ver_auto
+                ver_100, /**< Version 100 shaders; also used in WebGL and OpenGL
+                          *   ES.
+                          */
+                ver_auto /**< Automatically determine the version to use; upon
+                          *   Writing out a shader to a stream, the supported
+                          *   shaders are queried from the current OpenGL
+                          *   runtime to determine an appropriate type of shader
+                          *   that is supported by OpenGL.
+                          */
             };
 
             template <enum type T>
             class variable
             {
                 public:
-                    std::string name;
-                    std::string type;
-                    std::string precision;
+                    constexpr variable
+                        (const char *pName, const char *pType = "float", const char *pPrecision = "")
+                        : name(pName), type(pType), precision(pPrecision)
+                        {}
+
+                    const char *name;
+                    const char *type;
+                    const char *precision;
             };
 
-            template <enum version V>
+            /*
+             *
+             * \tparam V GLSL shader version to produce.
+             */
+            template <enum version V = ver_auto>
             class shader
             {
                 public:
+                    shader(const std::string &pMain = "",
+                           const std::vector<variable<gv_attribute>> &pAttribute = {},
+                           const std::vector<variable<gv_varying>> &pVarying = {},
+                           const std::vector<variable<gv_uniform>> &pUniform = {})
+                        : main(pMain),
+                          attribute(pAttribute),
+                          varying(pVarying),
+                          uniform(pUniform) {}
+
+                    shader(const std::string &pMain,
+                           const std::vector<variable<gv_varying>> &pVarying,
+                           const std::vector<variable<gv_uniform>> &pUniform = {})
+                        : main(pMain),
+                          attribute(),
+                          varying(pVarying),
+                          uniform(pUniform) {}
+
                     template <enum version R>
                     shader(const shader<R> &s)
                         : attribute(s.attribute),
-                          output(s.output),
                           varying(s.varying),
                           uniform(s.uniform),
                           main(s.main) {}
 
                     std::vector<variable<gv_attribute>> attribute;
-                    std::vector<variable<gv_output>>    output;
                     std::vector<variable<gv_varying>>   varying;
                     std::vector<variable<gv_uniform>>   uniform;
 
@@ -93,9 +135,9 @@ namespace efgy
 
             template <typename C>
             std::basic_ostream<C> &operator <<
-                (const std::basic_ostream<C> &out, const shader<ver_auto> &s)
+                (std::basic_ostream<C> &out, const shader<ver_auto> &s)
             {
-#if defined(GL_NUM_SHADING_LANGUAGE_VERSIONS)
+#if defined(GL_NUM_SHADING_LANGUAGE_VERSIONS) && 0
                 GLint versions;
                 glGetIntegerv(GL_NUM_SHADING_LANGUAGE_VERSIONS, &versions);
 
@@ -109,14 +151,21 @@ namespace efgy
                 const char *ver = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
                 if (ver)
                 {
+                    std::string sver = ver;
+                    std::regex v100("1\\.0.*");
+
+                    if (std::regex_match(sver, v100))
+                    {
+                        return out << shader<ver_100>(s);
+                    }
                 }
 #endif
-                out << shader<ver_100>(s);
+                return out << shader<ver_100>(s);
             }
 
             template <typename C>
             std::basic_ostream<C> &operator <<
-                (const std::basic_ostream<C> &out, const shader<ver_100> &s)
+                (std::basic_ostream<C> &out, const shader<ver_100> &s)
             {
                 out << "#version 100\n";
 
