@@ -44,10 +44,6 @@ namespace efgy
     class sexp
     {
         public:
-            virtual std::ostream& operator<<(std::ostream& str) = 0;
-            virtual std::istream& operator>>(std::istream& str) = 0;
-        
-        private:
 
     };
     
@@ -82,23 +78,11 @@ namespace efgy
 	        cons(T1 car_) : car(car_), cdr(efgy::maybe<T2>())
 	        {}
 	       
-	        /* \brief Stream insertion operator
-	        *
-	        * Displays the cons expression in a std::ostream.
-	        * The expression is displayed as (car . cdr).
-	        */
-	        std::ostream& operator<<(std::ostream& str)
-            	{
-        	    str << "(" << car << " . " << cdr << ")";
-                    return str;
-                }
-	
-	    private:
 	        /* \brief First element of the cons
              *
              * First element of the cons
              */
-            T1 car;
+            const T1 car;
 
             /* \brief Second element of the cons
              *
@@ -108,9 +92,21 @@ namespace efgy
              * NIL (which is used to indicate the end of a list,
              * among other things)
              */
-	        efgy::maybe<T2> cdr;
+	        const efgy::maybe<T2> cdr;
 	};
 	
+    /* \brief Stream insertion operator
+	 *
+	 * Displays the cons expression in a std::ostream.
+	 * The expression is displayed as (car . cdr).
+	 */
+     template<typename T1, typename T2>
+	 std::ostream& operator<<(std::ostream& str, cons<T1, T2> &s)
+     {
+           str << "(" << s.car << " . " << s.cdr << ")";
+           return str;
+     }
+            
     /** \brief An atomic S-expression
     *
     * Represents an atomic S-expression, which is a value
@@ -123,32 +119,34 @@ namespace efgy
 	class atom : public sexp
 	{
 	    public:
-	        /* \brief Constructs an atomic S-expression.
+        
+            /* \brief Constructs an atomic S-expression.
             *
             * Constructs an atomic S-expression.
             */
             atom(T data_) : data(data_)
 	        {}
 	        
-	    /* \brief Stream insertion operator
-	    * 
-	    * Displays the atomic value, as defined in the
-	    * stream insertion operator of type T.*/
-	    std::ostream& operator<<(std::ostream& str)
-            {
-                str << data;
-                return str;
-            }
 
 	
-	    private:
             /* \brief The atomic value
-             *
-             * The atomic value of the S-expression.
-             */
-	        T data;
+            * 
+            * The atomic value of the S-expression.
+            */
+	        const T data;
 	};
 	
+	/* \brief Stream insertion operator
+	 * 
+	 * Displays the atomic value, as defined in the
+	 * stream insertion operator of type T.*/
+	template<typename T>
+    std::ostream& operator<<(std::ostream& str, atom<T> a)
+    {
+       str << a.data;
+       return str;
+    }
+
 	class parser
 	{
 	    public:
