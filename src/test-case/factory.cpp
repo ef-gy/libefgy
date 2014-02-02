@@ -47,7 +47,7 @@ using namespace efgy::math;
 int testGeometryFactory (std::ostream &log)
 {
     std::cerr << "\n";
-    model<float,functor::echo,cube,7,7,format::cartesian>::with(log, 5);
+    model<float,functor::echo,cube,7,7,format::cartesian>::with(log, 5, 0, format::cartesian());
 
     std::set<const char *> models;
     models = with<float,functor::models,7>(models, "*", 0, 0);
