@@ -72,6 +72,12 @@ namespace efgy
                      *       namespace which do not have a precision parameter.
                      */
                     unsigned long precision;
+
+                    /**\copydoc cartesian::id */
+                    static const char *id (void)
+                    {
+                        return "polar";
+                    }
             };
 
             /**\brief Stream output operator for the polar format tag

@@ -48,7 +48,15 @@ namespace efgy
              * makes it possible for vectors of different colour spaces to be
              * converted properly.
              */
-            class RGB {};
+            class RGB
+            {
+                public:
+                    /**\copydoc cartesian::id */
+                    static const char *id (void)
+                    {
+                        return "RGB";
+                    }
+            };
         };
 
         template <typename Q>

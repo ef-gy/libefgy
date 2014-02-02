@@ -53,7 +53,20 @@ namespace efgy
              * This is the default coordinate format tag, which indicates that
              * the coordinates are cartesian coordinates.
              */
-            class cartesian {};
+            class cartesian
+            {
+                public:
+                    /**\brief Query coordinate format ID
+                     *
+                     * This is the ID that corresponds to the coordinate format;
+                     * used to differentiate between format tags of different
+                     * types.
+                     */
+                    static const char *id (void)
+                    {
+                        return "cartesian";
+                    }
+            };
 
             /**\brief Stream output operator for the cartesian format tag
              *

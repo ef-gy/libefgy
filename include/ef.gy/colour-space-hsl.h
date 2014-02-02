@@ -48,7 +48,15 @@ namespace efgy
              * makes it possible for vectors of different colour spaces to be
              * converted properly.
              */
-            class HSL {};
+            class HSL
+            {
+                public:
+                    /**\copydoc cartesian::id */
+                    static const char *id (void)
+                    {
+                        return "HSL";
+                    }
+            };
         };
 
         template <typename Q>

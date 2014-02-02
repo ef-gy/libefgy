@@ -100,7 +100,7 @@ namespace efgy
                      *
                      * \returns out, after writing the model information to it.
                      */
-                    static output apply (argument out)
+                    static output apply (argument out, const format &)
                     {
                         return out << d << "-" << T<Q,d,render::null<Q,e>,e,format>::id() << "@" << e << "\n";
                     }
@@ -162,7 +162,7 @@ namespace efgy
                      *
                      * \returns out, after adding the new model ID.
                      */
-                    static output apply (argument out)
+                    static output apply (argument out, const format &)
                     {
                         out.insert(T<Q,d,render::null<Q,e>,e,format>::id());
                         return out;
@@ -206,7 +206,7 @@ namespace efgy
                      *
                      * \returns out, after adding the new string.
                      */
-                    static output apply (argument out)
+                    static output apply (argument out, const format &)
                     {
                         std::ostringstream os;
                         os        << T<Q,d,render::null<Q,e>,e,format>::depth()
@@ -216,6 +216,62 @@ namespace efgy
                     }
 
                     /**\copydoc models::pass */
+                    static output pass (argument out)
+                    {
+                        return out;
+                    }
+            };
+
+            /**\brief Geometry factory functor: add coordinate format to set
+             *
+             * Another sample functor; this one adds all the coordinate formats
+             * that are encountered to a set of strings. This is very similar to
+             * the 'models' functor, but using the format IDs instead of the
+             * model IDs.
+             *
+             * \tparam Q      Base data type for calculations
+             * \tparam T      Model template, e.g. efgy::geometry::cube
+             * \tparam d      Model depth, e.g. 4 for a tesseract
+             * \tparam e      Model render depth, e.g. >= 4 when rendering a
+             *                tesseract
+             * \tparam format Vector coordinate format to work in.
+             */
+            template <typename Q,
+                      template <class,unsigned int,class,unsigned int,typename> class T,
+                      unsigned int d, unsigned int e,
+                      typename format>
+            class formats
+            {
+                public:
+                    /**\brief Argument type
+                     *
+                     * This functor takes a reference to a set of strings.
+                     */
+                    typedef std::set<const char *> &argument;
+
+                    /**\brief Return type
+                     *
+                     * This functor returns a reference to the given set.
+                     */
+                    typedef std::set<const char *> &output;
+
+                    /**\brief Add coordinate format to set
+                     *
+                     * Adds the instance's coordinate format to the set. This
+                     * only adds the proper name, without any attributes.
+                     *
+                     * \param[out] out The set to modify.
+                     * \param[out] out The coordinate format to add.
+                     *
+                     * \returns out, after adding the new coordinate format.
+                     */
+                    static output apply (argument out, const format &tag)
+                    {
+                        out.insert(tag.id());
+                        return out;
+                    }
+                    
+                    /**\copydoc echo::pass */
                     static output pass (argument out)
                     {
                         return out;
@@ -253,6 +309,7 @@ namespace efgy
                  * \param[out] arg   The argument to func::...().
                  * \param[in]  dims  The target number of model dimensions.
                  * \param[in]  rdims The target number of render dimensions.
+                 * \param[in]  tag   The vector format tag instance to use.
                  *
                  * \returns The return value of either func::pass or
                  *          func::apply, depending on whether the call
@@ -260,25 +317,26 @@ namespace efgy
                  */
                 constexpr static typename func<Q,T,d,e,format>::output with
                     (typename func<Q,T,d,e,format>::argument arg,
-                     const unsigned int &dims = 0,
-                     const unsigned int &rdims = 0)
+                     const unsigned int &dims,
+                     const unsigned int &rdims,
+                     const format &tag)
                 {
                     return d < T<Q,d,render::null<Q,e>,e,format>::dimensions::modelDimensionMinimum ? func<Q,T,d,e,format>::pass(arg)
-                         : (T<Q,d,render::null<Q,e>,e,format>::dimensions::modelDimensionMaximum > 0) && (d > T<Q,d,render::null<Q,e>,e,format>::dimensions::modelDimensionMaximum) ? model<Q,func,T,d-1,e,format>::with (arg, dims, rdims)
+                         : (T<Q,d,render::null<Q,e>,e,format>::dimensions::modelDimensionMaximum > 0) && (d > T<Q,d,render::null<Q,e>,e,format>::dimensions::modelDimensionMaximum) ? model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag)
                          : e < T<Q,d,render::null<Q,e>,e,format>::dimensions::renderDimensionMinimum ? func<Q,T,d,e,format>::pass(arg)
-                         : (T<Q,d,render::null<Q,e>,e,format>::dimensions::renderDimensionMaximum > 0) && (e > T<Q,d,render::null<Q,e>,e,format>::dimensions::renderDimensionMaximum) ? model<Q,func,T,d,e-1,format>::with (arg, dims, rdims)
+                         : (T<Q,d,render::null<Q,e>,e,format>::dimensions::renderDimensionMaximum > 0) && (e > T<Q,d,render::null<Q,e>,e,format>::dimensions::renderDimensionMaximum) ? model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag)
                          : 0 == rdims
-                            ? (   0 == dims ? func<Q,T,d,e,format>::apply(arg), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims), model<Q,func,T,d-1,e,format>::with (arg, dims, rdims)
-                                : d == dims ? func<Q,T,d,e,format>::apply(arg), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims)
+                            ? (   0 == dims ? func<Q,T,d,e,format>::apply(arg,tag), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag), model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag)
+                                : d == dims ? func<Q,T,d,e,format>::apply(arg, tag), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag)
                                 : d  < dims ? func<Q,T,d,e,format>::pass(arg)
-                                : model<Q,func,T,d-1,e,format>::with (arg, dims, rdims) )
+                                : model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag) )
                          : e == rdims
-                            ? (   0 == dims ? func<Q,T,d,e,format>::apply(arg), model<Q,func,T,d-1,e,format>::with (arg, dims, rdims)
-                                : d == dims ? func<Q,T,d,e,format>::apply(arg), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims)
+                            ? (   0 == dims ? func<Q,T,d,e,format>::apply(arg,tag), model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag)
+                                : d == dims ? func<Q,T,d,e,format>::apply(arg,tag), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag)
                                 : d  < dims ? func<Q,T,d,e,format>::pass(arg)
-                                : model<Q,func,T,d-1,e,format>::with (arg, dims, rdims) )
+                                : model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag) )
                          : e < rdims ? func<Q,T,d,e,format>::pass(arg)
-                         : model<Q,func,T,d,e-1,format>::with (arg, dims, rdims);
+                         : model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag);
                 }
         };
 
@@ -310,12 +368,15 @@ namespace efgy
                  * simply return the result of applying func's pass method to
                  * the first argument.
                  *
+                 * \param[in] arg The argument that is passed to the functor.
+                 *
                  * \returns func::pass(arg).
                  */
                 constexpr static typename func<Q,T,d,2,format>::output with
                     (typename func<Q,T,d,2,format>::argument arg,
                      const unsigned int &,
-                     const unsigned int &)
+                     const unsigned int &,
+                     const format &)
                 {
                     return func<Q,T,d,2,format>::pass(arg);
                 }
@@ -350,12 +411,15 @@ namespace efgy
                  * simply return the result of applying func's pass method to
                  * the first argument.
                  *
+                 * \param[in] arg The argument that is passed to the functor.
+                 *
                  * \returns func::pass(arg).
                  */
                 constexpr static typename func<Q,T,1,e,format>::output with
                     (typename func<Q,T,1,e,format>::argument arg,
                      const unsigned int &,
-                     const unsigned int &)
+                     const unsigned int &,
+                     const format &)
                 {
                     return func<Q,T,1,e,format>::pass(arg);
                 }
@@ -378,6 +442,7 @@ namespace efgy
          * \param[in]  type  The name to check, or "*" which always matches.
          * \param[in]  dims  The target number of model dimensions.
          * \param[in]  rdims The target number of render dimensions.
+         * \param[in]  tag   The vector format tag instance to use.
          *
          * \returns Whatever func::pass or func::with returns.
          */
@@ -391,10 +456,11 @@ namespace efgy
             (typename func<Q,T,d,e,format>::argument arg,
              const std::string &type,
              const unsigned int &dims,
-             const unsigned int &rdims)
+             const unsigned int &rdims,
+             const format &tag)
         {
             return ((type == "*") || (type == T<Q,d,render::null<Q,e>,e,format>::id()))
-                 ? model<Q,func,T,d,e,format>::with(arg, dims, rdims)
+                 ? model<Q,func,T,d,e,format>::with(arg, dims, rdims, tag)
                  : func<Q,T,d,e,format>::pass(arg);
         }
 
@@ -440,6 +506,7 @@ namespace efgy
                  *                   matches.
                  * \param[in]  dims  The target number of model dimensions.
                  * \param[in]  rdims The target number of render dimensions.
+                 * \param[in]  tag   The vector format tag instance to use.
                  *
                  * \returns Whatever func::pass returns.
                  */
@@ -447,9 +514,10 @@ namespace efgy
                     (argument arg,
                      const std::string &type,
                      const unsigned int &dims,
-                     const unsigned int &rdims)
+                     const unsigned int &rdims,
+                     const format &tag)
                 {
-                    return geometry::with<Q,func,d,e,parametricModel,format>(arg,type,dims,rdims);
+                    return geometry::with<Q,func,d,e,parametricModel,format>(arg,type,dims,rdims,tag);
                 }
         };
 
@@ -469,6 +537,7 @@ namespace efgy
          * \param[in]  type  The name to check, or "*" which always matches.
          * \param[in]  dims  The target number of model dimensions.
          * \param[in]  rdims The target number of render dimensions.
+         * \param[in]  tag   The vector format tag instance to use.
          *
          * \returns Whatever func::pass or func::with returns.
          */
@@ -482,9 +551,10 @@ namespace efgy
             (typename parametricFactory<Q,func,d,e,T,format>::argument arg,
              const std::string &type,
              const unsigned int &dims,
-             const unsigned int &rdims)
+             const unsigned int &rdims,
+             const format &tag)
         {
-            return parametricFactory<Q,func,d,e,T,format>::with(arg,type,dims,rdims);
+            return parametricFactory<Q,func,d,e,T,format>::with(arg,type,dims,rdims,tag);
         }
 
         /**\brief Call template function with geometric type(s)
@@ -500,10 +570,11 @@ namespace efgy
          * \tparam e      Maximum number of render dimensions.
          * \tparam format Vector coordinate format to work in.
          *
-         * \param[out] arg    The argument to func::...().
-         * \param[in]  type   The model to pass to func, or "*" for "all models".
-         * \param[in]  dims   The target number of model dimensions.
-         * \param[in]  rdims  The target number of render dimensions.
+         * \param[out] arg   The argument to func::...().
+         * \param[in]  type  The model to pass to func, or "*" for "all models".
+         * \param[in]  dims  The target number of model dimensions.
+         * \param[in]  rdims The target number of render dimensions.
+         * \param[in]  tag   The vector format tag instance to use.
          *
          * \returns Whatever func::pass returns.
          */
@@ -516,22 +587,61 @@ namespace efgy
             (typename func<Q,cube,d,e,format>::argument arg,
              const std::string &type,
              const unsigned int &dims,
-             const unsigned int &rdims)
+             const unsigned int &rdims,
+             const format &tag = format())
         {
-            with<Q,func,d,e,simplex,format>(arg,type,dims,rdims);
-            with<Q,func,d,e,plane,format>(arg,type,dims,rdims);
-            with<Q,func,d,e,cube,format>(arg,type,dims,rdims);
-            with<Q,func,d,e,formula::sphere,format>(arg,type,dims,rdims);
-            with<Q,func,d,e,formula::torus,format>(arg,type,dims,rdims);
-            with<Q,func,d,e,formula::moebiusStrip,format>(arg,type,dims,rdims);
-            with<Q,func,d,e,formula::kleinBagel,format>(arg,type,dims,rdims);
-            with<Q,func,d,e,formula::kleinBottle,format>(arg,type,dims,rdims);
-            with<Q,func,d,e,sierpinski::gasket,format>(arg,type,dims,rdims);
-            with<Q,func,d,e,sierpinski::carpet,format>(arg,type,dims,rdims);
-            with<Q,func,d,e,randomAffineIFS,format>(arg,type,dims,rdims);
-            with<Q,func,d,e,flame::random,format>(arg,type,dims,rdims);
+            with<Q,func,d,e,simplex,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,e,plane,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,e,cube,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,e,formula::sphere,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,e,formula::torus,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,e,formula::moebiusStrip,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,e,formula::kleinBagel,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,e,formula::kleinBottle,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,e,sierpinski::gasket,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,e,sierpinski::carpet,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,e,randomAffineIFS,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,e,flame::random,format>(arg,type,dims,rdims,tag);
 
             return func<Q,cube,d,e,format>::pass(arg);
+        }
+
+        /**\brief Call template function with geometric type(s)
+         *
+         * An alternative to the main entry to the model factory functionality,
+         * this variant also allows specifying the vector format to use at run
+         * time.
+         *
+         * \tparam Q      Base datatype for model geometry.
+         * \tparam func   The function to call.
+         * \tparam d      Maximum number of model dimensions.
+         * \tparam e      Maximum number of render dimensions.
+         *
+         * \param[out] arg    The argument to func::...().
+         * \param[in]  format Vector format to pass to func, e.g. "cartesian"
+         *                    for the default or "*" for "all formats".
+         * \param[in]  type   The model to pass to func, or "*" for "all
+         *                    models".
+         * \param[in]  dims   The target number of model dimensions.
+         * \param[in]  rdims  The target number of render dimensions.
+         *
+         * \returns Whatever func::pass returns.
+         */
+        template<typename Q,
+                 template<typename, template <class,unsigned int,class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
+                 unsigned int d,
+                 unsigned int e = d>
+        static inline typename func<Q,cube,d,e,math::format::cartesian>::output with
+            (typename func<Q,cube,d,e,math::format::cartesian>::argument arg,
+             const std::string &format,
+             const std::string &type,
+             const unsigned int &dims,
+             const unsigned int &rdims)
+        {
+            if (format == "*" || format == "cartesian")
+                with<Q,func,d,e,math::format::cartesian>(arg,type,dims,rdims,math::format::cartesian());
+
+            return func<Q,cube,d,e,math::format::cartesian>::pass(arg);
         }
     };
 };
