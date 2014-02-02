@@ -53,6 +53,7 @@ namespace efgy
                     {}
 
                 using typename parent::face;
+                using parent::faceVertices;
 
                 /**\brief Render mesh with renderer; use indices
                  *
@@ -71,28 +72,41 @@ namespace efgy
                     {
                         for (const face &p : faces)
                         {
-                            renderer.drawFace(p);
+                            std::array<math::vector<Q,d>,faceVertices> q;
+                            
+                            for (std::size_t i = 0; i < faceVertices; i++)
+                            {
+                                q[i] = p[i];
+                            }
+                            
+                            renderer.drawFace(q);
                         }
                     }
                     else
                     {
                         typename std::vector<Q>::const_iterator itIndex = indices.begin();
 
-                        std::for_each (faces.begin(), faces.end(), [&] (const face &p)
+                        for (const face &p : faces)
                         {
-                            renderer.drawFace (p, *itIndex);
+                            std::array<math::vector<Q,d>,faceVertices> q;
+                            
+                            for (std::size_t i = 0; i < faceVertices; i++)
+                            {
+                                q[i] = p[i];
+                            }
+
+                            renderer.drawFace (q, *itIndex);
                             itIndex++;
-                        });
+                        }
                     }
                 }
+
                 using parent::parameter;
                 using parent::renderSolid;
                 using parent::renderer;
                 using parent::faces;
                 using parent::tag;
                 std::vector<Q> indices;
-
-                using parent::faceVertices;
 
                 std::vector<trans<Q,d> > functions;
 
@@ -117,7 +131,7 @@ namespace efgy
 
                         std::vector<Q> rindices = indices;
                         indices.clear();
-                        std::vector<std::array<math::vector<Q,d>,faceVertices> > rfaces;
+                        std::vector<std::array<math::vector<Q,d,format>,faceVertices>> rfaces;
 
                         while (faces.size() > 0)
                         {
@@ -135,19 +149,19 @@ namespace efgy
                     }
                 }
             
-                math::vector<Q,d> apply
+                math::vector<Q,d,format> apply
                     (const unsigned int &f,
-                     const math::vector<Q,d> &v)
+                     const math::vector<Q,d,format> &v)
                 {
                     return functions[f] * v;
                 }
             
                 template<std::size_t fdim>
-                std::array<math::vector<Q,d>,fdim> apply
+                std::array<math::vector<Q,d,format>,fdim> apply
                     (const unsigned int &f,
-                     const std::array<math::vector<Q,d>,fdim> &l)
+                     const std::array<math::vector<Q,d,format>,fdim> &l)
                 {
-                    std::array<math::vector<Q,d>,fdim> r;
+                    std::array<math::vector<Q,d,format>,fdim> r;
 
                     for (int i = 0; i < fdim; i++)
                     {
@@ -207,8 +221,6 @@ namespace efgy
                     using parent::functions;
                     using parent::calculateObject;
 
-                    static unsigned int depth (void) { return od; }
-                    static unsigned int renderDepth (void) { return d; }
                     static const char *id (void) { return "sierpinski-gasket"; }
             };
 

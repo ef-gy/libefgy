@@ -484,7 +484,7 @@ namespace efgy
                   template<typename, template <class,unsigned int,class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                   unsigned int d,
                   unsigned int e,
-                  template <class,unsigned int,unsigned int> class T,
+                  template <class,unsigned int,unsigned int,typename> class T,
                   typename format>
         class parametricFactory
         {
@@ -545,7 +545,7 @@ namespace efgy
                  template<typename, template <class,unsigned int,class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                  unsigned int d,
                  unsigned int e,
-                 template <class,unsigned int,unsigned int> class T,
+                 template <class,unsigned int,unsigned int,typename> class T,
                  typename format>
         static inline typename parametricFactory<Q,func,d,e,T,format>::output with
             (typename parametricFactory<Q,func,d,e,T,format>::argument arg,
@@ -641,6 +641,9 @@ namespace efgy
             if (format == "*" || format == "cartesian")
                 with<Q,func,d,e,math::format::cartesian>(arg,type,dims,rdims,math::format::cartesian());
 
+            if (format == "*" || format == "polar")
+                with<Q,func,d,e,math::format::polar>(arg,type,dims,rdims,math::format::polar());
+            
             return func<Q,cube,d,e,math::format::cartesian>::pass(arg);
         }
     };

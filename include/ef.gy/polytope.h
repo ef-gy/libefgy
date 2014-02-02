@@ -284,7 +284,14 @@ namespace efgy
                 {
                     for (const face &p : faces)
                     {
-                        renderer.drawFace(p);
+                        std::array<math::vector<Q,d>,faceVertices> q;
+
+                        for (std::size_t i = 0; i < faceVertices; i++)
+                        {
+                            q[i] = p[i];
+                        }
+
+                        renderer.drawFace(q);
                     }
                 }
 

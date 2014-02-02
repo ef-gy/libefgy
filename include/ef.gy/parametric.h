@@ -47,7 +47,7 @@ namespace efgy
          */
         namespace formula
         {
-            template <typename Q, unsigned int od, unsigned int d>
+            template <typename Q, unsigned int od, unsigned int d, typename format>
             class moebiusStrip
             {
                 public:
@@ -69,7 +69,7 @@ namespace efgy
                     }
             };
 
-            template <typename Q, unsigned int od, unsigned int d>
+            template <typename Q, unsigned int od, unsigned int d, typename format>
             class kleinBagel
             {
                 public:
@@ -90,7 +90,7 @@ namespace efgy
                     }
             };
 
-            template <typename Q, unsigned int od, unsigned int d>
+            template <typename Q, unsigned int od, unsigned int d, typename format>
             class kleinBottle
             {
                 public:
@@ -118,7 +118,7 @@ namespace efgy
                     }
             };
 
-            template <typename Q, unsigned int od, unsigned int d>
+            template <typename Q, unsigned int od, unsigned int d, typename format>
             class sphere
             {
                 public:
@@ -143,7 +143,7 @@ namespace efgy
                     }
             };
             
-            template <typename Q, unsigned int od, unsigned int d>
+            template <typename Q, unsigned int od, unsigned int d, typename format>
             class plane
             {
                 public:
@@ -167,7 +167,7 @@ namespace efgy
                     }
             };
 
-            template <typename Q, unsigned int od, unsigned int d>
+            template <typename Q, unsigned int od, unsigned int d, typename format>
             class torus
             {
                 public:
@@ -212,13 +212,13 @@ namespace efgy
          * \tparam format  Vector coordinate format to work in.
          */
         template <typename Q, unsigned int od, unsigned int d,
-                  template <typename, unsigned int, unsigned int> class formula,
+                  template <typename, unsigned int, unsigned int, typename> class formula,
                   typename render,
                   typename format>
         class parametric : public polytope<Q,od,d,4,render,format>
         {
             public:
-                typedef formula<Q,od,d> source;
+                typedef formula<Q,od,d,format> source;
                 typedef polytope<Q,od,d,4,render,format> parent;
             
                 parametric (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
@@ -237,13 +237,13 @@ namespace efgy
                 static const char *id (void) { return source::id(); }
 
                 void recurse
-                    (cube<Q,od,render,od,format> &cube,
+                    (const cube<Q,od,render,od,math::format::cartesian> &cube,
                      math::vector<Q,od> v,
                      math::vector<Q,od> a)
                 {
                     for (std::array<math::vector<Q,od>,4> f : cube.faces)
                     {
-                        std::array<math::vector<Q,d>,4> g;
+                        std::array<math::vector<Q,d,format>,4> g;
 
                         for (std::size_t i = 0; i < 4; i++)
                         {
@@ -252,7 +252,7 @@ namespace efgy
                                 f[i][q] *= a[q];
                             }
 
-                            g[i] = source::getCoordinates(parameter, v+f[i]);
+                            g[i] = std::array<Q,d>(source::getCoordinates(parameter, v+f[i]));
                         }
 
                         faces.push_back (g);
@@ -260,7 +260,7 @@ namespace efgy
                 }
 
                 void recurse
-                    (cube<Q,od,render,od,format> &cube,
+                    (cube<Q,od,render,od,math::format::cartesian> &cube,
                      std::size_t dim,
                      math::vector<Q,od> v,
                      math::vector<Q,od> a)
@@ -273,7 +273,7 @@ namespace efgy
                     {
                         const range<Q> qs = source::getRange(parameter, dim);
                         a[dim] = qs.stride;
-                        
+
                         for (const Q &q : qs)
                         {
                             v[dim] = q;
@@ -285,7 +285,8 @@ namespace efgy
                 void calculateObject(void)
                 {
                     parameters<Q> cubeParameter;
-                    cube<Q,od,render,od,format> cube (renderer, cubeParameter, tag);
+                    cube<Q,od,render,od,math::format::cartesian> cube
+                        (renderer, cubeParameter, math::format::cartesian());
 
                     faces.clear();
 

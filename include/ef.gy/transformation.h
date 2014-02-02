@@ -86,15 +86,18 @@ namespace efgy
                      * Applies a transformation to a vector by 
                      * multiplying the transformation matrix to it.
                      *
+                     * \tparam format The vector format to use.
+                     *
                      * \param pV a vector from Q^d
                      *
                      * \returns The transformed vector, which is also
                      * in Q^d.
                      */
-                    math::vector<Q,d> operator *
-                        (const math::vector<Q,d> &pV) const
+                    template <typename format>
+                    math::vector<Q,d,format> operator *
+                        (const math::vector<Q,d,format> &pV) const
                     {
-                        math::vector<Q,d> rv;
+                        math::vector<Q,d,format> rv;
 
                         math::matrix<Q,1,d> vectorMatrix;
 
@@ -236,14 +239,17 @@ namespace efgy
                      *
                      * Applies an affine transformation to a vector.
                      *
+                     * \tparam format The vector format to use.
+                     *
                      * \param pV The vector the transformation is applied to.
                      *
                      * \returns The transformed vector.
                      */
-                    math::vector<Q,d> operator *
-                        (const math::vector<Q,d> &pV) const
+                    template <typename format>
+                    math::vector<Q,d,format> operator *
+                        (const math::vector<Q,d,format> &pV) const
                     {
-                        math::vector<Q,d> rv;
+                        math::vector<Q,d,format> rv;
 
                         math::matrix<Q,1,d+1> vectorMatrix;
 
@@ -314,10 +320,11 @@ namespace efgy
                         : affine<Q,d>()
                         {}
 
-                    math::vector<Q,d-1> operator *
-                        (const math::vector<Q,d> &pP) const
+                    template <typename format>
+                    math::vector<Q,d-1,format> operator *
+                        (const math::vector<Q,d,format> &pP) const
                     {
-                        math::vector<Q,d-1> result;
+                        math::vector<Q,d-1,format> result;
                     
                         math::vector<Q,d> R = affine<Q,d>(*this) * pP;
 
