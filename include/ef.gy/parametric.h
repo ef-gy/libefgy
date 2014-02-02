@@ -221,8 +221,8 @@ namespace efgy
                 typedef formula<Q,od,d> source;
                 typedef polytope<Q,od,d,4,render,format> parent;
             
-                parametric (render &pRenderer, const parameters<Q> &pParameter)
-                    : parent(pRenderer, pParameter)
+                parametric (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
+                    : parent(pRenderer, pParameter, pFormat)
                     {
                         calculateObject();
                     }
@@ -230,6 +230,7 @@ namespace efgy
                 using parent::renderer;
                 using parent::parameter;
                 using parent::faces;
+                using parent::tag;
 
                 typedef typename source::dimensions dimensions;
 
@@ -284,7 +285,7 @@ namespace efgy
                 void calculateObject(void)
                 {
                     parameters<Q> cubeParameter;
-                    cube<Q,od,render,od,format> cube (renderer, cubeParameter);
+                    cube<Q,od,render,od,format> cube (renderer, cubeParameter, tag);
 
                     faces.clear();
 

@@ -48,8 +48,8 @@ namespace efgy
             public:
                 typedef polytope<Q,od,d,primitive<Q,pd,render,d,format>::faceVertices,render,format> parent;
 
-                ifs (render &pRenderer, const parameters<Q> &pParameter)
-                    : parent(pRenderer, pParameter)
+                ifs (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
+                    : parent(pRenderer, pParameter, pFormat)
                     {}
 
                 using typename parent::face;
@@ -89,6 +89,7 @@ namespace efgy
                 using parent::renderSolid;
                 using parent::renderer;
                 using parent::faces;
+                using parent::tag;
                 std::vector<Q> indices;
 
                 using parent::faceVertices;
@@ -97,7 +98,7 @@ namespace efgy
 
                 void calculateObject (void)
                 {
-                    primitive<Q,pd,render,d,format> source(parent::renderer, parameter);
+                    primitive<Q,pd,render,d,format> source(parent::renderer, parameter, tag);
 
                     faces = source.faces;
                     while (faces.size() > indices.size())
@@ -165,8 +166,8 @@ namespace efgy
                 public:
                     typedef ifs<Q,od,render,d,cube,od,transformation::affine,format> parent;
 
-                    gasket(render &pRenderer, const parameters<Q> &pParameter)
-                        : parent(pRenderer, pParameter)
+                    gasket(render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
+                        : parent(pRenderer, pParameter, pFormat)
                         {
                             const unsigned int nfunctions = (1<<(od-1))+1;
                             std::array<math::vector<Q,d>,nfunctions> translations;
@@ -217,8 +218,8 @@ namespace efgy
                 public:
                     typedef ifs<Q,od,render,d,cube,od,transformation::affine,format> parent;
 
-                    carpet(render &pRenderer, const parameters<Q> &pParameter)
-                        : parent(pRenderer, pParameter)
+                    carpet(render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
+                        : parent(pRenderer, pParameter, pFormat)
                         {
                             const unsigned int nfunctions = od == 2 ? 8 : 20;
                             std::array<math::vector<Q,d>,nfunctions> translations;
@@ -382,8 +383,8 @@ namespace efgy
             public:
                 typedef ifs<Q,od,render,d,cube,2,transformation::affine,format> parent;
 
-                randomAffineIFS(render &pRenderer, const parameters<Q> &pParameter)
-                    : parent(pRenderer, pParameter)
+                randomAffineIFS(render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
+                    : parent(pRenderer, pParameter, pFormat)
                     {
                         calculateObject();
                     }

@@ -268,9 +268,10 @@ namespace efgy
                  *
                  * \param[out] pRenderer  Renderer instance to use.
                  * \param[in]  pParameter Polytope parameters to apply.
+                 * \param[in]  pFormat    Coordinate format tag instance.
                  */
-                polytope (render &pRenderer, const parameters<Q> &pParameter)
-                    : renderer(pRenderer), parameter(pParameter)
+                polytope (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
+                    : renderer(pRenderer), parameter(pParameter), tag (pFormat)
                     {}
 
                 /**\brief Render mesh with renderer
@@ -350,6 +351,18 @@ namespace efgy
                     return "none";
                 }
 
+                /**\brief Query vector coordinate format ID
+                 *
+                 * The vector format tags have unique IDs to differentiate
+                 * between them; this function returns that ID.
+                 *
+                 * \returns The model's ID as a C-style string.
+                 */
+                static constexpr const char *formatID (void)
+                {
+                    return format::id();
+                }
+            
                 /**\brief Query the model's genome
                  *
                  * Every primitive that uses parameters should be able to
@@ -394,6 +407,12 @@ namespace efgy
                  * in the constructor.
                  */
                 const parameters<Q> &parameter;
+
+                /**\brief Coordinate format tag
+                 *
+                 * A copy of the vector format tag for this model.
+                 */
+                const format tag;
         };
 
         template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
@@ -402,8 +421,8 @@ namespace efgy
             public:
                 typedef polytope<Q,od,d,3,render,format> parent;
 
-                simplex (render &pRenderer, const parameters<Q> &pParameter)
-                    : parent(pRenderer, pParameter)
+                simplex (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
+                    : parent(pRenderer, pParameter, pFormat)
                     {
                         calculateObject();
                     }
@@ -534,8 +553,8 @@ namespace efgy
             public:
                 typedef polytope<Q,od,d,4,render,format> parent;
 
-                cube (render &pRenderer, const parameters<Q> &pParameter)
-                    : parent(pRenderer, pParameter)
+                cube (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
+                    : parent(pRenderer, pParameter, pFormat)
                     {
                         calculateObject();
                     }
