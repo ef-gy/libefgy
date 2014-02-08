@@ -79,14 +79,14 @@ namespace efgy
                  * This is the number of bits in the numerator or denominator of
                  * fractions that are output to the stream. The default is '24'.
                  */
-                std::ssize_t precision;
+                long precision;
 
                 /**\brief Output range resolution
                  *
                  * This is the number of steps used when writing the elements of
                  * ranges to the stream. The default is '8'.
                  */
-                std::ssize_t resolution;
+                long resolution;
         };
 
         /**\brief XML tag
@@ -131,14 +131,14 @@ namespace efgy
                  *
                  * \param[in] pPrecision The precision to store.
                  */
-                constexpr precision (const std::ssize_t &pPrecision)
+                constexpr precision (const long &pPrecision)
                     : value(pPrecision) {}
 
                 /**\brief Precision value
                  *
                  * This is the actual precision stored in the wrapper.
                  */
-                const std::ssize_t value;
+                const long value;
         };
 
         /**\brief Update precision of XML stream
@@ -175,14 +175,14 @@ namespace efgy
                  *
                  * \param[in] pResolution The resolution to store.
                  */
-                constexpr resolution (const std::ssize_t &pResolution)
+                constexpr resolution (const long &pResolution)
                     : value(pResolution) {}
 
                 /**\brief Resolution value
                  *
                  * This is the actual resolution stored in the wrapper.
                  */
-                const std::ssize_t value;
+                const long value;
         };
 
         /**\brief Update resolution of XML stream
