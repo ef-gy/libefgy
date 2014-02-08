@@ -64,8 +64,8 @@ namespace efgy
                  */
                 oxmlstream (std::basic_ostream<C> &pStream)
                     : stream(pStream),
-                      precision(8),
-                      resolution(24)
+                      precision(24),
+                      resolution(8)
                     {}
 
                 /**\brief Output stream reference
