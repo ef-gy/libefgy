@@ -33,7 +33,7 @@
 #define EF_GY_MARKOV_H
 
 #include <ef.gy/maybe.h>
-#include <ef.gy/random.h>
+#include <random>
 #include <vector>
 #include <array>
 #include <map>
@@ -69,7 +69,7 @@ namespace efgy
          * \tparam counter Type for a counter; used when training a model and
          *                 when using the model data to generate things.
          */
-        template<typename T, unsigned int order, typename rng = random::mersenneTwister<>, typename counter = unsigned long>
+        template<typename T, unsigned int order, typename rng = std::mt19937, typename counter = unsigned long>
         class chain
         {
             public:

@@ -276,13 +276,13 @@ namespace efgy
                     randomFlame(const parameters<Q> &pParameter, const unsigned long long &pSeed)
                         : flame<Q,d>(od), seed(pSeed)
                         {
-                            efgy::random::mersenneTwister<> PRNG (pSeed);
+                            std::mt19937 PRNG (pSeed);
 
                             transformationMatrix = randomAffine<Q,d,od>(pParameter, 0).transformationMatrix;
 
                             for (unsigned int i = 0; i < coefficients; i++)
                             {
-                                coefficient[i] = Q(PRNG.rand()%10000)/Q(10000);
+                                coefficient[i] = Q(PRNG()%10000)/Q(10000);
                             }
 
                             for (unsigned int nonzero = pParameter.flameCoefficients + 1;
@@ -303,7 +303,7 @@ namespace efgy
                                 
                                 if (nonzero > pParameter.flameCoefficients)
                                 {
-                                    coefficient[(PRNG.rand()%coefficients)] = Q(0.);
+                                    coefficient[(PRNG()%coefficients)] = Q(0.);
                                 }
                             }
                             
@@ -367,13 +367,13 @@ namespace efgy
                         {
                             functions.clear();
 
-                            efgy::random::mersenneTwister<> PRNG (parameter.seed);
+                            std::mt19937 PRNG (parameter.seed);
 
                             const unsigned int nfunctions = parameter.functions;
 
                             for (unsigned int i : range<unsigned int>(0,nfunctions,nfunctions,false))
                             {
-                                functions.push_back (transformation::randomFlame<Q,od,d>(parameter, PRNG.rand()));
+                                functions.push_back (transformation::randomFlame<Q,od,d>(parameter, PRNG()));
                             }
                         
                             parent::calculateObject();
