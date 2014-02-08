@@ -1,4 +1,9 @@
 /**\file
+ * \brief XML renderer
+ *
+ * The templates in this header file allow tagging output streams as XML output
+ * streams so they can be written to like any other C++ stream but producing
+ * proper XML instead of plain text.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
