@@ -175,7 +175,7 @@ namespace efgy
      *       that you can test for much more easily than a convoluted version
      *       string? ;)
      */
-    static const unsigned int version = 6;
+    static const unsigned int version = 7;
 };
 
 #endif
