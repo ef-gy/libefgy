@@ -342,7 +342,7 @@ namespace efgy
                 v[2] = (z < 0) ? (value[2] - cl * Q(-z)) : (value[2] + cr * Q(z));
                 stream << v;
             }
-            stream.stream << "</set>";
+            stream.stream << "</set></picker>";
 
             return stream;
         }
