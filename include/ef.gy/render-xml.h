@@ -29,103 +29,274 @@
 #define EF_GY_RENDER_XML_H
 
 #include <ef.gy/render.h>
+#include <ef.gy/vector.h>
+#include <ef.gy/colour-space-hsl.h>
 #include <ef.gy/continued-fractions.h>
 #include <string>
 #include <sstream>
+#include <ostream>
 
 namespace efgy
 {
     namespace render
     {
-        template <class Q>
-        std::string xml (const Q &value, bool small = false, const long &precision = 24)
+        /**\brief std::ostream XML tag
+         *
+         * Used to distinguish between a plain std::ostream, and one where the
+         * output should be in XML format.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         */
+        template <typename C>
+        class oxmlstream
         {
-            throw "no conversion to XML known";
-            return "";
+            public:
+                /**\brief Construct with stream reference
+                 *
+                 * Initialises a new ostream XML tag instance.
+                 *
+                 * \param[out] pStream The stream to write to.
+                 */
+                oxmlstream (std::basic_ostream<C> &pStream)
+                    : stream(pStream),
+                      precision(8),
+                      resolution(24)
+                    {}
+
+                /**\brief Output stream reference
+                 *
+                 * This is the stream where the output is written to.
+                 */
+                std::basic_ostream<C> &stream;
+
+                /**\brief Output precision
+                 *
+                 * This is the number of bits in the numerator or denominator of
+                 * fractions that are output to the stream. The default is '24'.
+                 */
+                std::size_t precision;
+
+                /**\brief Output range resolution
+                 *
+                 * This is the number of steps used when writing the elements of
+                 * ranges to the stream. The default is '8'.
+                 */
+                std::size_t resolution;
+        };
+
+        /**\brief XML tag
+         *
+         * Write this to an ostream to turn it into an oxmlstream. Like this:
+         *
+         * \code{.cpp}
+         * cout << XML();
+         * \encode
+         */
+        class XML {};
+
+        /**\brief Convert std::ostream to XML
+         *
+         * Converts the given stream to an XML stream so that write operations
+         * after that will produce XML instead of plain text.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         *
+         * \param[out] stream The stream to write to.
+         */
+        template <typename C>
+        constexpr inline oxmlstream<C> operator << (std::basic_ostream<C> &stream, const XML &)
+        {
+            return oxmlstream<C>(stream);
         }
 
-        template <>
-        std::string xml (const math::vector<math::fraction,3,math::format::HSL> &pValue, bool small, const long &precision)
+        /**\brief Precision wrapper
+         *
+         * Used to update the precision field of an XML output stream, like so:
+         *
+         * \code{.cpp}
+         * cout << XML() << precision(24);
+         * \encode
+         */
+        class precision
+        {
+            public:
+                /**\brief Construct with precision
+                 *
+                 * Initialises the instance with a precision value.
+                 *
+                 * \param[in] pPrecision The precision to store.
+                 */
+                constexpr precision (const std::size_t &pPrecision)
+                    : value(pPrecision) {}
+
+                /**\brief Precision value
+                 *
+                 * This is the actual precision stored in the wrapper.
+                 */
+                const std::size_t value;
+        };
+
+        /**\brief Update precision of XML stream
+         *
+         * Updates the precision member of an XML output stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         *
+         * \param[in] stream The stream to modify.
+         * \param[in] p      The new precision value.
+         *
+         * \returns A new copy of the stream.
+         */
+        template <typename C>
+        constexpr inline oxmlstream<C> operator << (oxmlstream<C> stream, const precision &p)
+        {
+            return stream.precision = p.value, stream;
+        }
+
+        /**\brief Resolution wrapper
+         *
+         * Used to update the resolution field of an XML output stream, like so:
+         *
+         * \code{.cpp}
+         * cout << XML() << resolution(8);
+         * \encode
+         */
+        class resolution
+        {
+            public:
+                /**\brief Construct with resolution
+                 *
+                 * Initialises the instance with a resolution value.
+                 *
+                 * \param[in] pResolution The resolution to store.
+                 */
+                constexpr resolution (const std::size_t &pResolution)
+                    : value(pResolution) {}
+
+                /**\brief Resolution value
+                 *
+                 * This is the actual resolution stored in the wrapper.
+                 */
+                const std::size_t value;
+        };
+
+        /**\brief Update resolution of XML stream
+         *
+         * Updates the resolution member of an XML output stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         *
+         * \param[in] stream The stream to modify.
+         * \param[in] p      The new resolution value.
+         *
+         * \returns A new copy of the stream.
+         */
+        template <typename C>
+        constexpr inline oxmlstream<C> operator << (oxmlstream<C> stream, const resolution &p)
+        {
+            return stream.resolution = p.value, stream;
+        }
+
+        /**\brief Write HSL colour to XML stream
+         *
+         * Writes an XML serialisation of an HSL vector to a stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         *
+         * \param[out] stream The XML stream to write to.
+         * \param[in]  pValue The HSL colour value to serialise.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename C>
+        static inline oxmlstream<C> operator << (oxmlstream<C> stream, const math::vector<math::fraction,3,math::format::HSL> &pValue)
         {
             math::vector<math::fraction,3,math::format::HSL> value = pValue;
-            value.hue = math::numeric::round(value.hue, precision);
-            value.saturation = math::numeric::round(value.saturation, precision);
-            value.lightness = math::numeric::round(value.lightness, precision);
-
-            std::ostringstream s("");
+            value.hue = math::numeric::round(value.hue, stream.precision);
+            value.saturation = math::numeric::round(value.saturation, stream.precision);
+            value.lightness = math::numeric::round(value.lightness, stream.precision);
             
-            s << std::string("<colour xmlns='http://colouri.se/2012' space='hsl'")
-              << (small ? " type='small'" : "")
-              << " hue='" << value.hue.numerator << "'"
-              << " saturation='" << value.saturation.numerator << "'"
-              << " lightness='" << value.lightness.numerator << "'";
+            stream.stream << std::string("<colour xmlns='http://colouri.se/2012' space='hsl'")
+                          << " hue='" << value.hue.numerator << "'"
+                          << " saturation='" << value.saturation.numerator << "'"
+                          << " lightness='" << value.lightness.numerator << "'";
 
             if (value.hue.denominator != math::numeric::one())
             {
-                s << " hueDenominator='" << value.hue.denominator << "'";
+                stream.stream << " hueDenominator='" << value.hue.denominator << "'";
             }
             if (value.saturation.denominator != math::numeric::one())
             {
-                s << " saturationDenominator='" << value.saturation.denominator << "'";
+                stream.stream << " saturationDenominator='" << value.saturation.denominator << "'";
             }
             if (value.lightness.denominator != math::numeric::one())
             {
-                s << " lightnessDenominator='" << value.lightness.denominator << "'";
+                stream.stream << " lightnessDenominator='" << value.lightness.denominator << "'";
             }
 
-            s << "/>";
+            stream.stream << "/>";
 
-            return s.str();
+            return stream;
         }
 
-        template <>
-        std::string xml (const math::vector<math::fraction,3,math::format::RGB> &pValue, bool small, const long &precision)
+        /**\brief Write RGB colour to XML stream
+         *
+         * Writes an XML serialisation of an RGB vector to a stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         *
+         * \param[out] stream The XML stream to write to.
+         * \param[in]  pValue The RGB colour value to serialise.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename C>
+        static inline oxmlstream<C> operator << (oxmlstream<C> stream, const math::vector<math::fraction,3,math::format::RGB> &pValue)
         {
             math::vector<math::fraction,3,math::format::RGB> value = pValue;
-            value.red = math::numeric::round(value.red, precision);
-            value.green = math::numeric::round(value.green, precision);
-            value.blue = math::numeric::round(value.blue, precision);
+            value.red = math::numeric::round(value.red, stream.precision);
+            value.green = math::numeric::round(value.green, stream.precision);
+            value.blue = math::numeric::round(value.blue, stream.precision);
 
-            std::ostringstream s("");
-            
-            s << std::string("<colour xmlns='http://colouri.se/2012' space='rgb'")
-              << (small ? " type='small'" : "")
-              << " red='" << value.red.numerator << "'"
-              << " green='" << value.green.numerator << "'"
-              << " blue='" << value.blue.numerator << "'";
+            stream.stream << std::string("<colour xmlns='http://colouri.se/2012' space='rgb'")
+                          << " red='" << value.red.numerator << "'"
+                          << " green='" << value.green.numerator << "'"
+                          << " blue='" << value.blue.numerator << "'";
 
             if (value.red.denominator != math::numeric::one())
             {
-                s << " redDenominator='" << value.red.denominator << "'";
+                stream.stream << " redDenominator='" << value.red.denominator << "'";
             }
             if (value.green.denominator != math::numeric::one())
             {
-                s << " greenDenominator='" << value.green.denominator << "'";
+                stream.stream << " greenDenominator='" << value.green.denominator << "'";
             }
             if (value.blue.denominator != math::numeric::one())
             {
-                s << " blueDenominator='" << value.blue.denominator << "'";
+                stream.stream << " blueDenominator='" << value.blue.denominator << "'";
             }
 
-            s << "/>";
+            stream.stream << "/>";
 
-            return s.str();
+            return stream;
         }
 
-        template <class Q>
-        std::string xmlpicker (const Q &value, const long &precision = 24)
+        /**\brief Write colour picker to XML stream
+         *
+         * Writes an XML colour picker to a stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         *
+         * \param[out] stream The XML stream to write to.
+         * \param[in]  pValue The reference colour value to at the centre.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename C, class Q, typename format>
+        static inline oxmlstream<C> operator |= (oxmlstream<C> stream, math::vector<Q,3,format> value)
         {
-            throw "no conversion to XML known";
-            return "";
-        }
-
-        static const int pickerResolution = 8;
-
-        template <class Q, unsigned int d, typename space>
-        std::string xmlpicker3d (const math::vector<Q,d,space> &value, const long &precision = 24)
-        {
-            std::string s = "<picker xmlns='http://colouri.se/2012'>";
-            math::vector<Q,d,space> v = value;
+            stream.stream << "<picker xmlns='http://colouri.se/2012'>";
+            math::vector<Q,3,format> v = value;
             if (v[0].denominator == math::numeric::zero())
             {
                 v[0] = Q(0);
@@ -138,49 +309,37 @@ namespace efgy
             {
                 v[2] = Q(0);
             }
-            Q al = v[0] / Q(pickerResolution);
-            Q ar = (Q(1) - v[0]) / Q(pickerResolution);
-            Q bl = v[1] / Q(pickerResolution);
-            Q br = (Q(1) - v[1]) / Q(pickerResolution);
-            Q cl = v[2] / Q(pickerResolution);
-            Q cr = (Q(1) - v[2]) / Q(pickerResolution);
+            Q al = v[0] / Q(stream.resolution);
+            Q ar = (Q(1) - v[0]) / Q(stream.resolution);
+            Q bl = v[1] / Q(stream.resolution);
+            Q br = (Q(1) - v[1]) / Q(stream.resolution);
+            Q cl = v[2] / Q(stream.resolution);
+            Q cr = (Q(1) - v[2]) / Q(stream.resolution);
 
             v[1] = Q(0);
-            for (int y = -pickerResolution; y <= pickerResolution; y++)
+            for (int y = -stream.resolution; y <= stream.resolution; y++)
             {
-                s += "<set>";
+                stream.stream << "<set>";
                 v[1] = (y < 0) ? (value[1] - bl * Q(-y)) : (value[1] + br * Q(y));
-                for (int x = -pickerResolution; x <= pickerResolution; x++)
+                for (int x = -stream.resolution; x <= stream.resolution; x++)
                 {
                     v[0] = (x < 0) ? (value[0] - al * Q(-x)) : (value[0] + ar * Q(x));
-                    s += xml (v, true, precision);
+                    stream << v;
                 }
-                s += "</set>";
+                stream.stream << "</set>";
             }
 
-            s += "<set>";
+            stream.stream << "<set>";
             v[0] = value[0];
             v[1] = value[1];
-            for (int z = -pickerResolution; z <= pickerResolution; z++)
+            for (int z = -stream.resolution; z <= stream.resolution; z++)
             {
                 v[2] = (z < 0) ? (value[2] - cl * Q(-z)) : (value[2] + cr * Q(z));
-                s += xml (v, true, precision);
+                stream << v;
             }
-            s += "</set>";
+            stream.stream << "</set>";
 
-            return s += "</picker>";
-        }
-
-        template <>
-        std::string xmlpicker (const math::vector<math::fraction,3,math::format::HSL> &value, const long &precision)
-        {
-            return xmlpicker3d(value, precision);
-        }
-
-        template <>
-        std::string xmlpicker (const math::vector<math::fraction,3,math::format::RGB> &value, const long &precision)
-        {
-            return xmlpicker3d(value, precision);
+            return stream;
         }
     };
 };

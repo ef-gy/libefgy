@@ -34,6 +34,7 @@
 #define EF_GY_COLOUR_SPACE_HSL_H
 
 #include <ef.gy/colour-space-rgb.h>
+#include <ef.gy/numeric.h>
 
 namespace efgy
 {
