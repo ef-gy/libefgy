@@ -298,7 +298,7 @@ namespace efgy
          * \returns A new copy of the input stream.
          */
         template <typename C, class Q, typename format>
-        static inline oxmlstream<C> operator |= (oxmlstream<C> stream, math::vector<Q,3,format> value)
+        static inline oxmlstream<C> operator |= (oxmlstream<C> stream, const math::vector<Q,3,format> &value)
         {
             stream.stream << "<picker xmlns='http://colouri.se/2012'>";
             math::vector<Q,3,format> v = value;
@@ -322,11 +322,11 @@ namespace efgy
             Q cr = (Q(1) - v[2]) / Q(stream.resolution);
 
             v[1] = Q(0);
-            for (int y = -stream.resolution; y <= stream.resolution; y++)
+            for (long y = -stream.resolution; y <= stream.resolution; y++)
             {
                 stream.stream << "<set>";
                 v[1] = (y < 0) ? (value[1] - bl * Q(-y)) : (value[1] + br * Q(y));
-                for (int x = -stream.resolution; x <= stream.resolution; x++)
+                for (long x = -stream.resolution; x <= stream.resolution; x++)
                 {
                     v[0] = (x < 0) ? (value[0] - al * Q(-x)) : (value[0] + ar * Q(x));
                     stream << v;
@@ -337,7 +337,7 @@ namespace efgy
             stream.stream << "<set>";
             v[0] = value[0];
             v[1] = value[1];
-            for (int z = -stream.resolution; z <= stream.resolution; z++)
+            for (long z = -stream.resolution; z <= stream.resolution; z++)
             {
                 v[2] = (z < 0) ? (value[2] - cl * Q(-z)) : (value[2] + cr * Q(z));
                 stream << v;
