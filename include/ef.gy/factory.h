@@ -261,7 +261,7 @@ namespace efgy
                      * only adds the proper name, without any attributes.
                      *
                      * \param[out] out The set to modify.
-                     * \param[out] out The coordinate format to add.
+                     * \param[out] tag The coordinate format to add.
                      *
                      * \returns out, after adding the new coordinate format.
                      */
