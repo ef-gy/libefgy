@@ -9,3 +9,5 @@ test.svg
 voronoi
 matrix
 documentation/*.tag
+*.dSYM
+.DS_*
