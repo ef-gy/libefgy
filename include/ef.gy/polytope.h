@@ -291,7 +291,7 @@ namespace efgy
                             q[i] = p[i];
                         }
 
-                        renderer.drawFace(q);
+                        renderer.draw(q);
                     }
                 }
 

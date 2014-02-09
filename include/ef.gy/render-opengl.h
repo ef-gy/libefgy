@@ -582,7 +582,7 @@ namespace efgy
                  *                  but currently ignored by the SVG renderer.
                  */
                 template<std::size_t q>
-                void drawFace
+                void draw
                     (const std::array<math::vector<Q,d>,q> &pV, const Q &index = 0.5) const
                 {
                     if (prepared) return;
@@ -597,7 +597,7 @@ namespace efgy
                         return combined * s;
                     });
 
-                    lowerRenderer.drawFace(V, index);
+                    lowerRenderer.draw(V, index);
                 }
 
                 /**\brief Set colour
@@ -822,7 +822,7 @@ namespace efgy
                  *                  but currently ignored by the SVG renderer.
                  */
                 template<std::size_t q>
-                void drawFace
+                void draw
                     (const std::array<math::vector<Q,3>,q> &pV, const Q &index = 0.5)
                 {
                     if (prepared) return;

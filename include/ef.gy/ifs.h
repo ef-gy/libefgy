@@ -79,7 +79,7 @@ namespace efgy
                                 q[i] = p[i];
                             }
                             
-                            renderer.drawFace(q);
+                            renderer.draw(q);
                         }
                     }
                     else
@@ -95,7 +95,7 @@ namespace efgy
                                 q[i] = p[i];
                             }
 
-                            renderer.drawFace (q, *itIndex);
+                            renderer.draw (q, *itIndex);
                             itIndex++;
                         }
                     }

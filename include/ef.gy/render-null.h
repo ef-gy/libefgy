@@ -82,7 +82,7 @@ namespace efgy
                  * \tparam q The number of vertices that define the polygon.
                  */
                 template<std::size_t q>
-                void drawFace
+                void draw
                     (const std::array<math::vector<Q,d>,q> &, const Q & = 0.5) const {}
         };
 
@@ -125,7 +125,7 @@ namespace efgy
                  * \tparam q The number of vertices that define the polygon.
                  */
                 template<std::size_t q>
-                void drawFace
+                void draw
                     (const std::array<math::vector<Q,2>,q> &, const Q & = 0.5) const {}
         };
     };

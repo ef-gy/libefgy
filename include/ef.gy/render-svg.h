@@ -108,7 +108,7 @@ namespace efgy
                  *                  but currently ignored by the SVG renderer.
                  */
                 template<std::size_t q>
-                void drawFace
+                void draw
                     (const std::array<math::vector<Q,d>,q> &pV, const Q &index = 0.5) const
                 {
                     std::array<math::vector<Q,d-1>,q> V;
@@ -118,7 +118,7 @@ namespace efgy
                         V[i] = combined * pV[i];
                     }
 
-                    lowerRenderer.drawFace(V, index);
+                    lowerRenderer.draw(V, index);
                 }
 
                 /**\brief Reset state
@@ -231,7 +231,7 @@ namespace efgy
                  *                  but currently ignored by the SVG renderer.
                  */
                 template<std::size_t q>
-                void drawFace
+                void draw
                     (const std::array<math::vector<Q,2>,q> &pV, const Q &index = 0.5)
                 {
                     output << "<path d='";
