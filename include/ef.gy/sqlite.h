@@ -144,6 +144,27 @@ namespace efgy
                             return false;
                         }
 
+                        /**\brief Query number of columns
+                         *
+                         * Used to obtain the number of columns in this query.
+                         * Particularly useful when evaluating user-supplied
+                         * statements.
+                         *
+                         * \returns The number of columns in this prepared
+                         *          statement, if applicable. 0 otherwise.
+                         */
+                        int count (void)
+                        {
+                            return sqlite3_column_count (stmt);
+                        }
+
+                        maybe<std::string> name (int i)
+                        {
+                            const char *n = sqlite3_column_name(stmt, i);
+                            return n ? maybe<std::string>(std::string(n))
+                                     : maybe<std::string>();
+                        }
+
                         bool reset (void)
                         {
                             if (sqlite3_reset (stmt) != SQLITE_OK)
