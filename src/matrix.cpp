@@ -36,11 +36,11 @@
 #include <iostream>
 
 #include <ef.gy/vt100.h>
-#include <ef.gy/random.h>
 #include <chrono>
 #include <csignal>
 #include <cmath>
 #include <sched.h>
+#include <random>
 
 using namespace efgy;
 using namespace std::chrono;
@@ -64,7 +64,7 @@ namespace thematrix
      * A seeded instance of the mersenne twister RNG; used to position the
      * streams and to add and remove glyphs randomly.
      */
-    random::mersenneTwister<> rng(1337);
+    std::mt19937 rng(1337);
 
     /**\brief Current time
      *
