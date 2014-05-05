@@ -311,6 +311,63 @@ namespace efgy
                  */
                 const geometry::transformation::affine<Q,2> &transformation;
         };
+
+        /**\brief std::ostream SVG tag
+         *
+         * Used to distinguish between a plain std::ostream, and one where the
+         * output should be in SVG format.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         * \tparam Q The base numeric type you intend to use.
+         * \tparam d The number of dimensions for vectors.
+         */
+        template <typename C, typename Q, unsigned int d>
+        class osvgstream
+        {
+            public:
+                /**\brief Construct with stream reference
+                 *
+                 * Initialises a new ostream SVG tag instance.
+                 *
+                 * \param[out] pStream The stream to write to.
+                 * \param[in]  pRender The renderer instance to use.
+                 */
+                osvgstream (std::basic_ostream<C> &pStream,
+                            const svg<Q,d> &pRender)
+                    : stream(pStream),
+                      render(pRender)
+                    {}
+
+                /**\brief Output stream reference
+                 *
+                 * This is the stream where the output is written to.
+                 */
+                std::basic_ostream<C> &stream;
+
+                /**\brief SVG renderer reference
+                 *
+                 * This is the SVG renderer instance that things will be
+                 * rendered with, if the input requires that.
+                 */
+                const svg<Q,d> &render;
+        };
+
+        /**\brief Convert std::ostream to SVG
+         *
+         * Converts the given stream to an SVG stream so that write operations
+         * after that will produce SVG instead of plain text.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         * \tparam Q The base numeric type you intend to use.
+         * \tparam d The number of dimensions for vectors.
+         *
+         * \param[out] stream The stream to write to.
+         */
+        template <typename C, typename Q, unsigned int d>
+        constexpr inline osvgstream<C,Q,d> operator << (std::basic_ostream<C> &stream, const svg<Q,d> &render)
+        {
+            return osvgstream<C,Q,d>(stream, render);
+        }
     };
 };
 
