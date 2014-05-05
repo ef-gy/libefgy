@@ -34,6 +34,8 @@
 
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
+#include <ef.gy/render-xml.h>
+#include <ef.gy/polytope.h>
 #include <sstream>
 
 namespace efgy
@@ -362,11 +364,54 @@ namespace efgy
          * \tparam d The number of dimensions for vectors.
          *
          * \param[out] stream The stream to write to.
+         * \param[in]  render The SVG renderer to project with.
+         *
+         * \returns A new osvgstream with the given parameters.
          */
         template <typename C, typename Q, unsigned int d>
         constexpr inline osvgstream<C,Q,d> operator << (std::basic_ostream<C> &stream, const svg<Q,d> &render)
         {
             return osvgstream<C,Q,d>(stream, render);
+        }
+
+        /**\brief Write out polytope as SVG
+         *
+         * Iterates through all of the polytope's faces and then writes a 2D
+         * projection of them to the stream.
+         *
+         * \tparam C      Character type for the basic_ostream reference.
+         * \tparam Q      Base type for calculations; should be a rational type
+         * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
+         * \tparam d      Number of dimensions of the vector space to use
+         * \tparam f      Number of vertices for mesh faces
+         * \tparam render Renderer type; e.g. render::svg<Q,d>
+         * \tparam format Vector coordinate format to work in, e.g.
+         *                math::format::cartesian.
+         *
+         * \param[out] stream The stream to write to.
+         * \param[in]  poly   The polytope to write out as an SVG.
+         *
+         * \returns A new copy of the stream that was passed in.
+         */
+        template <typename C, typename Q, unsigned int d,
+                  unsigned int od, unsigned int f, typename render, typename format>
+        static inline osvgstream<C,Q,d> operator <<
+            (osvgstream<C,Q,d> stream,
+             const geometry::polytope<Q,od,d,f,render,format> &poly)
+        {
+            for (const auto &p : poly.faces)
+            {
+                std::array<math::vector<Q,d>,geometry::polytope<Q,od,d,f,render,format>::faceVertices> q;
+
+                for (std::size_t i = 0; i < poly.faceVertices; i++)
+                {
+                    q[i] = p[i];
+                }
+
+                stream.render.draw(q);
+            }
+
+            return stream;
         }
     };
 };

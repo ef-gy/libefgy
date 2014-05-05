@@ -386,7 +386,6 @@ namespace efgy
                     return {{}};
                 }
 
-            protected:
                 /**\brief A 2D surface
                  *
                  * A convenient typedef for a 2D surface, commonly called a
