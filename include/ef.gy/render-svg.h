@@ -105,13 +105,10 @@ namespace efgy
                  * \tparam q The number of vertices that define the polygon.
                  *
                  * \param[in] pV    The vertices that define the polygon.
-                 * \param[in] index Source of the polygon; used when rendering
-                 *                  IFSs to simulate fractal flame colouring,
-                 *                  but currently ignored by the SVG renderer.
                  */
                 template<std::size_t q>
                 void draw
-                    (const std::array<math::vector<Q,d>,q> &pV, const Q &index = 0.5) const
+                    (const std::array<math::vector<Q,d>,q> &pV) const
                 {
                     std::array<math::vector<Q,d-1>,q> V;
 
@@ -120,7 +117,7 @@ namespace efgy
                         V[i] = combined * pV[i];
                     }
 
-                    lowerRenderer.draw(V, index);
+                    lowerRenderer.draw(V);
                 }
 
                 /**\brief Reset state
@@ -228,13 +225,10 @@ namespace efgy
                  * \tparam q The number of vertices that define the polygon.
                  *
                  * \param[in] pV    The vertices that define the polygon.
-                 * \param[in] index Source of the polygon; used when rendering
-                 *                  IFSs to simulate fractal flame colouring,
-                 *                  but currently ignored by the SVG renderer.
                  */
                 template<std::size_t q>
                 void draw
-                    (const std::array<math::vector<Q,2>,q> &pV, const Q &index = 0.5)
+                    (const std::array<math::vector<Q,2>,q> &pV)
                 {
                     output << "<path d='";
                     for (unsigned int i = 0; i < q; i++)
