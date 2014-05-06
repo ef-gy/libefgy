@@ -36,10 +36,13 @@
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
 #include <ef.gy/opengl.h>
+#include <ef.gy/polytope.h>
+#include <ef.gy/ifs.h>
 #include <map>
 #include <functional>
 #include <algorithm>
 #include <array>
+#include <ostream>
 
 namespace efgy
 {
@@ -1240,6 +1243,173 @@ namespace efgy
                  */
                 GLuint height;
         };
+
+        /**\brief std::ostream OpenGL tag
+         *
+         * Used to distinguish between a plain std::ostream, and one where
+         * drawing instructions actually go to OpenGL and the stream is used for
+         * error and debug output.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         * \tparam Q The base numeric type you intend to use.
+         * \tparam d The number of dimensions for vectors.
+         */
+        template <typename C, typename Q, unsigned int d>
+        class oglstream
+        {
+            public:
+                /**\brief Construct with stream reference
+                 *
+                 * Initialises a new ostream OpenGL tag instance.
+                 *
+                 * \param[out] pStream The stream to write to.
+                 * \param[out] pRender The renderer instance to use.
+                 */
+                oglstream (std::basic_ostream<C> &pStream,
+                           opengl<Q,d> &pRender)
+                    : stream(pStream),
+                      render(pRender)
+                {}
+                
+                /**\brief Output stream reference
+                 *
+                 * This is the stream where error and debug output is written
+                 * to.
+                 */
+                std::basic_ostream<C> &stream;
+                
+                /**\brief OpenGL renderer reference
+                 *
+                 * This is the OpenGL renderer instance that things will be
+                 * rendered with, if the input requires that.
+                 */
+                opengl<Q,d> &render;
+        };
+
+        /**\brief Convert std::ostream to OpenGL
+         *
+         * Converts the given stream to an OpenGL stream so that write
+         * operations after that will render to an OpenGL context and write
+         * error an debug logs to the stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         * \tparam Q The base numeric type you intend to use.
+         * \tparam d The number of dimensions for vectors.
+         *
+         * \param[out] stream The stream to write to.
+         * \param[out] render The OpenGL renderer to project with.
+         *
+         * \returns A new osvgstream with the given parameters.
+         */
+        template <typename C, typename Q, unsigned int d>
+        constexpr inline oglstream<C,Q,d> operator << (std::basic_ostream<C> &stream, opengl<Q,d> &render)
+        {
+            return oglstream<C,Q,d>(stream, render);
+        }
+
+        /**\brief Draw polytope with OpenGL
+         *
+         * Iterates through all of the polytope's faces and then writes a 3D
+         * projection of them to the OpenGL context.
+         *
+         * \tparam C      Character type for the basic_ostream reference.
+         * \tparam Q      Base type for calculations; should be a rational type
+         * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
+         * \tparam d      Number of dimensions of the vector space to use
+         * \tparam f      Number of vertices for mesh faces
+         * \tparam render Renderer type; e.g. render::svg<Q,d>
+         * \tparam format Vector coordinate format to work in, e.g.
+         *                math::format::cartesian.
+         *
+         * \param[out] stream The stream to write to.
+         * \param[in]  poly   The polytope to render with OpenGL.
+         *
+         * \returns A new copy of the stream that was passed in.
+         */
+        template <typename C, typename Q, unsigned int d,
+                  unsigned int od, unsigned int f, typename render, typename format>
+        static inline oglstream<C,Q,d> operator <<
+            (oglstream<C,Q,d> stream,
+             const geometry::polytope<Q,od,d,f,render,format> &poly)
+        {
+            for (const auto &p : poly.faces)
+            {
+                std::array<math::vector<Q,d>,geometry::polytope<Q,od,d,f,render,format>::faceVertices> q;
+                
+                for (std::size_t i = 0; i < poly.faceVertices; i++)
+                {
+                    q[i] = p[i];
+                }
+                
+                stream.render.draw(q);
+            }
+            
+            return stream;
+        }
+
+        /**\brief Draw polytope with OpenGL
+         *
+         * Iterates through all of the IFS's faces and then writes a 3D
+         * projection of them to the OpenGL context.
+         *
+         * Unlike the generic polytope renderer, the IFS renderer will
+         * pass index hints to the renderers, which are needed by the
+         * fractal flame colouring algorithm to produce even prettier
+         *
+         * \tparam C      Character type for the basic_ostream reference.
+         * \tparam Q      Base type for calculations; should be a rational type
+         * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
+         * \tparam d      Number of dimensions of the vector space to use
+         * \tparam f      Number of vertices for mesh faces
+         * \tparam render Renderer type; e.g. render::svg<Q,d>
+         * \tparam format Vector coordinate format to work in, e.g.
+         *                math::format::cartesian.
+         *
+         * \param[out] stream The stream to write to.
+         * \param[in]  poly   The polytope to render with OpenGL.
+         *
+         * \returns A new copy of the stream that was passed in.
+         */
+        template <typename C, typename Q, unsigned int d,
+                  unsigned int od, unsigned int f, typename render, typename format,
+                  template <class,unsigned int,class,unsigned int,typename> class primitive,
+                  unsigned int pd,
+                  template <class,unsigned int> class trans>
+        static inline oglstream<C,Q,d> operator <<
+            (oglstream<C,Q,d> stream,
+             const geometry::ifs<Q,od,render,d,primitive,pd,trans,format> &ifs)
+        {
+            if (ifs.faces.size() != ifs.indices.size())
+            {
+                for (const auto &p : ifs.faces)
+                {
+                    std::array<math::vector<Q,d>,geometry::polytope<Q,od,d,f,render,format>::faceVertices> q;
+                    
+                    for (std::size_t i = 0; i < ifs.faceVertices; i++)
+                    {
+                        q[i] = p[i];
+                    }
+                    
+                    stream.render.draw(q);
+                }
+            }
+            else
+            {
+                auto itIndex = ifs.indices.begin();
+                for (const auto &p : ifs.faces)
+                {
+                    std::array<math::vector<Q,d>,geometry::polytope<Q,od,d,f,render,format>::faceVertices> q;
+                    
+                    for (std::size_t i = 0; i < ifs.faceVertices; i++)
+                    {
+                        q[i] = p[i];
+                    }
+                    
+                    stream.render.draw(q, *itIndex);
+                    itIndex++;
+                }
+            }
+        }
     };
 };
 
