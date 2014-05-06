@@ -43,10 +43,10 @@ namespace efgy
                   unsigned int pd,
                   template <class,unsigned int> class trans,
                   typename format>
-        class ifs : public polytope<Q,od,d,primitive<Q,pd,render,d,format>::faceVertices,render,format>
+        class ifs : public object<Q,od,d,primitive<Q,pd,render,d,format>::faceVertices,render,format>
         {
             public:
-                typedef polytope<Q,od,d,primitive<Q,pd,render,d,format>::faceVertices,render,format> parent;
+                typedef object<Q,od,d,primitive<Q,pd,render,d,format>::faceVertices,render,format> parent;
 
                 ifs (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pRenderer, pParameter, pFormat)

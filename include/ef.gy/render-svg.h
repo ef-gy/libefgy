@@ -397,7 +397,7 @@ namespace efgy
                   unsigned int od, unsigned int f, typename render, typename format>
         static inline osvgstream<C,Q,d> operator <<
             (osvgstream<C,Q,d> stream,
-             const geometry::polytope<Q,od,d,f,render,format> &poly)
+             const geometry::object<Q,od,d,f,render,format> &poly)
         {
             for (const auto &p : poly.faces)
             {

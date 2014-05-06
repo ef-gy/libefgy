@@ -239,7 +239,7 @@ namespace efgy
                 static const std::size_t renderDimensionMaximum = renderMax;
         };
 
-        /**\brief Polytope base template
+        /**\brief Object base template
          *
          * Contains the base definitions for any polytope, i.e. code that
          * should be shared among most class templates that generate meshes to
@@ -255,7 +255,7 @@ namespace efgy
          */
         template <typename Q, unsigned int od, unsigned int d, unsigned int f,
                   typename render, typename format>
-        class polytope
+        class object
         {
             public:
                 /**\brief Construct with renderer and parameters
@@ -270,7 +270,7 @@ namespace efgy
                  * \param[in]  pParameter Polytope parameters to apply.
                  * \param[in]  pFormat    Coordinate format tag instance.
                  */
-                polytope (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
+                object (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
                     : renderer(pRenderer), parameter(pParameter), tag (pFormat)
                     {}
 
@@ -420,6 +420,23 @@ namespace efgy
                  */
                 const format tag;
         };
+
+        /**\brief Polytope base template
+         *
+         * Separate from geometry::object to allow for easier overloads in
+         * renderers.
+         *
+         * \tparam Q      Base type for calculations; should be a rational type
+         * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
+         * \tparam d      Number of dimensions of the vector space to use
+         * \tparam f      Number of vertices for mesh faces
+         * \tparam render Renderer type; e.g. render::svg<Q,d>
+         * \tparam format Vector coordinate format to work in, e.g.
+         *                math::format::cartesian.
+         */
+        template <typename Q, unsigned int od, unsigned int d, unsigned int f,
+                  typename render, typename format>
+        using polytope = object<Q,od,d,f,render,format>;
 
         template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
         class simplex : public polytope<Q,od,d,3,render,format>
