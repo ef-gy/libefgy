@@ -249,12 +249,11 @@ namespace efgy
          * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
          * \tparam d      Number of dimensions of the vector space to use
          * \tparam f      Number of vertices for mesh faces
-         * \tparam render Renderer type; e.g. render::svg<Q,d>
          * \tparam format Vector coordinate format to work in, e.g.
          *                math::format::cartesian.
          */
         template <typename Q, unsigned int od, unsigned int d, unsigned int f,
-                  typename render, typename format>
+                  typename format>
         class object
         {
             public:
@@ -266,34 +265,12 @@ namespace efgy
                  * everything needed to render an actual mesh, so derived
                  * classes should easily be able to fill in the blanks.
                  *
-                 * \param[out] pRenderer  Renderer instance to use.
                  * \param[in]  pParameter Polytope parameters to apply.
                  * \param[in]  pFormat    Coordinate format tag instance.
                  */
-                object (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
-                    : renderer(pRenderer), parameter(pParameter), tag (pFormat)
+                object (const parameters<Q> &pParameter, const format &pFormat)
+                    : parameter(pParameter), tag (pFormat)
                     {}
-
-                /**\brief Render mesh with renderer
-                 *
-                 * Passes all of the faces to the renderer for processing; see
-                 * the renderers' documentation for more information on the
-                 * results of doing so.
-                 */
-                void renderSolid (void) const
-                {
-                    for (const face &p : faces)
-                    {
-                        std::array<math::vector<Q,d>,faceVertices> q;
-
-                        for (std::size_t i = 0; i < faceVertices; i++)
-                        {
-                            q[i] = p[i];
-                        }
-
-                        renderer.draw(q);
-                    }
-                }
 
                 /**\brief Number of face vertices
                  *
@@ -400,13 +377,6 @@ namespace efgy
                  */
                 std::vector<face> faces;
 
-                /**\brief Renderer reference
-                 *
-                 * A reference to the renderer that will be used to render this
-                 * model's data. Set in the constructor.
-                 */
-                render &renderer;
-
                 /**\brief Parameter reference
                  *
                  * A reference to the parameters used to generate the model; Set
@@ -430,22 +400,21 @@ namespace efgy
          * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
          * \tparam d      Number of dimensions of the vector space to use
          * \tparam f      Number of vertices for mesh faces
-         * \tparam render Renderer type; e.g. render::svg<Q,d>
          * \tparam format Vector coordinate format to work in, e.g.
          *                math::format::cartesian.
          */
         template <typename Q, unsigned int od, unsigned int d, unsigned int f,
-                  typename render, typename format>
-        using polytope = object<Q,od,d,f,render,format>;
+                  typename format>
+        using polytope = object<Q,od,d,f,format>;
 
-        template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
-        class simplex : public polytope<Q,od,d,3,render,format>
+        template <typename Q, unsigned int od, unsigned int d, typename format>
+        class simplex : public polytope<Q,od,d,3,format>
         {
             public:
-                typedef polytope<Q,od,d,3,render,format> parent;
+                typedef polytope<Q,od,d,3,format> parent;
 
-                simplex (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
-                    : parent(pRenderer, pParameter, pFormat)
+                simplex (const parameters<Q> &pParameter, const format &pFormat)
+                    : parent(pParameter, pFormat)
                     {
                         calculateObject();
                     }
@@ -557,7 +526,6 @@ namespace efgy
          *
          * \tparam Q      Base datatype for calculations
          * \tparam od     The 'depth' of the hypercube; e.g. '3' for a cube
-         * \tparam render Model renderer type; e.g. render::svg<Q,d>
          * \tparam d      The render depth of the model; must be >= 'od'
          * \tparam format Vector coordinate format to work in.
          *
@@ -570,14 +538,14 @@ namespace efgy
          * \todo Use the parameter::radius field properly; this should
          *       probably be half the diagonal of the resulting model.
          */
-        template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
-        class cube : public polytope<Q,od,d,4,render,format>
+        template <typename Q, unsigned int od, unsigned int d, typename format>
+        class cube : public polytope<Q,od,d,4,format>
         {
             public:
-                typedef polytope<Q,od,d,4,render,format> parent;
+                typedef polytope<Q,od,d,4,format> parent;
 
-                cube (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
-                    : parent(pRenderer, pParameter, pFormat)
+                cube (const parameters<Q> &pParameter, const format &pFormat)
+                    : parent(pParameter, pFormat)
                     {
                         calculateObject();
                     }

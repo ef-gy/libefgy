@@ -347,18 +347,17 @@ namespace efgy
              *
              * \tparam Q      The base data type to use for calculations.
              * \tparam od     The depth of the model.
-             * \tparam render The renderer to use.
              * \tparam d      The render depth to use.
              * \tparam format Vector coordinate format to work in.
              */
-            template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
-            class random : public ifs<Q,od,render,d,plane,2,transformation::flame,format>
+            template <typename Q, unsigned int od, unsigned int d, typename format>
+            class random : public ifs<Q,od,d,plane,2,transformation::flame,format>
             {
                 public:
-                    typedef ifs<Q,od,render,d,plane,2,transformation::flame,format> parent;
+                    typedef ifs<Q,od,d,plane,2,transformation::flame,format> parent;
 
-                    random(render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
-                        : parent(pRenderer, pParameter, pFormat)
+                    random(const parameters<Q> &pParameter, const format &pFormat)
+                        : parent(pParameter, pFormat)
                         {
                             calculateObject();
                         }

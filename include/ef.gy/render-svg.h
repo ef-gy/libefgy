@@ -384,7 +384,6 @@ namespace efgy
          * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
          * \tparam d      Number of dimensions of the vector space to use
          * \tparam f      Number of vertices for mesh faces
-         * \tparam render Renderer type; e.g. render::svg<Q,d>
          * \tparam format Vector coordinate format to work in, e.g.
          *                math::format::cartesian.
          *
@@ -394,14 +393,14 @@ namespace efgy
          * \returns A new copy of the stream that was passed in.
          */
         template <typename C, typename Q, unsigned int d,
-                  unsigned int od, unsigned int f, typename render, typename format>
+                  unsigned int od, unsigned int f, typename format>
         static inline osvgstream<C,Q,d> operator <<
             (osvgstream<C,Q,d> stream,
-             const geometry::object<Q,od,d,f,render,format> &poly)
+             const geometry::object<Q,od,d,f,format> &poly)
         {
             for (const auto &p : poly.faces)
             {
-                std::array<math::vector<Q,d>,geometry::polytope<Q,od,d,f,render,format>::faceVertices> q;
+                std::array<math::vector<Q,d>,geometry::object<Q,od,d,f,format>::faceVertices> q;
 
                 for (std::size_t i = 0; i < poly.faceVertices; i++)
                 {

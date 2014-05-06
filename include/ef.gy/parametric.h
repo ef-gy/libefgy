@@ -207,27 +207,24 @@ namespace efgy
          * \tparam Q       Base type for calculations; should be a rational type
          * \tparam od      Model depth, e.g. '2' for a square or '3' for a cube
          * \tparam d       Number of dimensions of the vector space to use
-         * \tparam formula Formula for the target mesh, e.g. formula::plane 
-         * \tparam render  Renderer type; e.g. render::svg<Q,d>
+         * \tparam formula Formula for the target mesh, e.g. formula::plane
          * \tparam format  Vector coordinate format to work in.
          */
         template <typename Q, unsigned int od, unsigned int d,
                   template <typename, unsigned int, unsigned int, typename> class formula,
-                  typename render,
                   typename format>
-        class parametric : public polytope<Q,od,d,4,render,format>
+        class parametric : public polytope<Q,od,d,4,format>
         {
             public:
                 typedef formula<Q,od,d,format> source;
-                typedef polytope<Q,od,d,4,render,format> parent;
+                typedef polytope<Q,od,d,4,format> parent;
             
-                parametric (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
-                    : parent(pRenderer, pParameter, pFormat)
+                parametric (const parameters<Q> &pParameter, const format &pFormat)
+                    : parent(pParameter, pFormat)
                     {
                         calculateObject();
                     }
 
-                using parent::renderer;
                 using parent::parameter;
                 using parent::faces;
                 using parent::tag;
@@ -237,7 +234,7 @@ namespace efgy
                 static const char *id (void) { return source::id(); }
 
                 void recurse
-                    (const cube<Q,od,render,od,math::format::cartesian> &cube,
+                    (const cube<Q,od,od,math::format::cartesian> &cube,
                      math::vector<Q,od> v,
                      math::vector<Q,od> a)
                 {
@@ -260,7 +257,7 @@ namespace efgy
                 }
 
                 void recurse
-                    (cube<Q,od,render,od,math::format::cartesian> &cube,
+                    (cube<Q,od,od,math::format::cartesian> &cube,
                      std::size_t dim,
                      math::vector<Q,od> v,
                      math::vector<Q,od> a)
@@ -285,8 +282,8 @@ namespace efgy
                 void calculateObject(void)
                 {
                     parameters<Q> cubeParameter;
-                    cube<Q,od,render,od,math::format::cartesian> cube
-                        (renderer, cubeParameter, math::format::cartesian());
+                    cube<Q,od,od,math::format::cartesian> cube
+                        (cubeParameter, math::format::cartesian());
 
                     faces.clear();
 
@@ -319,12 +316,11 @@ namespace efgy
          * \tparam Q      Base type for calculations; should be a rational type
          * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
          * \tparam d      Number of dimensions of the vector space to use
-         * \tparam render Renderer type; e.g. render::svg<Q,d>
          * \tparam format Vector coordinate format to work in.
          */
-        template <typename Q, unsigned int od, typename render, unsigned int d,
+        template <typename Q, unsigned int od, unsigned int d,
                   typename format>
-        using plane = parametric<Q,od,d,formula::plane,render,format>;
+        using plane = parametric<Q,od,d,formula::plane,format>;
     };
 };
 

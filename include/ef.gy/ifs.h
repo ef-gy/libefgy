@@ -38,72 +38,23 @@ namespace efgy
 {
     namespace geometry
     {
-        template <typename Q, unsigned int od, typename render, unsigned int d,
-                  template <class,unsigned int,class,unsigned int,typename> class primitive,
+        template <typename Q, unsigned int od, unsigned int d,
+                  template <class,unsigned int,unsigned int,typename> class primitive,
                   unsigned int pd,
                   template <class,unsigned int> class trans,
                   typename format>
-        class ifs : public object<Q,od,d,primitive<Q,pd,render,d,format>::faceVertices,render,format>
+        class ifs : public object<Q,od,d,primitive<Q,pd,d,format>::faceVertices,format>
         {
             public:
-                typedef object<Q,od,d,primitive<Q,pd,render,d,format>::faceVertices,render,format> parent;
+                typedef object<Q,od,d,primitive<Q,pd,d,format>::faceVertices,format> parent;
 
-                ifs (render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
-                    : parent(pRenderer, pParameter, pFormat)
+                ifs (const parameters<Q> &pParameter, const format &pFormat)
+                    : parent(pParameter, pFormat)
                     {}
 
                 using typename parent::face;
                 using parent::faceVertices;
-
-                /**\brief Render mesh with renderer; use indices
-                 *
-                 * Passes all of the faces to the renderer for processing; see
-                 * the renderers' documentation for more information on the
-                 * results of doing so.
-                 *
-                 * Unlike the generic polytope renderer, the IFS renderer will
-                 * pass index hints to the renderers, which are needed by the
-                 * fractal flame colouring algorithm to produce even prettier
-                 * output.
-                 */
-                void renderSolid (void) const
-                {
-                    if (faces.size() != indices.size())
-                    {
-                        for (const face &p : faces)
-                        {
-                            std::array<math::vector<Q,d>,faceVertices> q;
-                            
-                            for (std::size_t i = 0; i < faceVertices; i++)
-                            {
-                                q[i] = p[i];
-                            }
-                            
-                            renderer.draw(q);
-                        }
-                    }
-                    else
-                    {
-                        typename std::vector<Q>::const_iterator itIndex = indices.begin();
-
-                        for (const face &p : faces)
-                        {
-                            std::array<math::vector<Q,d>,faceVertices> q;
-                            
-                            for (std::size_t i = 0; i < faceVertices; i++)
-                            {
-                                q[i] = p[i];
-                            }
-
-                            renderer.draw (q, *itIndex);
-                            itIndex++;
-                        }
-                    }
-                }
-
                 using parent::parameter;
-                using parent::renderSolid;
-                using parent::renderer;
                 using parent::faces;
                 using parent::tag;
                 std::vector<Q> indices;
@@ -112,7 +63,7 @@ namespace efgy
 
                 void calculateObject (void)
                 {
-                    primitive<Q,pd,render,d,format> source(parent::renderer, parameter, tag);
+                    primitive<Q,pd,d,format> source(parameter, tag);
 
                     faces = source.faces;
                     while (faces.size() > indices.size())
@@ -174,14 +125,14 @@ namespace efgy
 
         namespace sierpinski
         {
-            template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
-            class gasket : public ifs<Q,od,render,d,cube,od,transformation::affine,format>
+            template <typename Q, unsigned int od, unsigned int d, typename format>
+            class gasket : public ifs<Q,od,d,cube,od,transformation::affine,format>
             {
                 public:
-                    typedef ifs<Q,od,render,d,cube,od,transformation::affine,format> parent;
+                    typedef ifs<Q,od,d,cube,od,transformation::affine,format> parent;
 
-                    gasket(render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
-                        : parent(pRenderer, pParameter, pFormat)
+                    gasket(const parameters<Q> &pParameter, const format &pFormat)
+                        : parent(pParameter, pFormat)
                         {
                             const unsigned int nfunctions = (1<<(od-1))+1;
                             std::array<math::vector<Q,d>,nfunctions> translations;
@@ -210,8 +161,6 @@ namespace efgy
                         }
 
                     using parent::parameter;
-                    using parent::renderSolid;
-                    using parent::renderer;
                     using parent::faces;
 
                     typedef dimensions<2, d, 3, 0> dimensions;
@@ -224,14 +173,14 @@ namespace efgy
                     static const char *id (void) { return "sierpinski-gasket"; }
             };
 
-            template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
-            class carpet : public ifs<Q,od,render,d,cube,od,transformation::affine,format>
+            template <typename Q, unsigned int od, unsigned int d, typename format>
+            class carpet : public ifs<Q,od,d,cube,od,transformation::affine,format>
             {
                 public:
-                    typedef ifs<Q,od,render,d,cube,od,transformation::affine,format> parent;
+                    typedef ifs<Q,od,d,cube,od,transformation::affine,format> parent;
 
-                    carpet(render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
-                        : parent(pRenderer, pParameter, pFormat)
+                    carpet(const parameters<Q> &pParameter, const format &pFormat)
+                        : parent(pParameter, pFormat)
                         {
                             const unsigned int nfunctions = od == 2 ? 8 : 20;
                             std::array<math::vector<Q,d>,nfunctions> translations;
@@ -286,8 +235,6 @@ namespace efgy
                         }
 
                     using parent::parameter;
-                    using parent::renderSolid;
-                    using parent::renderer;
                     using parent::faces;
 
                     typedef dimensions<2, (d == 2 ? d : 3), 3, 0> dimensions;
@@ -389,14 +336,14 @@ namespace efgy
             };
         };
 
-        template <typename Q, unsigned int od, typename render, unsigned int d, typename format>
-        class randomAffineIFS : public ifs<Q,od,render,d,cube,2,transformation::affine,format>
+        template <typename Q, unsigned int od, unsigned int d, typename format>
+        class randomAffineIFS : public ifs<Q,od,d,cube,2,transformation::affine,format>
         {
             public:
-                typedef ifs<Q,od,render,d,cube,2,transformation::affine,format> parent;
+                typedef ifs<Q,od,d,cube,2,transformation::affine,format> parent;
 
-                randomAffineIFS(render &pRenderer, const parameters<Q> &pParameter, const format &pFormat)
-                    : parent(pRenderer, pParameter, pFormat)
+                randomAffineIFS(const parameters<Q> &pParameter, const format &pFormat)
+                    : parent(pParameter, pFormat)
                     {
                         calculateObject();
                     }
@@ -418,8 +365,6 @@ namespace efgy
                     }
 
                 using parent::parameter;
-                using parent::renderSolid;
-                using parent::renderer;
                 using parent::faces;
 
                 typedef dimensions<2, d, 3, 0> dimensions;
