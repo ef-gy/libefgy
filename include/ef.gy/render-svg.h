@@ -75,8 +75,8 @@ namespace efgy
                     (const geometry::transformation::affine<Q,d> &pTransformation,
                      const geometry::projection<Q,d> &pProjection,
                      svg<Q,d-1> &pLowerRenderer)
-                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer),
-                      output(pLowerRenderer.output)
+                    : transformation(pTransformation), projection(pProjection),
+                      lowerRenderer(pLowerRenderer)
                     {}
 
                 /**\brief Begin drawing a new frame
@@ -103,12 +103,15 @@ namespace efgy
                  * convex; if it isn't then you'll get rather strange results.
                  *
                  * \tparam q The number of vertices that define the polygon.
+                 * \tparam C Character type for the basic_ostream reference.
                  *
-                 * \param[in] pV    The vertices that define the polygon.
+                 * \param[out] output Where to write the polygon to.
+                 * \param[in]  pV     The vertices that define the polygon.
                  */
-                template<std::size_t q>
+                template<std::size_t q, typename C>
                 void draw
-                    (const std::array<math::vector<Q,d>,q> &pV) const
+                    (std::basic_ostream<C> &output,
+                     const std::array<math::vector<Q,d>,q> &pV) const
                 {
                     std::array<math::vector<Q,d-1>,q> V;
 
@@ -117,26 +120,8 @@ namespace efgy
                         V[i] = combined * pV[i];
                     }
 
-                    lowerRenderer.draw(V);
+                    lowerRenderer.draw(output, V);
                 }
-
-                /**\brief Reset state
-                 *
-                 * Tells the lower-dimensional renderer to reset, so that the
-                 * output buffer gets cleared.
-                 */
-                void reset (void) const
-                {
-                    lowerRenderer.reset();
-                }
-
-                /**\brief Output stream
-                 *
-                 * SVG fragments produced by the renderer are written to this
-                 * stream so you can gather all of the data as a string once
-                 * you're done rendering your frame.
-                 */
-                std::stringstream &output;
 
             protected:
                 /**\brief Affine transformation matrix
@@ -223,12 +208,15 @@ namespace efgy
                  * stream.
                  *
                  * \tparam q The number of vertices that define the polygon.
+                 * \tparam C Character type for the basic_ostream reference.
                  *
-                 * \param[in] pV    The vertices that define the polygon.
+                 * \param[out] output Where to write the polygon to.
+                 * \param[in]  pV     The vertices that define the polygon.
                  */
-                template<std::size_t q>
+                template<std::size_t q, typename C>
                 void draw
-                    (const std::array<math::vector<Q,2>,q> &pV)
+                    (std::basic_ostream<C> &output,
+                     const std::array<math::vector<Q,2>,q> &pV) const
                 {
                     output << "<path d='";
                     for (unsigned int i = 0; i < q; i++)
@@ -279,24 +267,6 @@ namespace efgy
                         }
                     }
                     output << "Z'/>";
-                }
-
-                /**\brief Output stream
-                 *
-                 * SVG fragments produced by the renderer are written to this
-                 * stream so you can gather all of the data as a string once
-                 * you're done rendering your frame.
-                 */
-                std::stringstream output;
-
-                /**\brief Reset output stream
-                 *
-                 * Reset the output stream and other object state so you can
-                 * start drawing a fresh image.
-                 */
-                void reset()
-                {
-                    output.str("");
                 }
 
             protected:
@@ -401,7 +371,7 @@ namespace efgy
                     q[i] = p[i];
                 }
 
-                stream.render.draw(q);
+                stream.render.draw(stream.stream, q);
             }
 
             return stream;
