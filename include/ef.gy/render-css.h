@@ -1,9 +1,8 @@
 /**\file
- * \brief JSON renderer
+ * \brief CSS output
  *
- * The templates in this header file allow tagging output streams as JSON output
- * streams so they can be written to like any other C++ stream but producing
- * JSON instead of plain text.
+ * Certain types of data are most naturally expressed in CSS. This is what this
+ * header ought to help with.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -30,11 +29,11 @@
  * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
  */
 
-#if !defined(EF_GY_RENDER_JSON_H)
-#define EF_GY_RENDER_JSON_H
+#if !defined(EF_GY_RENDER_CSS_H)
+#define EF_GY_RENDER_CSS_H
 
 #include <ef.gy/render.h>
-#include <ef.gy/json.h>
+#include <ef.gy/css.h>
 
 namespace efgy
 {
