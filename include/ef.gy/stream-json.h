@@ -1,7 +1,8 @@
 /**\file
  * \brief JSON stream tag
  *
- * Contains the JSON stream tag used by the JSON renderer.
+ * Contains the JSON stream tag used by the JSON renderer. Also contains output
+ * functions for basic, atomic types and certain combined types.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -90,6 +91,110 @@ namespace efgy
         constexpr inline ostream<C> operator << (std::basic_ostream<C> &stream, const tag &)
         {
             return ostream<C>(stream);
+        }
+
+        /**\brief Write float to JSON stream
+         *
+         * Writes a JSON serialisation of a floating point number to a stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         *
+         * \param[out] stream The JSON stream to write to.
+         * \param[in]  pValue The floating point value to serialise.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename C>
+        static inline xml::ostream<C> operator <<
+            (xml::ostream<C> stream,
+             const float &pValue)
+        {
+            stream.stream << pValue;
+            
+            return stream;
+        }
+
+        /**\brief Write double to JSON stream
+         *
+         * Writes a JSON serialisation of a floating point number to a stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         *
+         * \param[out] stream The JSON stream to write to.
+         * \param[in]  pValue The floating point value to serialise.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename C>
+        static inline xml::ostream<C> operator <<
+            (xml::ostream<C> stream,
+             const double &pValue)
+        {
+            stream.stream << pValue;
+            
+            return stream;
+        }
+
+        /**\brief Write long double to JSON stream
+         *
+         * Writes a JSON serialisation of a floating point number to a stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         *
+         * \param[out] stream The JSON stream to write to.
+         * \param[in]  pValue The floating point value to serialise.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename C>
+        static inline xml::ostream<C> operator <<
+            (xml::ostream<C> stream,
+             const long double &pValue)
+        {
+            stream.stream << pValue;
+            
+            return stream;
+        }
+
+        /**\brief Write string to JSON stream
+         *
+         * Writes a JSON serialisation of a character string to a stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         *
+         * \param[out] stream The JSON stream to write to.
+         * \param[in]  pValue The stream to serialise.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename C>
+        static inline xml::ostream<C> operator <<
+            (xml::ostream<C> stream,
+             const std::string &pValue)
+        {
+            std::string out;
+
+            for (const auto &c : out)
+            {
+                switch (c)
+                {
+                    case '\\':
+                    case '"':
+                    {
+                        const char a[] = { '\\', c, 0 };
+                        out.append(a, 2);
+                    }
+                        break;
+
+                    default:
+                        out.append(1, c);
+                        break;
+                }
+            }
+
+            stream.stream << "\"" << out << "\"";
+
+            return stream;
         }
     };
 };

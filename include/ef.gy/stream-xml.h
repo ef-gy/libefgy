@@ -38,10 +38,6 @@
 
 namespace efgy
 {
-    /**\brief XML helpers
-     *
-     * This namespace contains helper functionality for XML output.
-     */
     namespace xml
     {
         /**\brief std::ostream XML tag
