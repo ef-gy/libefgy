@@ -46,7 +46,7 @@ using namespace efgy;
  */
 int testXMLoutput (std::ostream &log)
 {
-    log << XML() << precision(16);
+    log << xml::tag() << xml::precision(16);
 
     return 0;
 }

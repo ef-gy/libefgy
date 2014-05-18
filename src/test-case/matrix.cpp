@@ -282,7 +282,7 @@ int testStream(std::ostream & log)
         log << "Matrix: \n";
         log << m;
         log << "\nExpected:\n";
-        log << expected;
+        log << expected.str();
 
         return next_integer();
     }
