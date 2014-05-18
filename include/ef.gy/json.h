@@ -1,7 +1,7 @@
 /**\file
- * \brief JSON stream tag
+ * \brief JSON helpers
  *
- * Contains the JSON stream tag used by the JSON renderer.
+ * Contains helper functionality for JSON output.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -31,9 +31,6 @@
 #if !defined(EF_GY_JSON_H)
 #define EF_GY_JSON_H
 
-#include <string>
-#include <ostream>
-
 namespace efgy
 {
     /**\brief JSON helpers
@@ -43,58 +40,6 @@ namespace efgy
      */
     namespace json
     {
-        /**\brief std::ostream JSON tag
-         *
-         * Used to distinguish between a plain std::ostream, and one where the
-         * output should be in JSON format.
-         *
-         * \tparam C Character type for the basic_ostream reference.
-         */
-        template <typename C>
-        class ostream
-        {
-            public:
-                /**\brief Construct with stream reference
-                 *
-                 * Initialises a new ostream JSON tag instance.
-                 *
-                 * \param[out] pStream The stream to write to.
-                 */
-                ostream (std::basic_ostream<C> &pStream)
-                    : stream(pStream)
-                    {}
-
-                /**\brief Output stream reference
-                 *
-                 * This is the stream where the output is written to.
-                 */
-                std::basic_ostream<C> &stream;
-        };
-
-        /**\brief JSON tag
-         *
-         * Write this to an ostream to turn it into an ojsonstream. Like this:
-         *
-         * \code{.cpp}
-         * cout << json::tag();
-         * \encode
-         */
-        class tag {};
-
-        /**\brief Convert std::ostream to JSON
-         *
-         * Converts the given stream to a JSON stream so that write operations
-         * after that will produce JSON instead of plain text.
-         *
-         * \tparam C Character type for the basic_ostream reference.
-         *
-         * \param[out] stream The stream to write to.
-         */
-        template <typename C>
-        constexpr inline ostream<C> operator << (std::basic_ostream<C> &stream, const tag &)
-        {
-            return ostream<C>(stream);
-        }
     };
 };
 

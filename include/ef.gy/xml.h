@@ -1,8 +1,7 @@
 /**\file
- * \brief CSS output
+ * \brief XML helpers
  *
- * Certain types of data are most naturally expressed in CSS. This is what this
- * header ought to help with.
+ * Contains helper functionality for XML output.
  *
  * \copyright
  * Copyright (c) 2012-2014, ef.gy Project Members
@@ -29,15 +28,16 @@
  * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
  */
 
-#if !defined(EF_GY_RENDER_CSS_H)
-#define EF_GY_RENDER_CSS_H
-
-#include <ef.gy/render.h>
-#include <ef.gy/stream-css.h>
+#if !defined(EF_GY_XML_H)
+#define EF_GY_XML_H
 
 namespace efgy
 {
-    namespace render
+    /**\brief XML helpers
+     *
+     * This namespace contains helper functionality for XML output.
+     */
+    namespace xml
     {
     };
 };

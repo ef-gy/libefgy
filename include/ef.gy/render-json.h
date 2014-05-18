@@ -34,7 +34,7 @@
 #define EF_GY_RENDER_JSON_H
 
 #include <ef.gy/render.h>
-#include <ef.gy/json.h>
+#include <ef.gy/stream-json.h>
 
 namespace efgy
 {

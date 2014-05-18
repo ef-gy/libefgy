@@ -35,173 +35,15 @@
 
 #include <ef.gy/render.h>
 #include <ef.gy/vector.h>
+#include <ef.gy/stream-xml.h>
 #include <ef.gy/colour-space-hsl.h>
 #include <ef.gy/continued-fractions.h>
-#include <string>
 #include <sstream>
-#include <ostream>
 
 namespace efgy
 {
     namespace render
     {
-        /**\brief std::ostream XML tag
-         *
-         * Used to distinguish between a plain std::ostream, and one where the
-         * output should be in XML format.
-         *
-         * \tparam C Character type for the basic_ostream reference.
-         */
-        template <typename C>
-        class oxmlstream
-        {
-            public:
-                /**\brief Construct with stream reference
-                 *
-                 * Initialises a new ostream XML tag instance.
-                 *
-                 * \param[out] pStream The stream to write to.
-                 */
-                oxmlstream (std::basic_ostream<C> &pStream)
-                    : stream(pStream),
-                      precision(24),
-                      resolution(8)
-                    {}
-
-                /**\brief Output stream reference
-                 *
-                 * This is the stream where the output is written to.
-                 */
-                std::basic_ostream<C> &stream;
-
-                /**\brief Output precision
-                 *
-                 * This is the number of bits in the numerator or denominator of
-                 * fractions that are output to the stream. The default is '24'.
-                 */
-                long precision;
-
-                /**\brief Output range resolution
-                 *
-                 * This is the number of steps used when writing the elements of
-                 * ranges to the stream. The default is '8'.
-                 */
-                long resolution;
-        };
-
-        /**\brief XML tag
-         *
-         * Write this to an ostream to turn it into an oxmlstream. Like this:
-         *
-         * \code{.cpp}
-         * cout << XML();
-         * \encode
-         */
-        class XML {};
-
-        /**\brief Convert std::ostream to XML
-         *
-         * Converts the given stream to an XML stream so that write operations
-         * after that will produce XML instead of plain text.
-         *
-         * \tparam C Character type for the basic_ostream reference.
-         *
-         * \param[out] stream The stream to write to.
-         */
-        template <typename C>
-        constexpr inline oxmlstream<C> operator << (std::basic_ostream<C> &stream, const XML &)
-        {
-            return oxmlstream<C>(stream);
-        }
-
-        /**\brief Precision wrapper
-         *
-         * Used to update the precision field of an XML output stream, like so:
-         *
-         * \code{.cpp}
-         * cout << XML() << precision(24);
-         * \encode
-         */
-        class precision
-        {
-            public:
-                /**\brief Construct with precision
-                 *
-                 * Initialises the instance with a precision value.
-                 *
-                 * \param[in] pPrecision The precision to store.
-                 */
-                constexpr precision (const long &pPrecision)
-                    : value(pPrecision) {}
-
-                /**\brief Precision value
-                 *
-                 * This is the actual precision stored in the wrapper.
-                 */
-                const long value;
-        };
-
-        /**\brief Update precision of XML stream
-         *
-         * Updates the precision member of an XML output stream.
-         *
-         * \tparam C Character type for the basic_ostream reference.
-         *
-         * \param[in] stream The stream to modify.
-         * \param[in] p      The new precision value.
-         *
-         * \returns A new copy of the stream.
-         */
-        template <typename C>
-        constexpr inline oxmlstream<C> operator << (oxmlstream<C> stream, const precision &p)
-        {
-            return stream.precision = p.value, stream;
-        }
-
-        /**\brief Resolution wrapper
-         *
-         * Used to update the resolution field of an XML output stream, like so:
-         *
-         * \code{.cpp}
-         * cout << XML() << resolution(8);
-         * \encode
-         */
-        class resolution
-        {
-            public:
-                /**\brief Construct with resolution
-                 *
-                 * Initialises the instance with a resolution value.
-                 *
-                 * \param[in] pResolution The resolution to store.
-                 */
-                constexpr resolution (const long &pResolution)
-                    : value(pResolution) {}
-
-                /**\brief Resolution value
-                 *
-                 * This is the actual resolution stored in the wrapper.
-                 */
-                const long value;
-        };
-
-        /**\brief Update resolution of XML stream
-         *
-         * Updates the resolution member of an XML output stream.
-         *
-         * \tparam C Character type for the basic_ostream reference.
-         *
-         * \param[in] stream The stream to modify.
-         * \param[in] p      The new resolution value.
-         *
-         * \returns A new copy of the stream.
-         */
-        template <typename C>
-        constexpr inline oxmlstream<C> operator << (oxmlstream<C> stream, const resolution &p)
-        {
-            return stream.resolution = p.value, stream;
-        }
-
         /**\brief Write HSL colour to XML stream
          *
          * Writes an XML serialisation of an HSL vector to a stream.
@@ -214,7 +56,7 @@ namespace efgy
          * \returns A new copy of the input stream.
          */
         template <typename C>
-        static inline oxmlstream<C> operator << (oxmlstream<C> stream, const math::vector<math::fraction,3,math::format::HSL> &pValue)
+        static inline xml::ostream<C> operator << (xml::ostream<C> stream, const math::vector<math::fraction,3,math::format::HSL> &pValue)
         {
             math::vector<math::fraction,3,math::format::HSL> value = pValue;
             value.hue = math::numeric::round(value.hue, stream.precision);
@@ -256,7 +98,7 @@ namespace efgy
          * \returns A new copy of the input stream.
          */
         template <typename C>
-        static inline oxmlstream<C> operator << (oxmlstream<C> stream, const math::vector<math::fraction,3,math::format::RGB> &pValue)
+        static inline xml::ostream<C> operator << (xml::ostream<C> stream, const math::vector<math::fraction,3,math::format::RGB> &pValue)
         {
             math::vector<math::fraction,3,math::format::RGB> value = pValue;
             value.red = math::numeric::round(value.red, stream.precision);
@@ -298,7 +140,7 @@ namespace efgy
          * \returns A new copy of the input stream.
          */
         template <typename C, class Q, typename format>
-        static inline oxmlstream<C> operator |= (oxmlstream<C> stream, const math::vector<Q,3,format> &value)
+        static inline xml::ostream<C> operator |= (xml::ostream<C> stream, const math::vector<Q,3,format> &value)
         {
             stream.stream << "<picker xmlns='http://colouri.se/2012'>";
             math::vector<Q,3,format> v = value;
