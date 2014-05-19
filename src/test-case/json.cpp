@@ -46,13 +46,25 @@ using namespace efgy;
  */
 int testJSONoutput (std::ostream &log)
 {
+    std::map<const char*,int> m;
+
+    m["a"] = 42;
+    m["b"] = 23;
+    m["c"] = 1;
+
+    std::map<const char*,std::map<const char*,int>> mx;
+
+    mx["d"] = m;
+
     log << json::tag()
         << 1
         << "foo"
         << 2
         << "bar \"baz\""
         << 42.23
-        << std::array<double,2>({23,42});
+        << std::array<double,2>({23,42})
+        << m
+        << mx;
 
     return 0;
 }

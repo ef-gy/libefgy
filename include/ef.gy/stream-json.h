@@ -37,6 +37,7 @@
 #include <ostream>
 #include <array>
 #include <vector>
+#include <map>
 
 namespace efgy
 {
@@ -344,7 +345,6 @@ namespace efgy
             return stream;
         }
 
-        
         /**\brief Write vector to JSON stream
          *
          * Writes a JSON serialisation of a std::vector to a stream.
@@ -379,6 +379,84 @@ namespace efgy
             }
             
             stream.stream << "]";
+            
+            return stream;
+        }
+
+        /**\brief Write map to JSON stream
+         *
+         * Writes a JSON serialisation of a std::map to a stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         * \tparam V Value type of the vector.
+         *
+         * \param[out] stream The JSON stream to write to.
+         * \param[in]  pValue The map to serialise.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename C, typename V>
+        static inline ostream<C> operator <<
+            (ostream<C> stream,
+             const std::map<std::string,V> &pValue)
+        {
+            bool notFirst = false;
+            stream.stream << "{";
+            
+            for (const auto &e : pValue)
+            {
+                if (notFirst)
+                {
+                    stream.stream << ",";
+                }
+                else
+                {
+                    notFirst = true;
+                }
+                stream << e.first << ":" << e.second;
+            }
+            
+            stream.stream << "}";
+            
+            return stream;
+        }
+
+        /**\brief Write map to JSON stream
+         *
+         * Writes a JSON serialisation of a std::map to a stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         * \tparam V Value type of the vector.
+         *
+         * \param[out] stream The JSON stream to write to.
+         * \param[in]  pValue The map to serialise.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename C, typename V>
+        static inline ostream<C> operator <<
+            (ostream<C> stream,
+             const std::map<const char*,V> &pValue)
+        {
+            bool notFirst = false;
+            stream.stream << "{";
+            
+            for (const auto &e : pValue)
+            {
+                if (notFirst)
+                {
+                    stream.stream << ",";
+                }
+                else
+                {
+                    notFirst = true;
+                }
+                stream << e.first;
+                stream.stream << ":";
+                stream << e.second;
+            }
+            
+            stream.stream << "}";
             
             return stream;
         }
