@@ -359,8 +359,8 @@ namespace efgy
          */
         template <typename C, typename E>
         static inline ostream<C> operator <<
-        (ostream<C> stream,
-         const std::vector<E> &pValue)
+            (ostream<C> stream,
+             const std::vector<E> &pValue)
         {
             bool notFirst = false;
             stream.stream << "[";
