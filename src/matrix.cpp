@@ -30,7 +30,7 @@
  * THE SOFTWARE.
  *
  * \see Project Documentation: http://ef.gy/documentation/libefgy
- * \see Project Source Code: http://git.becquerel.org/jyujin/libefgy.git
+ * \see Project Source Code: https://github.com/ef-gy/libefgy.git
  */
 
 #include <iostream>
