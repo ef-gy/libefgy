@@ -32,12 +32,13 @@
 
 #include <ef.gy/test-case.h>
 #include <ef.gy/render-json.h>
+#include <sstream>
 
 using namespace efgy::render;
 using namespace efgy;
 
 /**\brief JSON output tests
- * \test Writes some JSON to the log to see if it compiles and works as
+ * \test Writes some JSON to a stringstream to see if it compiles and works as
  *       intended.
  *
  * \param[out] log A stream for test cases to log messages to.
@@ -56,7 +57,10 @@ int testJSONoutput (std::ostream &log)
 
     mx["d"] = m;
 
-    log << json::tag()
+    std::ostringstream s("");
+
+    s   << json::tag()
+        << false
         << 1
         << "foo"
         << 2
@@ -64,7 +68,16 @@ int testJSONoutput (std::ostream &log)
         << 42.23
         << std::array<double,2>({23,42})
         << m
-        << mx;
+        << mx
+        << true;
+
+    if (s.str() != "false1\"foo\"2\"bar \\\"baz\\\"\"42.23[23,42]"
+                   "{\"a\":42,\"b\":23,\"c\":1}"
+                   "{\"d\":{\"a\":42,\"b\":23,\"c\":1}}true")
+    {
+        log << "unexpected JSON output: " << s.str();
+        return 1;
+    }
 
     return 0;
 }

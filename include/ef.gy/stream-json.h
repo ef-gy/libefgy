@@ -73,7 +73,7 @@ namespace efgy
 
         /**\brief JSON tag
          *
-         * Write this to an ostream to turn it into an ojsonstream. Like this:
+         * Write this to an ostream to turn it into an json::ostream. Like this:
          *
          * \code{.cpp}
          * cout << json::tag();
@@ -219,6 +219,27 @@ namespace efgy
         {
             stream.stream << pValue;
 
+            return stream;
+        }
+
+        /**\brief Write boolea  to JSON stream
+         *
+         * Writes a JSON serialisation of a boolean to a stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         *
+         * \param[out] stream The JSON stream to write to.
+         * \param[in]  pValue The boolean value to serialise.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename C>
+        static inline ostream<C> operator <<
+            (ostream<C> stream,
+             const bool &pValue)
+        {
+            stream.stream << (pValue ? "true" : "false");
+            
             return stream;
         }
 
