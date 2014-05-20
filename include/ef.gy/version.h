@@ -35,7 +35,7 @@
  *
  * \section libefgy-download Obtaining libefgy
  * The primary location for this library is the git repository at:
- * https://github.com/ef-gy/libefgy.git
+ * https://github.com/ef-gy/libefgy
  * ; use this link to browse the source code online, or to download tarballs of
  * development versions or releases. To check out a working copy with git, run
  * the following in a shell:

@@ -26,7 +26,7 @@
  * THE SOFTWARE.
  *
  * \see Project Documentation: http://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy.git
+ * \see Project Source Code: https://github.com/ef-gy/libefgy
  * \see The paper 'Fractal Flame Algorithm' by Scott Draves and Eric Reckase:
  *      http://flam3.com/flame_draves.pdf
  */
