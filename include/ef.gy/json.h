@@ -31,6 +31,11 @@
 #if !defined(EF_GY_JSON_H)
 #define EF_GY_JSON_H
 
+#include <map>
+#include <vector>
+#include <string>
+#include <memory>
+
 namespace efgy
 {
     /**\brief JSON helpers
@@ -40,6 +45,77 @@ namespace efgy
      */
     namespace json
     {
+        /**\brief JSON value
+         *
+         * This class is used to represent a JSON value, as defined at
+         * http://www.json.org/ - the class basically holds a type tag and a
+         * pointer.
+         *
+         * \see http://www.json.org/
+         */
+        template <typename numeric = long double>
+        class value
+        {
+            public:
+                value (void) : type(null) {}
+                value (const bool &pValue) : type(pValue ? yes : no) {}
+
+                ~value (void)
+                {
+                    switch (type)
+                    {
+                        case object:
+                            delete ((std::map<std::string,value<numeric>>*)payload);
+                            break;
+                        case array:
+                            delete ((std::vector<value<numeric>>*)payload);
+                            break;
+                        case string:
+                            delete ((std::string*)payload);
+                            break;
+                        case number:
+                            delete ((numeric*)payload);
+                            break;
+                        case yes:
+                        case no:
+                        case null:
+                            break;
+                    }
+                }
+
+                enum
+                {
+                    object,
+                    array,
+                    string,
+                    number,
+                    yes,
+                    no,
+                    null
+                } type;
+
+                void *payload;
+
+                std::map<std::string,value<numeric>> &getObject (void)
+                {
+                    return *((std::map<std::string,value<numeric>>*)payload);
+                }
+
+                std::vector<value<numeric>> &getArray (void)
+                {
+                    return *((std::vector<value<numeric>>*)payload);
+                }
+
+                std::string &getString (void)
+                {
+                    return *((std::string*)payload);
+                }
+
+                numeric &getNumber (void)
+                {
+                    return *((numeric*)payload);
+                }
+        };
     };
 };
 

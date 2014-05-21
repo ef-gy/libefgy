@@ -45,7 +45,7 @@ using namespace efgy;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testJSONoutput (std::ostream &log)
+int testJSONOutput (std::ostream &log)
 {
     std::map<const char*,int> m;
 
@@ -79,7 +79,9 @@ int testJSONoutput (std::ostream &log)
         return 1;
     }
 
+    json::value<> v;
+
     return 0;
 }
 
-TEST_BATCH(testJSONoutput)
+TEST_BATCH(testJSONOutput)
