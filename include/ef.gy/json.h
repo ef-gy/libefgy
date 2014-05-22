@@ -62,25 +62,7 @@ namespace efgy
 
                 ~value (void)
                 {
-                    switch (type)
-                    {
-                        case object:
-                            delete ((std::map<std::string,value<numeric>>*)payload);
-                            break;
-                        case array:
-                            delete ((std::vector<value<numeric>>*)payload);
-                            break;
-                        case string:
-                            delete ((std::string*)payload);
-                            break;
-                        case number:
-                            delete ((numeric*)payload);
-                            break;
-                        case yes:
-                        case no:
-                        case null:
-                            break;
-                    }
+                    clear();
                 }
 
                 enum
@@ -95,6 +77,26 @@ namespace efgy
                 } type;
 
                 void *payload;
+
+                const std::map<std::string,value<numeric>> &getObject (void) const
+                {
+                    return *((const std::map<std::string,value<numeric>>*)payload);
+                }
+
+                const std::vector<value<numeric>> &getArray (void) const
+                {
+                    return *((const std::vector<value<numeric>>*)payload);
+                }
+
+                const std::string &getString (void) const
+                {
+                    return *((const std::string*)payload);
+                }
+
+                const numeric &getNumber (void) const
+                {
+                    return *((const numeric*)payload);
+                }
 
                 std::map<std::string,value<numeric>> &getObject (void)
                 {
@@ -114,6 +116,64 @@ namespace efgy
                 numeric &getNumber (void)
                 {
                     return *((numeric*)payload);
+                }
+
+                bool getBoolean (void) const
+                {
+                    return type == yes;
+                }
+
+                void toObject (void)
+                {
+                    clear();
+                    type = object;
+                    payload = new std::map<std::string,value<numeric>>();
+                }
+
+                void toArray (void)
+                {
+                    clear();
+                    type = array;
+                    payload = new std::vector<value<numeric>>();
+                }
+
+                void toString (void)
+                {
+                    clear();
+                    type = string;
+                    payload = new std::string();
+                }
+            
+                void toNumber (void)
+                {
+                    clear();
+                    type = number;
+                    payload = new numeric();
+                }
+
+            protected:
+                void clear (void)
+                {
+                    switch (type)
+                    {
+                        case object:
+                            delete ((std::map<std::string,value<numeric>>*)payload);
+                            break;
+                        case array:
+                            delete ((std::vector<value<numeric>>*)payload);
+                            break;
+                        case string:
+                            delete ((std::string*)payload);
+                            break;
+                        case number:
+                            delete ((numeric*)payload);
+                            break;
+                        case yes:
+                        case no:
+                        case null:
+                            break;
+                    }
+                    type = null;
                 }
         };
     };

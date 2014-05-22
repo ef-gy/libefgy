@@ -81,6 +81,13 @@ int testJSONOutput (std::ostream &log)
 
     json::value<> v;
 
+    s.str("");
+
+    s   << json::tag()
+        << v;
+
+    log << s.str();
+
     return 0;
 }
 

@@ -481,6 +481,51 @@ namespace efgy
             
             return stream;
         }
+
+        /**\brief Write JSON value to JSON stream
+         *
+         * Writes a JSON serialisation of a JSON value to a stream.
+         *
+         * \tparam C Character type for the basic_ostream reference.
+         * \tparam V Value numeric type.
+         *
+         * \param[out] stream The JSON stream to write to.
+         * \param[in]  pValue The value to serialise.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename C, typename Q>
+        static inline ostream<C> operator <<
+            (ostream<C> stream,
+             const json::value<Q> &pValue)
+        {
+            switch (pValue.type)
+            {
+                case json::value<Q>::object:
+                    stream << pValue.getObject();
+                    break;
+                case json::value<Q>::array:
+                    stream << pValue.getArray();
+                    break;
+                case json::value<Q>::string:
+                    stream << pValue.getString();
+                    break;
+                case json::value<Q>::number:
+                    stream << pValue.getNumber();
+                    break;
+                case json::value<Q>::yes:
+                    stream << true;
+                    break;
+                case json::value<Q>::no:
+                    stream << false;
+                    break;
+                case json::value<Q>::null:
+                    stream.stream << "null";
+                    break;
+            }
+
+            return stream;
+        }
     };
 };
 
