@@ -209,7 +209,7 @@ namespace efgy
                     static output apply (argument out, const format &)
                     {
                         std::ostringstream os;
-                        os        << T<Q,d,e,format>::depth()
+                        os        << T<Q,d,e,format>::depth
                            << "-" << T<Q,d,e,format>::id();
                         out.insert(os.str());
                         return out;
