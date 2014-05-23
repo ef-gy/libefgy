@@ -249,14 +249,21 @@ namespace efgy
          * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
          * \tparam d      Number of dimensions of the vector space to use
          * \tparam f      Number of vertices for mesh faces
-         * \tparam format Vector coordinate format to work in, e.g.
+         * \tparam Format Vector coordinate format to work in, e.g.
          *                math::format::cartesian.
          */
         template <typename Q, unsigned int od, unsigned int d, unsigned int f,
-                  typename format>
+                  typename Format>
         class object
         {
             public:
+                /**\brief Vector format type
+                 *
+                 * Holds the vector format type that was passed as an argument
+                 * to the template.
+                 */
+                typedef Format format;
+
                 /**\brief Construct with renderer and parameters
                  *
                  * Initialises an instance of the class using a renderer
@@ -325,18 +332,6 @@ namespace efgy
                  * \returns The model's ID as a C-style string.
                  */
                 static constexpr const char *id (void);
-
-                /**\brief Query vector coordinate format ID
-                 *
-                 * The vector format tags have unique IDs to differentiate
-                 * between them; this function returns that ID.
-                 *
-                 * \returns The model's ID as a C-style string.
-                 */
-                static constexpr const char *formatID (void)
-                {
-                    return format::id();
-                }
             
                 /**\brief Query the model's genome
                  *
