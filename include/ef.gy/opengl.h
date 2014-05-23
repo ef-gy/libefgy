@@ -34,7 +34,6 @@
 #include <ef.gy/glsl.h>
 #include <vector>
 #include <sstream>
-#include <exception>
 
 namespace efgy
 {
@@ -51,13 +50,9 @@ namespace efgy
          * every now and then to make sure the graphics library is still in the
          * intended state.
          *
-         * \tparam doThrow Whether to throw a runtime exception instead of
-         *                 logging an error to stderr.
-         *
          * \see http://www.opengl.org/sdk/docs/man/xhtml/glGetError.xml for a
          *      description of the flags that this functor might return.
          */
-        template<const bool doThrow = false>
         class error
         {
             public:
@@ -77,45 +72,6 @@ namespace efgy
                     for (GLenum flag = glGetError(); flag != GL_NO_ERROR; flag = glGetError())
                     {
                         std::cerr << "glGetError() = 0x" << std::hex << flag << "\n";
-
-                        errors.push_back(flag);
-                    }
-
-                    return errors;
-                }
-        };
-
-        /**\brief OpenGL error wrapper; throws exceptions on errors
-         *
-         * A functor to handle OpenGL errors in a generic way; should be used
-         * every now and then to make sure the graphics library is still in the
-         * intended state.
-         */
-        template<>
-        class error<true>
-        {
-            public:
-                /**\brief Process OpenGL errors
-                 *
-                 * Queries OpenGL for any recent errors; will throw an exception
-                 * if any errors have occurred and do nothing otherwise.
-                 *
-                 * \return Either an empty vector or nothing at all - because
-                 *         any error flags that would be returned will instead
-                 *         be thrown as an exception, meaning the function will
-                 *         not return in such cases.
-                 */
-                std::vector<GLenum> operator () (void)
-                {
-                    std::vector<GLenum> errors;
-                    
-                    for (GLenum flag = glGetError(); flag != GL_NO_ERROR; flag = glGetError())
-                    {
-                        std::stringstream s("");
-
-                        s << "glGetError() = 0x" << std::hex << flag << "\n";
-
-                        throw std::runtime_error(s.str());
 
                         errors.push_back(flag);
                     }

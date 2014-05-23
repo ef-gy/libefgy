@@ -792,7 +792,7 @@ namespace efgy
                         indices = 0;
 
                         // log errors
-                        efgy::opengl::error<>();
+                        efgy::opengl::error();
                     }
 
                     if (fractalFlameColouring)
