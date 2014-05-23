@@ -53,7 +53,7 @@ namespace efgy
                 public:
                     typedef dimensions<2, 2, 3, 0> dimensions;
 
-                    static const char *id (void) { return "moebius-strip"; }
+                    static constexpr const char *id (void) { return "moebius-strip"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
                     {
@@ -75,7 +75,7 @@ namespace efgy
                 public:
                     typedef dimensions<2, 2, 3, 0> dimensions;
 
-                    static const char *id (void) { return "klein-bagel"; }
+                    static constexpr const char *id (void) { return "klein-bagel"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t)
                     {
@@ -96,7 +96,7 @@ namespace efgy
                 public:
                     typedef dimensions<2, 2, 4, 0> dimensions;
 
-                    static const char *id (void) { return "klein-bottle"; }
+                    static constexpr const char *id (void) { return "klein-bottle"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t)
                     {
@@ -124,7 +124,7 @@ namespace efgy
                 public:
                     typedef dimensions<2, d - 1, 3, 0> dimensions;
 
-                    static const char *id (void) { return "sphere"; }
+                    static constexpr const char *id (void) { return "sphere"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
                     {
@@ -149,7 +149,7 @@ namespace efgy
                 public:
                     typedef dimensions<2, 2, 3, 0> dimensions;
 
-                    static const char *id (void) { return "plane"; }
+                    static constexpr const char *id (void) { return "plane"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
                     {
@@ -173,7 +173,7 @@ namespace efgy
                 public:
                     typedef dimensions<2, 2, 3, 0> dimensions;
 
-                    static const char *id (void) { return "torus"; }
+                    static constexpr const char *id (void) { return "torus"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
                     {
@@ -231,7 +231,7 @@ namespace efgy
 
                 typedef typename source::dimensions dimensions;
 
-                static const char *id (void) { return source::id(); }
+                static constexpr const char *id (void) { return source::id(); }
 
                 void recurse
                     (const cube<Q,od,od,math::format::cartesian> &cube,

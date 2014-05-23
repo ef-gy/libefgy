@@ -324,10 +324,7 @@ namespace efgy
                  *
                  * \returns The model's ID as a C-style string.
                  */
-                static constexpr const char *id (void)
-                {
-                    return "none";
-                }
+                static constexpr const char *id (void);
 
                 /**\brief Query vector coordinate format ID
                  *
@@ -419,7 +416,7 @@ namespace efgy
                 typedef dimensions<2, d, 3, 0> dimensions;
 
                 /**\copydoc polytope::id() */
-                static const char *id (void)
+                static constexpr const char *id (void)
                 {
                     return "simplex";
                 }
@@ -579,7 +576,7 @@ namespace efgy
                 typedef dimensions<2, d, 3, 0> dimensions;
 
                 /**\copydoc polytope::id() */
-                static const char *id (void)
+                static constexpr const char *id (void)
                 {
                     return "cube";
                 }

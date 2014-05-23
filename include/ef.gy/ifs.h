@@ -170,7 +170,7 @@ namespace efgy
                     using parent::functions;
                     using parent::calculateObject;
 
-                    static const char *id (void) { return "sierpinski-gasket"; }
+                    static constexpr const char *id (void) { return "sierpinski-gasket"; }
             };
 
             template <typename Q, unsigned int od, unsigned int d, typename format>
@@ -244,7 +244,7 @@ namespace efgy
                     using parent::functions;
                     using parent::calculateObject;
 
-                    static const char *id (void) { return "sierpinski-carpet"; }
+                    static constexpr const char *id (void) { return "sierpinski-carpet"; }
             };
         };
 
@@ -372,7 +372,7 @@ namespace efgy
                 using parent::functions;
                 using parent::calculateObject;
 
-                static const char *id (void) { return "random-affine-ifs"; }
+                static constexpr const char *id (void) { return "random-affine-ifs"; }
         };
     };
 };

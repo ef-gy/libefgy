@@ -385,7 +385,7 @@ namespace efgy
                     using parent::functions;
                     using parent::calculateObject;
 
-                    static const char *id (void) { return "random-flame"; }
+                    static constexpr const char *id (void) { return "random-flame"; }
             };
         };
     };
