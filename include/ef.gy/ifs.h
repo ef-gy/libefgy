@@ -244,8 +244,6 @@ namespace efgy
                     using parent::functions;
                     using parent::calculateObject;
 
-                    static unsigned int depth (void) { return od; }
-                    static unsigned int renderDepth (void) { return d; }
                     static const char *id (void) { return "sierpinski-carpet"; }
             };
         };
@@ -374,8 +372,6 @@ namespace efgy
                 using parent::functions;
                 using parent::calculateObject;
 
-                static unsigned int depth (void) { return od; }
-                static unsigned int renderDepth (void) { return d; }
                 static const char *id (void) { return "random-affine-ifs"; }
         };
     };

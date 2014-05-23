@@ -305,10 +305,7 @@ namespace efgy
                  *
                  * \returns The model's depth.
                  */
-                static constexpr unsigned int depth (void)
-                {
-                    return od;
-                }
+                static const unsigned int depth = od;
 
                 /**\brief Query the model's render depth
                  *
@@ -318,10 +315,7 @@ namespace efgy
                  *
                  * \returns The model's render depth.
                  */
-                static constexpr unsigned int renderDepth (void)
-                {
-                    return d;
-                }
+                static const unsigned int renderDepth = d;
 
                 /**\brief Query model ID
                  *
