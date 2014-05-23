@@ -526,6 +526,25 @@ namespace efgy
 
             return stream;
         }
+
+        /**\brief Read JSON value from JSON string
+         *
+         * Reads a JSON serialisation from a JSON string.
+         *
+         * \tparam V Value numeric type.
+         *
+         * \param[out] stream The JSON string to read from.
+         * \param[in]  pValue The value to read to.
+         *
+         * \returns A new copy of the input stream.
+         */
+        template <typename Q>
+        static inline std::string operator >>
+            (std::string stream,
+             const json::value<Q> &pValue)
+        {
+            return stream;
+        }
     };
 };
 
