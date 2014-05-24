@@ -285,7 +285,7 @@ namespace efgy
                  * number of vertices that make up an individual 'face' of the
                  * resulting mesh.
                  */
-                static const unsigned int faceVertices = f;
+                static constexpr const unsigned int faceVertices = f;
 
                 /**\brief Query the model's depth
                  *
@@ -312,7 +312,7 @@ namespace efgy
                  *
                  * \returns The model's depth.
                  */
-                static const unsigned int depth = od;
+                static constexpr const unsigned int depth = od;
 
                 /**\brief Query the model's render depth
                  *
@@ -322,7 +322,7 @@ namespace efgy
                  *
                  * \returns The model's render depth.
                  */
-                static const unsigned int renderDepth = d;
+                static constexpr const unsigned int renderDepth = d;
 
                 /**\brief Query model ID
                  *
@@ -332,22 +332,6 @@ namespace efgy
                  * \returns The model's ID as a C-style string.
                  */
                 static constexpr const char *id (void);
-            
-                /**\brief Query the model's genome
-                 *
-                 * Every primitive that uses parameters should be able to
-                 * produce a genome, which uniquely identifies the settings
-                 * that were used to calculate the mesh and which could be used
-                 * to recreate that same model later. We're calling this a
-                 * genome because some models make perfect candidates for
-                 * further processing with a genetic algorithm.
-                 *
-                 * \returns An aray of Qs describing the object's parameters.
-                 */
-                constexpr std::array<Q,0> genome (void) const
-                {
-                    return {{}};
-                }
 
                 /**\brief A 2D surface
                  *
@@ -392,6 +376,38 @@ namespace efgy
         template <typename Q, unsigned int od, unsigned int d, unsigned int f,
                   typename format>
         using polytope = object<Q,od,d,f,format>;
+
+        template <typename Q, unsigned int d, class model>
+        class adapt : public object<Q,model::depth,d,model::faceVertices,typename model::format>
+        {
+            public:
+                typedef object<Q,model::depth,d,model::faceVertices,typename model::format> parent;
+
+                using typename parent::format;
+
+                adapt (const parameters<Q> &pParameter, const format &pFormat)
+                    : parent(pParameter, pFormat),
+                      object(pParameter, pFormat)
+                    {
+                        calculateObject();
+                    }
+
+                using parent::faces;
+
+                void calculateObject (void)
+                {
+                    object.calculateObject();
+                    faces = object.faces;
+                }
+
+                static constexpr const char *id (void)
+                {
+                    return model::id();
+                }
+
+            protected:
+                model object;
+        };
 
         template <typename Q, unsigned int od, unsigned int d, typename format>
         class simplex : public polytope<Q,od,d,3,format>
@@ -639,12 +655,6 @@ namespace efgy
                         lines.insert(lines.end(), newLines.begin(), newLines.end());
                         faces.insert(faces.end(), newFaces.begin(), newFaces.end());
                     }
-                }
-
-                /**\copydoc polytope::genome() */
-                std::array<Q,1> genome (void) const
-                {
-                    return {{ parameter.radius }};
                 }
         };
     };
