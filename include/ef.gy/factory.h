@@ -38,7 +38,6 @@
 #if !defined(EF_GY_FACTORY_H)
 #define EF_GY_FACTORY_H
 
-#include <ef.gy/render-null.h>
 #include <ef.gy/parametric.h>
 #include <ef.gy/flame.h>
 
