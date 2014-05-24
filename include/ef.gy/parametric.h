@@ -51,7 +51,7 @@ namespace efgy
             class moebiusStrip
             {
                 public:
-                    typedef dimensions<2, 2, 3, 0> dimensions;
+                    typedef dimensions<2, 2> dimensions;
 
                     static constexpr const unsigned int renderDepth = 3;
                     static constexpr const char *id (void) { return "moebius-strip"; }
@@ -74,7 +74,7 @@ namespace efgy
             class kleinBagel
             {
                 public:
-                    typedef dimensions<2, 2, 3, 0> dimensions;
+                    typedef dimensions<2, 2> dimensions;
 
                     static constexpr const unsigned int renderDepth = 3;
                     static constexpr const char *id (void) { return "klein-bagel"; }
@@ -96,7 +96,7 @@ namespace efgy
             class kleinBottle
             {
                 public:
-                    typedef dimensions<2, 2, 4, 0> dimensions;
+                    typedef dimensions<2, 2> dimensions;
 
                     static constexpr const unsigned int renderDepth = 4;
                     static constexpr const char *id (void) { return "klein-bottle"; }
@@ -106,15 +106,12 @@ namespace efgy
                         return range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false);
                     }
 
-                    static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    constexpr static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
-                        math::vector<Q,renderDepth> r
-                                            {{ Q(parameter.radius  * (cos(ve[0]/Q(2)) * cos(ve[1]) - sin(ve[0]/Q(2)) * sin(Q(2)*ve[1]))),
-                                               Q(parameter.radius  * (sin(ve[0]/Q(2)) * cos(ve[1]) + cos(ve[0]/Q(2)) * sin(Q(2)*ve[1]))),
-                                               Q(parameter.radius2 * cos(ve[0]) * (Q(1) + parameter.constant * sin(ve[1]))),
-                                               Q(parameter.radius2 * sin(ve[0]) * (Q(1) + parameter.constant * sin(ve[1]))) }};
-                        
-                        return r;
+                        return {{ Q(parameter.radius  * (cos(ve[0]/Q(2)) * cos(ve[1]) - sin(ve[0]/Q(2)) * sin(Q(2)*ve[1]))),
+                                  Q(parameter.radius  * (sin(ve[0]/Q(2)) * cos(ve[1]) + cos(ve[0]/Q(2)) * sin(Q(2)*ve[1]))),
+                                  Q(parameter.radius2 * cos(ve[0]) * (Q(1) + parameter.constant * sin(ve[1]))),
+                                  Q(parameter.radius2 * sin(ve[0]) * (Q(1) + parameter.constant * sin(ve[1]))) }};
                     }
             };
 
@@ -122,7 +119,7 @@ namespace efgy
             class sphere
             {
                 public:
-                    typedef dimensions<2, 0, 3, 0> dimensions;
+                    typedef dimensions<2, 0> dimensions;
 
                     static constexpr const unsigned int renderDepth = od+1;
                     static constexpr const char *id (void) { return "sphere"; }
@@ -148,7 +145,7 @@ namespace efgy
             class plane
             {
                 public:
-                    typedef dimensions<2, 2, 3, 0> dimensions;
+                    typedef dimensions<2, 2> dimensions;
 
                     static constexpr const unsigned int renderDepth = 2;
                     static constexpr const char *id (void) { return "plane"; }
@@ -158,14 +155,9 @@ namespace efgy
                         return range<Q>(-parameter.radius*Q(2), parameter.radius*Q(2), parameter.precision, false);
                     }
 
-                    static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    constexpr static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
-                        math::vector<Q,renderDepth> v {{}};
-                        for (std::size_t i = 0; i < od; i++)
-                        {
-                            v[i] = ve[i];
-                        }
-                        return v;
+                        return {{ ve[0], ve[1] }};
                     }
             };
 
@@ -173,7 +165,7 @@ namespace efgy
             class torus
             {
                 public:
-                    typedef dimensions<2, 2, 3, 0> dimensions;
+                    typedef dimensions<2, 2> dimensions;
 
                     static constexpr const unsigned int renderDepth = 3;
                     static constexpr const char *id (void) { return "torus"; }

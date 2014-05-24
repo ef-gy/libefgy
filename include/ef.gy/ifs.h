@@ -164,7 +164,7 @@ namespace efgy
                     using parent::parameter;
                     using parent::faces;
 
-                    typedef dimensions<2, 0, 3, 0> dimensions;
+                    typedef dimensions<2, 0> dimensions;
 
                     using parent::faceVertices;
 
@@ -239,7 +239,7 @@ namespace efgy
                     using parent::parameter;
                     using parent::faces;
 
-                    typedef dimensions<2, 3, 3, 0> dimensions;
+                    typedef dimensions<2, 3> dimensions;
 
                     using parent::faceVertices;
 
@@ -374,7 +374,7 @@ namespace efgy
                 using parent::parameter;
                 using parent::faces;
 
-                typedef dimensions<2, 0, 3, 0> dimensions;
+                typedef dimensions<2, 0> dimensions;
 
                 using parent::faceVertices;
 

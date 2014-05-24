@@ -371,7 +371,7 @@ namespace efgy
 
                             const unsigned int nfunctions = parameter.functions;
 
-                            for (unsigned int i : range<unsigned int>(0,nfunctions,nfunctions,false))
+                            for (const unsigned int &i : range<unsigned int>(0,nfunctions,nfunctions,false))
                             {
                                 functions.push_back (transformation::randomFlame<Q,od,d>(parameter, PRNG()));
                             }
@@ -381,7 +381,7 @@ namespace efgy
 
                     using parent::parameter;
 
-                    typedef dimensions<2, 0, 3, 0> dimensions;
+                    typedef dimensions<2, 0> dimensions;
 
                     using parent::functions;
                     using parent::calculateObject;

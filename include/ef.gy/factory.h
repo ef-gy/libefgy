@@ -322,8 +322,7 @@ namespace efgy
                 {
                     return d < T<Q,d,format>::dimensions::modelDimensionMinimum ? func<Q,T,d,e,format>::pass(arg)
                          : (T<Q,d,format>::dimensions::modelDimensionMaximum > 0) && (d > T<Q,d,format>::dimensions::modelDimensionMaximum) ? model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag)
-                         : e < T<Q,d,format>::dimensions::renderDimensionMinimum ? func<Q,T,d,e,format>::pass(arg)
-                         : (T<Q,d,format>::dimensions::renderDimensionMaximum > 0) && (e > T<Q,d,format>::dimensions::renderDimensionMaximum) ? model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag)
+//                         : e < T<Q,d,format>::renderDepth ? func<Q,T,d,e,format>::pass(arg)
                          : 0 == rdims
                             ? (   0 == dims ? func<Q,T,d,e,format>::apply(arg,tag), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag), model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag)
                                 : d == dims ? func<Q,T,d,e,format>::apply(arg, tag), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag)
@@ -630,20 +629,20 @@ namespace efgy
                  template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                  unsigned int d,
                  unsigned int e = d>
-        static inline typename func<Q,cube,d,e,math::format::cartesian>::output with
+        constexpr static inline typename func<Q,cube,d,e,math::format::cartesian>::output with
             (typename func<Q,cube,d,e,math::format::cartesian>::argument arg,
              const std::string &format,
              const std::string &type,
              const unsigned int &dims,
              const unsigned int &rdims)
         {
-            if (format == "*" || format == "cartesian")
-                with<Q,func,d,e,math::format::cartesian>(arg,type,dims,rdims,math::format::cartesian());
-
-            if (format == "*" || format == "polar")
-                with<Q,func,d,e,math::format::polar>(arg,type,dims,rdims,math::format::polar());
-            
-            return func<Q,cube,d,e,math::format::cartesian>::pass(arg);
+            return
+                (format == "*" || format == "cartesian")
+                    ? with<Q,func,d,e,math::format::cartesian>(arg,type,dims,rdims,math::format::cartesian())
+                    : func<Q,cube,d,e,math::format::cartesian>::pass(arg),
+                (format == "*" || format == "polar")
+                    ? with<Q,func,d,e,math::format::polar>(arg,type,dims,rdims,math::format::polar())
+                    : func<Q,cube,d,e,math::format::polar>::pass(arg);
         }
     };
 };

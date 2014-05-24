@@ -202,11 +202,8 @@ namespace efgy
          *
          * \tparam modelMin  Minimum number of model dimensions needed.
          * \tparam modelMax  Maximum number of model dimensions supported.
-         * \tparam renderMin Minimum number of render dimensions needed.
-         * \tparam renderMax Maximum number of render dimensions supported.
          */
-        template <std::size_t modelMin  = 2, std::size_t modelMax  = 0,
-                  std::size_t renderMin = 3, std::size_t renderMax = 0>
+        template <std::size_t modelMin  = 2, std::size_t modelMax  = 0>
         class dimensions
         {
             public:
@@ -223,20 +220,6 @@ namespace efgy
                  * dimensions that the model could be rendered in.
                  */
                 static const std::size_t modelDimensionMaximum  = modelMax;
-
-                /**\brief Minimum number of render dimensions needed
-                 *
-                 * Exports the 'renderMin' parameter, which is the number of
-                 * render dimensions that the model needs to render properly.
-                 */
-                static const std::size_t renderDimensionMinimum = renderMin;
-
-                /**\brief Maximum number of render dimensions supported
-                 *
-                 * Exports the 'renderMax' parameter, which is the number of
-                 * render dimensions that the model could be rendered in.
-                 */
-                static const std::size_t renderDimensionMaximum = renderMax;
         };
 
         /**\brief Object base template
@@ -442,7 +425,7 @@ namespace efgy
                 using parent::parameter;
                 using parent::faces;
 
-                typedef dimensions<2, d, 3, 0> dimensions;
+                typedef dimensions<2, 0> dimensions;
 
                 /**\copydoc polytope::id() */
                 static constexpr const char *id (void)
@@ -603,7 +586,7 @@ namespace efgy
                     * ((long long)od - 2)
                     * ((long long)od - 1);
 
-                typedef dimensions<2, d, 3, 0> dimensions;
+                typedef dimensions<2, 0> dimensions;
 
                 /**\copydoc polytope::id() */
                 static constexpr const char *id (void)
