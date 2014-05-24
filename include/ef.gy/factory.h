@@ -322,7 +322,7 @@ namespace efgy
                 {
                     return d < T<Q,d,format>::dimensions::modelDimensionMinimum ? func<Q,T,d,e,format>::pass(arg)
                          : (T<Q,d,format>::dimensions::modelDimensionMaximum > 0) && (d > T<Q,d,format>::dimensions::modelDimensionMaximum) ? model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag)
-//                         : e < T<Q,d,format>::renderDepth ? func<Q,T,d,e,format>::pass(arg)
+                         : e < T<Q,d,format>::renderDepth ? model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag)
                          : 0 == rdims
                             ? (   0 == dims ? func<Q,T,d,e,format>::apply(arg,tag), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag), model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag)
                                 : d == dims ? func<Q,T,d,e,format>::apply(arg, tag), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag)
