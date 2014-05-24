@@ -1369,7 +1369,7 @@ namespace efgy
          */
         template <typename C, typename Q, unsigned int d,
                   unsigned int od, typename format,
-                  template <class,unsigned int,unsigned int,typename> class primitive,
+                  template <class,unsigned int,typename> class primitive,
                   unsigned int pd,
                   template <class,unsigned int> class trans>
         static inline oglstream<C,Q,d> operator <<

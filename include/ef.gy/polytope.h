@@ -398,29 +398,22 @@ namespace efgy
                 void calculateObject (void)
                 {
                     object.calculateObject();
-                    if (model::renderDepth == d)
+                    faces.clear();
+                    for (const auto &f : object.faces)
                     {
-                        faces = object.faces;
-                    }
-                    else
-                    {
-                        faces.clear();
-                        for (const auto &f : object.faces)
+                        face cf;
+                        for (unsigned int i = 0;
+                             i < model::faceVertices;
+                             i++)
                         {
-                            face cf;
-                            for (unsigned int i = 0;
-                                 i < model::faceVertices;
-                                 i++)
+                            for (unsigned int j = 0;
+                                 (j < d) && (j < model::renderDepth);
+                                 j++)
                             {
-                                for (unsigned int j = 0;
-                                     (j < d) && (j < model::renderDepth);
-                                     j++)
-                                {
-                                    cf[i][j] = f[i][j];
-                                }
+                                cf[i][j] = f[i][j];
                             }
-                            faces.push_back(cf);
                         }
+                        faces.push_back(cf);
                     }
                 }
 
@@ -433,10 +426,11 @@ namespace efgy
                 model object;
         };
 
-        template <typename Q, unsigned int od, unsigned int d, typename format>
-        class simplex : public polytope<Q,od,d,3,format>
+        template <typename Q, unsigned int od, typename format>
+        class simplex : public polytope<Q,od,od,3,format>
         {
             public:
+                static constexpr const unsigned int d = od;
                 typedef polytope<Q,od,d,3,format> parent;
 
                 simplex (const parameters<Q> &pParameter, const format &pFormat)
@@ -564,10 +558,11 @@ namespace efgy
          * \todo Use the parameter::radius field properly; this should
          *       probably be half the diagonal of the resulting model.
          */
-        template <typename Q, unsigned int od, unsigned int d, typename format>
-        class cube : public polytope<Q,od,d,4,format>
+        template <typename Q, unsigned int od, typename format>
+        class cube : public polytope<Q,od,od,4,format>
         {
             public:
+                static constexpr const unsigned int d = od;
                 typedef polytope<Q,od,d,4,format> parent;
 
                 cube (const parameters<Q> &pParameter, const format &pFormat)

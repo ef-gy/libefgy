@@ -39,14 +39,14 @@ namespace efgy
     namespace geometry
     {
         template <typename Q, unsigned int od, unsigned int d,
-                  template <class,unsigned int,unsigned int,typename> class primitive,
+                  template <class,unsigned int,typename> class primitive,
                   unsigned int pd,
                   template <class,unsigned int> class trans,
                   typename format>
-        class ifs : public object<Q,od,d,primitive<Q,pd,d,format>::faceVertices,format>
+        class ifs : public object<Q,od,d,primitive<Q,pd,format>::faceVertices,format>
         {
             public:
-                typedef object<Q,od,d,primitive<Q,pd,d,format>::faceVertices,format> parent;
+                typedef object<Q,od,d,primitive<Q,pd,format>::faceVertices,format> parent;
 
                 ifs (const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat)
@@ -59,11 +59,11 @@ namespace efgy
                 using parent::tag;
                 std::vector<Q> indices;
 
-                std::vector<trans<Q,d> > functions;
+                std::vector<trans<Q,d>> functions;
 
                 void calculateObject (void)
                 {
-                    primitive<Q,pd,d,format> source(parameter, tag);
+                    primitive<Q,pd,format> source(parameter, tag);
 
                     faces = source.faces;
                     while (faces.size() > indices.size())
@@ -125,11 +125,12 @@ namespace efgy
 
         namespace sierpinski
         {
-            template <typename Q, unsigned int od, unsigned int d, typename format>
-            class gasket : public ifs<Q,od,d,cube,od,transformation::affine,format>
+            template <typename Q, unsigned int od, typename format>
+            class gasket : public ifs<Q,od,od,cube,od,transformation::affine,format>
             {
                 public:
-                    typedef ifs<Q,od,d,cube,od,transformation::affine,format> parent;
+                    typedef ifs<Q,od,od,cube,od,transformation::affine,format> parent;
+                    static constexpr const unsigned int d = od;
 
                     gasket(const parameters<Q> &pParameter, const format &pFormat)
                         : parent(pParameter, pFormat)
@@ -163,7 +164,7 @@ namespace efgy
                     using parent::parameter;
                     using parent::faces;
 
-                    typedef dimensions<2, d, 3, 0> dimensions;
+                    typedef dimensions<2, 0, 3, 0> dimensions;
 
                     using parent::faceVertices;
 
@@ -173,11 +174,12 @@ namespace efgy
                     static constexpr const char *id (void) { return "sierpinski-gasket"; }
             };
 
-            template <typename Q, unsigned int od, unsigned int d, typename format>
-            class carpet : public ifs<Q,od,d,cube,od,transformation::affine,format>
+            template <typename Q, unsigned int od, typename format>
+            class carpet : public ifs<Q,od,od,cube,od,transformation::affine,format>
             {
                 public:
-                    typedef ifs<Q,od,d,cube,od,transformation::affine,format> parent;
+                    typedef ifs<Q,od,od,cube,od,transformation::affine,format> parent;
+                    static constexpr const unsigned int d = od;
 
                     carpet(const parameters<Q> &pParameter, const format &pFormat)
                         : parent(pParameter, pFormat)
@@ -237,7 +239,7 @@ namespace efgy
                     using parent::parameter;
                     using parent::faces;
 
-                    typedef dimensions<2, (d == 2 ? d : 3), 3, 0> dimensions;
+                    typedef dimensions<2, 3, 3, 0> dimensions;
 
                     using parent::faceVertices;
 
@@ -334,11 +336,18 @@ namespace efgy
             };
         };
 
-        template <typename Q, unsigned int od, unsigned int d, typename format>
-        class randomAffineIFS : public ifs<Q,od,d,cube,2,transformation::affine,format>
+        template <typename Q, unsigned int d, typename format>
+        using extendedCube = adapt<Q,d,cube<Q,2,format>>;
+
+        template <typename Q, unsigned int d, typename format>
+        using extendedPlane = adapt<Q,d,plane<Q,2,format>>;
+
+        template <typename Q, unsigned int od, typename format>
+        class randomAffineIFS : public ifs<Q,od,od,extendedCube,od,transformation::affine,format>
         {
             public:
-                typedef ifs<Q,od,d,cube,2,transformation::affine,format> parent;
+                typedef ifs<Q,od,od,extendedCube,od,transformation::affine,format> parent;
+                static constexpr const unsigned int d = od;
 
                 randomAffineIFS(const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat)
@@ -365,7 +374,7 @@ namespace efgy
                 using parent::parameter;
                 using parent::faces;
 
-                typedef dimensions<2, d, 3, 0> dimensions;
+                typedef dimensions<2, 0, 3, 0> dimensions;
 
                 using parent::faceVertices;
 

@@ -70,7 +70,7 @@ namespace efgy
              * \tparam format Vector coordinate format to work in.
              */
             template <typename Q,
-                      template <class,unsigned int,unsigned int,typename> class T,
+                      template <class,unsigned int,typename> class T,
                       unsigned int d, unsigned int e,
                       typename format>
             class echo
@@ -101,7 +101,7 @@ namespace efgy
                      */
                     static output apply (argument out, const format &)
                     {
-                        return out << d << "-" << T<Q,d,e,format>::id() << "@" << e << "\n";
+                        return out << d << "-" << T<Q,d,format>::id() << "@" << e << "\n";
                     }
 
                     /**\brief Pass argument
@@ -132,7 +132,7 @@ namespace efgy
              * \tparam format Vector coordinate format to work in.
              */
             template <typename Q,
-                      template <class,unsigned int,unsigned int,typename> class T,
+                      template <class,unsigned int,typename> class T,
                       unsigned int d, unsigned int e,
                       typename format>
             class models
@@ -163,7 +163,7 @@ namespace efgy
                      */
                     static output apply (argument out, const format &)
                     {
-                        out.insert(T<Q,d,e,format>::id());
+                        out.insert(T<Q,d,format>::id());
                         return out;
                     }
 
@@ -181,7 +181,7 @@ namespace efgy
              * to the strings so that they're of the form 'depth-name'.
              */
             template <typename Q,
-                      template <class,unsigned int,unsigned int,typename> class T,
+                      template <class,unsigned int,typename> class T,
                       unsigned int d, unsigned int e,
                       typename format>
             class modelsWithDepth
@@ -208,8 +208,8 @@ namespace efgy
                     static output apply (argument out, const format &)
                     {
                         std::ostringstream os;
-                        os        << T<Q,d,e,format>::depth
-                           << "-" << T<Q,d,e,format>::id();
+                        os        << T<Q,d,format>::depth
+                           << "-" << T<Q,d,format>::id();
                         out.insert(os.str());
                         return out;
                     }
@@ -236,7 +236,7 @@ namespace efgy
              * \tparam format Vector coordinate format to work in.
              */
             template <typename Q,
-                      template <class,unsigned int,unsigned int,typename> class T,
+                      template <class,unsigned int,typename> class T,
                       unsigned int d, unsigned int e,
                       typename format>
             class formats
@@ -292,8 +292,8 @@ namespace efgy
          * \tparam format Vector coordinate format to work in.
          */
         template<typename Q,
-                 template<typename, template <class,unsigned int,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
-                 template <class,unsigned int,unsigned int,typename> class T,
+                 template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
+                 template <class,unsigned int,typename> class T,
                  unsigned int d, unsigned int e,
                  typename format>
         class model
@@ -320,10 +320,10 @@ namespace efgy
                      const unsigned int &rdims,
                      const format &tag)
                 {
-                    return d < T<Q,d,e,format>::dimensions::modelDimensionMinimum ? func<Q,T,d,e,format>::pass(arg)
-                         : (T<Q,d,e,format>::dimensions::modelDimensionMaximum > 0) && (d > T<Q,d,e,format>::dimensions::modelDimensionMaximum) ? model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag)
-                         : e < T<Q,d,e,format>::dimensions::renderDimensionMinimum ? func<Q,T,d,e,format>::pass(arg)
-                         : (T<Q,d,e,format>::dimensions::renderDimensionMaximum > 0) && (e > T<Q,d,e,format>::dimensions::renderDimensionMaximum) ? model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag)
+                    return d < T<Q,d,format>::dimensions::modelDimensionMinimum ? func<Q,T,d,e,format>::pass(arg)
+                         : (T<Q,d,format>::dimensions::modelDimensionMaximum > 0) && (d > T<Q,d,format>::dimensions::modelDimensionMaximum) ? model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag)
+                         : e < T<Q,d,format>::dimensions::renderDimensionMinimum ? func<Q,T,d,e,format>::pass(arg)
+                         : (T<Q,d,format>::dimensions::renderDimensionMaximum > 0) && (e > T<Q,d,format>::dimensions::renderDimensionMaximum) ? model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag)
                          : 0 == rdims
                             ? (   0 == dims ? func<Q,T,d,e,format>::apply(arg,tag), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag), model<Q,func,T,d-1,e,format>::with (arg, dims, rdims, tag)
                                 : d == dims ? func<Q,T,d,e,format>::apply(arg, tag), model<Q,func,T,d,e-1,format>::with (arg, dims, rdims, tag)
@@ -353,8 +353,8 @@ namespace efgy
          * \tparam format Vector coordinate format to work in.
          */
         template<typename Q,
-                 template<typename, template <class,unsigned int,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
-                 template <class,unsigned int,unsigned int,typename> class T,
+                 template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
+                 template <class,unsigned int,typename> class T,
                  unsigned int d,
                  typename format>
         class model<Q,func,T,d,2,format>
@@ -396,8 +396,8 @@ namespace efgy
          * \tparam format Vector coordinate format to work in.
          */
         template<typename Q,
-                 template<typename, template <class,unsigned int,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
-                 template <class,unsigned int,unsigned int,typename> class T,
+                 template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
+                 template <class,unsigned int,typename> class T,
                  unsigned int e,
                  typename format>
         class model<Q,func,T,1,e,format>
@@ -446,10 +446,10 @@ namespace efgy
          * \returns Whatever func::pass or func::with returns.
          */
         template<typename Q,
-                 template<typename, template <class,unsigned int,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
+                 template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                  unsigned int d,
                  unsigned int e,
-                 template <class,unsigned int,unsigned int,typename> class T,
+                 template <class,unsigned int,typename> class T,
                  typename format>
         static inline typename func<Q,T,d,e,format>::output with
             (typename func<Q,T,d,e,format>::argument arg,
@@ -458,7 +458,7 @@ namespace efgy
              const unsigned int &rdims,
              const format &tag)
         {
-            return ((type == "*") || (type == T<Q,d,e,format>::id()))
+            return ((type == "*") || (type == T<Q,d,format>::id()))
                  ? model<Q,func,T,d,e,format>::with(arg, dims, rdims, tag)
                  : func<Q,T,d,e,format>::pass(arg);
         }
@@ -480,16 +480,16 @@ namespace efgy
          * \tparam format Vector coordinate format to work in.
          */
         template <typename Q,
-                  template<typename, template <class,unsigned int,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
+                  template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                   unsigned int d,
                   unsigned int e,
-                  template <class,unsigned int,unsigned int,typename> class T,
+                  template <class,unsigned int,typename> class T,
                   typename format>
         class parametricFactory
         {
             public:
-                template <typename Qm, unsigned int odm, unsigned int dm, typename formatm>
-                using parametricModel = parametric<Qm,odm,dm,T,formatm>;
+                template <typename Qm, unsigned int odm, typename formatm>
+                using parametricModel = parametric<Qm,odm,T,formatm>;
 
                 typedef typename func<Q,parametricModel,d,e,format>::output output;
                 typedef typename func<Q,parametricModel,d,e,format>::argument argument;
@@ -541,10 +541,10 @@ namespace efgy
          * \returns Whatever func::pass or func::with returns.
          */
         template<typename Q,
-                 template<typename, template <class,unsigned int,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
+                 template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                  unsigned int d,
                  unsigned int e,
-                 template <class,unsigned int,unsigned int,typename> class T,
+                 template <class,unsigned int,typename> class T,
                  typename format>
         static inline typename parametricFactory<Q,func,d,e,T,format>::output withF
             (typename parametricFactory<Q,func,d,e,T,format>::argument arg,
@@ -578,7 +578,7 @@ namespace efgy
          * \returns Whatever func::pass returns.
          */
         template<typename Q,
-                 template<typename, template <class,unsigned int,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
+                 template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                  unsigned int d,
                  unsigned int e = d,
                  typename format = math::format::cartesian>
@@ -627,7 +627,7 @@ namespace efgy
          * \returns Whatever func::pass returns.
          */
         template<typename Q,
-                 template<typename, template <class,unsigned int,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
+                 template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                  unsigned int d,
                  unsigned int e = d>
         static inline typename func<Q,cube,d,e,math::format::cartesian>::output with

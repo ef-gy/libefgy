@@ -47,12 +47,13 @@ namespace efgy
          */
         namespace formula
         {
-            template <typename Q, unsigned int od, unsigned int d, typename format>
+            template <typename Q, unsigned int od, typename format>
             class moebiusStrip
             {
                 public:
                     typedef dimensions<2, 2, 3, 0> dimensions;
 
+                    static constexpr const unsigned int renderDepth = 3;
                     static constexpr const char *id (void) { return "moebius-strip"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
@@ -61,7 +62,7 @@ namespace efgy
                                       : range<Q>(-parameter.radius, parameter.radius, parameter.precision, false);
                     }
 
-                    constexpr static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    constexpr static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
                         return {{ Q((parameter.radius + ve[1]/Q(2) * cos(ve[0]/Q(2))) * cos(ve[0])),
                                   Q((parameter.radius + ve[1]/Q(2) * cos(ve[0]/Q(2))) * sin(ve[0])),
@@ -69,12 +70,13 @@ namespace efgy
                     }
             };
 
-            template <typename Q, unsigned int od, unsigned int d, typename format>
+            template <typename Q, unsigned int od, typename format>
             class kleinBagel
             {
                 public:
                     typedef dimensions<2, 2, 3, 0> dimensions;
 
+                    static constexpr const unsigned int renderDepth = 3;
                     static constexpr const char *id (void) { return "klein-bagel"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t)
@@ -82,7 +84,7 @@ namespace efgy
                         return range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false);
                     }
 
-                    constexpr static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    constexpr static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
                         return {{ Q((parameter.radius + cos(ve[0]/Q(2))*sin(ve[1]) - sin(ve[0]/Q(2))*sin(Q(2)*ve[1])) * cos(ve[0])),
                                   Q((parameter.radius + cos(ve[0]/Q(2))*sin(ve[1]) - sin(ve[0]/Q(2))*sin(Q(2)*ve[1])) * sin(ve[0])),
@@ -90,12 +92,13 @@ namespace efgy
                     }
             };
 
-            template <typename Q, unsigned int od, unsigned int d, typename format>
+            template <typename Q, unsigned int od, typename format>
             class kleinBottle
             {
                 public:
                     typedef dimensions<2, 2, 4, 0> dimensions;
 
+                    static constexpr const unsigned int renderDepth = 4;
                     static constexpr const char *id (void) { return "klein-bottle"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t)
@@ -103,27 +106,25 @@ namespace efgy
                         return range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false);
                     }
 
-                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
-                        math::vector<Q,d> r {{ Q(parameter.radius  * (cos(ve[0]/Q(2)) * cos(ve[1]) - sin(ve[0]/Q(2)) * sin(Q(2)*ve[1]))),
+                        math::vector<Q,renderDepth> r
+                                            {{ Q(parameter.radius  * (cos(ve[0]/Q(2)) * cos(ve[1]) - sin(ve[0]/Q(2)) * sin(Q(2)*ve[1]))),
                                                Q(parameter.radius  * (sin(ve[0]/Q(2)) * cos(ve[1]) + cos(ve[0]/Q(2)) * sin(Q(2)*ve[1]))),
-                                               Q(parameter.radius2 * cos(ve[0]) * (Q(1) + parameter.constant * sin(ve[1]))) }};
-
-                        if (d >= 4)
-                        {
-                            r[3] = Q(parameter.radius2 * sin(ve[0]) * (Q(1) + parameter.constant * sin(ve[1])));
-                        }
+                                               Q(parameter.radius2 * cos(ve[0]) * (Q(1) + parameter.constant * sin(ve[1]))),
+                                               Q(parameter.radius2 * sin(ve[0]) * (Q(1) + parameter.constant * sin(ve[1]))) }};
                         
                         return r;
                     }
             };
 
-            template <typename Q, unsigned int od, unsigned int d, typename format>
+            template <typename Q, unsigned int od, typename format>
             class sphere
             {
                 public:
-                    typedef dimensions<2, d - 1, 3, 0> dimensions;
+                    typedef dimensions<2, 0, 3, 0> dimensions;
 
+                    static constexpr const unsigned int renderDepth = od+1;
                     static constexpr const char *id (void) { return "sphere"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
@@ -132,9 +133,9 @@ namespace efgy
                                       : range<Q>(0, M_PI, parameter.precision, false);
                     }
 
-                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
-                        math::vector<Q,d,math::format::polar> vp {{ parameter.radius }};
+                        math::vector<Q,renderDepth,math::format::polar> vp {{ parameter.radius }};
                         for (std::size_t i = 0; i < od; i++)
                         {
                             vp[(i+1)] = ve[i];
@@ -143,12 +144,13 @@ namespace efgy
                     }
             };
             
-            template <typename Q, unsigned int od, unsigned int d, typename format>
+            template <typename Q, unsigned int od, typename format>
             class plane
             {
                 public:
                     typedef dimensions<2, 2, 3, 0> dimensions;
 
+                    static constexpr const unsigned int renderDepth = 2;
                     static constexpr const char *id (void) { return "plane"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
@@ -156,9 +158,9 @@ namespace efgy
                         return range<Q>(-parameter.radius*Q(2), parameter.radius*Q(2), parameter.precision, false);
                     }
 
-                    static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
-                        math::vector<Q,d> v {{}};
+                        math::vector<Q,renderDepth> v {{}};
                         for (std::size_t i = 0; i < od; i++)
                         {
                             v[i] = ve[i];
@@ -167,12 +169,13 @@ namespace efgy
                     }
             };
 
-            template <typename Q, unsigned int od, unsigned int d, typename format>
+            template <typename Q, unsigned int od, typename format>
             class torus
             {
                 public:
                     typedef dimensions<2, 2, 3, 0> dimensions;
 
+                    static constexpr const unsigned int renderDepth = 3;
                     static constexpr const char *id (void) { return "torus"; }
 
                     constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
@@ -180,7 +183,7 @@ namespace efgy
                         return range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false);
                     }
 
-                    constexpr static math::vector<Q,d> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    constexpr static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
                     {
                         return {{ Q((parameter.radius + parameter.radius2 * cos(ve[1])) * cos(ve[0])),
                                   Q((parameter.radius + parameter.radius2 * cos(ve[1])) * sin(ve[0])),
@@ -210,15 +213,16 @@ namespace efgy
          * \tparam formula Formula for the target mesh, e.g. formula::plane
          * \tparam format  Vector coordinate format to work in.
          */
-        template <typename Q, unsigned int od, unsigned int d,
-                  template <typename, unsigned int, unsigned int, typename> class formula,
+        template <typename Q, unsigned int od,
+                  template <typename, unsigned int, typename> class formula,
                   typename format>
-        class parametric : public polytope<Q,od,d,4,format>
+        class parametric : public polytope<Q,od,formula<Q,od,format>::renderDepth,4,format>
         {
             public:
-                typedef formula<Q,od,d,format> source;
+                typedef formula<Q,od,format> source;
+                static constexpr const unsigned int d = source::renderDepth;
                 typedef polytope<Q,od,d,4,format> parent;
-            
+
                 parametric (const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat)
                     {
@@ -234,7 +238,7 @@ namespace efgy
                 static constexpr const char *id (void) { return source::id(); }
 
                 void recurse
-                    (const cube<Q,od,od,math::format::cartesian> &cube,
+                    (const cube<Q,od,math::format::cartesian> &cube,
                      math::vector<Q,od> v,
                      math::vector<Q,od> a)
                 {
@@ -257,7 +261,7 @@ namespace efgy
                 }
 
                 void recurse
-                    (cube<Q,od,od,math::format::cartesian> &cube,
+                    (cube<Q,od,math::format::cartesian> &cube,
                      std::size_t dim,
                      math::vector<Q,od> v,
                      math::vector<Q,od> a)
@@ -282,7 +286,7 @@ namespace efgy
                 void calculateObject(void)
                 {
                     parameters<Q> cubeParameter;
-                    cube<Q,od,od,math::format::cartesian> cube
+                    cube<Q,od,math::format::cartesian> cube
                         (cubeParameter, math::format::cartesian());
 
                     faces.clear();
@@ -318,9 +322,8 @@ namespace efgy
          * \tparam d      Number of dimensions of the vector space to use
          * \tparam format Vector coordinate format to work in.
          */
-        template <typename Q, unsigned int od, unsigned int d,
-                  typename format>
-        using plane = parametric<Q,od,d,formula::plane,format>;
+        template <typename Q, unsigned int od, typename format>
+        using plane = parametric<Q,od,formula::plane,format>;
     };
 };
 
