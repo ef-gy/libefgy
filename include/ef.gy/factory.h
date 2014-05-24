@@ -432,7 +432,6 @@ namespace efgy
          * \tparam Q      Base datatype for model geometry.
          * \tparam func   The function to call.
          * \tparam d      Maximum number of model dimensions.
-         * \tparam e      Maximum number of render dimensions.
          * \tparam T      Model template, e.g. efgy::geometry::cube
          * \tparam format Vector coordinate format to work in.
          *
@@ -447,19 +446,18 @@ namespace efgy
         template<typename Q,
                  template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                  unsigned int d,
-                 unsigned int e,
                  template <class,unsigned int,typename> class T,
                  typename format>
-        static inline typename func<Q,T,d,e,format>::output with
-            (typename func<Q,T,d,e,format>::argument arg,
+        static inline typename func<Q,T,d,d,format>::output with
+            (typename func<Q,T,d,d,format>::argument arg,
              const std::string &type,
              const unsigned int &dims,
              const unsigned int &rdims,
              const format &tag)
         {
             return ((type == "*") || (type == T<Q,d,format>::id()))
-                 ? model<Q,func,T,d,e,format>::with(arg, dims, rdims, tag)
-                 : func<Q,T,d,e,format>::pass(arg);
+                 ? model<Q,func,T,d,d,format>::with(arg, dims, rdims, tag)
+                 : func<Q,T,d,d,format>::pass(arg);
         }
 
         /**\brief Model factory helper for parametric formulae
@@ -474,14 +472,12 @@ namespace efgy
          * \tparam Q      Base datatype for model geometry.
          * \tparam func   The function to call.
          * \tparam d      Maximum number of model dimensions.
-         * \tparam e      Maximum number of render dimensions.
          * \tparam T      Parametric formula template, e.g. formula::plane
          * \tparam format Vector coordinate format to work in.
          */
         template <typename Q,
                   template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                   unsigned int d,
-                  unsigned int e,
                   template <class,unsigned int,typename> class T,
                   typename format>
         class parametricFactory
@@ -490,8 +486,8 @@ namespace efgy
                 template <typename Qm, unsigned int odm, typename formatm>
                 using parametricModel = parametric<Qm,odm,T,formatm>;
 
-                typedef typename func<Q,parametricModel,d,e,format>::output output;
-                typedef typename func<Q,parametricModel,d,e,format>::argument argument;
+                typedef typename func<Q,parametricModel,d,d,format>::output output;
+                typedef typename func<Q,parametricModel,d,d,format>::argument argument;
 
                 /**\brief Call template function with class type
                  *
@@ -515,7 +511,7 @@ namespace efgy
                      const unsigned int &rdims,
                      const format &tag)
                 {
-                    return geometry::with<Q,func,d,e,parametricModel,format>(arg,type,dims,rdims,tag);
+                    return geometry::with<Q,func,d,parametricModel,format>(arg,type,dims,rdims,tag);
                 }
         };
 
@@ -527,7 +523,6 @@ namespace efgy
          * \tparam Q      Base datatype for model geometry.
          * \tparam func   The function to call.
          * \tparam d      Maximum number of model dimensions.
-         * \tparam e      Maximum number of render dimensions.
          * \tparam T      Parametric formula template, e.g. formula::plane
          * \tparam format Vector coordinate format to work in.
          *
@@ -542,17 +537,16 @@ namespace efgy
         template<typename Q,
                  template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                  unsigned int d,
-                 unsigned int e,
                  template <class,unsigned int,typename> class T,
                  typename format>
-        static inline typename parametricFactory<Q,func,d,e,T,format>::output withF
-            (typename parametricFactory<Q,func,d,e,T,format>::argument arg,
+        static inline typename parametricFactory<Q,func,d,T,format>::output withF
+            (typename parametricFactory<Q,func,d,T,format>::argument arg,
              const std::string &type,
              const unsigned int &dims,
              const unsigned int &rdims,
              const format &tag)
         {
-            return parametricFactory<Q,func,d,e,T,format>::with(arg,type,dims,rdims,tag);
+            return parametricFactory<Q,func,d,T,format>::with(arg,type,dims,rdims,tag);
         }
 
         /**\brief Call template function with geometric type(s)
@@ -565,7 +559,6 @@ namespace efgy
          * \tparam Q      Base datatype for model geometry.
          * \tparam func   The function to call.
          * \tparam d      Maximum number of model dimensions.
-         * \tparam e      Maximum number of render dimensions.
          * \tparam format Vector coordinate format to work in.
          *
          * \param[out] arg   The argument to func::...().
@@ -579,29 +572,28 @@ namespace efgy
         template<typename Q,
                  template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
                  unsigned int d,
-                 unsigned int e = d,
                  typename format = math::format::cartesian>
-        static inline typename func<Q,cube,d,e,format>::output with
-            (typename func<Q,cube,d,e,format>::argument arg,
+        static inline typename func<Q,cube,d,d,format>::output with
+            (typename func<Q,cube,d,d,format>::argument arg,
              const std::string &type,
              const unsigned int &dims,
              const unsigned int &rdims,
              const format &tag = format())
         {
-            with<Q,func,d,e,simplex,format>(arg,type,dims,rdims,tag);
-            with<Q,func,d,e,plane,format>(arg,type,dims,rdims,tag);
-            with<Q,func,d,e,cube,format>(arg,type,dims,rdims,tag);
-            withF<Q,func,d,e,formula::sphere,format>(arg,type,dims,rdims,tag);
-            withF<Q,func,d,e,formula::torus,format>(arg,type,dims,rdims,tag);
-            withF<Q,func,d,e,formula::moebiusStrip,format>(arg,type,dims,rdims,tag);
-            withF<Q,func,d,e,formula::kleinBagel,format>(arg,type,dims,rdims,tag);
-            withF<Q,func,d,e,formula::kleinBottle,format>(arg,type,dims,rdims,tag);
-            with<Q,func,d,e,sierpinski::gasket,format>(arg,type,dims,rdims,tag);
-            with<Q,func,d,e,sierpinski::carpet,format>(arg,type,dims,rdims,tag);
-            with<Q,func,d,e,randomAffineIFS,format>(arg,type,dims,rdims,tag);
-            with<Q,func,d,e,flame::random,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,simplex,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,plane,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,cube,format>(arg,type,dims,rdims,tag);
+            withF<Q,func,d,formula::sphere,format>(arg,type,dims,rdims,tag);
+            withF<Q,func,d,formula::torus,format>(arg,type,dims,rdims,tag);
+            withF<Q,func,d,formula::moebiusStrip,format>(arg,type,dims,rdims,tag);
+            withF<Q,func,d,formula::kleinBagel,format>(arg,type,dims,rdims,tag);
+            withF<Q,func,d,formula::kleinBottle,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,sierpinski::gasket,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,sierpinski::carpet,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,randomAffineIFS,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,flame::random,format>(arg,type,dims,rdims,tag);
 
-            return func<Q,cube,d,e,format>::pass(arg);
+            return func<Q,cube,d,d,format>::pass(arg);
         }
 
         /**\brief Call template function with geometric type(s)
@@ -613,7 +605,6 @@ namespace efgy
          * \tparam Q      Base datatype for model geometry.
          * \tparam func   The function to call.
          * \tparam d      Maximum number of model dimensions.
-         * \tparam e      Maximum number of render dimensions.
          *
          * \param[out] arg    The argument to func::...().
          * \param[in]  format Vector format to pass to func, e.g. "cartesian"
@@ -627,10 +618,9 @@ namespace efgy
          */
         template<typename Q,
                  template<typename, template <class,unsigned int,typename> class, unsigned int, unsigned int, typename> class func,
-                 unsigned int d,
-                 unsigned int e = d>
-        constexpr static inline typename func<Q,cube,d,e,math::format::cartesian>::output with
-            (typename func<Q,cube,d,e,math::format::cartesian>::argument arg,
+                 unsigned int d>
+        constexpr static inline typename func<Q,cube,d,d,math::format::cartesian>::output with
+            (typename func<Q,cube,d,d,math::format::cartesian>::argument arg,
              const std::string &format,
              const std::string &type,
              const unsigned int &dims,
@@ -638,11 +628,11 @@ namespace efgy
         {
             return
                 (format == "*" || format == "cartesian")
-                    ? with<Q,func,d,e,math::format::cartesian>(arg,type,dims,rdims,math::format::cartesian())
-                    : func<Q,cube,d,e,math::format::cartesian>::pass(arg),
+                    ? with<Q,func,d,math::format::cartesian>(arg,type,dims,rdims,math::format::cartesian())
+                    : func<Q,cube,d,d,math::format::cartesian>::pass(arg),
                 (format == "*" || format == "polar")
-                    ? with<Q,func,d,e,math::format::polar>(arg,type,dims,rdims,math::format::polar())
-                    : func<Q,cube,d,e,math::format::polar>::pass(arg);
+                    ? with<Q,func,d,math::format::polar>(arg,type,dims,rdims,math::format::polar())
+                    : func<Q,cube,d,d,math::format::polar>::pass(arg);
         }
     };
 };
