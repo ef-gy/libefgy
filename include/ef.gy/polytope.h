@@ -383,6 +383,7 @@ namespace efgy
             public:
                 typedef object<Q,model::depth,d,model::faceVertices,typename model::format> parent;
 
+                using typename parent::face;
                 using typename parent::format;
 
                 adapt (const parameters<Q> &pParameter, const format &pFormat)
@@ -397,7 +398,30 @@ namespace efgy
                 void calculateObject (void)
                 {
                     object.calculateObject();
-                    faces = object.faces;
+                    if (model::renderDepth == d)
+                    {
+                        faces = object.faces;
+                    }
+                    else
+                    {
+                        faces.clear();
+                        for (const auto &f : object.faces)
+                        {
+                            face cf;
+                            for (unsigned int i = 0;
+                                 i < model::faceVertices;
+                                 i++)
+                            {
+                                for (unsigned int j = 0;
+                                     (j < d) && (j < model::renderDepth);
+                                     j++)
+                                {
+                                    cf[i][j] = f[i][j];
+                                }
+                            }
+                            faces.push_back(cf);
+                        }
+                    }
                 }
 
                 static constexpr const char *id (void)
