@@ -413,8 +413,7 @@ namespace efgy
         class simplex : public polytope<Q,od,od,3,format>
         {
             public:
-                static constexpr const unsigned int d = od;
-                typedef polytope<Q,od,d,3,format> parent;
+                typedef polytope<Q,od,od,3,format> parent;
 
                 simplex (const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat)
@@ -433,11 +432,13 @@ namespace efgy
                     return "simplex";
                 }
 
-                void recurse (const int r, math::vector<Q,d,math::format::polar> v, std::vector<math::vector<Q,d,format>> &points)
+                void recurse (const int r,
+                              math::vector<Q,parent::renderDepth,math::format::polar> v,
+                              std::vector<math::vector<Q,parent::renderDepth,format>> &points)
                 {
                     if (r == 0)
                     {
-                        math::vector<Q,d,format> A = v;
+                        math::vector<Q,parent::renderDepth,format> A = v;
                         points.push_back(A);
                     }
                     else
@@ -457,9 +458,9 @@ namespace efgy
 
                     faces.clear();
 
-                    std::vector<math::vector<Q,d,format>> points;
+                    std::vector<math::vector<Q,parent::renderDepth,format>> points;
 
-                    math::vector<Q,d,math::format::polar> v;
+                    math::vector<Q,parent::renderDepth,math::format::polar> v;
                     v[0] = radius;
                     
                     const int r = od-1;
@@ -472,9 +473,9 @@ namespace efgy
                     v[r] = Q(M_PI)/Q(1.5);
                     recurse (q, v, points);
 
-                    std::vector<math::vector<Q,d,format>> points2;
+                    std::vector<math::vector<Q,parent::renderDepth,format>> points2;
 
-                    for (const math::vector<Q,d,format> &point : points)
+                    for (const math::vector<Q,parent::renderDepth,format> &point : points)
                     {
                         if (std::find (points2.begin(), points2.end(), point) == points2.end())
                         {
@@ -484,15 +485,15 @@ namespace efgy
 
                     points = points2;
 
-                    std::vector<math::vector<Q,d,format>> usedPoints;
+                    std::vector<math::vector<Q,parent::renderDepth,format>> usedPoints;
 
-                    for (const math::vector<Q,d,format> &A : points)
+                    for (const math::vector<Q,parent::renderDepth,format> &A : points)
                     {
-                        std::vector<math::vector<Q,d,format>> usedPoints2;
+                        std::vector<math::vector<Q,parent::renderDepth,format>> usedPoints2;
 
-                        for (const math::vector<Q,d,format> &B : usedPoints)
+                        for (const math::vector<Q,parent::renderDepth,format> &B : usedPoints)
                         {
-                            for (const math::vector<Q,d,format> &C : usedPoints2)
+                            for (const math::vector<Q,parent::renderDepth,format> &C : usedPoints2)
                             {
                                 faces.push_back ({{ A, B, C }});
                             }
@@ -545,8 +546,7 @@ namespace efgy
         class cube : public polytope<Q,od,od,4,format>
         {
             public:
-                static constexpr const unsigned int d = od;
-                typedef polytope<Q,od,d,4,format> parent;
+                typedef polytope<Q,od,od,4,format> parent;
 
                 cube (const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat)
@@ -598,25 +598,25 @@ namespace efgy
                 {
                     Q diameter = parameter.radius * Q(0.5);
                     
-                    std::vector<std::array<math::vector<Q,d,format>,2> > lines;
+                    std::vector<std::array<math::vector<Q,parent::renderDepth,format>,2>> lines;
                     faces.clear();
                     
-                    std::vector<math::vector<Q,d,format>> points;
+                    std::vector<math::vector<Q,parent::renderDepth,format>> points;
 
-                    points.push_back (math::vector<Q,d,format>());
+                    points.push_back (math::vector<Q,parent::renderDepth,format>());
 
                     for (unsigned int i : range<int>(0,od,false))
                     {
-                        std::vector<math::vector<Q,d,format>> newPoints;
-                        std::vector<std::array<math::vector<Q,d,format>,2> > newLines;
-                        std::vector<std::array<math::vector<Q,d,format>,4> > newFaces;
+                        std::vector<math::vector<Q,parent::renderDepth,format>> newPoints;
+                        std::vector<std::array<math::vector<Q,parent::renderDepth,format>,2> > newLines;
+                        std::vector<std::array<math::vector<Q,parent::renderDepth,format>,4> > newFaces;
 
-                        for (std::array<math::vector<Q,d,format>,2> &line : lines)
+                        for (std::array<math::vector<Q,parent::renderDepth,format>,2> &line : lines)
                         {
                             line[0][i] = -diameter;
                             line[1][i] = -diameter;
 
-                            std::array<math::vector<Q,d,format>,2> newLine = line;
+                            std::array<math::vector<Q,parent::renderDepth,format>,2> newLine = line;
 
                             newLine[0][i] = diameter;
                             newLine[1][i] = diameter;
@@ -640,11 +640,11 @@ namespace efgy
                             newFaces.push_back(newFace);
                         }
 
-                        for (math::vector<Q,d,format> &v : points)
+                        for (math::vector<Q,parent::renderDepth,format> &v : points)
                         {
                             v[i] = -diameter;
 
-                            std::array<math::vector<Q,d,format>,2> newLine {{ v, v }};
+                            std::array<math::vector<Q,parent::renderDepth,format>,2> newLine {{ v, v }};
 
                             newLine[1][i] = diameter;
                             

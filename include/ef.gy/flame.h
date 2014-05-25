@@ -355,7 +355,6 @@ namespace efgy
             {
                 public:
                     typedef ifs<Q,od,od,extendedPlane,od,transformation::flame,format> parent;
-                    static constexpr const unsigned int d = od;
 
                     random(const parameters<Q> &pParameter, const format &pFormat)
                         : parent(pParameter, pFormat)
@@ -373,7 +372,7 @@ namespace efgy
 
                             for (const unsigned int &i : range<unsigned int>(0,nfunctions,nfunctions,false))
                             {
-                                functions.push_back (transformation::randomFlame<Q,od,d>(parameter, PRNG()));
+                                functions.push_back (transformation::randomFlame<Q,od,parent::renderDepth>(parameter, PRNG()));
                             }
                         
                             parent::calculateObject();

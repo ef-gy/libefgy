@@ -130,13 +130,12 @@ namespace efgy
             {
                 public:
                     typedef ifs<Q,od,od,cube,od,transformation::affine,format> parent;
-                    static constexpr const unsigned int d = od;
 
                     gasket(const parameters<Q> &pParameter, const format &pFormat)
                         : parent(pParameter, pFormat)
                         {
                             const unsigned int nfunctions = (1<<(od-1))+1;
-                            std::array<math::vector<Q,d>,nfunctions> translations;
+                            std::array<math::vector<Q,parent::renderDepth>,nfunctions> translations;
 
                             translations[0][0] = Q(0.25);
 
@@ -155,7 +154,7 @@ namespace efgy
 
                             for (unsigned int i = 0; i < nfunctions; i++)
                             {
-                                functions.push_back(transformation::scale<Q,d>(0.5) * transformation::translation<Q,d>(translations[i]));
+                                functions.push_back(transformation::scale<Q,parent::renderDepth>(0.5) * transformation::translation<Q,parent::renderDepth>(translations[i]));
                             }
 
                             calculateObject();
@@ -179,13 +178,12 @@ namespace efgy
             {
                 public:
                     typedef ifs<Q,od,od,cube,od,transformation::affine,format> parent;
-                    static constexpr const unsigned int d = od;
 
                     carpet(const parameters<Q> &pParameter, const format &pFormat)
                         : parent(pParameter, pFormat)
                         {
                             const unsigned int nfunctions = od == 2 ? 8 : 20;
-                            std::array<math::vector<Q,d>,nfunctions> translations;
+                            std::array<math::vector<Q,parent::renderDepth>,nfunctions> translations;
 
                             if (od > 1)
                             {
@@ -230,7 +228,7 @@ namespace efgy
 
                             for (unsigned int i = 0; i < nfunctions; i++)
                             {
-                                functions.push_back(transformation::scale<Q,d>(Q(1)/Q(3)) * transformation::translation<Q,d>(translations[i]));
+                                functions.push_back(transformation::scale<Q,parent::renderDepth>(Q(1)/Q(3)) * transformation::translation<Q,parent::renderDepth>(translations[i]));
                             }
 
                             calculateObject();
@@ -347,7 +345,6 @@ namespace efgy
         {
             public:
                 typedef ifs<Q,od,od,extendedCube,od,transformation::affine,format> parent;
-                static constexpr const unsigned int d = od;
 
                 randomAffineIFS(const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat)
@@ -365,7 +362,7 @@ namespace efgy
 
                         for (unsigned int i = 0; i < nfunctions; i++)
                         {
-                            functions.push_back (transformation::randomAffine<Q,d,od>(parameter, PRNG()));
+                            functions.push_back (transformation::randomAffine<Q,parent::renderDepth,od>(parameter, PRNG()));
                         }
 
                         parent::calculateObject();

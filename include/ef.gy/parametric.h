@@ -212,8 +212,7 @@ namespace efgy
         {
             public:
                 typedef formula<Q,od> source;
-                static constexpr const unsigned int d = source::renderDepth;
-                typedef polytope<Q,od,d,4,format> parent;
+                typedef polytope<Q,od,formula<Q,od>::renderDepth,4,format> parent;
 
                 parametric (const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat)
@@ -236,7 +235,7 @@ namespace efgy
                 {
                     for (std::array<math::vector<Q,od>,4> f : cube.faces)
                     {
-                        std::array<math::vector<Q,d,format>,4> g;
+                        std::array<math::vector<Q,parent::renderDepth,format>,4> g;
 
                         for (std::size_t i = 0; i < 4; i++)
                         {
@@ -245,7 +244,7 @@ namespace efgy
                                 f[i][q] *= a[q];
                             }
 
-                            g[i] = std::array<Q,d>(source::getCoordinates(parameter, v+f[i]));
+                            g[i] = std::array<Q,parent::renderDepth>(source::getCoordinates(parameter, v+f[i]));
                         }
 
                         faces.push_back (g);
