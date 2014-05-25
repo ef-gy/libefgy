@@ -467,7 +467,7 @@ namespace efgy
          *
          * \tparam T      Parametric formula template, e.g. formula::plane
          */
-        template <template <class,unsigned int,typename> class T>
+        template <template <class,unsigned int> class T>
         class parametricFactory
         {
             public:

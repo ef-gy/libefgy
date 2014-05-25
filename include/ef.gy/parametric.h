@@ -47,7 +47,7 @@ namespace efgy
          */
         namespace formula
         {
-            template <typename Q, unsigned int od, typename format>
+            template <typename Q, unsigned int od>
             class moebiusStrip
             {
                 public:
@@ -70,7 +70,7 @@ namespace efgy
                     }
             };
 
-            template <typename Q, unsigned int od, typename format>
+            template <typename Q, unsigned int od>
             class kleinBagel
             {
                 public:
@@ -92,7 +92,7 @@ namespace efgy
                     }
             };
 
-            template <typename Q, unsigned int od, typename format>
+            template <typename Q, unsigned int od>
             class kleinBottle
             {
                 public:
@@ -115,7 +115,7 @@ namespace efgy
                     }
             };
 
-            template <typename Q, unsigned int od, typename format>
+            template <typename Q, unsigned int od>
             class sphere
             {
                 public:
@@ -141,7 +141,7 @@ namespace efgy
                     }
             };
             
-            template <typename Q, unsigned int od, typename format>
+            template <typename Q, unsigned int od>
             class plane
             {
                 public:
@@ -161,7 +161,7 @@ namespace efgy
                     }
             };
 
-            template <typename Q, unsigned int od, typename format>
+            template <typename Q, unsigned int od>
             class torus
             {
                 public:
@@ -206,12 +206,12 @@ namespace efgy
          * \tparam format  Vector coordinate format to work in.
          */
         template <typename Q, unsigned int od,
-                  template <typename, unsigned int, typename> class formula,
+                  template <typename, unsigned int> class formula,
                   typename format>
-        class parametric : public polytope<Q,od,formula<Q,od,format>::renderDepth,4,format>
+        class parametric : public polytope<Q,od,formula<Q,od>::renderDepth,4,format>
         {
             public:
-                typedef formula<Q,od,format> source;
+                typedef formula<Q,od> source;
                 static constexpr const unsigned int d = source::renderDepth;
                 typedef polytope<Q,od,d,4,format> parent;
 
