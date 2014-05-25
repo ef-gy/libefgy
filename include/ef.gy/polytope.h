@@ -44,6 +44,7 @@
 #include <algorithm>
 #include <ef.gy/range.h>
 #include <ef.gy/exponential.h>
+#include <type_traits>
 
 namespace efgy
 {
@@ -407,6 +408,13 @@ namespace efgy
             protected:
                 model object;
         };
+
+        template <typename Q, unsigned int d, class model, class format>
+        using autoAdapt = typename std::conditional
+            <   std::is_same<format,typename model::format>::value
+             && (d == model::renderDepth),
+             model,
+             efgy::geometry::adapt<Q,d,model,format>>::type;
 
         template <typename Q, unsigned int od>
         class simplex : public polytope<Q,od,od,3,math::format::cartesian>
