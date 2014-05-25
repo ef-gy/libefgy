@@ -360,18 +360,17 @@ namespace efgy
                   typename format>
         using polytope = object<Q,od,d,f,format>;
 
-        template <typename Q, unsigned int d, class model>
-        class adapt : public object<Q,model::depth,d,model::faceVertices,typename model::format>
+        template <typename Q, unsigned int d, class model, class format>
+        class adapt : public object<Q,model::depth,d,model::faceVertices,format>
         {
             public:
-                typedef object<Q,model::depth,d,model::faceVertices,typename model::format> parent;
+                typedef object<Q,model::depth,d,model::faceVertices,format> parent;
 
                 using typename parent::face;
-                using typename parent::format;
 
                 adapt (const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat),
-                      object(pParameter, pFormat)
+                      object(pParameter, typename model::format())
                     {
                         calculateObject();
                     }
@@ -409,11 +408,12 @@ namespace efgy
                 model object;
         };
 
-        template <typename Q, unsigned int od, typename format>
-        class simplex : public polytope<Q,od,od,3,format>
+        template <typename Q, unsigned int od>
+        class simplex : public polytope<Q,od,od,3,math::format::cartesian>
         {
             public:
-                typedef polytope<Q,od,od,3,format> parent;
+                typedef polytope<Q,od,od,3,math::format::cartesian> parent;
+                using typename parent::format;
 
                 simplex (const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat)
@@ -530,8 +530,6 @@ namespace efgy
          *
          * \tparam Q      Base datatype for calculations
          * \tparam od     The 'depth' of the hypercube; e.g. '3' for a cube
-         * \tparam d      The render depth of the model; must be >= 'od'
-         * \tparam format Vector coordinate format to work in.
          *
          * \see http://ef.gy/documentation/topologic - Topologic, the programme
          *      that was used to render the sample image.
@@ -542,11 +540,12 @@ namespace efgy
          * \todo Use the parameter::radius field properly; this should
          *       probably be half the diagonal of the resulting model.
          */
-        template <typename Q, unsigned int od, typename format>
-        class cube : public polytope<Q,od,od,4,format>
+        template <typename Q, unsigned int od>
+        class cube : public polytope<Q,od,od,4,math::format::cartesian>
         {
             public:
-                typedef polytope<Q,od,od,4,format> parent;
+                typedef polytope<Q,od,od,4,math::format::cartesian> parent;
+                using typename parent::format;
 
                 cube (const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat)

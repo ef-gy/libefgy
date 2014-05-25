@@ -1369,18 +1369,18 @@ namespace efgy
          */
         template <typename C, typename Q, unsigned int d,
                   unsigned int od, typename format,
-                  template <class,unsigned int,typename> class primitive,
+                  template <class,unsigned int> class primitive,
                   unsigned int pd,
                   template <class,unsigned int> class trans>
         static inline oglstream<C,Q,d> operator <<
             (oglstream<C,Q,d> stream,
-             const geometry::ifs<Q,od,d,primitive,pd,trans,format> &ifs)
+             const geometry::ifs<Q,od,d,primitive,pd,trans> &ifs)
         {
             if (ifs.faces.size() != ifs.indices.size())
             {
                 for (const auto &p : ifs.faces)
                 {
-                    std::array<math::vector<Q,d>,geometry::ifs<Q,od,d,primitive,pd,trans,format>::faceVertices> q;
+                    std::array<math::vector<Q,d>,geometry::ifs<Q,od,d,primitive,pd,trans>::faceVertices> q;
                     
                     for (std::size_t i = 0; i < ifs.faceVertices; i++)
                     {
@@ -1395,7 +1395,7 @@ namespace efgy
                 auto itIndex = ifs.indices.begin();
                 for (const auto &p : ifs.faces)
                 {
-                    std::array<math::vector<Q,d>,geometry::ifs<Q,od,d,primitive,pd,trans,format>::faceVertices> q;
+                    std::array<math::vector<Q,d>,geometry::ifs<Q,od,d,primitive,pd,trans>::faceVertices> q;
                     
                     for (std::size_t i = 0; i < ifs.faceVertices; i++)
                     {

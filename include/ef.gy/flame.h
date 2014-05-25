@@ -350,11 +350,12 @@ namespace efgy
              * \tparam d      The render depth to use.
              * \tparam format Vector coordinate format to work in.
              */
-            template <typename Q, unsigned int od, typename format>
-            class random : public ifs<Q,od,od,extendedPlane,od,transformation::flame,format>
+            template <typename Q, unsigned int od>
+            class random : public ifs<Q,od,od,extendedPlane,od,transformation::flame>
             {
                 public:
-                    typedef ifs<Q,od,od,extendedPlane,od,transformation::flame,format> parent;
+                    typedef ifs<Q,od,od,extendedPlane,od,transformation::flame> parent;
+                    using typename parent::format;
 
                     random(const parameters<Q> &pParameter, const format &pFormat)
                         : parent(pParameter, pFormat)

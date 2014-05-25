@@ -52,6 +52,7 @@ namespace efgy
             {
                 public:
                     typedef dimensions<2, 2> dimensions;
+                    typedef math::format::cartesian format;
 
                     static constexpr const unsigned int renderDepth = 3;
                     static constexpr const char *id (void) { return "moebius-strip"; }
@@ -75,6 +76,7 @@ namespace efgy
             {
                 public:
                     typedef dimensions<2, 2> dimensions;
+                    typedef math::format::cartesian format;
 
                     static constexpr const unsigned int renderDepth = 3;
                     static constexpr const char *id (void) { return "klein-bagel"; }
@@ -97,6 +99,7 @@ namespace efgy
             {
                 public:
                     typedef dimensions<2, 2> dimensions;
+                    typedef math::format::cartesian format;
 
                     static constexpr const unsigned int renderDepth = 4;
                     static constexpr const char *id (void) { return "klein-bottle"; }
@@ -120,6 +123,7 @@ namespace efgy
             {
                 public:
                     typedef dimensions<2, 0> dimensions;
+                    typedef math::format::cartesian format;
 
                     static constexpr const unsigned int renderDepth = od+1;
                     static constexpr const char *id (void) { return "sphere"; }
@@ -146,6 +150,7 @@ namespace efgy
             {
                 public:
                     typedef dimensions<2, 2> dimensions;
+                    typedef math::format::cartesian format;
 
                     static constexpr const unsigned int renderDepth = 2;
                     static constexpr const char *id (void) { return "plane"; }
@@ -166,6 +171,7 @@ namespace efgy
             {
                 public:
                     typedef dimensions<2, 2> dimensions;
+                    typedef math::format::cartesian format;
 
                     static constexpr const unsigned int renderDepth = 3;
                     static constexpr const char *id (void) { return "torus"; }
@@ -201,18 +207,16 @@ namespace efgy
          *
          * \tparam Q       Base type for calculations; should be a rational type
          * \tparam od      Model depth, e.g. '2' for a square or '3' for a cube
-         * \tparam d       Number of dimensions of the vector space to use
          * \tparam formula Formula for the target mesh, e.g. formula::plane
-         * \tparam format  Vector coordinate format to work in.
          */
         template <typename Q, unsigned int od,
-                  template <typename, unsigned int> class formula,
-                  typename format>
-        class parametric : public polytope<Q,od,formula<Q,od>::renderDepth,4,format>
+                  template <typename, unsigned int> class formula>
+        class parametric : public polytope<Q,od,formula<Q,od>::renderDepth,4,typename formula<Q,od>::format>
         {
             public:
                 typedef formula<Q,od> source;
-                typedef polytope<Q,od,formula<Q,od>::renderDepth,4,format> parent;
+                typedef polytope<Q,od,formula<Q,od>::renderDepth,4,typename formula<Q,od>::format> parent;
+                using typename parent::format;
 
                 parametric (const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat)
@@ -229,7 +233,7 @@ namespace efgy
                 static constexpr const char *id (void) { return source::id(); }
 
                 void recurse
-                    (const cube<Q,od,math::format::cartesian> &cube,
+                    (const cube<Q,od> &cube,
                      math::vector<Q,od> v,
                      math::vector<Q,od> a)
                 {
@@ -252,7 +256,7 @@ namespace efgy
                 }
 
                 void recurse
-                    (cube<Q,od,math::format::cartesian> &cube,
+                    (cube<Q,od> &cube,
                      std::size_t dim,
                      math::vector<Q,od> v,
                      math::vector<Q,od> a)
@@ -277,7 +281,7 @@ namespace efgy
                 void calculateObject(void)
                 {
                     parameters<Q> cubeParameter;
-                    cube<Q,od,math::format::cartesian> cube
+                    cube<Q,od> cube
                         (cubeParameter, math::format::cartesian());
 
                     faces.clear();
@@ -310,11 +314,9 @@ namespace efgy
          *
          * \tparam Q      Base type for calculations; should be a rational type
          * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
-         * \tparam d      Number of dimensions of the vector space to use
-         * \tparam format Vector coordinate format to work in.
          */
-        template <typename Q, unsigned int od, typename format>
-        using plane = parametric<Q,od,formula::plane,format>;
+        template <typename Q, unsigned int od>
+        using plane = parametric<Q,od,formula::plane>;
     };
 };
 
