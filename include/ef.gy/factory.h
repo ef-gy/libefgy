@@ -380,7 +380,7 @@ namespace efgy
                 }
         };
 
-        /**\brief Model factory helper; d=1 fix point
+        /**\brief Model factory helper; d=0 fix point
          *
          * The model factory helper, geometry::model, works by calling itself
          * recursively with different template parameters. This is one of these
@@ -399,7 +399,7 @@ namespace efgy
                  template <class,unsigned int> class T,
                  unsigned int e,
                  typename format>
-        class model<Q,func,T,1,e,format>
+        class model<Q,func,T,0,e,format>
         {
             public:
                 /**\brief Call func with parameters; d=1 fix point
@@ -419,7 +419,7 @@ namespace efgy
                      const unsigned int &,
                      const format &)
                 {
-                    return func<Q,T,1,e,format>::pass(arg);
+                    return func<Q,T,0,e,format>::pass(arg);
                 }
         };
 
