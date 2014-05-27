@@ -188,6 +188,31 @@ namespace efgy
                                   Q(parameter.radius2 * sin(ve[1])) }};
                     }
             };
+
+            template <typename Q, unsigned int od>
+            class dinisSurface
+            {
+                public:
+                    typedef dimensions<2, 2> dimensions;
+                    typedef math::format::cartesian format;
+                    
+                    static constexpr const unsigned int renderDepth = 3;
+                    static constexpr const char *id (void) { return "dinis-surface"; }
+                    
+                    constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
+                    {
+                        return range<Q>(0, M_PI * Q(4) * (abs(parameter.constant)+1.0),
+                                        parameter.precision * Q(8) * (abs(parameter.constant)+1.0),
+                                        false);
+                    }
+
+                    constexpr static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    {
+                        return {{ Q(parameter.radius * cos(ve[0]) * sin(ve[1])),
+                                  Q(parameter.radius * sin(ve[0]) * sin(ve[1])),
+                                  Q(parameter.radius*(cos(ve[1])+log(tan(ve[1]/2.0)))+parameter.radius2*ve[0])}};
+                    }
+            };
         };
 
         /**\brief Parametric formula wrapper

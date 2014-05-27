@@ -548,6 +548,7 @@ namespace efgy
             parametricFactory<formula::moebiusStrip>::with<Q,func,d,format>(arg,type,dims,rdims,tag);
             parametricFactory<formula::kleinBagel>::with<Q,func,d,format>(arg,type,dims,rdims,tag);
             parametricFactory<formula::kleinBottle>::with<Q,func,d,format>(arg,type,dims,rdims,tag);
+            parametricFactory<formula::dinisSurface>::with<Q,func,d,format>(arg,type,dims,rdims,tag);
             with<Q,func,d,sierpinski::gasket,format>(arg,type,dims,rdims,tag);
             with<Q,func,d,sierpinski::carpet,format>(arg,type,dims,rdims,tag);
             with<Q,func,d,randomAffineIFS,format>(arg,type,dims,rdims,tag);
