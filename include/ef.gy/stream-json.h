@@ -35,6 +35,7 @@
 #include <ef.gy/json.h>
 #include <string>
 #include <ostream>
+#include <sstream>
 #include <array>
 #include <vector>
 #include <map>
@@ -522,6 +523,10 @@ namespace efgy
                 case json::value<Q>::null:
                     stream.stream << "null";
                     break;
+                case json::value<Q>::comma:
+                case json::value<Q>::colon:
+                case json::value<Q>::error:
+                    break;
             }
 
             return stream;
@@ -534,16 +539,198 @@ namespace efgy
          * \tparam V Value numeric type.
          *
          * \param[out] stream The JSON string to read from.
-         * \param[in]  pValue The value to read to.
+         * \param[out] pValue The value to read to.
          *
-         * \returns A new copy of the input stream.
+         * \returns The unprocessed remainder of the JSON string.
          */
         template <typename Q>
         static inline std::string operator >>
             (std::string stream,
-             const json::value<Q> &pValue)
+             json::value<Q> &pValue)
         {
-            return stream;
+            pValue = json::value<Q>();
+
+            enum { scan,
+                   read_object,
+                   read_array,
+                   read_string,
+                   read_number,
+                   read_t,
+                   read_tr,
+                   read_tru,
+                   read_f,
+                   read_fa,
+                   read_fal,
+                   read_fals,
+                   read_n,
+                   read_nu,
+                   read_nul } state = scan;
+
+            std::ostringstream oss("");
+
+            for (std::size_t i = 0; i < stream.size(); i++)
+            {
+                const auto &c = stream[i];
+                switch (state)
+                {
+                    case scan:
+                        switch (c)
+                        {
+                            case '{':
+                                state = read_object;
+                                pValue.toObject();
+                                break;
+                            case '[':
+                                state = read_array;
+                                pValue.toArray();
+                                break;
+                            case '"':
+                                state = read_string;
+                                pValue.toString();
+                                break;
+                            case '0':
+                            case '1':
+                            case '2':
+                            case '3':
+                            case '4':
+                            case '5':
+                            case '6':
+                            case '7':
+                            case '8':
+                            case '9':
+                                state = read_number;
+                                pValue.toNumber();
+                                oss << c;
+                                break;
+                            case 't':
+                                state = read_t;
+                                break;
+                            case 'f':
+                                state = read_f;
+                                break;
+                            case 'n':
+                                state = read_n;
+                                break;
+                            case ',':
+                                pValue.type = json::value<Q>::comma;
+                                return stream.substr(i+1);
+                            case ':':
+                                pValue.type = json::value<Q>::colon;
+                                return stream.substr(i+1);
+                            case ' ':
+                            case '\t':
+                            case '\v':
+                            case '\n':
+                            case 0:
+                                break;
+                        }
+                        break;
+                    case read_t:
+                        if (c == 'r')
+                        {
+                            state = read_tr;
+                            break;
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    case read_tr:
+                        if (c == 'u')
+                        {
+                            state = read_tru;
+                            break;
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    case read_tru:
+                        if (c == 'e')
+                        {
+                            pValue.type = json::value<Q>::yes;
+                            return stream.substr(i+1);
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    case read_f:
+                        if (c == 'a')
+                        {
+                            state = read_fa;
+                            break;
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    case read_fa:
+                        if (c == 'l')
+                        {
+                            state = read_fal;
+                            break;
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    case read_fal:
+                        if (c == 's')
+                        {
+                            state = read_fals;
+                            break;
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    case read_fals:
+                        if (c == 'e')
+                        {
+                            pValue.type = json::value<Q>::no;
+                            return stream.substr(i+1);
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    case read_n:
+                        if (c == 'u')
+                        {
+                            state = read_nu;
+                            break;
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    case read_nu:
+                        if (c == 'l')
+                        {
+                            state = read_nul;
+                            break;
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    case read_nul:
+                        if (c == 'l')
+                        {
+                            pValue.type = json::value<Q>::null;
+                            return stream.substr(i+1);
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    default:
+                        break;
+                }
+            }
+
+            return "";
         }
     };
 };

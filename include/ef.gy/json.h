@@ -73,10 +73,45 @@ namespace efgy
                     number,
                     yes,
                     no,
-                    null
+                    null,
+                    comma,
+                    colon,
+                    error
                 } type;
 
                 void *payload;
+
+                value &operator = (const value &b)
+                {
+                    type = b.type;
+                    switch (type)
+                    {
+                        case object:
+                            toObject();
+                            getObject() = b.getObject();
+                            break;
+                        case array:
+                            toArray();
+                            getArray() = b.getArray();
+                            break;
+                        case string:
+                            toString();
+                            getString() = b.getString();
+                            break;
+                        case number:
+                            toNumber();
+                            getNumber() = b.getNumber();
+                            break;
+                        case yes:
+                        case no:
+                        case null:
+                        case comma:
+                        case colon:
+                        case error:
+                            break;
+                    }
+                    return *this;
+                }
 
                 const std::map<std::string,value<numeric>> &getObject (void) const
                 {
@@ -171,6 +206,9 @@ namespace efgy
                         case yes:
                         case no:
                         case null:
+                        case comma:
+                        case colon:
+                        case error:
                             break;
                     }
                     type = null;

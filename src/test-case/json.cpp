@@ -91,4 +91,29 @@ int testJSONOutput (std::ostream &log)
     return 0;
 }
 
-TEST_BATCH(testJSONOutput)
+/**\brief JSON input tests
+ * \test Tries to parse some JSON with the JSON string parser.
+ *
+ * \param[out] log A stream for test cases to log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
+int testJSONInput (std::ostream &log)
+{
+    json::value<> v;
+    std::string pr = "{ true }";
+
+//    pr >> v;
+
+    v.type = json::value<>::yes;
+
+    log << json::tag() << v;
+
+    std::string tmp = ("true" >> v);
+
+    log << json::tag() << tmp << v;
+
+    return 0;
+}
+
+TEST_BATCH(testJSONOutput, testJSONInput)
