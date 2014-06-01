@@ -373,6 +373,7 @@ namespace efgy
 
                             for (const unsigned int &i : range<unsigned int>(0,nfunctions,nfunctions,false))
                             {
+                                (void)i;
                                 functions.push_back (transformation::randomFlame<Q,od,parent::renderDepth>(parameter, PRNG()));
                             }
                         

@@ -332,7 +332,7 @@ namespace efgy
 
                 protected:
                     const parameters<Q> &parameter;
-                const unsigned long long &seed;
+                    const unsigned long long seed;
             };
         };
 
@@ -361,9 +361,7 @@ namespace efgy
                         
                         std::mt19937 PRNG (parameter.seed);
 
-                        const unsigned int nfunctions = parameter.functions;
-
-                        for (unsigned int i = 0; i < nfunctions; i++)
+                        for (unsigned int i = 0; i < parameter.functions; i++)
                         {
                             functions.push_back (transformation::randomAffine<Q,parent::renderDepth,od>(parameter, PRNG()));
                         }
