@@ -76,7 +76,9 @@ namespace efgy
                     null,
                     comma,
                     colon,
-                    error
+                    error,
+                    endArray,
+                    endObject
                 } type;
 
                 void *payload;
@@ -108,6 +110,8 @@ namespace efgy
                         case comma:
                         case colon:
                         case error:
+                        case endObject:
+                        case endArray:
                             break;
                     }
                     return *this;
@@ -209,6 +213,8 @@ namespace efgy
                         case comma:
                         case colon:
                         case error:
+                        case endObject:
+                        case endArray:
                             break;
                     }
                     type = null;

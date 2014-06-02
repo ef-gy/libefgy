@@ -526,6 +526,8 @@ namespace efgy
                 case json::value<Q>::comma:
                 case json::value<Q>::colon:
                 case json::value<Q>::error:
+                case json::value<Q>::endObject:
+                case json::value<Q>::endArray:
                     break;
             }
 
@@ -553,7 +555,9 @@ namespace efgy
             enum { scan,
                    read_object,
                    read_array,
+                   read_array_comma,
                    read_string,
+                   read_string_escape,
                    read_number,
                    read_t,
                    read_tr,
@@ -566,7 +570,7 @@ namespace efgy
                    read_nu,
                    read_nul } state = scan;
 
-            std::ostringstream oss("");
+            std::stringstream ss("");
 
             for (std::size_t i = 0; i < stream.size(); i++)
             {
@@ -598,9 +602,11 @@ namespace efgy
                             case '7':
                             case '8':
                             case '9':
+                            case '+':
+                            case '-':
                                 state = read_number;
                                 pValue.toNumber();
-                                oss << c;
+                                ss << c;
                                 break;
                             case 't':
                                 state = read_t;
@@ -617,11 +623,104 @@ namespace efgy
                             case ':':
                                 pValue.type = json::value<Q>::colon;
                                 return stream.substr(i+1);
+                            case ']':
+                                pValue.type = json::value<Q>::endArray;
+                                return stream.substr(i+1);
+                            case '}':
+                                pValue.type = json::value<Q>::endObject;
+                                return stream.substr(i+1);
                             case ' ':
                             case '\t':
                             case '\v':
                             case '\n':
                             case 0:
+                                break;
+                        }
+                        break;
+                    case read_array:
+                        state = read_array_comma;
+                    {
+                        json::value<Q> v;
+                        stream = stream.substr(i+1) >> v;
+                        if (v.type == json::value<Q>::endArray)
+                        {
+                            return stream.substr(i+1);
+                        }
+                        pValue.getArray().push_back(v);
+                    }
+                        i = 0;
+                        break;
+                    case read_array_comma:
+                    {
+                        json::value<Q> v;
+                        stream = stream.substr(i+1) >> v;
+                        switch (v.type)
+                        {
+                            case json::value<Q>::comma:
+                                state = read_array;
+                                break;
+                            case json::value<Q>::endArray:
+                                return stream.substr(i+1);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                        i = 0;
+                        break;
+                    case read_number:
+                        switch (c)
+                        {
+                            case '0':
+                            case '1':
+                            case '2':
+                            case '3':
+                            case '4':
+                            case '5':
+                            case '6':
+                            case '7':
+                            case '8':
+                            case '9':
+                            case 'e':
+                            case '.':
+                            case '+':
+                            case '-':
+                                ss << c;
+                                break;
+                            default:
+                                ss >> pValue.getNumber();
+                                break;
+                        }
+                        break;
+                    case read_string_escape:
+                        switch (c)
+                        {
+                            case 't':
+                                pValue.getString().append(1, '\t');
+                                break;
+                            case 'v':
+                                pValue.getString().append(1, '\v');
+                                break;
+                            case 'n':
+                                pValue.getString().append(1, '\n');
+                                break;
+                            default:
+                                pValue.getString().append(1, c);
+                                break;
+                        }
+                        state = read_string;
+                        break;
+                    case read_string:
+                        switch (c)
+                        {
+                            case '"':
+                                return stream.substr(i+1);
+                                break;
+                            case '\\':
+                                state = read_string_escape;
+                                break;
+                            default:
+                                pValue.getString().append(1, c);
                                 break;
                         }
                         break;
@@ -725,9 +824,16 @@ namespace efgy
                         {
                             return "";
                         }
-                    default:
-                        break;
                 }
+            }
+
+            switch (state)
+            {
+                case read_number:
+                    ss >> pValue.getNumber();
+                    break;
+                default:
+                    break;
             }
 
             return "";

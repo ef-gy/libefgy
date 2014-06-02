@@ -113,6 +113,14 @@ int testJSONInput (std::ostream &log)
 
     log << json::tag() << tmp << v;
 
+    tmp = ("42.23" >> v);
+
+    log << json::tag() << tmp << v;
+
+    tmp = ("[true,false,null]" >> v);
+
+    log << json::tag() << tmp << v;
+
     return 0;
 }
 
