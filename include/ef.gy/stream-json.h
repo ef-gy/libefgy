@@ -572,9 +572,9 @@ namespace efgy
 
             std::stringstream ss("");
 
-            for (std::size_t i = 0; i < stream.size(); i++)
+            for (std::ptrdiff_t i = 0; i < stream.size(); i++)
             {
-                const auto &c = stream[i];
+                const auto c = stream[i];
                 switch (state)
                 {
                     case scan:
@@ -641,19 +641,20 @@ namespace efgy
                         state = read_array_comma;
                     {
                         json::value<Q> v;
-                        stream = stream.substr(i+1) >> v;
+                        std::string nstream = stream.substr(i) >> v;
                         if (v.type == json::value<Q>::endArray)
                         {
                             return stream.substr(i+1);
                         }
+                        stream = nstream;
                         pValue.getArray().push_back(v);
                     }
-                        i = 0;
+                        i = -1;
                         break;
                     case read_array_comma:
                     {
                         json::value<Q> v;
-                        stream = stream.substr(i+1) >> v;
+                        std::string nstream = stream.substr(i) >> v;
                         switch (v.type)
                         {
                             case json::value<Q>::comma:
@@ -665,8 +666,9 @@ namespace efgy
                             default:
                                 break;
                         }
+                        stream = nstream;
                     }
-                        i = 0;
+                        i = -1;
                         break;
                     case read_number:
                         switch (c)
