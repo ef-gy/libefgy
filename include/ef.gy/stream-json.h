@@ -223,7 +223,7 @@ namespace efgy
             return stream;
         }
 
-        /**\brief Write boolea  to JSON stream
+        /**\brief Write boolean to JSON stream
          *
          * Writes a JSON serialisation of a boolean to a stream.
          *
@@ -435,7 +435,9 @@ namespace efgy
                 {
                     notFirst = true;
                 }
-                stream << e.first << ":" << e.second;
+                stream << e.first;
+                stream.stream << ":";
+                stream << e.second;
             }
             
             stream.stream << "}";
@@ -554,6 +556,9 @@ namespace efgy
 
             enum { scan,
                    read_object,
+                   read_object_colon,
+                   read_object_value,
+                   read_object_comma,
                    read_array,
                    read_array_comma,
                    read_string,
@@ -571,6 +576,7 @@ namespace efgy
                    read_nul } state = scan;
 
             std::stringstream ss("");
+            std::string key;
 
             for (std::ptrdiff_t i = 0; i < stream.size(); i++)
             {
@@ -637,6 +643,78 @@ namespace efgy
                                 break;
                         }
                         break;
+                    case read_object:
+                    {
+                        json::value<Q> v;
+                        std::string nstream = stream.substr(i) >> v;
+                        switch (v.type)
+                        {
+                            case json::value<Q>::endObject:
+                                return nstream;
+                            case json::value<Q>::string:
+                                key = v.getString();
+                                state = read_object_colon;
+                                break;
+                            default:
+                                break;
+                        }
+                        stream = nstream;
+                    }
+                        i = -1;
+                        break;
+                    case read_object_colon:
+                    {
+                        json::value<Q> v;
+                        std::string nstream = stream.substr(i) >> v;
+                        switch (v.type)
+                        {
+                            case json::value<Q>::endObject:
+                                return nstream;
+                            case json::value<Q>::colon:
+                                state = read_object_value;
+                                break;
+                            default:
+                                break;
+                        }
+                        stream = nstream;
+                    }
+                        i = -1;
+                        break;
+                    case read_object_value:
+                    {
+                        json::value<Q> v;
+                        std::string nstream = stream.substr(i) >> v;
+                        switch (v.type)
+                        {
+                            case json::value<Q>::endObject:
+                                return nstream;
+                            default:
+                                pValue.getObject()[key] = v;
+                                state = read_object_comma;
+                                break;
+                        }
+                        stream = nstream;
+                    }
+                        i = -1;
+                        break;
+                    case read_object_comma:
+                    {
+                        json::value<Q> v;
+                        std::string nstream = stream.substr(i) >> v;
+                        switch (v.type)
+                        {
+                            case json::value<Q>::comma:
+                                state = read_object;
+                                break;
+                            case json::value<Q>::endObject:
+                                return nstream;
+                            default:
+                                break;
+                        }
+                        stream = nstream;
+                    }
+                        i = -1;
+                        break;
                     case read_array:
                         state = read_array_comma;
                     {
@@ -644,7 +722,7 @@ namespace efgy
                         std::string nstream = stream.substr(i) >> v;
                         if (v.type == json::value<Q>::endArray)
                         {
-                            return stream.substr(i+1);
+                            return nstream;
                         }
                         stream = nstream;
                         pValue.getArray().push_back(v);
@@ -661,8 +739,7 @@ namespace efgy
                                 state = read_array;
                                 break;
                             case json::value<Q>::endArray:
-                                return stream.substr(i+1);
-                                break;
+                                return nstream;
                             default:
                                 break;
                         }
@@ -684,6 +761,7 @@ namespace efgy
                             case '8':
                             case '9':
                             case 'e':
+                            case 'E':
                             case '.':
                             case '+':
                             case '-':
