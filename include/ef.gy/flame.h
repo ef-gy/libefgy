@@ -269,16 +269,16 @@ namespace efgy
                     unsigned int depth;
             };
 
-            template <typename Q, unsigned int od, unsigned int d = od>
+            template <typename Q, unsigned int d>
             class randomFlame : public flame<Q,d>
             {
                 public:
                     randomFlame(const parameters<Q> &pParameter, const unsigned long long &pSeed)
-                        : flame<Q,d>(od), seed(pSeed)
+                        : flame<Q,d>(d), seed(pSeed)
                         {
                             std::mt19937 PRNG ((typename std::mt19937::result_type)pSeed);
 
-                            transformationMatrix = randomAffine<Q,d,od>(pParameter, 0).transformationMatrix;
+                            transformationMatrix = randomAffine<Q,d>(pParameter, 0).transformationMatrix;
 
                             for (unsigned int i = 0; i < coefficients; i++)
                             {
@@ -347,7 +347,6 @@ namespace efgy
              *
              * \tparam Q      The base data type to use for calculations.
              * \tparam od     The depth of the model.
-             * \tparam d      The render depth to use.
              * \tparam format Vector coordinate format to work in.
              */
             template <typename Q, unsigned int od>
@@ -374,7 +373,7 @@ namespace efgy
                             for (const unsigned int &i : range<unsigned int>(0,nfunctions,nfunctions,false))
                             {
                                 (void)i;
-                                functions.push_back (transformation::randomFlame<Q,od,parent::renderDepth>(parameter, PRNG()));
+                                functions.push_back (transformation::randomFlame<Q,parent::renderDepth>(parameter, PRNG()));
                             }
                         
                             parent::calculateObject();

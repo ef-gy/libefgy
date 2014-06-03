@@ -252,7 +252,7 @@ namespace efgy
 
         namespace transformation
         {
-            template <typename Q, unsigned int d, unsigned int od>
+            template <typename Q, unsigned int d>
             class randomAffine : public affine<Q,d>
             {
                 public:
@@ -269,11 +269,11 @@ namespace efgy
                         math::vector<Q,d> V;
                         const Q s(Q(PRNG()%6000)/Q(10000)+Q(.2));
                         const Q r1(Q(PRNG()%20000)/Q(10000)*Q(M_PI));
-                        unsigned int a1 = PRNG() % od;
-                        unsigned int a2 = PRNG() % od;
+                        unsigned int a1 = PRNG() % d;
+                        unsigned int a2 = PRNG() % d;
                         const Q r2(Q(PRNG()%20000)/Q(10000)*Q(M_PI));
-                        unsigned int a4 = PRNG() % od;
-                        unsigned int a5 = PRNG() % od;
+                        unsigned int a4 = PRNG() % d;
+                        unsigned int a5 = PRNG() % d;
                         
                         if (a1 > a2)
                         {
@@ -285,7 +285,7 @@ namespace efgy
                         {
                             if (a1 == 0)
                             {
-                                a2 = PRNG() % (od-1 >= 1 ? od-1 : 1) + 1;
+                                a2 = PRNG() % (d-1 >= 1 ? d-1 : 1) + 1;
                             }
                             else
                             {
@@ -303,7 +303,7 @@ namespace efgy
                         {
                             if (a4 == 0)
                             {
-                                a5 = PRNG() % (od-1 >= 1 ? od-1 : 1) + 1;
+                                a5 = PRNG() % (d-1 >= 1 ? d-1 : 1) + 1;
                             }
                             else
                             {
@@ -311,7 +311,7 @@ namespace efgy
                             }
                         }
                         
-                        for (unsigned int j = 0; j < od; j++)
+                        for (unsigned int j = 0; j < d; j++)
                         {
                             V[j] = Q(PRNG()%10000)/Q(5000)-Q(1);
                         }
@@ -363,7 +363,7 @@ namespace efgy
 
                         for (unsigned int i = 0; i < parameter.functions; i++)
                         {
-                            functions.push_back (transformation::randomAffine<Q,parent::renderDepth,od>(parameter, PRNG()));
+                            functions.push_back (transformation::randomAffine<Q,parent::renderDepth>(parameter, PRNG()));
                         }
 
                         parent::calculateObject();
