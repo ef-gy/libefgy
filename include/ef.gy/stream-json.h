@@ -612,6 +612,7 @@ namespace efgy
                             case '-':
                                 state = read_number;
                                 pValue.toNumber();
+                                ss.str("");
                                 ss << c;
                                 break;
                             case 't':
@@ -769,7 +770,7 @@ namespace efgy
                                 break;
                             default:
                                 ss >> pValue.getNumber();
-                                break;
+                                return stream.substr(i);
                         }
                         break;
                     case read_string_escape:

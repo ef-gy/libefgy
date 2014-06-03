@@ -129,6 +129,10 @@ int testJSONInput (std::ostream &log)
 
     log << json::tag() << tmp << v;
 
+    tmp = ("{\"a\":true,\"b\":false,\"q\":[1,2,3,4],\"c\":null}" >> v);
+
+    log << json::tag() << tmp << v;
+
     return 0;
 }
 

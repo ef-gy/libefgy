@@ -57,8 +57,12 @@ namespace efgy
         class value
         {
             public:
-                value (void) : type(null) {}
-                value (const bool &pValue) : type(pValue ? yes : no) {}
+                value (void) : type(null), payload(0) {}
+                value (const bool &pValue) : type(pValue ? yes : no), payload(0) {}
+                value (const value &b) : type(null), payload(0)
+                    {
+                        *this = b;
+                    }
 
                 ~value (void)
                 {
@@ -85,8 +89,8 @@ namespace efgy
 
                 value &operator = (const value &b)
                 {
-                    type = b.type;
-                    switch (type)
+                    clear();
+                    switch (b.type)
                     {
                         case object:
                             toObject();
@@ -112,6 +116,7 @@ namespace efgy
                         case error:
                         case endObject:
                         case endArray:
+                            type = b.type;
                             break;
                     }
                     return *this;
@@ -193,29 +198,33 @@ namespace efgy
             protected:
                 void clear (void)
                 {
-                    switch (type)
+                    if (payload)
                     {
-                        case object:
-                            delete ((std::map<std::string,value<numeric>>*)payload);
-                            break;
-                        case array:
-                            delete ((std::vector<value<numeric>>*)payload);
-                            break;
-                        case string:
-                            delete ((std::string*)payload);
-                            break;
-                        case number:
-                            delete ((numeric*)payload);
-                            break;
-                        case yes:
-                        case no:
-                        case null:
-                        case comma:
-                        case colon:
-                        case error:
-                        case endObject:
-                        case endArray:
-                            break;
+                        switch (type)
+                        {
+                            case object:
+                                delete ((std::map<std::string,value<numeric>>*)payload);
+                                break;
+                            case array:
+                                delete ((std::vector<value<numeric>>*)payload);
+                                break;
+                            case string:
+                                delete ((std::string*)payload);
+                                break;
+                            case number:
+                                delete ((numeric*)payload);
+                                break;
+                            case yes:
+                            case no:
+                            case null:
+                            case comma:
+                            case colon:
+                            case error:
+                            case endObject:
+                            case endArray:
+                                break;
+                        }
+                        payload = 0;
                     }
                     type = null;
                 }
