@@ -276,7 +276,7 @@ namespace efgy
                     randomFlame(const parameters<Q> &pParameter, const unsigned long long &pSeed)
                         : flame<Q,d>(od), seed(pSeed)
                         {
-                            std::mt19937 PRNG (pSeed);
+                            std::mt19937 PRNG ((typename std::mt19937::result_type)pSeed);
 
                             transformationMatrix = randomAffine<Q,d,od>(pParameter, 0).transformationMatrix;
 

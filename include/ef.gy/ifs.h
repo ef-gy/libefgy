@@ -264,7 +264,7 @@ namespace efgy
 
                     void updateMatrix (void)
                     {
-                        std::mt19937 PRNG (seed);
+                        std::mt19937 PRNG ((typename std::mt19937::result_type)seed);
 
                         math::vector<Q,d> V;
                         const Q s(Q(PRNG()%6000)/Q(10000)+Q(.2));
@@ -285,7 +285,7 @@ namespace efgy
                         {
                             if (a1 == 0)
                             {
-                                a2 = PRNG() % (od-1) + 1;
+                                a2 = PRNG() % (od-1 >= 1 ? od-1 : 1) + 1;
                             }
                             else
                             {
@@ -303,7 +303,7 @@ namespace efgy
                         {
                             if (a4 == 0)
                             {
-                                a5 = PRNG() % (od-1) + 1;
+                                a5 = PRNG() % (od-1 >= 1 ? od-1 : 1) + 1;
                             }
                             else
                             {
