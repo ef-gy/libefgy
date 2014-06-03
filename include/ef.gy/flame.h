@@ -232,14 +232,14 @@ namespace efgy
                                 break;
                             case 15: // "waves"
                                 for (unsigned int i : range<unsigned int>(0,depth,depth,false))
-                                    if (i < (d-1))
+                                    if (i == (d-1))
                                         rv[i] = V[i]
-                                                   * transformationMatrix[i][0]
-                                                   * sin(V[(i+1)] / (transformationMatrix[d][i] * transformationMatrix[d][i]));
+                                              * transformationMatrix[i][0]
+                                              * sin(V[0] / (transformationMatrix[d][i] * transformationMatrix[d][i]));
                                     else
                                         rv[i] = V[i]
-                                                   * transformationMatrix[i][0]
-                                                   * sin(V[0] / (transformationMatrix[d][i] * transformationMatrix[d][i]));
+                                              * transformationMatrix[i][0]
+                                              * sin(V[(i+1)] / (transformationMatrix[d][i] * transformationMatrix[d][i]));
                                 break;
                             case 16: // "fisheye"
                                 for (unsigned int i : range<unsigned int>(0,depth,depth,false))
@@ -375,7 +375,7 @@ namespace efgy
                                 (void)i;
                                 functions.push_back (transformation::randomFlame<Q,parent::renderDepth>(parameter, PRNG()));
                             }
-                        
+
                             parent::calculateObject();
                         }
 
