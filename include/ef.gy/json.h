@@ -63,6 +63,11 @@ namespace efgy
                     {
                         *this = b;
                     }
+                value (const char *b) : type(null), payload(0)
+                    {
+                        toString();
+                        getString() = b;
+                    }
                 value (const std::string &b) : type(null), payload(0)
                     {
                         toString();
