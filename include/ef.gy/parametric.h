@@ -190,6 +190,30 @@ namespace efgy
             };
 
             template <typename Q, unsigned int od>
+            class cliffordTorus
+            {
+                public:
+                    typedef dimensions<2, 2> dimensions;
+                    typedef math::format::cartesian format;
+
+                    static constexpr const unsigned int renderDepth = 4;
+                    static constexpr const char *id (void) { return "clifford-torus"; }
+
+                    constexpr static range<Q> getRange (const parameters<Q> &parameter, std::size_t i)
+                    {
+                        return range<Q>(0, M_PI * Q(2), parameter.precision*Q(2), false);
+                    }
+
+                    constexpr static math::vector<Q,renderDepth> getCoordinates (const parameters<Q> &parameter, const math::vector<Q,od> &ve)
+                    {
+                        return {{ Q(cos(parameter.constant) * cos(ve[0])),
+                                  Q(cos(parameter.constant) * sin(ve[0])),
+                                  Q(sin(parameter.constant) * cos(ve[1])),
+                                  Q(sin(parameter.constant) * sin(ve[1])) }};
+                    }
+            };
+
+            template <typename Q, unsigned int od>
             class dinisSurface
             {
                 public:

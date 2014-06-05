@@ -545,6 +545,7 @@ namespace efgy
             with<Q,func,d,cube,format>(arg,type,dims,rdims,tag);
             parametricFactory<formula::sphere>::with<Q,func,d,format>(arg,type,dims,rdims,tag);
             parametricFactory<formula::torus>::with<Q,func,d,format>(arg,type,dims,rdims,tag);
+            parametricFactory<formula::cliffordTorus>::with<Q,func,d,format>(arg,type,dims,rdims,tag);
             parametricFactory<formula::moebiusStrip>::with<Q,func,d,format>(arg,type,dims,rdims,tag);
             parametricFactory<formula::kleinBagel>::with<Q,func,d,format>(arg,type,dims,rdims,tag);
             parametricFactory<formula::kleinBottle>::with<Q,func,d,format>(arg,type,dims,rdims,tag);
