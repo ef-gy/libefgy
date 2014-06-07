@@ -821,53 +821,53 @@ namespace efgy
                             (crossProduct
                         (pV[2] - pV[0], pV[1] - pV[0]));
 
-                    triindices.push_back(addVertex(GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2]),
-                                                   GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
+                    triindices.push_back(addVertex({{GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2])}},
+                                                   {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
                     unsigned int nstartf = triindices.back();
                     lineindices.push_back(nstartf);
-                    triindices.push_back(addVertex(GLfloat(pV[1][0]), GLfloat(pV[1][1]), GLfloat(pV[1][2]),
-                                                   GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
+                    triindices.push_back(addVertex({{GLfloat(pV[1][0]), GLfloat(pV[1][1]), GLfloat(pV[1][2])}},
+                                                   {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
                     lineindices.push_back(triindices.back());
                     lineindices.push_back(triindices.back());
-                    triindices.push_back(addVertex(GLfloat(pV[2][0]), GLfloat(pV[2][1]), GLfloat(pV[2][2]),
-                                                   GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
+                    triindices.push_back(addVertex({{GLfloat(pV[2][0]), GLfloat(pV[2][1]), GLfloat(pV[2][2])}},
+                                                   {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
                     unsigned int nendf = triindices.back();
                     lineindices.push_back(nendf);
 
-                    triindices.push_back(addVertex(GLfloat(pV[2][0]), GLfloat(pV[2][1]), GLfloat(pV[2][2]),
-                                                   GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
+                    triindices.push_back(addVertex({{GLfloat(pV[2][0]), GLfloat(pV[2][1]), GLfloat(pV[2][2])}},
+                                                   {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
                     unsigned int nendb = triindices.back();
                     lineindices.push_back(nendb);
-                    triindices.push_back(addVertex(GLfloat(pV[1][0]), GLfloat(pV[1][1]), GLfloat(pV[1][2]),
-                                                   GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
+                    triindices.push_back(addVertex({{GLfloat(pV[1][0]), GLfloat(pV[1][1]), GLfloat(pV[1][2])}},
+                                                   {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
                     lineindices.push_back(triindices.back());
                     lineindices.push_back(triindices.back());
-                    triindices.push_back(addVertex(GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2]),
-                                                   GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
+                    triindices.push_back(addVertex({{GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2])}},
+                                                   {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
                     unsigned int nstartb = triindices.back();
                     lineindices.push_back(nstartb);
 
                     for (unsigned int j = 3; j < q; j++)
                     {
-                        triindices.push_back(addVertex(GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2]),
-                                                       GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
-                        triindices.push_back(addVertex(GLfloat(pV[(j-1)][0]), GLfloat(pV[(j-1)][1]), GLfloat(pV[(j-1)][2]),
-                                                       GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
+                        triindices.push_back(addVertex({{GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2])}},
+                                                       {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
+                        triindices.push_back(addVertex({{GLfloat(pV[(j-1)][0]), GLfloat(pV[(j-1)][1]), GLfloat(pV[(j-1)][2])}},
+                                                       {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
                         lineindices.push_back(triindices.back());
-                        triindices.push_back(addVertex(GLfloat(pV[j][0]), GLfloat(pV[j][1]), GLfloat(pV[j][2]),
-                                                       GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2]), GLfloat(index)));
+                        triindices.push_back(addVertex({{GLfloat(pV[j][0]), GLfloat(pV[j][1]), GLfloat(pV[j][2])}},
+                                                       {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
                         lineindices.push_back(triindices.back());
                         nendf = triindices.back();
 
-                        triindices.push_back(addVertex(GLfloat(pV[j][0]), GLfloat(pV[j][1]), GLfloat(pV[j][2]),
-                                                       GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
+                        triindices.push_back(addVertex({{GLfloat(pV[j][0]), GLfloat(pV[j][1]), GLfloat(pV[j][2])}},
+                                                       {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
                         nendb = triindices.back();
                         lineindices.push_back(triindices.back());
-                        triindices.push_back(addVertex(GLfloat(pV[(j-1)][0]), GLfloat(pV[(j-1)][1]), GLfloat(pV[(j-1)][2]),
-                                                       GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
+                        triindices.push_back(addVertex({{GLfloat(pV[(j-1)][0]), GLfloat(pV[(j-1)][1]), GLfloat(pV[(j-1)][2])}},
+                                                       {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
                         lineindices.push_back(triindices.back());
-                        triindices.push_back(addVertex(GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2]),
-                                                       GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2]), GLfloat(index)));
+                        triindices.push_back(addVertex({{GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2])}},
+                                                       {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
                     }
 
                     lineindices.push_back(nendf);
@@ -970,28 +970,24 @@ namespace efgy
                  * Appends the given vertex data to the vertex buffer. The
                  * buffer is extended as necessary.
                  *
-                 * \param[in] x     X coordinate of the vertex.
-                 * \param[in] y     Y coordinate of the vertex.
-                 * \param[in] z     Z coordinate of the vertex.
-                 * \param[in] nx    X component of the vertex's normal.
-                 * \param[in] ny    Y component of the vertex's normal.
-                 * \param[in] nz    Z component of the vertex's normal.
+                 * \param[in] x     coordinates of the vertex.
+                 * \param[in] nx    coordinates of the vertex's normal.
                  * \param[in] index IFS index of the vertex.
                  *
                  * \returns The index of the vertex that was just added.
                  */
                 unsigned int addVertex
-                    (const GLfloat &x, const GLfloat &y, const GLfloat &z,
-                     const GLfloat &nx, const GLfloat &ny, const GLfloat &nz,
+                    (math::vector<GLfloat,3> c,
+                     math::vector<GLfloat,3> n,
                      const GLfloat &index)
                 {
-                    vertices.push_back(x);
-                    vertices.push_back(y);
-                    vertices.push_back(z);
+                    vertices.push_back(c[0]);
+                    vertices.push_back(c[1]);
+                    vertices.push_back(c[2]);
 
-                    vertices.push_back(nx);
-                    vertices.push_back(ny);
-                    vertices.push_back(nz);
+                    vertices.push_back(n[0]);
+                    vertices.push_back(n[1]);
+                    vertices.push_back(n[2]);
 
                     vertices.push_back(index);
 
