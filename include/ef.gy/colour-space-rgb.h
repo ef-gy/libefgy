@@ -79,7 +79,10 @@ namespace efgy
 
                 vector &operator = (const vector &v)
                 {
-                    return std::array<Q,4>(*this) = std::array<Q,4>(v);
+                    red   = v.red;
+                    green = v.green;
+                    blue  = v.blue;
+                    return *this;
                 }
 
                 Q &red;
