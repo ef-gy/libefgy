@@ -72,6 +72,15 @@ namespace efgy
                     : std::array<Q,3>({ pRed, pGreen, pBlue }),
                       red((*this)[0]), green((*this)[1]), blue((*this)[2])
                     {}
+                vector (const vector &v)
+                    : std::array<Q,4>({ v.red, v.green, v.blue }),
+                      red((*this)[0]), green((*this)[1]), blue((*this)[2])
+                    {}
+
+                vector &operator = (const vector &v)
+                {
+                    return std::array<Q,4>(*this) = std::array<Q,4>(v);
+                }
 
                 Q &red;
                 Q &green;
@@ -91,6 +100,19 @@ namespace efgy
                     : std::array<Q,4>({ pRed, pGreen, pBlue, pAlpha }),
                       red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
                     {}
+                vector (const vector &v)
+                    : std::array<Q,4>({ v.red, v.green, v.blue, v.alpha }),
+                      red((*this)[0]), green((*this)[1]), blue((*this)[2]), alpha((*this)[3])
+                    {}
+
+                vector &operator = (const vector &v)
+                {
+                    red   = v.red;
+                    green = v.green;
+                    blue  = v.blue;
+                    alpha = v.alpha;
+                    return *this;
+                }
 
                 Q &red;
                 Q &green;

@@ -36,6 +36,7 @@
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
 #include <ef.gy/opengl.h>
+#include <ef.gy/colour-space-rgb.h>
 #include <ef.gy/polytope.h>
 #include <ef.gy/ifs.h>
 #include <map>
@@ -543,10 +544,14 @@ namespace efgy
                     (const geometry::transformation::affine<Q,d> &pTransformation,
                      const geometry::projection<Q,d> &pProjection,
                      opengl<Q,d-1> &pLowerRenderer)
-                    : transformation(pTransformation), projection(pProjection), lowerRenderer(pLowerRenderer),
+                    : transformation(pTransformation), projection(pProjection),
+                      lowerRenderer(pLowerRenderer),
                       fractalFlameColouring(pLowerRenderer.fractalFlameColouring),
-                      width(pLowerRenderer.width), height(pLowerRenderer.height),
-                      prepared(pLowerRenderer.prepared)
+                      width(pLowerRenderer.width),
+                      height(pLowerRenderer.height),
+                      prepared(pLowerRenderer.prepared),
+                      wireframeColour(pLowerRenderer.wireframeColour),
+                      surfaceColour(pLowerRenderer.surfaceColour)
                     {}
 
                 /**\brief Start new frame
@@ -603,30 +608,6 @@ namespace efgy
                     lowerRenderer.draw(V, index);
                 }
 
-                /**\brief Set colour
-                 *
-                 * Sets the colour for either the wireframe model or the faces.
-                 * Which of the two is set depends on the pWireframe parameter.
-                 *
-                 * \note The renderers typically use the alpha component for
-                 *       transparency.
-                 *
-                 * \param[in] pRed   The red component of the colour to set.
-                 * \param[in] pGreen The green component of the colour to set.
-                 * \param[in] pBlue  The blue component of the colour to set.
-                 * \param[in] pAlpha The alpha component of the colour to set.
-                 * \param[in] pWireframe 'True' if you want to set the colour
-                 *                       for the model's lines, 'false' to set
-                 *                       the colour for the faces.
-                 *
-                 * \returns True when the new colour was successfully set, false
-                 *          otherwise.
-                 */
-                bool setColour (float pRed, float pGreen, float pBlue, float pAlpha, bool pWireframe)
-                {
-                    return lowerRenderer.setColour (pRed, pGreen, pBlue, pAlpha, pWireframe);
-                }
-
                 /**\brief Create random colour map
                  *
                  * Calling this method will create a random colour map texture
@@ -637,37 +618,22 @@ namespace efgy
                     lowerRenderer.setColourMap();
                 }
 
-                /**\brief Use Fractal Flame Colouring?
-                 *
-                 * Set to true to use the fractal flame colouring algorithm
-                 * instead of the 'normal' render programme.
-                 */
+                /**\copydoc opengl<Q,2>::fractalFlameColouring */
                 bool &fractalFlameColouring;
-
-                /**\brief Has the scene been prepared?
-                 *
-                 * Set to true after uploading geometry data to the graphics
-                 * card, right before actually telling OpenGL to render that
-                 * data. Needs to be set to 'false' if you change any model
-                 * parameters in order for that data to be prepared and uploaded
-                 * to the graphics card again.
-                 */
+                
+                /**\copydoc opengl<Q,2>::prepared */
                 bool &prepared;
 
-                /**\brief Viewport width
-                 *
-                 * Width of the output viewport. The renderer assumes that the
-                 * viewport is rectangular, going from (0,0) and extending to
-                 * (width-1,height-1).
-                 */
-                GLuint &width;
+                /**\copydoc opengl<Q,2>::wireframeColour */
+                math::vector<GLfloat,4,math::format::RGB> &wireframeColour;
 
-                /**\brief Viewport height
-                 *
-                 * Height of the output viewport. The renderer assumes that the
-                 * viewport is rectangular, going from (0,0) and extending to
-                 * (width-1,height-1).
-                 */
+                /**\copydoc opengl<Q,2>::surfaceColour */
+                math::vector<GLfloat,4,math::format::RGB> &surfaceColour;
+
+                /**\copydoc opengl<Q,2>::width */
+                GLuint &width;
+                
+                /**\copydoc opengl<Q,2>::height */
                 GLuint &height;
 
             protected:
@@ -740,9 +706,11 @@ namespace efgy
                     : transformation(pTransformation), projection(pProjection),
                       fractalFlameColouring(pLowerRenderer.fractalFlameColouring),
                       prepared(pLowerRenderer.prepared),
-                      width(pLowerRenderer.width), height(pLowerRenderer.height)
-                    {
-                    }
+                      width(pLowerRenderer.width),
+                      height(pLowerRenderer.height),
+                      wireframeColour(pLowerRenderer.wireframeColour),
+                      surfaceColour(pLowerRenderer.surfaceColour)
+                    {}
 
                 /**\brief Start new frame
                  *
@@ -895,46 +863,6 @@ namespace efgy
                     lineindices.push_back(nendb);
                 }
 
-                /**\brief Set colour
-                 *
-                 * Sets the colour for either the wireframe model or the faces.
-                 * Which of the two is set depends on the pWireframe parameter.
-                 *
-                 * \note The renderers typically use the alpha component for
-                 *       transparency.
-                 *
-                 * \param[in] pRed   The red component of the colour to set.
-                 * \param[in] pGreen The green component of the colour to set.
-                 * \param[in] pBlue  The blue component of the colour to set.
-                 * \param[in] pAlpha The alpha component of the colour to set.
-                 * \param[in] pWireframe 'True' if you want to set the colour
-                 *                       for the model's lines, 'false' to set
-                 *                       the colour for the faces.
-                 *
-                 * \returns True when the new colour was successfully set, false
-                 *          otherwise.
-                 */
-                bool setColour
-                    (const float &pRed, const float &pGreen, const float &pBlue,
-                     const float &pAlpha, const bool &pWireframe)
-                {
-                    if (pWireframe)
-                    {
-                        wireframeColour[0] = pRed;
-                        wireframeColour[1] = pGreen;
-                        wireframeColour[2] = pBlue;
-                        wireframeColour[3] = pAlpha;
-                    }
-                    else
-                    {
-                        surfaceColour[0] = pRed;
-                        surfaceColour[1] = pGreen;
-                        surfaceColour[2] = pBlue;
-                        surfaceColour[3] = pAlpha;
-                    }
-                    return true;
-                }
-
                 /**\brief Create random colour map
                  *
                  * Calling this method will create a random colour map texture
@@ -945,37 +873,22 @@ namespace efgy
                     fractalFlame.setColourMap();
                 }
 
-                /**\brief Use Fractal Flame Colouring?
-                 *
-                 * Set to true to use the fractal flame colouring algorithm
-                 * instead of the 'normal' render programme.
-                 */
+                /**\copydoc opengl<Q,2>::fractalFlameColouring */
                 bool &fractalFlameColouring;
 
-                /**\brief Has the scene been prepared?
-                 *
-                 * Set to true after uploading geometry data to the graphics
-                 * card, right before actually telling OpenGL to render that
-                 * data. Needs to be set to 'false' if you change any model
-                 * parameters in order for that data to be prepared and uploaded
-                 * to the graphics card again.
-                 */
+                /**\copydoc opengl<Q,2>::prepared */
                 bool &prepared;
 
-                /**\brief Viewport width
-                 *
-                 * Width of the output viewport. The renderer assumes that the
-                 * viewport is rectangular, going from (0,0) and extending to
-                 * (width-1,height-1).
-                 */
+                /**\copydoc opengl<Q,2>::wireframeColour */
+                math::vector<GLfloat,4,math::format::RGB> &wireframeColour;
+
+                /**\copydoc opengl<Q,2>::surfaceColour */
+                math::vector<GLfloat,4,math::format::RGB> &surfaceColour;
+
+                /**\copydoc opengl<Q,2>::width */
                 GLuint &width;
 
-                /**\brief Viewport height
-                 *
-                 * Height of the output viewport. The renderer assumes that the
-                 * viewport is rectangular, going from (0,0) and extending to
-                 * (width-1,height-1).
-                 */
+                /**\copydoc opengl<Q,2>::height */
                 GLuint &height;
 
             protected:
@@ -1083,22 +996,6 @@ namespace efgy
                  * outlines of models to be rendered.
                  */
                 efgy::opengl::indexBuffer linebuffer;
-
-                /**\brief Wireframe colour
-                 *
-                 * The colour that wireframes are drawn in. The array elements
-                 * are the red, green, blue and alpha components, in that order.
-                 * Set with the setColour() method.
-                 */
-                GLfloat wireframeColour[4];
-
-                /**\brief Surface colour
-                 *
-                 * The colour that surfaces are drawn in. The array elements are
-                 * the red, green, blue and alpha components, in that order. Set
-                 * with the setColour() method.
-                 */
-                GLfloat surfaceColour[4];
 
                 /**\brief Add vertex to vertex buffer
                  *
@@ -1226,6 +1123,20 @@ namespace efgy
                  * to the graphics card again.
                  */
                 bool prepared;
+
+                /**\brief Wireframe colour
+                 *
+                 * The colour that wireframes are drawn in. The array elements
+                 * are the red, green, blue and alpha components, in that order.
+                 */
+                math::vector<GLfloat,4,math::format::RGB> wireframeColour;
+
+                /**\brief Surface colour
+                 *
+                 * The colour that surfaces are drawn in. The array elements are
+                 * the red, green, blue and alpha components, in that order.
+                 */
+                math::vector<GLfloat,4,math::format::RGB> surfaceColour;
 
                 /**\brief Viewport width
                  *

@@ -547,6 +547,31 @@ namespace efgy
                     return false;
                 }
 
+                /**\brief Load uniform floating point vector
+                 *
+                 * Activate the programme and upload a uniform float vector
+                 * to the specified uniform index. The index array that is used
+                 * to look up the actual uniform variable ID is obtained during
+                 * the compilation process of the shader porgramme.
+                 *
+                 * \param[in] index The index into the uniform ID array to use.
+                 * \param[in] value The floating point vector to load.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const enum uniforms &index, const std::array<GLfloat,4> &value) const
+                {
+                    if (use())
+                    {
+                        glUniform4f(uniforms[index], value[0], value[1], value[2], value[3]);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+
             protected:
                 /**\brief Default uniforms
                  *
