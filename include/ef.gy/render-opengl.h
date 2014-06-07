@@ -116,11 +116,12 @@ namespace efgy
                     public:
                         regular(void)
                             : opengl::glsl::shader<V>
-                                ("gl_Position = position;\n"
+                                ("gl_Position = vec4(modelViewProjectionMatrix * position,1);\n"
                                  "colorVarying = colour;\n",
-                                 { opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4") },
+                                 { opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec3") },
                                  { opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4") },
-                                 { opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4") } )
+                                 { opengl::glsl::variable<opengl::glsl::gv_uniform>("modelViewProjectionMatrix", "mat3"),
+                                   opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4") } )
                             {}
                 };
 
@@ -252,12 +253,13 @@ namespace efgy
                  * \return True if the uniforms were uploaded successfully,
                  *         false otherwise.
                  */
-                bool matrices (const geometry::transformation::projective<Q,3> &combined, const math::matrix<Q,3,3> &normalMatrix)
+                bool matrices (const geometry::transformation::affine<Q,d> &combined,
+                               const math::matrix<Q,d,d> &normalMatrix)
                 {
                     return programme.uniform(uniformProjectionMatrix, combined.transformationMatrix)
                         && programme.uniform(uniformNormalMatrix, normalMatrix);
                 }
-            
+
                 /**\brief Render to current OpenGL context
                  *
                  * This function will perform a regular render of anything you
@@ -349,7 +351,8 @@ namespace efgy
                  * \return True if the uniforms were uploaded successfully,
                  *         false otherwise.
                  */
-                bool matrices (const geometry::transformation::projective<Q,3> &combined, const math::matrix<Q,3,3> &normalMatrix)
+                bool matrices (const geometry::transformation::affine<Q,d> &combined,
+                               const math::matrix<Q,d,d> &normalMatrix)
                 {
                     return histogram.uniform(uniformProjectionMatrix, combined.transformationMatrix)
                         && histogram.uniform(uniformNormalMatrix, normalMatrix)
@@ -1025,10 +1028,11 @@ namespace efgy
                  * matrix. This matrix is actually ignored, as the 'real' fix
                  * point for the OpenGL renderer is in 3D, not 2D.
                  */
-                constexpr opengl (const geometry::transformation::affine<Q,2> &,
-                                  const geometry::transformation::projective<Q,2> &,
+                constexpr opengl (const geometry::transformation::affine<Q,2> &pTransformation,
+                                  const geometry::projection<Q,2> &,
                                   const opengl<Q,1> &)
-                    : fractalFlameColouring(false), prepared(false) {}
+                    : transformation(pTransformation),
+                      fractalFlameColouring(false), prepared(false) {}
 
                 /**\brief Start new frame
                  *
@@ -1036,7 +1040,25 @@ namespace efgy
                  * and the normal matrix, then prepares the OpenGL state for a
                  * new frame.
                  */
-                void frameStart (void) {}
+                void frameStart (void)
+                {
+                    geometry::transformation::affine<Q,2> scale
+                        = geometry::transformation::identity<Q,2>();
+
+                    scale.transformationMatrix[1][1] = Q(width)/Q(height);
+
+                    const geometry::transformation::affine<Q,2> combined
+                        = transformation * scale;
+
+                    if (fractalFlameColouring)
+                    {
+                        fractalFlame.matrices (combined, math::matrix<Q,2,2>());
+                    }
+                    else
+                    {
+                        render.matrices (combined, math::matrix<Q,2,2>());
+                    }
+                }
 
                 /**\brief End frame
                  *
@@ -1331,6 +1353,13 @@ namespace efgy
                 }
 
             protected:
+                /**\brief 2D affine transformation
+                 *
+                 * Contains the affine transformation matrix that vertices are
+                 * multiplied with before they're projected.
+                 */
+                const geometry::transformation::affine<Q,2> &transformation;
+
                 /**\brief Regular rendering programme
                  *
                  * The "normal" rendering programme, which uses the normal
