@@ -86,7 +86,7 @@ namespace efgy
                  *
                  * \tparam V GLSL shader version to produce.
                  */
-                template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
+                template <unsigned int d = 3, enum opengl::glsl::version V = opengl::glsl::ver_auto>
                 class regular : public opengl::glsl::shader<V>
                 {
                     public:
@@ -103,6 +103,21 @@ namespace efgy
                                  { opengl::glsl::variable<opengl::glsl::gv_uniform>("modelViewProjectionMatrix", "mat4"),
                                    opengl::glsl::variable<opengl::glsl::gv_uniform>("normalMatrix", "mat3"),
                                    opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4") } )
+                            {}
+                };
+
+                /*
+                 *
+                 * \tparam V GLSL shader version to produce.
+                 */
+                template <enum opengl::glsl::version V>
+                class regular<2,V> : public opengl::glsl::shader<V>
+                {
+                    public:
+                        regular(void)
+                            : opengl::glsl::shader<V>
+                                ("gl_Position = position;\n",
+                                 { opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4") } )
                             {}
                 };
 
@@ -208,8 +223,8 @@ namespace efgy
          * \tparam Q Base data type for calculations.
          * \tparam V GLSL shader version to produce.
          */
-        template<typename Q, enum glsl::version V = glsl::ver_auto>
-        class renderProgramme : public renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>
+        template<typename Q, unsigned int d, enum glsl::version V = glsl::ver_auto>
+        class renderProgramme
         {
             public:
                 /**\brief Default constructor
@@ -218,9 +233,7 @@ namespace efgy
                  * with the correct shaders.
                  */
                 renderProgramme (void)
-                    : initialised(false),
-                      renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>
-                        ()
+                    : initialised(false), programme()
                     {}
             
                 /**\brief Load matrix uniforms
@@ -238,11 +251,9 @@ namespace efgy
                  */
                 bool matrices (const geometry::transformation::projective<Q,3> &combined, const math::matrix<Q,3,3> &normalMatrix)
                 {
-                    return renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>::uniform(uniformProjectionMatrix, combined.transformationMatrix)
-                        && renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>::uniform(uniformNormalMatrix, normalMatrix);
+                    return programme.uniform(uniformProjectionMatrix, combined.transformationMatrix)
+                        && programme.uniform(uniformNormalMatrix, normalMatrix);
                 }
-
-                using renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>::uniform;
             
                 /**\brief Render to current OpenGL context
                  *
@@ -264,10 +275,10 @@ namespace efgy
                     {
                         initialised = true;
 
-                        renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>::copy();
+                        programme.copy();
                     }
 
-                    renderToFramebufferProgramme<Q,V,render::glsl::vertex::regular,render::glsl::fragment::regular>::use(width, height);
+                    programme.use(width, height);
                     glDepthMask(GL_TRUE);
                     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glEnable(GL_DEPTH_TEST);
@@ -279,6 +290,12 @@ namespace efgy
 
                     return true;
                 }
+
+                template<enum opengl::glsl::version Ve>
+                using vertex = render::glsl::vertex::regular<d,Ve>;
+
+                renderToFramebufferProgramme
+                    <Q,V,vertex,render::glsl::fragment::regular> programme;
 
             protected:
                 /**\brief Has the object been initialised?
@@ -303,7 +320,7 @@ namespace efgy
          * \see http://flam3.com/flame_draves.pdf for a description of the
          *      colouring algorithm these render programmes are based on.
          */
-        template<typename Q, enum glsl::version V = glsl::ver_auto>
+        template<typename Q, unsigned int d, enum glsl::version V = glsl::ver_auto>
         class fractalFlameRenderProgramme
         {
             public:
@@ -709,7 +726,18 @@ namespace efgy
                       width(pLowerRenderer.width),
                       height(pLowerRenderer.height),
                       wireframeColour(pLowerRenderer.wireframeColour),
-                      surfaceColour(pLowerRenderer.surfaceColour)
+                      surfaceColour(pLowerRenderer.surfaceColour),
+                      vertexArrayModel(pLowerRenderer.vertexArrayModel),
+                      vertices(pLowerRenderer.vertices),
+                      triindices(pLowerRenderer.triindices),
+                      lineindices(pLowerRenderer.lineindices),
+                      indices(pLowerRenderer.indices),
+                      tindices(pLowerRenderer.tindices),
+                      lindices(pLowerRenderer.lindices),
+                      vertexbuffer(pLowerRenderer.vertexbuffer),
+                      elementbuffer(pLowerRenderer.elementbuffer),
+                      linebuffer(pLowerRenderer.linebuffer),
+                      lowerRenderer(pLowerRenderer)
                     {}
 
                 /**\brief Start new frame
@@ -741,27 +769,7 @@ namespace efgy
                  */
                 void frameEnd (void)
                 {
-                    if (!prepared)
-                    {
-                        prepared = true;
-
-                        vertexArrayModel.use();
-                        vertexbuffer.load(vertices.size() * sizeof(GLfloat), vertices.data());
-                        elementbuffer.load(triindices.size() * sizeof(unsigned int), triindices.data());
-                        linebuffer.load(lineindices.size() * sizeof(unsigned int), lineindices.data());
-                        vertexArrayModel.setup();
-
-                        tindices = GLsizei(triindices.size());
-                        lindices = GLsizei(lineindices.size());
-
-                        vertices.clear();
-                        triindices.clear();
-                        lineindices.clear();
-                        indices = 0;
-
-                        // log errors
-                        efgy::opengl::error();
-                    }
+                    upload();
 
                     if (fractalFlameColouring)
                     {
@@ -779,6 +787,11 @@ namespace efgy
                         });
                     }
                 };
+
+                void upload (void)
+                {
+                    lowerRenderer.upload();
+                }
 
                 /**\brief Draw polygon
                  *
@@ -891,6 +904,9 @@ namespace efgy
                 /**\copydoc opengl<Q,2>::height */
                 GLuint &height;
 
+                /**\copydoc opengl<Q,2>::vertexArrayModel */
+                efgy::opengl::vertexArrayExtended<Q> &vertexArrayModel;
+
             protected:
                 /**\brief 3D affine transformation
                  *
@@ -907,95 +923,47 @@ namespace efgy
                  */
                 const geometry::projection<Q,3> &projection;
 
-                /**\brief Vertex buffer elements
-                 *
-                 * Temporary storage for the vertex elements. This is committed
-                 * to the vertexbuffer after all lines and tris have been drawn
-                 * to the scene.
-                 */
-                std::vector<GLfloat> vertices;
+                /**\copydoc opengl<Q,2>::vertices */
+                std::vector<GLfloat> &vertices;
 
-                /**\brief Triangle indices
-                 *
-                 * Temporary storage for the triangle data used to draw surfaces
-                 * to the OpenGL context. This is committed to the elementbuffer
-                 * once all mesh elements have been drawn.
-                 */
-                std::vector<unsigned int> triindices;
+                /**\copydoc opengl<Q,2>::triindices */
+                std::vector<unsigned int> &triindices;
 
-                /**\brief Line indices
-                 *
-                 * Temporary storage for the index data used to draw lines to
-                 * the OpenGL context. This is committed to the linebuffer once
-                 * all mesh elements have been drawn.
-                 */
-                std::vector<unsigned int> lineindices;
+                /**\copydoc opengl<Q,2>::lineindices */
+                std::vector<unsigned int> &lineindices;
 
-                /**\brief Number of vertex indices
-                 *
-                 * The number of vertices that will be uploaded to the graphics
-                 * card; used when preparing the data to be uploaded, so it's
-                 * only relevant when 'prepared' is 'false'.
-                 */
-                unsigned int indices;
+                /**\copydoc opengl<Q,2>::indices */
+                unsigned int &indices;
 
-                /**\brief Number of triangle indices
-                 *
-                 * The number of triangles that have been uploaded to the
-                 * graphics card; used when rendering a model. Only valid when
-                 * the member variable 'prepared' is 'true'.
-                 */
-                GLsizei tindices;
-            
-                /**\brief Number of line indices
-                 *
-                 * The number of lines that have been uploaded to the graphics
-                 * card; used when rendering a model. Only valid when the member
-                 * variable 'prepared' is 'true'.
-                 */
-                GLsizei lindices;
+                /**\copydoc opengl<Q,2>::tindices */
+                GLsizei &tindices;
 
-                /**\brief Regular rendering programme
-                 *
-                 * The "normal" rendering programme, which uses the normal
-                 * surface and wireframe colours.
-                 */
-                efgy::opengl::renderProgramme<Q> render;
+                /**\copydoc opengl<Q,2>::lindices */
+                GLsizei &lindices;
 
-                /**\brief Fractal flame colouring programme
-                 *
-                 * Implements the fractal flame colouring algorithm as described
-                 * in the class's description. Used when the
-                 * fractalFlameColouring boolean is set to true.
-                 */
-                efgy::opengl::fractalFlameRenderProgramme<Q> fractalFlame;
+                /**\copydoc opengl<Q,2>::render */
+                efgy::opengl::renderProgramme<Q,3> render;
 
-                /**\brief Vertex array
-                 *
-                 * Contains vertex buffer metadata for the individual vertices
-                 * in the vertex buffer.
-                 */
-                efgy::opengl::vertexArrayExtended<Q> vertexArrayModel;
+                /**\copydoc opengl<Q,2>::fractalFlame */
+                efgy::opengl::fractalFlameRenderProgramme<Q,3> fractalFlame;
 
-                /**\brief Vertex buffer
-                 *
-                 * Contains vertex data for the mesh to be rendered.
-                 */
-                efgy::opengl::vertexBuffer vertexbuffer;
+                /**\copydoc opengl<Q,2>::vertexbuffer */
+                efgy::opengl::vertexBuffer &vertexbuffer;
 
-                /**\brief Index buffer for surfaces
-                 *
-                 * Contains indices into the vertex buffer that make up the
-                 * surfaces of models to be rendered.
-                 */
-                efgy::opengl::indexBuffer elementbuffer;
+                /**\copydoc opengl<Q,2>::elementbuffer */
+                efgy::opengl::indexBuffer &elementbuffer;
 
-                /**\brief Index buffer for lines
+                /**\copydoc opengl<Q,2>::linebuffer */
+                efgy::opengl::indexBuffer &linebuffer;
+
+                /**\brief Lower renderer
                  *
-                 * Contains indices into the vertex buffer that make up the
-                 * outlines of models to be rendered.
+                 * A reference to the renderer that drawing commands are passed
+                 * to; OpenGL renderers are chained together so that you can
+                 * render objects with arbitrarily large numbers of spatial
+                 * dimensions, even though OpenGL natively operates in 3D.
                  */
-                efgy::opengl::indexBuffer linebuffer;
+                opengl<Q,2> &lowerRenderer;
 
                 /**\brief Add vertex to vertex buffer
                  *
@@ -1044,7 +1012,7 @@ namespace efgy
                 {
                     if (prepared && (wireframeColour[3] > 0.f) && !fractalFlameColouring)
                     {
-                        render.uniform(efgy::opengl::uniformColour, wireframeColour);
+                        render.programme.uniform(efgy::opengl::uniformColour, wireframeColour);
 
                         glDepthMask ((wireframeColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
 
@@ -1069,7 +1037,7 @@ namespace efgy
                     {
                         if (!fractalFlameColouring)
                         {
-                            render.uniform(efgy::opengl::uniformColour, surfaceColour);
+                            render.programme.uniform(efgy::opengl::uniformColour, surfaceColour);
                         }
 
                         glDepthMask ((surfaceColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
@@ -1106,6 +1074,31 @@ namespace efgy
                  */
                 constexpr opengl (const geometry::transformation::affine<Q,2> &)
                     : fractalFlameColouring(false), prepared(false) {}
+
+                void upload (void)
+                {
+                    if (!prepared)
+                    {
+                        prepared = true;
+                        
+                        vertexArrayModel.use();
+                        vertexbuffer.load(vertices.size() * sizeof(GLfloat), vertices.data());
+                        elementbuffer.load(triindices.size() * sizeof(unsigned int), triindices.data());
+                        linebuffer.load(lineindices.size() * sizeof(unsigned int), lineindices.data());
+                        vertexArrayModel.setup();
+                        
+                        tindices = GLsizei(triindices.size());
+                        lindices = GLsizei(lineindices.size());
+                        
+                        vertices.clear();
+                        triindices.clear();
+                        lineindices.clear();
+                        indices = 0;
+                        
+                        // log errors
+                        efgy::opengl::error();
+                    }
+                }
 
                 /**\brief Use Fractal Flame Colouring?
                  *
@@ -1153,6 +1146,97 @@ namespace efgy
                  * (width-1,height-1).
                  */
                 GLuint height;
+
+                /**\brief Vertex buffer elements
+                 *
+                 * Temporary storage for the vertex elements. This is committed
+                 * to the vertexbuffer after all lines and tris have been drawn
+                 * to the scene.
+                 */
+                std::vector<GLfloat> vertices;
+
+                /**\brief Triangle indices
+                 *
+                 * Temporary storage for the triangle data used to draw surfaces
+                 * to the OpenGL context. This is committed to the elementbuffer
+                 * once all mesh elements have been drawn.
+                 */
+                std::vector<unsigned int> triindices;
+
+                /**\brief Line indices
+                 *
+                 * Temporary storage for the index data used to draw lines to
+                 * the OpenGL context. This is committed to the linebuffer once
+                 * all mesh elements have been drawn.
+                 */
+                std::vector<unsigned int> lineindices;
+
+                /**\brief Number of vertex indices
+                 *
+                 * The number of vertices that will be uploaded to the graphics
+                 * card; used when preparing the data to be uploaded, so it's
+                 * only relevant when 'prepared' is 'false'.
+                 */
+                unsigned int indices;
+
+                /**\brief Number of triangle indices
+                 *
+                 * The number of triangles that have been uploaded to the
+                 * graphics card; used when rendering a model. Only valid when
+                 * the member variable 'prepared' is 'true'.
+                 */
+                GLsizei tindices;
+
+                /**\brief Number of line indices
+                 *
+                 * The number of lines that have been uploaded to the graphics
+                 * card; used when rendering a model. Only valid when the member
+                 * variable 'prepared' is 'true'.
+                 */
+                GLsizei lindices;
+
+                /**\brief Vertex array
+                 *
+                 * Contains vertex buffer metadata for the individual vertices
+                 * in the vertex buffer.
+                 */
+                efgy::opengl::vertexArrayExtended<Q> vertexArrayModel;
+
+                /**\brief Vertex buffer
+                 *
+                 * Contains vertex data for the mesh to be rendered.
+                 */
+                efgy::opengl::vertexBuffer vertexbuffer;
+
+                /**\brief Index buffer for surfaces
+                 *
+                 * Contains indices into the vertex buffer that make up the
+                 * surfaces of models to be rendered.
+                 */
+                efgy::opengl::indexBuffer elementbuffer;
+
+                /**\brief Index buffer for lines
+                 *
+                 * Contains indices into the vertex buffer that make up the
+                 * outlines of models to be rendered.
+                 */
+                efgy::opengl::indexBuffer linebuffer;
+
+            protected:
+                /**\brief Regular rendering programme
+                 *
+                 * The "normal" rendering programme, which uses the normal
+                 * surface and wireframe colours.
+                 */
+                efgy::opengl::renderProgramme<Q,2> render;
+
+                /**\brief Fractal flame colouring programme
+                 *
+                 * Implements the fractal flame colouring algorithm as described
+                 * in the class's description. Used when the
+                 * fractalFlameColouring boolean is set to true.
+                 */
+                efgy::opengl::fractalFlameRenderProgramme<Q,2> fractalFlame;
         };
 
         /**\brief std::ostream OpenGL tag
