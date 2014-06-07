@@ -970,8 +970,8 @@ namespace efgy
                  * Appends the given vertex data to the vertex buffer. The
                  * buffer is extended as necessary.
                  *
-                 * \param[in] x     coordinates of the vertex.
-                 * \param[in] nx    coordinates of the vertex's normal.
+                 * \param[in] c     coordinates of the vertex.
+                 * \param[in] n     coordinates of the vertex's normal.
                  * \param[in] index IFS index of the vertex.
                  *
                  * \returns The index of the vertex that was just added.
@@ -981,13 +981,8 @@ namespace efgy
                      math::vector<GLfloat,3> n,
                      const GLfloat &index)
                 {
-                    vertices.push_back(c[0]);
-                    vertices.push_back(c[1]);
-                    vertices.push_back(c[2]);
-
-                    vertices.push_back(n[0]);
-                    vertices.push_back(n[1]);
-                    vertices.push_back(n[2]);
+                    vertices.insert (vertices.end(), c.begin(), c.end());
+                    vertices.insert (vertices.end(), n.begin(), n.end());
 
                     vertices.push_back(index);
 
