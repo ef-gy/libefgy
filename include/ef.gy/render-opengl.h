@@ -116,8 +116,11 @@ namespace efgy
                     public:
                         regular(void)
                             : opengl::glsl::shader<V>
-                                ("gl_Position = position;\n",
-                                 { opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4") } )
+                                ("gl_Position = position;\n"
+                                 "colorVarying = colour;\n",
+                                 { opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4") },
+                                 { opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4") },
+                                 { opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4") } )
                             {}
                 };
 
@@ -504,7 +507,7 @@ namespace efgy
                  * in the merge pass to emit fragments for each pixel of the
                  * output viewport.
                  */
-                vertexArrayMinimal<Q> vertexArray;
+                vertexArrayMinimal<Q,d> vertexArray;
 
                 /**\brief Vertex buffer for fullscreen quad
                  *
@@ -727,7 +730,6 @@ namespace efgy
                       height(pLowerRenderer.height),
                       wireframeColour(pLowerRenderer.wireframeColour),
                       surfaceColour(pLowerRenderer.surfaceColour),
-                      vertexArrayModel(pLowerRenderer.vertexArrayModel),
                       vertices(pLowerRenderer.vertices),
                       triindices(pLowerRenderer.triindices),
                       lineindices(pLowerRenderer.lineindices),
@@ -740,12 +742,7 @@ namespace efgy
                       lowerRenderer(pLowerRenderer)
                     {}
 
-                /**\brief Start new frame
-                 *
-                 * Calculates the combined transformation and projection matrix
-                 * and the normal matrix, then prepares the OpenGL state for a
-                 * new frame.
-                 */
+                /**\copydoc opengl<Q,2>::frameStart */
                 void frameStart (void)
                 {
                     const geometry::transformation::projective<Q,3> combined = transformation * projection;
@@ -761,12 +758,7 @@ namespace efgy
                     }
                 };
 
-                /**\brief End frame
-                 *
-                 * Indicates that the currently rendered frame is now complete
-                 * and that it can be uploaded to the graphics card. The frame
-                 * is then rendered with the currently active renderer.
-                 */
+                /**\copydoc opengl<Q,2>::frameEnd */
                 void frameEnd (void)
                 {
                     upload();
@@ -774,37 +766,49 @@ namespace efgy
                     if (fractalFlameColouring)
                     {
                         fractalFlame (width, height, [this] ()
-                        {
-                            pushFaces();
-                        });
+                                      {
+                                          pushFaces();
+                                      });
                     }
                     else
                     {
                         render (width, height, [this] ()
-                        {
-                            pushLines();
-                            pushFaces();
-                        });
+                                {
+                                    render.programme.uniform(efgy::opengl::uniformColour, wireframeColour);
+                                    pushLines();
+                                    render.programme.uniform(efgy::opengl::uniformColour, surfaceColour);
+                                    pushFaces();
+                                });
                     }
                 };
 
+                /**\copydoc opengl<Q,2>::upload */
                 void upload (void)
                 {
-                    lowerRenderer.upload();
+                    if (!prepared)
+                    {
+                        prepared = true;
+                        
+                        vertexArrayModel.use();
+                        vertexbuffer.load(vertices.size() * sizeof(GLfloat), vertices.data());
+                        elementbuffer.load(triindices.size() * sizeof(unsigned int), triindices.data());
+                        linebuffer.load(lineindices.size() * sizeof(unsigned int), lineindices.data());
+                        vertexArrayModel.setup();
+                        
+                        tindices = GLsizei(triindices.size());
+                        lindices = GLsizei(lineindices.size());
+                        
+                        vertices.clear();
+                        triindices.clear();
+                        lineindices.clear();
+                        indices = 0;
+                        
+                        // log errors
+                        efgy::opengl::error();
+                    }
                 }
 
-                /**\brief Draw polygon
-                 *
-                 * Draw a polygon with q vertices. The Polygon should be
-                 * convex; if it isn't then you'll get rather strange results.
-                 *
-                 * \tparam q The number of vertices that define the polygon.
-                 *
-                 * \param[in] pV    The vertices that define the polygon.
-                 * \param[in] index Source of the polygon; used when rendering
-                 *                  IFSs to simulate fractal flame colouring,
-                 *                  but currently ignored by the SVG renderer.
-                 */
+                /**\copydoc opengl<Q,2>::draw */
                 template<std::size_t q>
                 void draw
                     (const std::array<math::vector<Q,3>,q> &pV, const Q &index = 0.5)
@@ -813,61 +817,47 @@ namespace efgy
 
                     math::vector<Q,3> R
                         = math::normalise
-                            (math::crossProduct
-                                (pV[1] - pV[0], pV[2] - pV[0]));
+                            (crossProduct(pV[1] - pV[0], pV[2] - pV[0]));
 
                     math::vector<Q,3> RN
                         = math::normalise
-                            (crossProduct
-                        (pV[2] - pV[0], pV[1] - pV[0]));
+                            (crossProduct(pV[2] - pV[0], pV[1] - pV[0]));
 
-                    triindices.push_back(addVertex({{GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2])}},
-                                                   {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
+                    triindices.push_back(addVertex(pV[0], R, index));
                     unsigned int nstartf = triindices.back();
                     lineindices.push_back(nstartf);
-                    triindices.push_back(addVertex({{GLfloat(pV[1][0]), GLfloat(pV[1][1]), GLfloat(pV[1][2])}},
-                                                   {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
+                    triindices.push_back(addVertex(pV[1], R, index));
                     lineindices.push_back(triindices.back());
                     lineindices.push_back(triindices.back());
-                    triindices.push_back(addVertex({{GLfloat(pV[2][0]), GLfloat(pV[2][1]), GLfloat(pV[2][2])}},
-                                                   {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
+                    triindices.push_back(addVertex(pV[2], R, index));
                     unsigned int nendf = triindices.back();
                     lineindices.push_back(nendf);
 
-                    triindices.push_back(addVertex({{GLfloat(pV[2][0]), GLfloat(pV[2][1]), GLfloat(pV[2][2])}},
-                                                   {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
+                    triindices.push_back(addVertex(pV[2], RN, index));
                     unsigned int nendb = triindices.back();
                     lineindices.push_back(nendb);
-                    triindices.push_back(addVertex({{GLfloat(pV[1][0]), GLfloat(pV[1][1]), GLfloat(pV[1][2])}},
-                                                   {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
+                    triindices.push_back(addVertex(pV[1], RN, index));
                     lineindices.push_back(triindices.back());
                     lineindices.push_back(triindices.back());
-                    triindices.push_back(addVertex({{GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2])}},
-                                                   {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
+                    triindices.push_back(addVertex(pV[0], RN, index));
                     unsigned int nstartb = triindices.back();
                     lineindices.push_back(nstartb);
 
                     for (unsigned int j = 3; j < q; j++)
                     {
-                        triindices.push_back(addVertex({{GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2])}},
-                                                       {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
-                        triindices.push_back(addVertex({{GLfloat(pV[(j-1)][0]), GLfloat(pV[(j-1)][1]), GLfloat(pV[(j-1)][2])}},
-                                                       {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
+                        triindices.push_back(addVertex(pV[0], R, index));
+                        triindices.push_back(addVertex(pV[(j-1)], R, index));
                         lineindices.push_back(triindices.back());
-                        triindices.push_back(addVertex({{GLfloat(pV[j][0]), GLfloat(pV[j][1]), GLfloat(pV[j][2])}},
-                                                       {{GLfloat(R[0]), GLfloat(R[1]), GLfloat(R[2])}}, GLfloat(index)));
+                        triindices.push_back(addVertex(pV[j], R, index));
                         lineindices.push_back(triindices.back());
                         nendf = triindices.back();
 
-                        triindices.push_back(addVertex({{GLfloat(pV[j][0]), GLfloat(pV[j][1]), GLfloat(pV[j][2])}},
-                                                       {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
+                        triindices.push_back(addVertex(pV[j], RN, index));
                         nendb = triindices.back();
                         lineindices.push_back(triindices.back());
-                        triindices.push_back(addVertex({{GLfloat(pV[(j-1)][0]), GLfloat(pV[(j-1)][1]), GLfloat(pV[(j-1)][2])}},
-                                                       {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
+                        triindices.push_back(addVertex(pV[(j-1)], RN, index));
                         lineindices.push_back(triindices.back());
-                        triindices.push_back(addVertex({{GLfloat(pV[0][0]), GLfloat(pV[0][1]), GLfloat(pV[0][2])}},
-                                                       {{GLfloat(RN[0]), GLfloat(RN[1]), GLfloat(RN[2])}}, GLfloat(index)));
+                        triindices.push_back(addVertex(pV[0], RN, index));
                     }
 
                     lineindices.push_back(nendf);
@@ -905,7 +895,39 @@ namespace efgy
                 GLuint &height;
 
                 /**\copydoc opengl<Q,2>::vertexArrayModel */
-                efgy::opengl::vertexArrayExtended<Q> &vertexArrayModel;
+                efgy::opengl::vertexArrayExtended<Q,3> vertexArrayModel;
+
+                /**\copydoc opengl<Q,2>::pushLines */
+                void pushLines (void) const
+                {
+                    if (prepared && (wireframeColour[3] > 0.f) && !fractalFlameColouring)
+                    {
+                        glDepthMask ((wireframeColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
+                        
+                        vertexArrayModel.use();
+                        vertexbuffer.bind();
+                        linebuffer.bind();
+                        vertexArrayModel.setup();
+                        
+                        glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
+                    }
+                }
+
+                /**\copydoc opengl<Q,2>::pushFaces */
+                void pushFaces (void) const
+                {
+                    if (prepared && ((surfaceColour[3] > 0.f) || fractalFlameColouring))
+                    {
+                        glDepthMask ((surfaceColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
+
+                        vertexArrayModel.use();
+                        vertexbuffer.bind();
+                        elementbuffer.bind();
+                        vertexArrayModel.setup();
+
+                        glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
+                    }
+                }
 
             protected:
                 /**\brief 3D affine transformation
@@ -965,20 +987,9 @@ namespace efgy
                  */
                 opengl<Q,2> &lowerRenderer;
 
-                /**\brief Add vertex to vertex buffer
-                 *
-                 * Appends the given vertex data to the vertex buffer. The
-                 * buffer is extended as necessary.
-                 *
-                 * \param[in] c     coordinates of the vertex.
-                 * \param[in] n     coordinates of the vertex's normal.
-                 * \param[in] index IFS index of the vertex.
-                 *
-                 * \returns The index of the vertex that was just added.
-                 */
+                /**\copydoc opengl<Q,2>::addVertex */
                 unsigned int addVertex
-                    (math::vector<GLfloat,3> c,
-                     math::vector<GLfloat,3> n,
+                    (math::vector<GLfloat,3> c, math::vector<GLfloat,3> n,
                      const GLfloat &index)
                 {
                     vertices.insert (vertices.end(), c.begin(), c.end());
@@ -991,55 +1002,6 @@ namespace efgy
                     indices++;
 
                     return rv;
-                }
-
-                /**\brief Render lines
-                 *
-                 * Draws all currently prepared lines to the current OpenGL
-                 * context. Used internally; the function does not modify any
-                 * programme state, so everything has to be prepared in advance.
-                 */
-                void pushLines (void) const
-                {
-                    if (prepared && (wireframeColour[3] > 0.f) && !fractalFlameColouring)
-                    {
-                        render.programme.uniform(efgy::opengl::uniformColour, wireframeColour);
-
-                        glDepthMask ((wireframeColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
-
-                        vertexArrayModel.use();
-                        vertexbuffer.bind();
-                        linebuffer.bind();
-                        vertexArrayModel.setup();
-
-                        glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
-                    }
-                }
-
-                /**\brief Render faces
-                 *
-                 * Draws all currently prepared faces to the current OpenGL
-                 * context. Used internally; the function does not modify any
-                 * programme state, so everything has to be prepared in advance.
-                 */
-                void pushFaces (void) const
-                {
-                    if (prepared && ((surfaceColour[3] > 0.f) || fractalFlameColouring))
-                    {
-                        if (!fractalFlameColouring)
-                        {
-                            render.programme.uniform(efgy::opengl::uniformColour, surfaceColour);
-                        }
-
-                        glDepthMask ((surfaceColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
-
-                        vertexArrayModel.use();
-                        vertexbuffer.bind();
-                        elementbuffer.bind();
-                        vertexArrayModel.setup();
-
-                        glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
-                    }
                 }
         };
 
@@ -1063,8 +1025,47 @@ namespace efgy
                  * matrix. This matrix is actually ignored, as the 'real' fix
                  * point for the OpenGL renderer is in 3D, not 2D.
                  */
-                constexpr opengl (const geometry::transformation::affine<Q,2> &)
+                constexpr opengl (const geometry::transformation::affine<Q,2> &,
+                                  const geometry::transformation::projective<Q,2> &,
+                                  const opengl<Q,1> &)
                     : fractalFlameColouring(false), prepared(false) {}
+
+                /**\brief Start new frame
+                 *
+                 * Calculates the combined transformation and projection matrix
+                 * and the normal matrix, then prepares the OpenGL state for a
+                 * new frame.
+                 */
+                void frameStart (void) {}
+
+                /**\brief End frame
+                 *
+                 * Indicates that the currently rendered frame is now complete
+                 * and that it can be uploaded to the graphics card. The frame
+                 * is then rendered with the currently active renderer.
+                 */
+                void frameEnd (void)
+                {
+                    upload();
+                    
+                    if (fractalFlameColouring)
+                    {
+                        fractalFlame (width, height, [this] ()
+                                      {
+                                          pushFaces();
+                                      });
+                    }
+                    else
+                    {
+                        render (width, height, [this] ()
+                                {
+                                    render.programme.uniform(efgy::opengl::uniformColour, wireframeColour);
+                                    pushLines();
+                                    render.programme.uniform(efgy::opengl::uniformColour, surfaceColour);
+                                    pushFaces();
+                                });
+                    }
+                };
 
                 void upload (void)
                 {
@@ -1089,6 +1090,80 @@ namespace efgy
                         // log errors
                         efgy::opengl::error();
                     }
+                }
+
+                /**\brief Create random colour map
+                 *
+                 * Calling this method will create a random colour map texture
+                 * for use by the fractal flame colouring code.
+                 */
+                void setColourMap (void)
+                {
+                    fractalFlame.setColourMap();
+                }
+
+                /**\brief Draw polygon
+                 *
+                 * Draw a polygon with q vertices. The Polygon should be
+                 * convex; if it isn't then you'll get rather strange results.
+                 *
+                 * \tparam q The number of vertices that define the polygon.
+                 *
+                 * \param[in] pV    The vertices that define the polygon.
+                 * \param[in] index Source of the polygon; used when rendering
+                 *                  IFSs to simulate fractal flame colouring,
+                 *                  but currently ignored by the SVG renderer.
+                 */
+                template<std::size_t q>
+                void draw
+                    (const std::array<math::vector<Q,2>,q> &pV, const Q &index = 0.5)
+                {
+                    if (prepared) return;
+                    
+                    math::vector<Q,2> R  {{ Q(1),  Q(0) }};
+                    math::vector<Q,2> RN {{ Q(-1), Q(0) }};
+                    
+                    triindices.push_back(addVertex(pV[0], R, index));
+                    unsigned int nstartf = triindices.back();
+                    lineindices.push_back(nstartf);
+                    triindices.push_back(addVertex(pV[1], R, index));
+                    lineindices.push_back(triindices.back());
+                    lineindices.push_back(triindices.back());
+                    triindices.push_back(addVertex(pV[2], R, index));
+                    unsigned int nendf = triindices.back();
+                    lineindices.push_back(nendf);
+                    
+                    triindices.push_back(addVertex(pV[2], RN, index));
+                    unsigned int nendb = triindices.back();
+                    lineindices.push_back(nendb);
+                    triindices.push_back(addVertex(pV[1], RN, index));
+                    lineindices.push_back(triindices.back());
+                    lineindices.push_back(triindices.back());
+                    triindices.push_back(addVertex(pV[0], RN, index));
+                    unsigned int nstartb = triindices.back();
+                    lineindices.push_back(nstartb);
+                    
+                    for (unsigned int j = 3; j < q; j++)
+                    {
+                        triindices.push_back(addVertex(pV[0], R, index));
+                        triindices.push_back(addVertex(pV[(j-1)], R, index));
+                        lineindices.push_back(triindices.back());
+                        triindices.push_back(addVertex(pV[j], R, index));
+                        lineindices.push_back(triindices.back());
+                        nendf = triindices.back();
+                        
+                        triindices.push_back(addVertex(pV[j], RN, index));
+                        nendb = triindices.back();
+                        lineindices.push_back(triindices.back());
+                        triindices.push_back(addVertex(pV[(j-1)], RN, index));
+                        lineindices.push_back(triindices.back());
+                        triindices.push_back(addVertex(pV[0], RN, index));
+                    }
+                    
+                    lineindices.push_back(nendf);
+                    lineindices.push_back(nstartf);
+                    lineindices.push_back(nstartb);
+                    lineindices.push_back(nendb);
                 }
 
                 /**\brief Use Fractal Flame Colouring?
@@ -1191,7 +1266,7 @@ namespace efgy
                  * Contains vertex buffer metadata for the individual vertices
                  * in the vertex buffer.
                  */
-                efgy::opengl::vertexArrayExtended<Q> vertexArrayModel;
+                efgy::opengl::vertexArrayExtended<Q,2> vertexArrayModel;
 
                 /**\brief Vertex buffer
                  *
@@ -1213,6 +1288,48 @@ namespace efgy
                  */
                 efgy::opengl::indexBuffer linebuffer;
 
+                /**\brief Render lines
+                 *
+                 * Draws all currently prepared lines to the current OpenGL
+                 * context. Used internally; the function does not modify any
+                 * programme state, so everything has to be prepared in advance.
+                 */
+                void pushLines (void) const
+                {
+                    if (prepared && (wireframeColour[3] > 0.f) && !fractalFlameColouring)
+                    {
+                        glDepthMask ((wireframeColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
+                        
+                        vertexArrayModel.use();
+                        vertexbuffer.bind();
+                        linebuffer.bind();
+                        vertexArrayModel.setup();
+                        
+                        glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
+                    }
+                }
+
+                /**\brief Render faces
+                 *
+                 * Draws all currently prepared faces to the current OpenGL
+                 * context. Used internally; the function does not modify any
+                 * programme state, so everything has to be prepared in advance.
+                 */
+                void pushFaces (void) const
+                {
+                    if (prepared && ((surfaceColour[3] > 0.f) || fractalFlameColouring))
+                    {
+                        glDepthMask ((surfaceColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
+                        
+                        vertexArrayModel.use();
+                        vertexbuffer.bind();
+                        elementbuffer.bind();
+                        vertexArrayModel.setup();
+                        
+                        glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
+                    }
+                }
+
             protected:
                 /**\brief Regular rendering programme
                  *
@@ -1228,7 +1345,36 @@ namespace efgy
                  * fractalFlameColouring boolean is set to true.
                  */
                 efgy::opengl::fractalFlameRenderProgramme<Q,2> fractalFlame;
+
+                /**\brief Add vertex to vertex buffer
+                 *
+                 * Appends the given vertex data to the vertex buffer. The
+                 * buffer is extended as necessary.
+                 *
+                 * \param[in] c     coordinates of the vertex.
+                 * \param[in] n     coordinates of the vertex's normal.
+                 * \param[in] index IFS index of the vertex.
+                 *
+                 * \returns The index of the vertex that was just added.
+                 */
+                unsigned int addVertex
+                    (math::vector<GLfloat,2> c, math::vector<GLfloat,2> n,
+                     const GLfloat &index)
+                {
+                    vertices.insert (vertices.end(), c.begin(), c.end());
+                    vertices.insert (vertices.end(), n.begin(), n.end());
+                    
+                    vertices.push_back(index);
+                    
+                    unsigned int rv = indices;
+                    
+                    indices++;
+                    
+                    return rv;
+                }
         };
+
+        template<typename Q> class opengl<Q,1> {};
 
         /**\brief std::ostream OpenGL tag
          *

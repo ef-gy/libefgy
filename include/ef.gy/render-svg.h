@@ -182,8 +182,10 @@ namespace efgy
                  *    them to the output stream.
                  */
                 svg
-                    (const typename geometry::transformation::affine<Q,2> &pTransformation)
-                    : transformation(pTransformation)
+                    (const typename geometry::transformation::affine<Q,2> &pTransformation,
+                     const typename geometry::transformation::projective<Q,2> &,
+                     const svg<Q,1> &)
+                        : transformation(pTransformation)
                     {}
 
                 /**\brief Begin drawing a new frame
@@ -277,6 +279,8 @@ namespace efgy
                  */
                 const geometry::transformation::affine<Q,2> &transformation;
         };
+
+        template<typename Q> class svg<Q,1> {};
 
         /**\brief std::ostream SVG tag
          *

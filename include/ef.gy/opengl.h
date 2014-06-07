@@ -1672,7 +1672,7 @@ namespace efgy
          *
          * \tparam Q Base data type for calculations.
          */
-        template<typename Q>
+        template<typename Q, unsigned int d>
         class vertexArrayMinimal : public vertexArray<Q>
         {
             public:
@@ -1703,7 +1703,7 @@ namespace efgy
                     if (!hasBound || !hadID)
                     {
                         glEnableVertexAttribArray(attributePosition);
-                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+                        glVertexAttribPointer(attributePosition, d, GL_FLOAT, GL_FALSE, 0, 0);
                         glDisableVertexAttribArray(attributeNormal);
                         glDisableVertexAttribArray(attributeIndex);
                     }
@@ -1740,7 +1740,7 @@ namespace efgy
          *
          * \tparam Q Base data type for calculations.
          */
-        template<typename Q>
+        template<typename Q, unsigned int d>
         class vertexArrayExtended : public vertexArray<Q>
         {
             public:
@@ -1774,11 +1774,11 @@ namespace efgy
                     {
                         
                         glEnableVertexAttribArray(attributePosition);
-                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
+                        glVertexAttribPointer(attributePosition, d, GL_FLOAT, GL_FALSE, (2*d+1)*sizeof(GLfloat), 0);
                         glEnableVertexAttribArray(attributeNormal);
-                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glVertexAttribPointer(attributeNormal, d, GL_FLOAT, GL_FALSE, (2*d+1)*sizeof(GLfloat), (void*)(d*sizeof(GLfloat)));
                         glEnableVertexAttribArray(attributeIndex);
-                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, (2*d+1)*sizeof(GLfloat), (void*)(d*2*sizeof(GLfloat)));
 
                         hasBound = true;
                         hadID = false;
@@ -1797,11 +1797,11 @@ namespace efgy
                     if (!hasBound || !hadID)
                     {
                         glEnableVertexAttribArray(attributePosition);
-                        glVertexAttribPointer(attributePosition, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), 0);
+                        glVertexAttribPointer(attributePosition, d, GL_FLOAT, GL_FALSE, (2*d+1)*sizeof(GLfloat), 0);
                         glEnableVertexAttribArray(attributeNormal);
-                        glVertexAttribPointer(attributeNormal, 3, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+                        glVertexAttribPointer(attributeNormal, d, GL_FLOAT, GL_FALSE, (2*d+1)*sizeof(GLfloat), (void*)(d*sizeof(GLfloat)));
                         glEnableVertexAttribArray(attributeIndex);
-                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, 7*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+                        glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, (2*d+1)*sizeof(GLfloat), (void*)(d*2*sizeof(GLfloat)));
                     }
                     
                     return true;

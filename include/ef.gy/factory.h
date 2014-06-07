@@ -338,7 +338,7 @@ namespace efgy
                 }
         };
 
-        /**\brief Model factory helper; e=2 fix point
+        /**\brief Model factory helper; e=1 fix point
          *
          * The model factory helper, geometry::model, works by calling itself
          * recursively with different template parameters. This is one of these
@@ -356,10 +356,10 @@ namespace efgy
                  template <class,unsigned int> class T,
                  unsigned int d,
                  typename format>
-        class model<Q,func,T,d,2,format>
+        class model<Q,func,T,d,1,format>
         {
             public:
-                /**\brief Call func with parameters; e=2 fix point
+                /**\brief Call func with parameters; e=1 fix point
                  *
                  * This is a fix point stub of the model::with() method; all
                  * arguments but the first are ignored and this fix point will
@@ -370,13 +370,13 @@ namespace efgy
                  *
                  * \returns func::pass(arg).
                  */
-                constexpr static typename func<Q,T,d,2,format>::output with
-                    (typename func<Q,T,d,2,format>::argument arg,
+                constexpr static typename func<Q,T,d,1,format>::output with
+                    (typename func<Q,T,d,1,format>::argument arg,
                      const unsigned int &,
                      const unsigned int &,
                      const format &)
                 {
-                    return func<Q,T,d,2,format>::pass(arg);
+                    return func<Q,T,d,1,format>::pass(arg);
                 }
         };
 
@@ -413,8 +413,8 @@ namespace efgy
                  *
                  * \returns func::pass(arg).
                  */
-                constexpr static typename func<Q,T,1,e,format>::output with
-                    (typename func<Q,T,1,e,format>::argument arg,
+                constexpr static typename func<Q,T,0,e,format>::output with
+                    (typename func<Q,T,0,e,format>::argument arg,
                      const unsigned int &,
                      const unsigned int &,
                      const format &)
