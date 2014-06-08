@@ -218,6 +218,457 @@ namespace efgy
                 /**\brief Load arbitrary NxN matrix
                  *
                  * Activate the programme and upload an NxN uniform variable to
+                 * the specified uniform index.
+                 *
+                 * \param[in] ID     The uniform ID to use.
+                 * \param[in] matrix The 4x4 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                template<unsigned int n>
+                bool uniform (const GLint ID, const math::matrix<Q,n,n> &matrix, const bool asArray = true)
+                {
+                    if (use())
+                    {
+                        GLfloat mat[(n*n)];
+                        unsigned int k = 0;
+                        for (unsigned int i = 0; i < n; i++)
+                        {
+                            for (unsigned int j = 0; j < n; j++)
+                            {
+                                mat[k] = GLfloat(matrix[i][j]);
+                                k++;
+                            }
+                        }
+                        
+                        glUniform1fv(ID, (n*n), mat);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load uniform 4x4 matrix
+                 *
+                 * Activate the programme and upload a 4x4 uniform variable to
+                 * the specified uniform index.
+                 *
+                 * \param[in] ID     The uniform ID to use.
+                 * \param[in] matrix The 4x4 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const GLint ID, const math::matrix<Q,4,4> &matrix, const bool asArray = false)
+                {
+                    if (use())
+                    {
+                        GLfloat mat[16] =
+                        { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[0][3]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[1][3]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]),
+                            GLfloat(matrix[2][3]),
+                            GLfloat(matrix[3][0]),
+                            GLfloat(matrix[3][1]),
+                            GLfloat(matrix[3][2]),
+                            GLfloat(matrix[3][3]) };
+                        
+                        if (asArray)
+                        {
+                            glUniform1fv(ID, 16, mat);
+                        }
+                        else
+                        {
+                            glUniformMatrix4fv(ID, 1, GL_FALSE, mat);
+                        }
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load uniform 3x3 matrix
+                 *
+                 * Activate the programme and upload a 3x3 uniform variable to
+                 * the specified uniform index.
+                 *
+                 * \param[in] ID     The uniform ID to use.
+                 * \param[in] matrix The 3x3 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const GLint ID, const math::matrix<Q,3,3> &matrix, const bool asArray = false)
+                {
+                    if (use())
+                    {
+                        GLfloat mat[9] =
+                        { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]) };
+                        
+                        if (asArray)
+                        {
+                            glUniform1fv(ID, 9, mat);
+                        }
+                        else
+                        {
+                            glUniformMatrix3fv(ID, 1, GL_FALSE, mat);
+                        }
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load uniform 2x2 matrix
+                 *
+                 * Activate the programme and upload a 2x2 uniform variable to
+                 * the specified uniform index.
+                 *
+                 * \param[in] ID     The uniform ID to use.
+                 * \param[in] matrix The 2x2 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const GLint ID, const math::matrix<Q,2,2> &matrix, const bool asArray = false)
+                {
+                    if (use())
+                    {
+                        GLfloat mat[4] =
+                        { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]) };
+                        
+                        if (asArray)
+                        {
+                            glUniform1fv(ID, 4, mat);
+                        }
+                        else
+                        {
+                            glUniformMatrix2fv(ID, 1, GL_FALSE, mat);
+                        }
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load integer uniform
+                 *
+                 * Activate the programme and upload an integer uniform variable
+                 * to the specified uniform index.
+                 *
+                 * \param[in] ID    The uniform ID to use.
+                 * \param[in] value The integer value to load.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const GLint ID, const GLint &value)
+                {
+                    if (use())
+                    {
+                        glUniform1i(ID, value);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load uniform floating point vector
+                 *
+                 * Activate the programme and upload a uniform float vector
+                 * to the specified uniform index.
+                 *
+                 * \param[in] ID    The uniform ID to use.
+                 * \param[in] value The floating point vector to load.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const GLint ID, const GLfloat value[4])
+                {
+                    if (use())
+                    {
+                        glUniform4f(ID, value[0], value[1], value[2], value[3]);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load arbitrary NxN matrix
+                 *
+                 * Activate the programme and upload an NxN uniform variable to
+                 * the specified uniform index.
+                 *
+                 * \param[in] ID     The uniform ID to use.
+                 * \param[in] matrix The 4x4 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                template<unsigned int n>
+                bool uniform (const GLint ID, const math::matrix<Q,n,n> &matrix, const bool asArray = true) const
+                {
+                    if (use())
+                    {
+                        GLfloat mat[(n*n)];
+                        unsigned int k = 0;
+                        for (unsigned int i = 0; i < n; i++)
+                        {
+                            for (unsigned int j = 0; j < n; j++)
+                            {
+                                mat[k] = GLfloat(matrix[i][j]);
+                                k++;
+                            }
+                        }
+                        
+                        glUniform1fv(ID, (n*n), mat);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load uniform 4x4 matrix
+                 *
+                 * Activate the programme and upload a 4x4 uniform variable to
+                 * the specified uniform index.
+                 *
+                 * \param[in] ID     The uniform ID to use.
+                 * \param[in] matrix The 4x4 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const GLint ID, const math::matrix<Q,4,4> &matrix, const bool asArray = true) const
+                {
+                    if (use())
+                    {
+                        GLfloat mat[16] =
+                        { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[0][3]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[1][3]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]),
+                            GLfloat(matrix[2][3]),
+                            GLfloat(matrix[3][0]),
+                            GLfloat(matrix[3][1]),
+                            GLfloat(matrix[3][2]),
+                            GLfloat(matrix[3][3]) };
+                        
+                        if (asArray)
+                        {
+                            glUniform1fv(ID, 16, mat);
+                        }
+                        else
+                        {
+                            glUniformMatrix4fv(ID, 1, GL_FALSE, mat);
+                        }
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load uniform 3x3 matrix
+                 *
+                 * Activate the programme and upload a 3x3 uniform variable to
+                 * the specified uniform index.
+                 *
+                 * \param[in] ID     The uniform ID to use.
+                 * \param[in] matrix The 3x3 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const GLint ID, const math::matrix<Q,3,3> &matrix, const bool asArray = true) const
+                {
+                    if (use())
+                    {
+                        GLfloat mat[9] =
+                        { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[0][2]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]),
+                            GLfloat(matrix[1][2]),
+                            GLfloat(matrix[2][0]),
+                            GLfloat(matrix[2][1]),
+                            GLfloat(matrix[2][2]) };
+                        
+                        if (asArray)
+                        {
+                            glUniform1fv(ID, 9, mat);
+                        }
+                        else
+                        {
+                            glUniformMatrix3fv(ID, 1, GL_FALSE, mat);
+                        }
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load uniform 2x2 matrix
+                 *
+                 * Activate the programme and upload a 2x2 uniform variable to
+                 * the specified uniform index.
+                 *
+                 * \param[in] ID     The uniform ID to use.
+                 * \param[in] matrix The 2x2 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const GLint ID, const math::matrix<Q,2,2> &matrix, const bool asArray = true) const
+                {
+                    if (use())
+                    {
+                        GLfloat mat[4] =
+                        { GLfloat(matrix[0][0]),
+                            GLfloat(matrix[0][1]),
+                            GLfloat(matrix[1][0]),
+                            GLfloat(matrix[1][1]) };
+                        
+                        if (asArray)
+                        {
+                            glUniform1fv(ID, 4, mat);
+                        }
+                        else
+                        {
+                            glUniformMatrix2fv(ID, 1, GL_FALSE, mat);
+                        }
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load integer uniform
+                 *
+                 * Activate the programme and upload an integer uniform variable
+                 * to the specified uniform index.
+                 *
+                 * \param[in] ID    The uniform ID to use.
+                 * \param[in] value The integer value to load.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const GLint ID, const GLint &value) const
+                {
+                    if (use())
+                    {
+                        glUniform1i(ID, value);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load uniform floating point vector
+                 *
+                 * Activate the programme and upload a uniform float vector
+                 * to the specified uniform index.
+                 *
+                 * \param[in] ID    The uniform ID to use.
+                 * \param[in] value The floating point vector to load.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const GLint ID, const GLfloat value[4]) const
+                {
+                    if (use())
+                    {
+                        glUniform4f(ID, value[0], value[1], value[2], value[3]);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                /**\brief Load uniform floating point vector
+                 *
+                 * Activate the programme and upload a uniform float vector
+                 * to the specified uniform index.
+                 *
+                 * \param[in] ID    The uniform ID to use.
+                 * \param[in] value The floating point vector to load.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                bool uniform (const GLint ID, const std::array<GLfloat,4> &value) const
+                {
+                    if (use())
+                    {
+                        glUniform4f(ID, value[0], value[1], value[2], value[3]);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+
+                /**\brief Load arbitrary NxN matrix
+                 *
+                 * Activate the programme and upload an NxN uniform variable to
                  * the specified uniform index. The index array that is used to
                  * look up the actual uniform variable ID is obtained during the
                  * compilation process of the shader porgramme.
