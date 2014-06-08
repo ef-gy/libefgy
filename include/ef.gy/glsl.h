@@ -95,10 +95,11 @@ namespace efgy
                      * \param[in] pName      Name of the variable.
                      * \param[in] pType      The GLSL type of the variable.
                      * \param[in] pPrecision The precision to use.
+                     * \param[in] pElements  Number of array elements.
                      */
                     constexpr variable
-                        (const char *pName, const char *pType = "float", const char *pPrecision = "")
-                        : name(pName), type(pType), precision(pPrecision)
+                        (const char *pName, const char *pType = "float", const char *pPrecision = "", unsigned int pElements = 1)
+                        : name(pName), type(pType), precision(pPrecision), elements(pElements)
                         {}
 
                     /**\brief Variable name
@@ -118,6 +119,13 @@ namespace efgy
                      * The floating-point precision for the variable.
                      */
                     const char *precision;
+
+                    /**\brief Number of array elements
+                     *
+                     * For scalars, this is 1. For arrays, this is the number
+                     * of elements in that array.
+                     */
+                    unsigned int elements;
             };
 
             /**\brief GLSL shader
@@ -276,15 +284,30 @@ namespace efgy
 
                 for (const variable<gv_attribute> &v : s.attribute)
                 {
-                    out << "attribute " << v.precision << " " << v.type << " " << v.name << ";\n";
+                    out << "attribute " << v.precision << " " << v.type << " " << v.name;
+                    if (v.elements > 1)
+                    {
+                        out << "[" << v.elements << "]";
+                    }
+                    out << ";\n";
                 }
                 for (const variable<gv_varying> &v : s.varying)
                 {
-                    out << "varying " << v.precision << " " << v.type << " " << v.name << ";\n";
+                    out << "varying " << v.precision << " " << v.type << " " << v.name;
+                    if (v.elements > 1)
+                    {
+                        out << "[" << v.elements << "]";
+                    }
+                    out << ";\n";
                 }
                 for (const variable<gv_uniform> &v : s.uniform)
                 {
-                    out << "uniform " << v.precision << " " << v.type << " " << v.name << ";\n";
+                    out << "uniform " << v.precision << " " << v.type << " " << v.name;
+                    if (v.elements > 1)
+                    {
+                        out << "[" << v.elements << "]";
+                    }
+                    out << ";\n";
                 }
 
                 return out << "void main() {"

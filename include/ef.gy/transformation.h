@@ -81,9 +81,16 @@ namespace efgy
                             }
                         }
 
+                    /**\brief Constructor to copy a matrix
+                     *
+                     * Copies an appropriately-sized matrix
+                     */
+                    linear (const math::matrix<Q,d,d> &pMatrix)
+                        : matrix(pMatrix) {}
+
                     /**\brief Applies a transformation to a vector.
                      *
-                     * Applies a transformation to a vector by 
+                     * Applies a transformation to a vector by
                      * multiplying the transformation matrix to it.
                      *
                      * \tparam format The vector format to use.
@@ -103,7 +110,7 @@ namespace efgy
 
                         for (unsigned int i = 0; i < d; i++)
                         {
-                            vectorMatrix[0][i] = pV.data[i];
+                            vectorMatrix[0][i] = pV[i];
                         }
 
                         vectorMatrix
@@ -112,7 +119,7 @@ namespace efgy
 
                         for (unsigned int i = 0; i < d; i++)
                         {
-                            rv.data[i] = vectorMatrix[0][i];
+                            rv[i] = vectorMatrix[0][i];
                         }
 
                         return rv;

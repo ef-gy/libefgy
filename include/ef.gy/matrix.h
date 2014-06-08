@@ -150,9 +150,9 @@ namespace efgy
                     {
                         for (unsigned int j = 0; j < p; j++)
                         {
-                            r[i][j] = 0;
+                            r[i][j] = (*this)[i][0] * b[0][j];
                             
-                            for (unsigned int k = 0; k < m; k++)
+                            for (unsigned int k = 1; k < m; k++)
                             {
                                 r[i][j] += (*this)[i][k] * b[k][j];
                             }

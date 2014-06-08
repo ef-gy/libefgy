@@ -231,7 +231,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const math::matrix<Q,4,4> &matrix)
+                bool uniform (const enum uniforms &index, const math::matrix<Q,4,4> &matrix, const bool asArray = false)
                 {
                     if (use())
                     {
@@ -253,7 +253,14 @@ namespace efgy
                             GLfloat(matrix[3][2]),
                             GLfloat(matrix[3][3]) };
 
-                        glUniformMatrix4fv(uniforms[index], 1, GL_FALSE, mat);
+                        if (asArray)
+                        {
+                            glUniform1fv(uniforms[index], 16, mat);
+                        }
+                        else
+                        {
+                            glUniformMatrix4fv(uniforms[index], 1, GL_FALSE, mat);
+                        }
                         return true;
                     }
 
@@ -276,7 +283,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const math::matrix<Q,3,3> &matrix)
+                bool uniform (const enum uniforms &index, const math::matrix<Q,3,3> &matrix, const bool asArray = false)
                 {
                     if (use())
                     {
@@ -291,7 +298,14 @@ namespace efgy
                             GLfloat(matrix[2][1]),
                             GLfloat(matrix[2][2]) };
 
-                        glUniformMatrix3fv(uniforms[index], 1, GL_FALSE, mat);
+                        if (asArray)
+                        {
+                            glUniform1fv(uniforms[index], 9, mat);
+                        }
+                        else
+                        {
+                            glUniformMatrix3fv(uniforms[index], 1, GL_FALSE, mat);
+                        }
                         return true;
                     }
 

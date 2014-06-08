@@ -226,30 +226,30 @@ namespace efgy
             };
 
             template<typename T, typename S, char op>
-            std::ostream & operator << (std::ostream &s, const tracer<T,S,op,false> &t)
+            static inline std::ostream & operator << (std::ostream &s, const tracer<T,S,op,false> &t)
             {
                 return (s << std::string(t));
             }
 
             template<typename T, typename S, char op>
-            std::ostream & operator << (std::ostream &s, const tracer<T,S,op,true> &t)
+            static inline std::ostream & operator << (std::ostream &s, const tracer<T,S,op,true> &t)
             {
                 return (s << std::string(t));
             }
 
             template<typename T, typename S, char op>
-            std::ostream & operator << (std::ostream &s, const base<true> &t)
+            static inline std::ostream & operator << (std::ostream &s, const base<true> &t)
             {
                 return (s << std::string(t));
             }
 
             template<typename T, typename S, char op>
-            std::ostream & operator << (std::ostream &s, const std::shared_ptr<tracer<T,S,op,true>> &t)
+            static inline std::ostream & operator << (std::ostream &s, const std::shared_ptr<tracer<T,S,op,true>> &t)
             {
                 return t ? (s << *t) : (s << "0");
             }
 
-            std::ostream & operator << (std::ostream &s, const runtime &t)
+            static inline std::ostream & operator << (std::ostream &s, const runtime &t)
             {
                 return t ? (s << std::string(*t)) : (s << "0");
             }
@@ -257,36 +257,36 @@ namespace efgy
             // add
 
             template<typename T, typename S, typename R, char op>
-            constexpr tracer<tracer<T,S,op,false>,R,'+',false> operator + (const tracer<T,S,op,false> &p1, const R &p2)
+            constexpr static inline tracer<tracer<T,S,op,false>,R,'+',false> operator + (const tracer<T,S,op,false> &p1, const R &p2)
             {
                 return tracer<tracer<T,S,op,false>,R,'+',false> (p1, p2);
             }
 
             template<typename T, typename S, typename R, char op>
-            constexpr tracer<R,tracer<T,S,op,false>,'+',false> operator + (const R &p1, const tracer<T,S,op,false> &p2)
+            constexpr static inline tracer<R,tracer<T,S,op,false>,'+',false> operator + (const R &p1, const tracer<T,S,op,false> &p2)
             {
                 return tracer<R,tracer<T,S,op,false>,'+',false> (p1, p2);
             }
 
             template<typename T, typename S, typename R, typename Q, char op1, char op2>
-            constexpr tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'+',false> operator + (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
+            constexpr static inline tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'+',false> operator + (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
             {
                 return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'+',false> (p1, p2);
             }
 
             template<typename R>
-            std::shared_ptr<tracer<runtime,R,'+',true>> operator + (const runtime &p1, const R &p2)
+            static inline std::shared_ptr<tracer<runtime,R,'+',true>> operator + (const runtime &p1, const R &p2)
             {
                 return std::shared_ptr<tracer<runtime,R,'+',true>> (new tracer<runtime,R,'+',true>(p1, p2));
             }
 
             template<typename R>
-            std::shared_ptr<tracer<R,runtime,'+',true>> operator + (const R &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<R,runtime,'+',true>> operator + (const R &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<R,runtime,'+',true>> (new tracer<R,runtime,'+',true>(p1, p2));
             }
 
-            std::shared_ptr<tracer<runtime,runtime,'+',true>> operator + (const runtime &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<runtime,runtime,'+',true>> operator + (const runtime &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<runtime,runtime,'+',true>> (new tracer<runtime,runtime,'+',true>(p1, p2));
             }
@@ -294,36 +294,36 @@ namespace efgy
             // subtract
 
             template<typename T, typename S, typename R, char op>
-            constexpr tracer<tracer<T,S,op,false>,R,'-',false> operator - (const tracer<T,S,op,false> &p1, const R &p2)
+            constexpr static inline tracer<tracer<T,S,op,false>,R,'-',false> operator - (const tracer<T,S,op,false> &p1, const R &p2)
             {
                 return tracer<tracer<T,S,op,false>,R,'-',false> (p1, p2);
             }
 
             template<typename T, typename S, typename R, char op>
-            constexpr tracer<R,tracer<T,S,op,false>,'-',false> operator - (const R &p1, const tracer<T,S,op,false> &p2)
+            constexpr static inline tracer<R,tracer<T,S,op,false>,'-',false> operator - (const R &p1, const tracer<T,S,op,false> &p2)
             {
                 return tracer<R,tracer<T,S,op,false>,'-',false> (p1, p2);
             }
 
             template<typename T, typename S, typename R, typename Q, char op1, char op2>
-            constexpr tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'-',false> operator - (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
+            constexpr static inline tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'-',false> operator - (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
             {
                 return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'-',false> (p1, p2);
             }
 
             template<typename R>
-            std::shared_ptr<tracer<runtime,R,'-',true>> operator - (const runtime &p1, const R &p2)
+            static inline std::shared_ptr<tracer<runtime,R,'-',true>> operator - (const runtime &p1, const R &p2)
             {
                 return std::shared_ptr<tracer<runtime,R,'-',true>> (new tracer<runtime,R,'-',true>(p1, p2));
             }
 
             template<typename R>
-            std::shared_ptr<tracer<R,runtime,'-',true>> operator - (const R &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<R,runtime,'-',true>> operator - (const R &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<R,runtime,'-',true>> (new tracer<R,runtime,'-',true>(p1, p2));
             }
 
-            std::shared_ptr<tracer<runtime,runtime,'-',true>> operator - (const runtime &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<runtime,runtime,'-',true>> operator - (const runtime &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<runtime,runtime,'-',true>> (new tracer<runtime,runtime,'-',true>(p1, p2));
             }
@@ -331,36 +331,36 @@ namespace efgy
             // multiply
 
             template<typename T, typename S, typename R, char op>
-            constexpr tracer<tracer<T,S,op,false>,R,'*',false> operator * (const tracer<T,S,op,false> &p1, const R &p2)
+            constexpr static inline tracer<tracer<T,S,op,false>,R,'*',false> operator * (const tracer<T,S,op,false> &p1, const R &p2)
             {
                 return tracer<tracer<T,S,op,false>,R,'*',false> (p1, p2);
             }
 
             template<typename T, typename S, typename R, char op>
-            constexpr tracer<R,tracer<T,S,op,false>,'*',false> operator * (const R &p1, const tracer<T,S,op,false> &p2)
+            constexpr static inline tracer<R,tracer<T,S,op,false>,'*',false> operator * (const R &p1, const tracer<T,S,op,false> &p2)
             {
                 return tracer<R,tracer<T,S,op,false>,'*',false> (p1, p2);
             }
 
             template<typename T, typename S, typename R, typename Q, char op1, char op2>
-            constexpr tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'*',false> operator * (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
+            constexpr static inline tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'*',false> operator * (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
             {
                 return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'*',false> (p1, p2);
             }
 
             template<typename R>
-            std::shared_ptr<tracer<runtime,R,'*',true>> operator * (const runtime &p1, const R &p2)
+            static inline std::shared_ptr<tracer<runtime,R,'*',true>> operator * (const runtime &p1, const R &p2)
             {
                 return std::shared_ptr<tracer<runtime,R,'*',true>> (new tracer<runtime,R,'*',true>(p1, p2));
             }
 
             template<typename R>
-            std::shared_ptr<tracer<R,runtime,'*',true>> operator * (const R &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<R,runtime,'*',true>> operator * (const R &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<R,runtime,'*',true>> (new tracer<R,runtime,'*',true>(p1, p2));
             }
 
-            std::shared_ptr<tracer<runtime,runtime,'*',true>> operator * (const runtime &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<runtime,runtime,'*',true>> operator * (const runtime &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<runtime,runtime,'*',true>> (new tracer<runtime,runtime,'*',true>(p1, p2));
             }
@@ -368,58 +368,58 @@ namespace efgy
             // divide
 
             template<typename T, typename S, typename R, char op>
-            constexpr tracer<tracer<T,S,op,false>,R,'/',false> operator / (const tracer<T,S,op,false> &p1, const R &p2)
+            constexpr static inline tracer<tracer<T,S,op,false>,R,'/',false> operator / (const tracer<T,S,op,false> &p1, const R &p2)
             {
                 return tracer<tracer<T,S,op,false>,R,'/',false> (p1, p2);
             }
 
             template<typename T, typename S, typename R, char op>
-            constexpr tracer<R,tracer<T,S,op,false>,'/',false> operator / (const R &p1, const tracer<T,S,op,false> &p2)
+            constexpr static inline tracer<R,tracer<T,S,op,false>,'/',false> operator / (const R &p1, const tracer<T,S,op,false> &p2)
             {
                 return tracer<R,tracer<T,S,op,false>,'/',false> (p1, p2);
             }
 
             template<typename T, typename S, typename R, typename Q, char op1, char op2>
-            constexpr tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'/',false> operator / (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
+            constexpr static inline tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'/',false> operator / (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
             {
                 return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'/',false> (p1, p2);
             }
 
             template<typename R>
-            std::shared_ptr<tracer<runtime,R,'/',true>> operator / (const runtime &p1, const R &p2)
+            static inline std::shared_ptr<tracer<runtime,R,'/',true>> operator / (const runtime &p1, const R &p2)
             {
                 return std::shared_ptr<tracer<runtime,R,'/',true>> (new tracer<runtime,R,'/',true>(p1, p2));
             }
 
             template<typename R>
-            std::shared_ptr<tracer<R,runtime,'/',true>> operator / (const R &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<R,runtime,'/',true>> operator / (const R &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<R,runtime,'/',true>> (new tracer<R,runtime,'/',true>(p1, p2));
             }
 
-            std::shared_ptr<tracer<runtime,runtime,'/',true>> operator / (const runtime &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<runtime,runtime,'/',true>> operator / (const runtime &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<runtime,runtime,'/',true>> (new tracer<runtime,runtime,'/',true>(p1, p2));
             }
 
             // combined assignment operators
 
-            runtime operator += (runtime &p1, const runtime &p2)
+            static inline runtime operator += (runtime &p1, const runtime &p2)
             {
                 return p1 = (p1 + p2);
             }
 
-            runtime operator -= (runtime &p1, const runtime &p2)
+            static inline runtime operator -= (runtime &p1, const runtime &p2)
             {
                 return p1 = (p1 - p2);
             }
 
-            runtime operator *= (runtime &p1, const runtime &p2)
+            static inline runtime operator *= (runtime &p1, const runtime &p2)
             {
                 return p1 = (p1 * p2);
             }
 
-            runtime operator /= (runtime &p1, const runtime &p2)
+            static inline runtime operator /= (runtime &p1, const runtime &p2)
             {
                 return p1 = (p1 / p2);
             }

@@ -39,6 +39,7 @@
 #include <ef.gy/colour-space-rgb.h>
 #include <ef.gy/polytope.h>
 #include <ef.gy/ifs.h>
+#include <ef.gy/tracer.h>
 #include <map>
 #include <functional>
 #include <algorithm>
@@ -115,14 +116,49 @@ namespace efgy
                                  "vec3 lightPosition = vec3(0.0, 0.0, 1.0);\n"
                                  "float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));\n"
                                  "colorVarying = colour * nDotVP;\n"
-                                 "gl_Position = modelViewProjectionMatrix * position;\n",
+                                 //"gl_Position = modelViewProjectionMatrix * position;\n"
+                                 ,
                                  { opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4"),
                                    opengl::glsl::variable<opengl::glsl::gv_attribute>("normal", "vec3") },
                                  { opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4") },
-                                 { opengl::glsl::variable<opengl::glsl::gv_uniform>("modelViewProjectionMatrix", "mat4"),
+                                 { //opengl::glsl::variable<opengl::glsl::gv_uniform>("modelViewProjectionMatrix", "mat4"),
                                    opengl::glsl::variable<opengl::glsl::gv_uniform>("normalMatrix", "mat3"),
-                                   opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4") } )
-                            {}
+                                   opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4"),
+                                   opengl::glsl::variable<opengl::glsl::gv_uniform>("modelViewProjectionMatrix", "float", "", (d+1)*(d+1))} )
+                            {
+                                math::matrix<math::tracer::runtime,(d+1),(d+1)> m1;
+                                math::vector<math::tracer::runtime,(d+1)> position;
+                                std::stringstream m("");
+                                unsigned int k = 0;
+                                for (unsigned int i = 0; i < (d+1); i++)
+                                {
+                                    std::stringstream s("");
+                                    s << i;
+                                    position[i] = std::shared_ptr<math::tracer::tracer<void,void,0,true>>
+                                        (new math::tracer::tracer<void,void,0,true> ("position[" + s.str() + "]"));
+                                    for (unsigned int j = 0; j < (d+1); j++)
+                                    {
+                                        s.str("");
+                                        s << "[" << k << "]";
+                                        k++;
+                                        
+                                        m1[i][j] = std::shared_ptr<math::tracer::tracer<void,void,0,true>>
+                                            (new math::tracer::tracer<void,void,0,true> ("modelViewProjectionMatrix" + s.str()));
+                                    }
+                                }
+
+                                geometry::transformation::linear<math::tracer::runtime,(d+1)> l1(m1);
+
+                                math::vector<math::tracer::runtime,(d+1)> gl_Position = l1 * position;
+
+                                for (unsigned int i = 0; i < (d+1); i++)
+                                {
+                                    m << "gl_Position[" << i << "] = "
+                                        << gl_Position[i] << ";\n";
+                                }
+
+                                opengl::glsl::shader<V>::main += m.str();
+                            }
                 };
 
                 /*
@@ -275,7 +311,7 @@ namespace efgy
                 bool matrices (const geometry::transformation::affine<Q,d> &combined,
                                const math::matrix<Q,d,d> &normalMatrix)
                 {
-                    return programme.uniform(uniformProjectionMatrix, combined.transformationMatrix)
+                    return programme.uniform(uniformProjectionMatrix, combined.transformationMatrix, d > 2)
                         && programme.uniform(uniformNormalMatrix, normalMatrix);
                 }
 
