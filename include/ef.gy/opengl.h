@@ -215,6 +215,45 @@ namespace efgy
                     return false;
                 }
 
+                /**\brief Load arbitrary NxN matrix
+                 *
+                 * Activate the programme and upload an NxN uniform variable to
+                 * the specified uniform index. The index array that is used to
+                 * look up the actual uniform variable ID is obtained during the
+                 * compilation process of the shader porgramme.
+                 *
+                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] matrix The 4x4 matrix to load. The contents of
+                 *                   this matrix are turned into a GLfloat array
+                 *                   before handing the data to OpenGL.
+                 *
+                 * \return True if the programme was bound correctly and the
+                 *         matrix has been handed off to OpenGL, false
+                 *         otherwise.
+                 */
+                template<unsigned int n>
+                bool uniform (const enum uniforms &index, const math::matrix<Q,n,n> &matrix, const bool asArray = true)
+                {
+                    if (use())
+                    {
+                        GLfloat mat[(n*n)];
+                        unsigned int k = 0;
+                        for (unsigned int i = 0; i < n; i++)
+                        {
+                            for (unsigned int j = 0; j < n; j++)
+                            {
+                                mat[k] = GLfloat(matrix[i][j]);
+                                k++;
+                            }
+                        }
+
+                        glUniform1fv(uniforms[index], (n*n), mat);
+                        return true;
+                    }
+                    
+                    return false;
+                }
+
                 /**\brief Load uniform 4x4 matrix
                  *
                  * Activate the programme and upload a 4x4 uniform variable to

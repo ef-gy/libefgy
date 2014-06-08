@@ -372,7 +372,7 @@ namespace efgy
                             {
                                 if (i == j)
                                 {
-                                    transformationMatrix[i][j] = i == d ? Q(1) / targetScale : Q(1);
+                                    transformationMatrix[i][j] = i != d ? targetScale : Q(1);
                                 }
                                 else
                                 {
