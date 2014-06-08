@@ -67,7 +67,7 @@ namespace efgy
                  *
                  * \tparam V GLSL shader version to produce.
                  */
-                template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
+                template <unsigned int d = 3, enum opengl::glsl::version V = opengl::glsl::ver_auto>
                 class fractalFlame : public opengl::glsl::shader<V>
                 {
                     public:
@@ -79,6 +79,25 @@ namespace efgy
                                    opengl::glsl::variable<opengl::glsl::gv_attribute>("index", "float", "highp") },
                                  { opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float", "lowp") },
                                  { opengl::glsl::variable<opengl::glsl::gv_uniform>("modelViewProjectionMatrix", "mat4") } )
+                            {}
+                };
+
+                /*
+                 *
+                 * \tparam V GLSL shader version to produce.
+                 */
+                template <enum opengl::glsl::version V>
+                class fractalFlame<2,V> : public opengl::glsl::shader<V>
+                {
+                    public:
+                        fractalFlame(void)
+                            : opengl::glsl::shader<V>
+                                ("indexVarying = index;\n"
+                                 "gl_Position = vec4(modelViewProjectionMatrix * position,1);\n",
+                                 { opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec3"),
+                                   opengl::glsl::variable<opengl::glsl::gv_attribute>("index", "float", "highp") },
+                                 { opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float", "lowp") },
+                                 { opengl::glsl::variable<opengl::glsl::gv_uniform>("modelViewProjectionMatrix", "mat3") } )
                             {}
                 };
 
@@ -384,12 +403,12 @@ namespace efgy
 
                         static const GLfloat fullscreenQuadBufferData[] =
                         {
-                            -1.0f, -1.0f,  0.0f,
-                             1.0f, -1.0f,  0.0f,
-                            -1.0f,  1.0f,  0.0f,
-                            -1.0f,  1.0f,  0.0f,
-                             1.0f, -1.0f,  0.0f,
-                             1.0f,  1.0f,  0.0f
+                            -1.0f, -1.0f,
+                             1.0f, -1.0f,
+                            -1.0f,  1.0f,
+                            -1.0f,  1.0f,
+                             1.0f, -1.0f,
+                             1.0f,  1.0f
                         };
                         
                         vertexArray.use();
@@ -480,13 +499,16 @@ namespace efgy
                  */
                 bool initialised;
 
+                template<enum opengl::glsl::version Ve>
+                using vertex = render::glsl::vertex::fractalFlame<d,Ve>;
+
                 /**\brief Colouring render pass programme
                  *
                  * Stores the OpenGL programme that creates the colour index
                  * texture for the flame algorithm. This colour information is
                  * used to sample the colour map.
                  */
-                renderToTextureProgramme<Q,V,render::glsl::vertex::fractalFlame,render::glsl::fragment::fractalFlame> colouring;
+                renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::fractalFlame> colouring;
 
                 /**\brief Histogram render pass programme
                  *
@@ -494,7 +516,7 @@ namespace efgy
                  * texture for the flame algorithm. This information is used to
                  * calculate the output intensity of individual fragments.
                  */
-                renderToTextureProgramme<Q,V,render::glsl::vertex::fractalFlame,render::glsl::fragment::histogram> histogram;
+                renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::histogram> histogram;
 
                 /**\brief Merge pass programme
                  *
@@ -510,7 +532,7 @@ namespace efgy
                  * in the merge pass to emit fragments for each pixel of the
                  * output viewport.
                  */
-                vertexArrayMinimal<Q,d> vertexArray;
+                vertexArrayMinimal<Q,2> vertexArray;
 
                 /**\brief Vertex buffer for fullscreen quad
                  *
