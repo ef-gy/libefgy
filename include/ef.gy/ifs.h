@@ -57,7 +57,7 @@ namespace efgy
                 using parent::parameter;
                 using parent::faces;
                 using parent::tag;
-                std::vector<Q> indices;
+                using parent::indices;
 
                 std::vector<trans<Q,d>> functions;
 

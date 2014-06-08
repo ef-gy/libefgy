@@ -1550,58 +1550,13 @@ namespace efgy
             (oglstream<C,Q,d> stream,
              const geometry::polytope<Q,od,d,f,format> &poly)
         {
-            for (const auto &p : poly.faces)
+            if (poly.faces.size() != poly.indices.size())
             {
-                std::array<math::vector<Q,d>,geometry::polytope<Q,od,d,f,format>::faceVertices> q;
-                
-                for (std::size_t i = 0; i < poly.faceVertices; i++)
+                for (const auto &p : poly.faces)
                 {
-                    q[i] = p[i];
-                }
-                
-                stream.render.draw(q);
-            }
-            
-            return stream;
-        }
-
-        /**\brief Draw polytope with OpenGL
-         *
-         * Iterates through all of the IFS's faces and then writes a 3D
-         * projection of them to the OpenGL context.
-         *
-         * Unlike the generic polytope renderer, the IFS renderer will
-         * pass index hints to the renderers, which are needed by the
-         * fractal flame colouring algorithm to produce even prettier
-         *
-         * \tparam C      Character type for the basic_ostream reference.
-         * \tparam Q      Base type for calculations; should be a rational type
-         * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
-         * \tparam d      Number of dimensions of the vector space to use
-         * \tparam format Vector coordinate format to work in, e.g.
-         *                math::format::cartesian.
-         *
-         * \param[out] stream The stream to write to.
-         * \param[in]  poly   The polytope to render with OpenGL.
-         *
-         * \returns A new copy of the stream that was passed in.
-         */
-        template <typename C, typename Q, unsigned int d,
-                  unsigned int od, typename format,
-                  template <class,unsigned int> class primitive,
-                  unsigned int pd,
-                  template <class,unsigned int> class trans>
-        static inline oglstream<C,Q,d> operator <<
-            (oglstream<C,Q,d> stream,
-             const geometry::ifs<Q,od,d,primitive,pd,trans> &ifs)
-        {
-            if (ifs.faces.size() != ifs.indices.size())
-            {
-                for (const auto &p : ifs.faces)
-                {
-                    std::array<math::vector<Q,d>,geometry::ifs<Q,od,d,primitive,pd,trans>::faceVertices> q;
+                    std::array<math::vector<Q,d>,geometry::polytope<Q,od,d,f,format>::faceVertices> q;
                     
-                    for (std::size_t i = 0; i < ifs.faceVertices; i++)
+                    for (std::size_t i = 0; i < poly.faceVertices; i++)
                     {
                         q[i] = p[i];
                     }
@@ -1611,12 +1566,12 @@ namespace efgy
             }
             else
             {
-                auto itIndex = ifs.indices.begin();
-                for (const auto &p : ifs.faces)
+                auto itIndex = poly.indices.begin();
+                for (const auto &p : poly.faces)
                 {
-                    std::array<math::vector<Q,d>,geometry::ifs<Q,od,d,primitive,pd,trans>::faceVertices> q;
+                    std::array<math::vector<Q,d>,geometry::polytope<Q,od,d,f,format>::faceVertices> q;
                     
-                    for (std::size_t i = 0; i < ifs.faceVertices; i++)
+                    for (std::size_t i = 0; i < poly.faceVertices; i++)
                     {
                         q[i] = p[i];
                     }
@@ -1625,7 +1580,7 @@ namespace efgy
                     itIndex++;
                 }
             }
-
+            
             return stream;
         }
     };

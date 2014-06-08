@@ -343,6 +343,8 @@ namespace efgy
                  * A copy of the vector format tag for this model.
                  */
                 const format tag;
+
+                std::vector<Q> indices;
         };
 
         /**\brief Polytope base template
@@ -377,6 +379,7 @@ namespace efgy
                     }
 
                 using parent::faces;
+                using parent::indices;
 
                 void calculateObject (void)
                 {
@@ -398,6 +401,7 @@ namespace efgy
                         }
                         faces.push_back(cf);
                     }
+                    indices = object.indices;
                 }
 
                 static constexpr const char *id (void)
