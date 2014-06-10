@@ -38,7 +38,6 @@
 #include <ef.gy/opengl.h>
 #include <ef.gy/colour-space-rgb.h>
 #include <ef.gy/polytope.h>
-#include <ef.gy/ifs.h>
 #include <ef.gy/tracer.h>
 #include <map>
 #include <functional>
@@ -116,13 +115,11 @@ namespace efgy
                                  "vec3 lightPosition = vec3(0.0, 0.0, 1.0);\n"
                                  "float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));\n"
                                  "colorVarying = colour * nDotVP;\n"
-                                 //"gl_Position = modelViewProjectionMatrix * position;\n"
                                  ,
                                  { opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4"),
                                    opengl::glsl::variable<opengl::glsl::gv_attribute>("normal", "vec3") },
                                  { opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4") },
-                                 { //opengl::glsl::variable<opengl::glsl::gv_uniform>("modelViewProjectionMatrix", "mat4"),
-                                   opengl::glsl::variable<opengl::glsl::gv_uniform>("normalMatrix", "mat3"),
+                                 { opengl::glsl::variable<opengl::glsl::gv_uniform>("normalMatrix", "mat3"),
                                    opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4"),
                                    opengl::glsl::variable<opengl::glsl::gv_uniform>("modelViewProjectionMatrix", "float", "", (d+1)*(d+1))} )
                             {
