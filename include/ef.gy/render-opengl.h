@@ -341,11 +341,14 @@ namespace efgy
                     glEnable(GL_DEPTH_TEST);
                     glDepthFunc(GL_LEQUAL);
 
-                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
                     draw();
 
                     return true;
+                }
+
+                void clear (void)
+                {
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 }
 
                 template<enum opengl::glsl::version Ve>
@@ -655,6 +658,11 @@ namespace efgy
                     lowerRenderer.frameEnd();
                 };
 
+                void clear (void)
+                {
+                    lowerRenderer.clear();
+                }
+
                 /**\brief Draw polygon
                  *
                  * Draw a polygon with q vertices. The Polygon should be
@@ -839,6 +847,12 @@ namespace efgy
                                 });
                     }
                 };
+
+                /**\copydoc opengl<Q,2>::clear */
+                void clear (void)
+                {
+                    render.clear();
+                }
 
                 /**\copydoc opengl<Q,2>::upload */
                 void upload (void)
@@ -1143,6 +1157,11 @@ namespace efgy
                                 });
                     }
                 };
+
+                void clear (void)
+                {
+                    render.clear();
+                }
 
                 void upload (void)
                 {
