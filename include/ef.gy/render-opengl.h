@@ -289,7 +289,8 @@ namespace efgy
                  * with the correct shaders.
                  */
                 renderProgramme (void)
-                    : initialised(false), programme()
+                    : initialised(false), programme(),
+                      clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
                     {}
             
                 /**\brief Load matrix uniforms
@@ -341,15 +342,14 @@ namespace efgy
                     glEnable(GL_DEPTH_TEST);
                     glDepthFunc(GL_LEQUAL);
 
+                    glClear(clear);
+
                     draw();
 
                     return true;
                 }
 
-                void clear (void)
-                {
-                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                }
+                GLint clear;
 
                 template<enum opengl::glsl::version Ve>
                 using vertex = render::glsl::vertex::regular<d,Ve>;
@@ -658,9 +658,9 @@ namespace efgy
                     lowerRenderer.frameEnd();
                 };
 
-                void clear (void)
+                void clear (GLint bits)
                 {
-                    lowerRenderer.clear();
+                    lowerRenderer.clear(bits);
                 }
 
                 /**\brief Draw polygon
@@ -849,9 +849,9 @@ namespace efgy
                 };
 
                 /**\copydoc opengl<Q,2>::clear */
-                void clear (void)
+                void clear (GLint bits)
                 {
-                    render.clear();
+                    render.clear = bits;
                 }
 
                 /**\copydoc opengl<Q,2>::upload */
@@ -1158,9 +1158,9 @@ namespace efgy
                     }
                 };
 
-                void clear (void)
+                void clear (GLint bits)
                 {
-                    render.clear();
+                    render.clear = bits;
                 }
 
                 void upload (void)
