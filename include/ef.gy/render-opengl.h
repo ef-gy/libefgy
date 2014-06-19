@@ -115,6 +115,7 @@ namespace efgy
                                  "vec3 lightPosition = vec3(0.0, 0.0, 1.0);\n"
                                  "float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));\n"
                                  "colorVarying = colour * nDotVP;\n"
+                                 "colorVarying = vec4(colorVarying.xyz, colour.w);\n"
                                  ,
                                  { opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4"),
                                    opengl::glsl::variable<opengl::glsl::gv_attribute>("normal", "vec3") },
