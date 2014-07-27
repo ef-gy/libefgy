@@ -48,19 +48,53 @@ namespace efgy
             template<typename T, typename S, char op, bool runtime, typename format>
             class tracer;
 
+            /**\brief Output formatter base
+             *
+             * Generic output formatter base template. Only creates a typedef
+             * for the result type.
+             *
+             * \tparam R The result type that the data needs to be formatted to.
+             */
             template<typename R>
             class formatter
             {
                 public:
+                    /**\brief Result type
+                     *
+                     * Convenient typedef for the result type, which was set as
+                     * a template parameter.
+                     */
                     typedef R result;
             };
 
+            /**\brief Standard string output formatter
+             *
+             * The default output formatter for the tracer; formats content as
+             * a std::string for output or further processing.
+             */
             template<>
             class formatter<std::string>
             {
                 public:
+                    /**\brief Result type
+                     *
+                     * Convenient typedef for the result type, which was set as
+                     * a template parameter.
+                     */
                     typedef std::string result;
 
+                    /**\brief Format two-parameter operation
+                     *
+                     * Formats an operation with two parameters. The output is
+                     * always fully-paranthesised to avoid ambiguities.
+                     *
+                     * \tparam T       Type of the first argument.
+                     * \tparam S       Type of the second argument.
+                     * \tparam op      The applicable operator.
+                     * \tparam runtime Whether or not this is a runtime tracer.
+                     *
+                     * \param[in] t The operation to format.
+                     */
                     template<typename T, typename S, char op, bool runtime>
                     static result format (const tracer<T,S,op,runtime,formatter> &t)
                     {
@@ -76,6 +110,17 @@ namespace efgy
                         return s.str();
                     }
 
+                    /**\brief Format single-parameter operation
+                     *
+                     * Formats an operation with one parameters. The output is
+                     * always fully-paranthesised to avoid ambiguities.
+                     *
+                     * \tparam T       Type of the argument.
+                     * \tparam op      The applicable operator.
+                     * \tparam runtime Whether or not this is a runtime tracer.
+                     *
+                     * \param[in] t The operation to format.
+                     */
                     template<typename T, char op, bool runtime>
                     static result format (const tracer<T,void,op,runtime,formatter> &t)
                     {
@@ -92,36 +137,52 @@ namespace efgy
                     }
             };
 
+            /**\brief Tracer base class
+             *
+             * The base class for the numeric tracer. Sets up virtual attributes
+             * when required by the tracer.
+             *
+             * \tparam runtime Whether a runtime tracer is needed.
+             * \tparam format  The formatter for the tracer.
+             */
             template<bool runtime = false, typename format = formatter<std::string>>
             class base
             {
                 public:
+                    /**\brief Virtual base destructor
+                     *
+                     * Empty, but defined so that derived classes can have their
+                     * destructors called when necessary.
+                     */
                     virtual ~base (void) {}
 
+                    /**\brief Format the tracer result
+                     *
+                     * Cast the tracer result to the formatter's return type to
+                     * format the result.
+                     *
+                     * \returns The formatted result.
+                     */
                     virtual operator typename format::result (void) const
                     {
                         return "unknown";
                     }
-
-                    virtual char getOperator (void) const
-                    {
-                        return 0;
-                    }
-
-                    virtual typename format::result trace (void) const
-                    {
-                        return "";
-                    }
-
-                    virtual int value (void) const
-                    {
-                        return 0;
-                    }
             };
 
-            template<>
-            class base<false> {};
+            /**\brief Non-runtime tracer base class
+             *
+             * Empty base class, used for a non-runtime tracer.
+             *
+             * \tparam format  The formatter for the tracer.
+             */
+            template<typename format>
+            class base<false,format> {};
 
+            /**\brief Runtime tracer type
+             *
+             * Convenient typedef for a runtime tracer with the standard output
+             * formatter.
+             */
             typedef std::shared_ptr<base<true>> runtime;
 
             template<typename T, typename S = void, char op = 0, bool runtime = false, typename format = formatter<std::string>>
@@ -134,11 +195,6 @@ namespace efgy
                     operator typename format::result (void) const
                     {
                         return format::format(*this);
-                    }
-
-                    char getOperator (void) const
-                    {
-                        return op;
                     }
 
                     operator std::shared_ptr<tracer> (void)
@@ -162,11 +218,6 @@ namespace efgy
                         return format::format(*this);
                     }
 
-                    char getOperator (void) const
-                    {
-                        return op;
-                    }
-
                     operator std::shared_ptr<tracer> (void)
                     {
                         return std::shared_ptr<tracer>(new tracer (*this));
@@ -187,11 +238,6 @@ namespace efgy
                         return name;
                     }
 
-                    char getOperator (void) const
-                    {
-                        return 0;
-                    }
-
                     operator std::shared_ptr<tracer> (void)
                     {
                         return std::shared_ptr<tracer>(new tracer (*this));
@@ -210,11 +256,6 @@ namespace efgy
                     operator std::string (void) const
                     {
                         return std::string(name);
-                    }
-
-                    char getOperator (void) const
-                    {
-                        return 0;
                     }
 
                     operator std::shared_ptr<tracer> (void)
