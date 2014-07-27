@@ -50,14 +50,6 @@ using efgy::math::matrix;
  */
 int testTracer (std::ostream &log)
 {
-    auto frob = 1 - tracer<int>(1) * 2;
-
-    auto frob2 = frob / frob;
-    auto frob3 = frob + frob;
-
-    log << std::string(frob) << "\n";
-    log << std::string(frob2) << "\n";
-
     std::shared_ptr<tracer<int,void,0,true>> frobrt(tracer<int,void,0,true>(1));
     runtime frobrt2 (new tracer<int,void,0,true>(1));
     runtime frobrt3 (frobrt);

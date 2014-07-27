@@ -485,90 +485,6 @@ namespace efgy
 
             /**\brief Numeric tracer addition operator
              *
-             * Implements the addition operator for a tracer with another value.
-             *
-             * There is a host of conceptually similar operators the implement
-             * this feature, so as to support different ways of adding things,
-             * i.e. with the tracer variable being on either side, with or
-             * without a runtime tracer, etc.
-             *
-             * \tparam T    Type of the left-hand value for the operation.
-             * \tparam S    Type of the right-hand value for the operation.
-             * \tparam R    Type of the value that is added to the tracer.
-             * \tparam op   The operator for the operation.
-             *
-             * \param[in] p1 The tracer that a value is added to.
-             * \param[in] p2 The value that is added to the tracer.
-             *
-             * \returns A new two-operator tracer with both operands added
-             *          together.
-             */
-            template<typename T, typename S, typename R, char op>
-            constexpr static inline tracer<tracer<T,S,op,false>,R,'+',false> operator + (const tracer<T,S,op,false> &p1, const R &p2)
-            {
-                return tracer<tracer<T,S,op,false>,R,'+',false> (p1, p2);
-            }
-
-            /**\brief Numeric tracer addition operator
-             *
-             * Implements the addition operator for a tracer with another value.
-             *
-             * There is a host of conceptually similar operators the implement
-             * this feature, so as to support different ways of adding things,
-             * i.e. with the tracer variable being on either side, with or
-             * without a runtime tracer, etc.
-             *
-             * \tparam T    Type of the left-hand value for the operation.
-             * \tparam S    Type of the right-hand value for the operation.
-             * \tparam R    Type of the value that is added to the tracer.
-             * \tparam op   The operator for the operation.
-             *
-             * \param[in] p1 The value that is added to the tracer.
-             * \param[in] p2 The tracer that a value is added to.
-             *
-             * \returns A new two-operator tracer with both operands added
-             *          together.
-             */
-            template<typename T, typename S, typename R, char op>
-            constexpr static inline tracer<R,tracer<T,S,op,false>,'+',false> operator + (const R &p1, const tracer<T,S,op,false> &p2)
-            {
-                return tracer<R,tracer<T,S,op,false>,'+',false> (p1, p2);
-            }
-
-            /**\brief Numeric tracer addition operator
-             *
-             * Implements the addition operator for two tracer values.
-             *
-             * There is a host of conceptually similar operators the implement
-             * this feature, so as to support different ways of adding things,
-             * i.e. with the tracer variable being on either side, with or
-             * without a runtime tracer, etc.
-             *
-             * \tparam T    Type of the left-hand value for the left-hand
-             *              tracer.
-             * \tparam S    Type of the right-hand value for the left-hand
-             *              tracer.
-             * \tparam R    Type of the left-hand value for the right-hand
-             *              tracer.
-             * \tparam Q    Type of the right-hand value for the right-hand
-             *              tracer.
-             * \tparam op1  The operator for the left-hand tracer.
-             * \tparam op2  The operator for the right-hand tracer.
-             *
-             * \param[in] p1 The left-hand tracer.
-             * \param[in] p2 The right-hand tracer.
-             *
-             * \returns A new two-operator tracer with both operands added
-             *          together.
-             */
-            template<typename T, typename S, typename R, typename Q, char op1, char op2>
-            constexpr static inline tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'+',false> operator + (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
-            {
-                return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'+',false> (p1, p2);
-            }
-
-            /**\brief Numeric tracer addition operator
-             *
              * Implements the addition operator for a runtime tracer with
              * another value.
              *
@@ -633,26 +549,6 @@ namespace efgy
             static inline std::shared_ptr<tracer<runtime,runtime,'+',true>> operator + (const runtime &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<runtime,runtime,'+',true>> (new tracer<runtime,runtime,'+',true>(p1, p2));
-            }
-
-            // subtract
-
-            template<typename T, typename S, typename R, char op>
-            constexpr static inline tracer<tracer<T,S,op,false>,R,'-',false> operator - (const tracer<T,S,op,false> &p1, const R &p2)
-            {
-                return tracer<tracer<T,S,op,false>,R,'-',false> (p1, p2);
-            }
-
-            template<typename T, typename S, typename R, char op>
-            constexpr static inline tracer<R,tracer<T,S,op,false>,'-',false> operator - (const R &p1, const tracer<T,S,op,false> &p2)
-            {
-                return tracer<R,tracer<T,S,op,false>,'-',false> (p1, p2);
-            }
-
-            template<typename T, typename S, typename R, typename Q, char op1, char op2>
-            constexpr static inline tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'-',false> operator - (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
-            {
-                return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'-',false> (p1, p2);
             }
 
             /**\brief Numeric tracer subtraction operator
@@ -725,32 +621,48 @@ namespace efgy
                 return std::shared_ptr<tracer<runtime,runtime,'-',true>> (new tracer<runtime,runtime,'-',true>(p1, p2));
             }
 
-            // multiply
-
-            template<typename T, typename S, typename R, char op>
-            constexpr static inline tracer<tracer<T,S,op,false>,R,'*',false> operator * (const tracer<T,S,op,false> &p1, const R &p2)
-            {
-                return tracer<tracer<T,S,op,false>,R,'*',false> (p1, p2);
-            }
-
-            template<typename T, typename S, typename R, char op>
-            constexpr static inline tracer<R,tracer<T,S,op,false>,'*',false> operator * (const R &p1, const tracer<T,S,op,false> &p2)
-            {
-                return tracer<R,tracer<T,S,op,false>,'*',false> (p1, p2);
-            }
-
-            template<typename T, typename S, typename R, typename Q, char op1, char op2>
-            constexpr static inline tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'*',false> operator * (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
-            {
-                return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'*',false> (p1, p2);
-            }
-
+            /**\brief Numeric tracer multiplication operator
+             *
+             * Implements the multiplication operator for a runtime tracer with
+             * another value.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of multiplying
+             * things, i.e. with the tracer variable being on either side, with
+             * or without a runtime tracer, etc.
+             *
+             * \tparam R    Type of the factor to multiply with the tracer.
+             *
+             * \param[in] p1 The tracer that a value is multiplied with.
+             * \param[in] p2 The factor to multiply the tracer with.
+             *
+             * \returns A new two-operator tracer containing the product of the
+             *          two parameters.
+             */
             template<typename R>
             static inline std::shared_ptr<tracer<runtime,R,'*',true>> operator * (const runtime &p1, const R &p2)
             {
                 return std::shared_ptr<tracer<runtime,R,'*',true>> (new tracer<runtime,R,'*',true>(p1, p2));
             }
 
+            /**\brief Numeric tracer multiplication operator
+             *
+             * Implements the multiplication operator for a runtime tracer with
+             * another value.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of multiplying
+             * things, i.e. with the tracer variable being on either side, with
+             * or without a runtime tracer, etc.
+             *
+             * \tparam R    Type of the factor to multiply with the tracer.
+             *
+             * \param[in] p1 The factor to multiply the tracer with.
+             * \param[in] p2 The tracer that a value is multiplied with.
+             *
+             * \returns A new two-operator tracer containing the product of the
+             *          two parameters.
+             */
             template<typename R>
             static inline std::shared_ptr<tracer<R,runtime,'*',true>> operator * (const R &p1, const runtime &p2)
             {
@@ -777,32 +689,48 @@ namespace efgy
                 return std::shared_ptr<tracer<runtime,runtime,'*',true>> (new tracer<runtime,runtime,'*',true>(p1, p2));
             }
 
-            // divide
-
-            template<typename T, typename S, typename R, char op>
-            constexpr static inline tracer<tracer<T,S,op,false>,R,'/',false> operator / (const tracer<T,S,op,false> &p1, const R &p2)
-            {
-                return tracer<tracer<T,S,op,false>,R,'/',false> (p1, p2);
-            }
-
-            template<typename T, typename S, typename R, char op>
-            constexpr static inline tracer<R,tracer<T,S,op,false>,'/',false> operator / (const R &p1, const tracer<T,S,op,false> &p2)
-            {
-                return tracer<R,tracer<T,S,op,false>,'/',false> (p1, p2);
-            }
-
-            template<typename T, typename S, typename R, typename Q, char op1, char op2>
-            constexpr static inline tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'/',false> operator / (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
-            {
-                return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'/',false> (p1, p2);
-            }
-
+            /**\brief Numeric tracer division operator
+             *
+             * Implements the multiplication operator for a runtime tracer with
+             * another value.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of dividing things,
+             * i.e. with the tracer variable being on either side, with or
+             * without a runtime tracer, etc.
+             *
+             * \tparam R    Type of the divisor.
+             *
+             * \param[in] p1 The tracer that is to be divided.
+             * \param[in] p2 The divisor to divide by.
+             *
+             * \returns A new two-operator tracer containing the quotient of the
+             *          two parameters.
+             */
             template<typename R>
             static inline std::shared_ptr<tracer<runtime,R,'/',true>> operator / (const runtime &p1, const R &p2)
             {
                 return std::shared_ptr<tracer<runtime,R,'/',true>> (new tracer<runtime,R,'/',true>(p1, p2));
             }
 
+            /**\brief Numeric tracer division operator
+             *
+             * Implements the multiplication operator for a runtime tracer with
+             * another value.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of dividing things,
+             * i.e. with the tracer variable being on either side, with or
+             * without a runtime tracer, etc.
+             *
+             * \tparam R    Type of the dividend.
+             *
+             * \param[in] p2 The dividend to divide by the tracer.
+             * \param[in] p1 The tracer to divide by.
+             *
+             * \returns A new two-operator tracer containing the quotient of the
+             *          two parameters.
+             */
             template<typename R>
             static inline std::shared_ptr<tracer<R,runtime,'/',true>> operator / (const R &p1, const runtime &p2)
             {
