@@ -9,9 +9,9 @@
  */
 
 /**\if LIBEFGYMAIN
- * \mainpage libefgy-6
+ * \mainpage libefgy-7
  * \else
- * \page libefgy libefgy-6
+ * \page libefgy libefgy-7
  * \endif
  *
  * \section libefgy-introduction Introduction

@@ -224,6 +224,8 @@ namespace efgy
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -261,6 +263,8 @@ namespace efgy
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -311,6 +315,8 @@ namespace efgy
                  * \param[in] matrix The 3x3 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -354,6 +360,8 @@ namespace efgy
                  * \param[in] matrix The 2x2 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -438,6 +446,8 @@ namespace efgy
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -475,6 +485,8 @@ namespace efgy
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -525,6 +537,8 @@ namespace efgy
                  * \param[in] matrix The 3x3 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -568,6 +582,8 @@ namespace efgy
                  * \param[in] matrix The 2x2 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -677,6 +693,8 @@ namespace efgy
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -716,6 +734,8 @@ namespace efgy
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -768,6 +788,8 @@ namespace efgy
                  * \param[in] matrix The 3x3 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -813,6 +835,8 @@ namespace efgy
                  * \param[in] matrix The 2x2 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -903,6 +927,8 @@ namespace efgy
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -942,6 +968,8 @@ namespace efgy
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -994,6 +1022,8 @@ namespace efgy
                  * \param[in] matrix The 3x3 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
@@ -1039,6 +1069,8 @@ namespace efgy
                  * \param[in] matrix The 2x2 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
+                 * \param[in] asArray Upload as a flat array instead of using
+                 *                   the proper matrix function.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false

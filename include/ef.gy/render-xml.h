@@ -135,7 +135,7 @@ namespace efgy
          * \tparam C Character type for the basic_ostream reference.
          *
          * \param[out] stream The XML stream to write to.
-         * \param[in]  pValue The reference colour value to at the centre.
+         * \param[in]  value The reference colour value to at the centre.
          *
          * \returns A new copy of the input stream.
          */
