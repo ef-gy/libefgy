@@ -41,7 +41,7 @@ using namespace efgy::math::tracer;
 using efgy::math::matrix;
 
 /**\brief Test case for the numeric tracer
- * \test Uses the numeric tracer to create a parse tree, then compare that to
+ * \test Uses the numeric tracer to create a parse tree, then compares that to
  *       sample strings.
  *
  * \param[out] log A stream for test cases to log messages to.

@@ -112,7 +112,7 @@ namespace efgy
 
                     /**\brief Format single-parameter operation
                      *
-                     * Formats an operation with one parameters. The output is
+                     * Formats an operation with one parameter. The output is
                      * always fully-paranthesised to avoid ambiguities.
                      *
                      * \tparam T       Type of the argument.
@@ -185,148 +185,451 @@ namespace efgy
              */
             typedef std::shared_ptr<base<true>> runtime;
 
+            /**\brief Numeric tracer two-parameter operation
+             *
+             * Wraps a two-parameter tracer operation.
+             *
+             * \tparam T       Type of the left-hand value for the operation.
+             * \tparam S       Type of the right-hand value for the operation.
+             * \tparam op      The operator for the operation.
+             * \tparam runtime Whether or not this is a runtime tracer.
+             * \tparam format  The formatter for the tracer.
+             */
             template<typename T, typename S = void, char op = 0, bool runtime = false, typename format = formatter<std::string>>
             class tracer : public base<runtime,format>
             {
                 public:
+                    /**\brief Construct with values
+                     *
+                     * Construct a tracer operation with two parameters.
+                     */
                     constexpr tracer (const T &p1, const S &p2)
                         : value1(p1), value2(p2) {}
 
+                    /**\brief Format the tracer result
+                     *
+                     * Cast the tracer result to the formatter's return type to
+                     * format the result.
+                     *
+                     * \returns The formatted result.
+                     */
                     operator typename format::result (void) const
                     {
                         return format::format(*this);
                     }
 
+                    /**\brief Upcast to shared pointer
+                     *
+                     * This is used to turn a tracer into a shared pointer,
+                     * which is necessary when using a runtime tracer to avoid
+                     * memory leaks.
+                     */
                     operator std::shared_ptr<tracer> (void)
                     {
                         return std::shared_ptr<tracer>(new tracer (*this));
                     }
 
+                    /**\brief First/left-hand parameter
+                     *
+                     * This is the first - or left-hand - parameter to the
+                     * traced operation.
+                     */
                     const T value1;
+
+                    /**\brief Second/right-hand parameter
+                     *
+                     * This is the second - or right-hand - parameter to the
+                     * traced operation.
+                     */
                     const S value2;
             };
 
+            /**\brief Numeric tracer single-parameter operation
+             *
+             * Wraps a single-parameter tracer operation.
+             *
+             * \tparam T       Type of the value used with the operator.
+             * \tparam op      The operator for the operation.
+             * \tparam runtime Whether or not this is a runtime tracer.
+             * \tparam format  The formatter for the tracer.
+             */
             template<typename T, char op, bool runtime, typename format>
             class tracer<T,void,op,runtime,format> : public base<runtime,format>
             {
                 public:
+                    /**\brief Construct with value
+                     *
+                     * Construct a tracer operation with one parameter.
+                     */
                     constexpr tracer (const T &p1)
                         : value1(p1) {}
 
-                    operator std::string (void) const
+                    /**\brief Format the tracer result
+                     *
+                     * Cast the tracer result to the formatter's return type to
+                     * format the result.
+                     *
+                     * \returns The formatted result.
+                     */
+                    operator typename format::result (void) const
                     {
                         return format::format(*this);
                     }
 
+                    /**\brief Upcast to shared pointer
+                     *
+                     * This is used to turn a tracer into a shared pointer,
+                     * which is necessary when using a runtime tracer to avoid
+                     * memory leaks.
+                     */
                     operator std::shared_ptr<tracer> (void)
                     {
                         return std::shared_ptr<tracer>(new tracer (*this));
                     }
 
+                    /**\brief First/left-hand parameter
+                     *
+                     * This is the first - or left-hand - parameter to the
+                     * traced operation.
+                     *
+                     * Since this is a single-parameter operation this
+                     */
                     const T value1;
             };
 
+            /**\brief Numeric tracer variable name
+             *
+             * Wraps a std::string variable name for use in a runtime tracer.
+             *
+             * \tparam format  The formatter for the tracer.
+             */
             template<typename format>
             class tracer<void,void,0,true,format> : public base<true,format>
             {
                 public:
+                    /**\brief Construct with name
+                     *
+                     * Construct a tracer variable name using a std::string.
+                     */
                     tracer (std::string pName)
                         : name(pName) {}
 
+                    /**\brief Format the tracer result
+                     *
+                     * Cast the tracer result to the formatter's return type to
+                     * format the result.
+                     *
+                     * \returns The formatted result.
+                     */
                     operator std::string (void) const
                     {
                         return name;
                     }
 
+                    /**\brief Upcast to shared pointer
+                     *
+                     * This is used to turn a tracer into a shared pointer,
+                     * which is necessary when using a runtime tracer to avoid
+                     * memory leaks.
+                     */
                     operator std::shared_ptr<tracer> (void)
                     {
                         return std::shared_ptr<tracer>(new tracer (*this));
                     }
 
+                    /**\brief Variable name
+                     *
+                     * Name of the variable contained in this object.
+                     */
                     const std::string name;
             };
 
+            /**\brief Numeric tracer variable name
+             *
+             * Wraps a const char* variable name for use in a tracer.
+             *
+             * \tparam format  The formatter for the tracer.
+             */
             template<typename format>
             class tracer<void,void,0,false,format> : public base<false,format>
             {
                 public:
+                    /**\brief Construct with name
+                     *
+                     * Construct a tracer variable name using a const char *.
+                     */
                     tracer (const char *pName)
                         : name(pName) {}
 
+                    /**\brief Format the tracer result
+                     *
+                     * Cast the tracer result to the formatter's return type to
+                     * format the result.
+                     *
+                     * \returns The formatted result.
+                     */
                     operator std::string (void) const
                     {
                         return std::string(name);
                     }
 
+                    /**\brief Upcast to shared pointer
+                     *
+                     * This is used to turn a tracer into a shared pointer,
+                     * which is necessary when using a runtime tracer to avoid
+                     * memory leaks.
+                     */
                     operator std::shared_ptr<tracer> (void)
                     {
                         return std::shared_ptr<tracer>(new tracer (*this));
                     }
 
+                    /**\brief Variable name
+                     *
+                     * Name of the variable contained in this object.
+                     */
                     const char *name;
             };
 
+            /**\brief Tracer stream output
+             *
+             * Used to write an instance of the tracer to a standard output
+             * stream. This operator has several overloads, depending on the
+             * kind of tracer operation to write out.
+             *
+             * This is the non-runtime tracer overload.
+             *
+             * \tparam T    Type of the left-hand value for the operation.
+             * \tparam S    Type of the right-hand value for the operation.
+             * \tparam op   The operator for the operation.
+             *
+             * \param[in] s The stream to write to.
+             * \param[in] t The traced operation to write to the stream.
+             *
+             * \returns A reference to the stream that the traced operation was
+             *          written to.
+             */
             template<typename T, typename S, char op>
             static inline std::ostream & operator << (std::ostream &s, const tracer<T,S,op,false> &t)
             {
                 return (s << std::string(t));
             }
 
+            /**\brief Tracer stream output
+             *
+             * Used to write an instance of the tracer to a standard output
+             * stream. This operator has several overloads, depending on the
+             * kind of tracer operation to write out.
+             *
+             * This is the runtime tracer overload.
+             *
+             * \tparam T    Type of the left-hand value for the operation.
+             * \tparam S    Type of the right-hand value for the operation.
+             * \tparam op   The operator for the operation.
+             *
+             * \param[in] s The stream to write to.
+             * \param[in] t The traced operation to write to the stream.
+             *
+             * \returns A reference to the stream that the traced operation was
+             *          written to.
+             */
             template<typename T, typename S, char op>
             static inline std::ostream & operator << (std::ostream &s, const tracer<T,S,op,true> &t)
             {
                 return (s << std::string(t));
             }
 
-            template<typename T, typename S, char op>
-            static inline std::ostream & operator << (std::ostream &s, const base<true> &t)
-            {
-                return (s << std::string(t));
-            }
-
+            /**\brief Tracer stream output
+             *
+             * Used to write an instance of the tracer to a standard output
+             * stream. This operator has several overloads, depending on the
+             * kind of tracer operation to write out.
+             *
+             * This overload writes a tracer that has been wrapped in a shared
+             * pointer to the stream.
+             *
+             * \tparam T    Type of the left-hand value for the operation.
+             * \tparam S    Type of the right-hand value for the operation.
+             * \tparam op   The operator for the operation.
+             *
+             * \param[in] s The stream to write to.
+             * \param[in] t The traced operation to write to the stream.
+             *
+             * \returns A reference to the stream that the traced operation was
+             *          written to.
+             */
             template<typename T, typename S, char op>
             static inline std::ostream & operator << (std::ostream &s, const std::shared_ptr<tracer<T,S,op,true>> &t)
             {
                 return t ? (s << *t) : (s << "0");
             }
 
+            /**\brief Tracer stream output
+             *
+             * Used to write an instance of the tracer to a standard output
+             * stream. This operator has several overloads, depending on the
+             * kind of tracer operation to write out.
+             *
+             * This is the overload for the standard runtime type.
+             *
+             * \param[in] s The stream to write to.
+             * \param[in] t The traced operation to write to the stream.
+             *
+             * \returns A reference to the stream that the traced operation was
+             *          written to.
+             */
             static inline std::ostream & operator << (std::ostream &s, const runtime &t)
             {
                 return t ? (s << std::string(*t)) : (s << "0");
             }
 
-            // add
-
+            /**\brief Numeric tracer addition operator
+             *
+             * Implements the addition operator for a tracer with another value.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of adding things,
+             * i.e. with the tracer variable being on either side, with or
+             * without a runtime tracer, etc.
+             *
+             * \tparam T    Type of the left-hand value for the operation.
+             * \tparam S    Type of the right-hand value for the operation.
+             * \tparam R    Type of the value that is added to the tracer.
+             * \tparam op   The operator for the operation.
+             *
+             * \param[in] p1 The tracer that a value is added to.
+             * \param[in] p2 The value that is added to the tracer.
+             *
+             * \returns A new two-operator tracer with both operands added
+             *          together.
+             */
             template<typename T, typename S, typename R, char op>
             constexpr static inline tracer<tracer<T,S,op,false>,R,'+',false> operator + (const tracer<T,S,op,false> &p1, const R &p2)
             {
                 return tracer<tracer<T,S,op,false>,R,'+',false> (p1, p2);
             }
 
+            /**\brief Numeric tracer addition operator
+             *
+             * Implements the addition operator for a tracer with another value.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of adding things,
+             * i.e. with the tracer variable being on either side, with or
+             * without a runtime tracer, etc.
+             *
+             * \tparam T    Type of the left-hand value for the operation.
+             * \tparam S    Type of the right-hand value for the operation.
+             * \tparam R    Type of the value that is added to the tracer.
+             * \tparam op   The operator for the operation.
+             *
+             * \param[in] p1 The value that is added to the tracer.
+             * \param[in] p2 The tracer that a value is added to.
+             *
+             * \returns A new two-operator tracer with both operands added
+             *          together.
+             */
             template<typename T, typename S, typename R, char op>
             constexpr static inline tracer<R,tracer<T,S,op,false>,'+',false> operator + (const R &p1, const tracer<T,S,op,false> &p2)
             {
                 return tracer<R,tracer<T,S,op,false>,'+',false> (p1, p2);
             }
 
+            /**\brief Numeric tracer addition operator
+             *
+             * Implements the addition operator for two tracer values.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of adding things,
+             * i.e. with the tracer variable being on either side, with or
+             * without a runtime tracer, etc.
+             *
+             * \tparam T    Type of the left-hand value for the left-hand
+             *              tracer.
+             * \tparam S    Type of the right-hand value for the left-hand
+             *              tracer.
+             * \tparam R    Type of the left-hand value for the right-hand
+             *              tracer.
+             * \tparam Q    Type of the right-hand value for the right-hand
+             *              tracer.
+             * \tparam op1  The operator for the left-hand tracer.
+             * \tparam op2  The operator for the right-hand tracer.
+             *
+             * \param[in] p1 The left-hand tracer.
+             * \param[in] p2 The right-hand tracer.
+             *
+             * \returns A new two-operator tracer with both operands added
+             *          together.
+             */
             template<typename T, typename S, typename R, typename Q, char op1, char op2>
             constexpr static inline tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'+',false> operator + (const tracer<R,Q,op1,false> &p1, const tracer<T,S,op2,false> &p2)
             {
                 return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'+',false> (p1, p2);
             }
 
+            /**\brief Numeric tracer addition operator
+             *
+             * Implements the addition operator for a runtime tracer with
+             * another value.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of adding things,
+             * i.e. with the tracer variable being on either side, with or
+             * without a runtime tracer, etc.
+             *
+             * \tparam R    Type of the value that is added to the tracer.
+             *
+             * \param[in] p1 The tracer that a value is added to.
+             * \param[in] p2 The value that is added to the tracer.
+             *
+             * \returns A new two-operator tracer with both operands added
+             *          together.
+             */
             template<typename R>
             static inline std::shared_ptr<tracer<runtime,R,'+',true>> operator + (const runtime &p1, const R &p2)
             {
                 return std::shared_ptr<tracer<runtime,R,'+',true>> (new tracer<runtime,R,'+',true>(p1, p2));
             }
 
+            /**\brief Numeric tracer addition operator
+             *
+             * Implements the addition operator for a runtime tracer with
+             * another value.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of adding things,
+             * i.e. with the tracer variable being on either side, with or
+             * without a runtime tracer, etc.
+             *
+             * \tparam R    Type of the value that is added to the tracer.
+             *
+             * \param[in] p1 The value that is added to the tracer.
+             * \param[in] p2 The tracer that a value is added to.
+             *
+             * \returns A new two-operator tracer with both operands added
+             *          together.
+             */
             template<typename R>
             static inline std::shared_ptr<tracer<R,runtime,'+',true>> operator + (const R &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<R,runtime,'+',true>> (new tracer<R,runtime,'+',true>(p1, p2));
             }
 
+            /**\brief Numeric tracer addition operator
+             *
+             * Implements the addition operator for two tracer values.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of adding things,
+             * i.e. with the tracer variable being on either side, with or
+             * without a runtime tracer, etc.
+             *
+             * \param[in] p1 The left-hand tracer.
+             * \param[in] p2 The right-hand tracer.
+             *
+             * \returns A new two-operator tracer with both operands added
+             *          together.
+             */
             static inline std::shared_ptr<tracer<runtime,runtime,'+',true>> operator + (const runtime &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<runtime,runtime,'+',true>> (new tracer<runtime,runtime,'+',true>(p1, p2));
@@ -352,18 +655,71 @@ namespace efgy
                 return tracer<tracer<R,Q,op1,false>,tracer<T,S,op2,false>,'-',false> (p1, p2);
             }
 
+            /**\brief Numeric tracer subtraction operator
+             *
+             * Implements the subtraction operator for a runtime tracer and
+             * another value.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of subtracting
+             * things, i.e. with the tracer variable being on either side, with
+             * or without a runtime tracer, etc.
+             *
+             * \tparam R    Type of the value that is subtracted from the
+             *              tracer.
+             *
+             * \param[in] p1 The tracer that a value is subtracted from.
+             * \param[in] p2 The value that is subtracted from the tracer.
+             *
+             * \returns A new two-operator tracer with the right-hand side
+             *          subtracted from the left-hand side.
+             */
             template<typename R>
             static inline std::shared_ptr<tracer<runtime,R,'-',true>> operator - (const runtime &p1, const R &p2)
             {
                 return std::shared_ptr<tracer<runtime,R,'-',true>> (new tracer<runtime,R,'-',true>(p1, p2));
             }
 
+            /**\brief Numeric tracer subtraction operator
+             *
+             * Implements the subtraction operator for a runtime tracer and
+             * another value.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of subtracting
+             * things, i.e. with the tracer variable being on either side, with
+             * or without a runtime tracer, etc.
+             *
+             * \tparam R    Type of the value that the tracer is subtracted
+             *              from.
+             *
+             * \param[in] p1 The value that the tracer is subtracted from.
+             * \param[in] p2 The tracer that is subtracted from the value.
+             *
+             * \returns A new two-operator tracer with the right-hand side
+             *          subtracted from the left-hand side.
+             */
             template<typename R>
             static inline std::shared_ptr<tracer<R,runtime,'-',true>> operator - (const R &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<R,runtime,'-',true>> (new tracer<R,runtime,'-',true>(p1, p2));
             }
-
+            
+            /**\brief Numeric tracer subtraction operator
+             *
+             * Implements the subtraction operator for two tracer values.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of subtracting
+             * things, i.e. with the tracer variable being on either side, with
+             * or without a runtime tracer, etc.
+             *
+             * \param[in] p1 The left-hand tracer.
+             * \param[in] p2 The right-hand tracer.
+             *
+             * \returns A new two-operator tracer with the right-hand side
+             *          subtracted from the left-hand side.
+             */
             static inline std::shared_ptr<tracer<runtime,runtime,'-',true>> operator - (const runtime &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<runtime,runtime,'-',true>> (new tracer<runtime,runtime,'-',true>(p1, p2));
@@ -401,6 +757,21 @@ namespace efgy
                 return std::shared_ptr<tracer<R,runtime,'*',true>> (new tracer<R,runtime,'*',true>(p1, p2));
             }
 
+            /**\brief Numeric tracer multiplication operator
+             *
+             * Implements the multiplication operator for two tracer values.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of multiplying
+             * things, i.e. with the tracer variable being on either side, with
+             * or without a runtime tracer, etc.
+             *
+             * \param[in] p1 The left-hand tracer.
+             * \param[in] p2 The right-hand tracer.
+             *
+             * \returns A new two-operator tracer containing the product of the
+             *          two former tracers.
+             */
             static inline std::shared_ptr<tracer<runtime,runtime,'*',true>> operator * (const runtime &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<runtime,runtime,'*',true>> (new tracer<runtime,runtime,'*',true>(p1, p2));
@@ -438,28 +809,82 @@ namespace efgy
                 return std::shared_ptr<tracer<R,runtime,'/',true>> (new tracer<R,runtime,'/',true>(p1, p2));
             }
 
+            /**\brief Numeric tracer division operator
+             *
+             * Implements the divison operator for two tracer values.
+             *
+             * There is a host of conceptually similar operators the implement
+             * this feature, so as to support different ways of dividing things,
+             * i.e. with the tracer variable being on either side, with or
+             * without a runtime tracer, etc.
+             *
+             * \param[in] p1 The left-hand tracer.
+             * \param[in] p2 The right-hand tracer.
+             *
+             * \returns A new two-operator tracer containing the quotient of the
+             *          two original tracers.
+             */
             static inline std::shared_ptr<tracer<runtime,runtime,'/',true>> operator / (const runtime &p1, const runtime &p2)
             {
                 return std::shared_ptr<tracer<runtime,runtime,'/',true>> (new tracer<runtime,runtime,'/',true>(p1, p2));
             }
-
-            // combined assignment operators
-
+            
+            /**\brief Numeric tracer add-and-assign operator
+             *
+             * Implements the add-and-assign operator for two tracer values.
+             *
+             * \param[in] p1 The left-hand tracer.
+             * \param[in] p2 The right-hand tracer.
+             *
+             * \returns A new two-operator tracer with the right-hand side added
+             *          to the left-hand side.
+             */
             static inline runtime operator += (runtime &p1, const runtime &p2)
             {
                 return p1 = (p1 + p2);
             }
 
+            /**\brief Numeric tracer subtract-and-assign operator
+             *
+             * Implements the subtract-and-assign operator for two tracer
+             * values.
+             *
+             * \param[in] p1 The left-hand tracer.
+             * \param[in] p2 The right-hand tracer.
+             *
+             * \returns A new two-operator tracer with the right-hand side 
+             *          subtracted from the left-hand side.
+             */
             static inline runtime operator -= (runtime &p1, const runtime &p2)
             {
                 return p1 = (p1 - p2);
             }
 
+            /**\brief Numeric tracer multiply-and-assign operator
+             *
+             * Implements the multiply-and-assign operator for two tracer values.
+             *
+             * \param[in] p1 The left-hand tracer.
+             * \param[in] p2 The right-hand tracer.
+             *
+             * \returns A new two-operator tracer with the product of the two
+             *          tracers.
+             */
             static inline runtime operator *= (runtime &p1, const runtime &p2)
             {
                 return p1 = (p1 * p2);
             }
 
+            /**\brief Numeric tracer divide-and-assign operator
+             *
+             * Implements the divide-and-assign operator for two tracer values.
+             *
+             * \param[in] p1 The left-hand tracer.
+             * \param[in] p2 The right-hand tracer.
+             *
+             * \returns A new two-operator tracer with the quotion of the two
+             *          tracers.
+             */
             static inline runtime operator /= (runtime &p1, const runtime &p2)
             {
                 return p1 = (p1 / p2);
