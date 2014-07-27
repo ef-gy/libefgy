@@ -45,7 +45,7 @@ namespace efgy
          */
         namespace tracer
         {
-            template<typename T, typename S, char op, bool runtime, typename format>
+            template<typename T, typename S, char op, typename format>
             class tracer;
 
             /**\brief Output formatter base
@@ -91,12 +91,11 @@ namespace efgy
                      * \tparam T       Type of the first argument.
                      * \tparam S       Type of the second argument.
                      * \tparam op      The applicable operator.
-                     * \tparam runtime Whether or not this is a runtime tracer.
                      *
                      * \param[in] t The operation to format.
                      */
-                    template<typename T, typename S, char op, bool runtime>
-                    static result format (const tracer<T,S,op,runtime,formatter> &t)
+                    template<typename T, typename S, char op>
+                    static result format (const tracer<T,S,op,formatter> &t)
                     {
                         std::stringstream s("");
                         if (op)
@@ -117,12 +116,11 @@ namespace efgy
                      *
                      * \tparam T       Type of the argument.
                      * \tparam op      The applicable operator.
-                     * \tparam runtime Whether or not this is a runtime tracer.
                      *
                      * \param[in] t The operation to format.
                      */
-                    template<typename T, char op, bool runtime>
-                    static result format (const tracer<T,void,op,runtime,formatter> &t)
+                    template<typename T, char op>
+                    static result format (const tracer<T,void,op,formatter> &t)
                     {
                         std::stringstream s("");
                         if (op)
@@ -140,12 +138,11 @@ namespace efgy
             /**\brief Tracer base class
              *
              * The base class for the numeric tracer. Sets up virtual attributes
-             * when required by the tracer.
+             * as required by the tracer.
              *
-             * \tparam runtime Whether a runtime tracer is needed.
              * \tparam format  The formatter for the tracer.
              */
-            template<bool runtime = false, typename format = formatter<std::string>>
+            template<typename format = formatter<std::string>>
             class base
             {
                 public:
@@ -169,21 +166,12 @@ namespace efgy
                     }
             };
 
-            /**\brief Non-runtime tracer base class
-             *
-             * Empty base class, used for a non-runtime tracer.
-             *
-             * \tparam format  The formatter for the tracer.
-             */
-            template<typename format>
-            class base<false,format> {};
-
             /**\brief Runtime tracer type
              *
              * Convenient typedef for a runtime tracer with the standard output
              * formatter.
              */
-            typedef std::shared_ptr<base<true>> runtime;
+            typedef std::shared_ptr<base<>> runtime;
 
             /**\brief Numeric tracer two-parameter operation
              *
@@ -192,11 +180,10 @@ namespace efgy
              * \tparam T       Type of the left-hand value for the operation.
              * \tparam S       Type of the right-hand value for the operation.
              * \tparam op      The operator for the operation.
-             * \tparam runtime Whether or not this is a runtime tracer.
              * \tparam format  The formatter for the tracer.
              */
-            template<typename T, typename S = void, char op = 0, bool runtime = false, typename format = formatter<std::string>>
-            class tracer : public base<runtime,format>
+            template<typename T, typename S = void, char op = 0, typename format = formatter<std::string>>
+            class tracer : public base<format>
             {
                 public:
                     /**\brief Construct with values
@@ -250,11 +237,10 @@ namespace efgy
              *
              * \tparam T       Type of the value used with the operator.
              * \tparam op      The operator for the operation.
-             * \tparam runtime Whether or not this is a runtime tracer.
              * \tparam format  The formatter for the tracer.
              */
-            template<typename T, char op, bool runtime, typename format>
-            class tracer<T,void,op,runtime,format> : public base<runtime,format>
+            template<typename T, char op, typename format>
+            class tracer<T,void,op,format> : public base<format>
             {
                 public:
                     /**\brief Construct with value
@@ -304,7 +290,7 @@ namespace efgy
              * \tparam format  The formatter for the tracer.
              */
             template<typename format>
-            class tracer<void,void,0,true,format> : public base<true,format>
+            class tracer<void,void,0,format> : public base<format>
             {
                 public:
                     /**\brief Construct with name
@@ -344,77 +330,6 @@ namespace efgy
                     const std::string name;
             };
 
-            /**\brief Numeric tracer variable name
-             *
-             * Wraps a const char* variable name for use in a tracer.
-             *
-             * \tparam format  The formatter for the tracer.
-             */
-            template<typename format>
-            class tracer<void,void,0,false,format> : public base<false,format>
-            {
-                public:
-                    /**\brief Construct with name
-                     *
-                     * Construct a tracer variable name using a const char *.
-                     */
-                    tracer (const char *pName)
-                        : name(pName) {}
-
-                    /**\brief Format the tracer result
-                     *
-                     * Cast the tracer result to the formatter's return type to
-                     * format the result.
-                     *
-                     * \returns The formatted result.
-                     */
-                    operator std::string (void) const
-                    {
-                        return std::string(name);
-                    }
-
-                    /**\brief Upcast to shared pointer
-                     *
-                     * This is used to turn a tracer into a shared pointer,
-                     * which is necessary when using a runtime tracer to avoid
-                     * memory leaks.
-                     */
-                    operator std::shared_ptr<tracer> (void)
-                    {
-                        return std::shared_ptr<tracer>(new tracer (*this));
-                    }
-
-                    /**\brief Variable name
-                     *
-                     * Name of the variable contained in this object.
-                     */
-                    const char *name;
-            };
-
-            /**\brief Tracer stream output
-             *
-             * Used to write an instance of the tracer to a standard output
-             * stream. This operator has several overloads, depending on the
-             * kind of tracer operation to write out.
-             *
-             * This is the non-runtime tracer overload.
-             *
-             * \tparam T    Type of the left-hand value for the operation.
-             * \tparam S    Type of the right-hand value for the operation.
-             * \tparam op   The operator for the operation.
-             *
-             * \param[in] s The stream to write to.
-             * \param[in] t The traced operation to write to the stream.
-             *
-             * \returns A reference to the stream that the traced operation was
-             *          written to.
-             */
-            template<typename T, typename S, char op>
-            static inline std::ostream & operator << (std::ostream &s, const tracer<T,S,op,false> &t)
-            {
-                return (s << std::string(t));
-            }
-
             /**\brief Tracer stream output
              *
              * Used to write an instance of the tracer to a standard output
@@ -434,7 +349,7 @@ namespace efgy
              *          written to.
              */
             template<typename T, typename S, char op>
-            static inline std::ostream & operator << (std::ostream &s, const tracer<T,S,op,true> &t)
+            static inline std::ostream & operator << (std::ostream &s, const tracer<T,S,op> &t)
             {
                 return (s << std::string(t));
             }
@@ -459,7 +374,7 @@ namespace efgy
              *          written to.
              */
             template<typename T, typename S, char op>
-            static inline std::ostream & operator << (std::ostream &s, const std::shared_ptr<tracer<T,S,op,true>> &t)
+            static inline std::ostream & operator << (std::ostream &s, const std::shared_ptr<tracer<T,S,op>> &t)
             {
                 return t ? (s << *t) : (s << "0");
             }
@@ -502,9 +417,9 @@ namespace efgy
              *          together.
              */
             template<typename R>
-            static inline std::shared_ptr<tracer<runtime,R,'+',true>> operator + (const runtime &p1, const R &p2)
+            static inline std::shared_ptr<tracer<runtime,R,'+'>> operator + (const runtime &p1, const R &p2)
             {
-                return std::shared_ptr<tracer<runtime,R,'+',true>> (new tracer<runtime,R,'+',true>(p1, p2));
+                return std::shared_ptr<tracer<runtime,R,'+'>> (new tracer<runtime,R,'+'>(p1, p2));
             }
 
             /**\brief Numeric tracer addition operator
@@ -526,9 +441,9 @@ namespace efgy
              *          together.
              */
             template<typename R>
-            static inline std::shared_ptr<tracer<R,runtime,'+',true>> operator + (const R &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<R,runtime,'+'>> operator + (const R &p1, const runtime &p2)
             {
-                return std::shared_ptr<tracer<R,runtime,'+',true>> (new tracer<R,runtime,'+',true>(p1, p2));
+                return std::shared_ptr<tracer<R,runtime,'+'>> (new tracer<R,runtime,'+'>(p1, p2));
             }
 
             /**\brief Numeric tracer addition operator
@@ -546,9 +461,9 @@ namespace efgy
              * \returns A new two-operator tracer with both operands added
              *          together.
              */
-            static inline std::shared_ptr<tracer<runtime,runtime,'+',true>> operator + (const runtime &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<runtime,runtime,'+'>> operator + (const runtime &p1, const runtime &p2)
             {
-                return std::shared_ptr<tracer<runtime,runtime,'+',true>> (new tracer<runtime,runtime,'+',true>(p1, p2));
+                return std::shared_ptr<tracer<runtime,runtime,'+'>> (new tracer<runtime,runtime,'+'>(p1, p2));
             }
 
             /**\brief Numeric tracer subtraction operator
@@ -571,9 +486,9 @@ namespace efgy
              *          subtracted from the left-hand side.
              */
             template<typename R>
-            static inline std::shared_ptr<tracer<runtime,R,'-',true>> operator - (const runtime &p1, const R &p2)
+            static inline std::shared_ptr<tracer<runtime,R,'-'>> operator - (const runtime &p1, const R &p2)
             {
-                return std::shared_ptr<tracer<runtime,R,'-',true>> (new tracer<runtime,R,'-',true>(p1, p2));
+                return std::shared_ptr<tracer<runtime,R,'-'>> (new tracer<runtime,R,'-'>(p1, p2));
             }
 
             /**\brief Numeric tracer subtraction operator
@@ -596,9 +511,9 @@ namespace efgy
              *          subtracted from the left-hand side.
              */
             template<typename R>
-            static inline std::shared_ptr<tracer<R,runtime,'-',true>> operator - (const R &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<R,runtime,'-'>> operator - (const R &p1, const runtime &p2)
             {
-                return std::shared_ptr<tracer<R,runtime,'-',true>> (new tracer<R,runtime,'-',true>(p1, p2));
+                return std::shared_ptr<tracer<R,runtime,'-'>> (new tracer<R,runtime,'-'>(p1, p2));
             }
             
             /**\brief Numeric tracer subtraction operator
@@ -616,9 +531,9 @@ namespace efgy
              * \returns A new two-operator tracer with the right-hand side
              *          subtracted from the left-hand side.
              */
-            static inline std::shared_ptr<tracer<runtime,runtime,'-',true>> operator - (const runtime &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<runtime,runtime,'-'>> operator - (const runtime &p1, const runtime &p2)
             {
-                return std::shared_ptr<tracer<runtime,runtime,'-',true>> (new tracer<runtime,runtime,'-',true>(p1, p2));
+                return std::shared_ptr<tracer<runtime,runtime,'-'>> (new tracer<runtime,runtime,'-'>(p1, p2));
             }
 
             /**\brief Numeric tracer multiplication operator
@@ -640,9 +555,9 @@ namespace efgy
              *          two parameters.
              */
             template<typename R>
-            static inline std::shared_ptr<tracer<runtime,R,'*',true>> operator * (const runtime &p1, const R &p2)
+            static inline std::shared_ptr<tracer<runtime,R,'*'>> operator * (const runtime &p1, const R &p2)
             {
-                return std::shared_ptr<tracer<runtime,R,'*',true>> (new tracer<runtime,R,'*',true>(p1, p2));
+                return std::shared_ptr<tracer<runtime,R,'*'>> (new tracer<runtime,R,'*'>(p1, p2));
             }
 
             /**\brief Numeric tracer multiplication operator
@@ -664,9 +579,9 @@ namespace efgy
              *          two parameters.
              */
             template<typename R>
-            static inline std::shared_ptr<tracer<R,runtime,'*',true>> operator * (const R &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<R,runtime,'*'>> operator * (const R &p1, const runtime &p2)
             {
-                return std::shared_ptr<tracer<R,runtime,'*',true>> (new tracer<R,runtime,'*',true>(p1, p2));
+                return std::shared_ptr<tracer<R,runtime,'*'>> (new tracer<R,runtime,'*'>(p1, p2));
             }
 
             /**\brief Numeric tracer multiplication operator
@@ -684,9 +599,9 @@ namespace efgy
              * \returns A new two-operator tracer containing the product of the
              *          two former tracers.
              */
-            static inline std::shared_ptr<tracer<runtime,runtime,'*',true>> operator * (const runtime &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<runtime,runtime,'*'>> operator * (const runtime &p1, const runtime &p2)
             {
-                return std::shared_ptr<tracer<runtime,runtime,'*',true>> (new tracer<runtime,runtime,'*',true>(p1, p2));
+                return std::shared_ptr<tracer<runtime,runtime,'*'>> (new tracer<runtime,runtime,'*'>(p1, p2));
             }
 
             /**\brief Numeric tracer division operator
@@ -708,9 +623,9 @@ namespace efgy
              *          two parameters.
              */
             template<typename R>
-            static inline std::shared_ptr<tracer<runtime,R,'/',true>> operator / (const runtime &p1, const R &p2)
+            static inline std::shared_ptr<tracer<runtime,R,'/'>> operator / (const runtime &p1, const R &p2)
             {
-                return std::shared_ptr<tracer<runtime,R,'/',true>> (new tracer<runtime,R,'/',true>(p1, p2));
+                return std::shared_ptr<tracer<runtime,R,'/'>> (new tracer<runtime,R,'/'>(p1, p2));
             }
 
             /**\brief Numeric tracer division operator
@@ -732,9 +647,9 @@ namespace efgy
              *          two parameters.
              */
             template<typename R>
-            static inline std::shared_ptr<tracer<R,runtime,'/',true>> operator / (const R &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<R,runtime,'/'>> operator / (const R &p1, const runtime &p2)
             {
-                return std::shared_ptr<tracer<R,runtime,'/',true>> (new tracer<R,runtime,'/',true>(p1, p2));
+                return std::shared_ptr<tracer<R,runtime,'/'>> (new tracer<R,runtime,'/'>(p1, p2));
             }
 
             /**\brief Numeric tracer division operator
@@ -752,9 +667,9 @@ namespace efgy
              * \returns A new two-operator tracer containing the quotient of the
              *          two original tracers.
              */
-            static inline std::shared_ptr<tracer<runtime,runtime,'/',true>> operator / (const runtime &p1, const runtime &p2)
+            static inline std::shared_ptr<tracer<runtime,runtime,'/'>> operator / (const runtime &p1, const runtime &p2)
             {
-                return std::shared_ptr<tracer<runtime,runtime,'/',true>> (new tracer<runtime,runtime,'/',true>(p1, p2));
+                return std::shared_ptr<tracer<runtime,runtime,'/'>> (new tracer<runtime,runtime,'/'>(p1, p2));
             }
             
             /**\brief Numeric tracer add-and-assign operator

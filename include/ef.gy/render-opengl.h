@@ -132,16 +132,16 @@ namespace efgy
                                 {
                                     std::stringstream s("");
                                     s << i;
-                                    position[i] = std::shared_ptr<math::tracer::tracer<void,void,0,true>>
-                                        (new math::tracer::tracer<void,void,0,true> ("position[" + s.str() + "]"));
+                                    position[i] = std::shared_ptr<math::tracer::tracer<void,void,0>>
+                                        (new math::tracer::tracer<void,void,0> ("position[" + s.str() + "]"));
                                     for (unsigned int j = 0; j < (d+1); j++)
                                     {
                                         s.str("");
                                         s << "[" << k << "]";
                                         k++;
                                         
-                                        m1[i][j] = std::shared_ptr<math::tracer::tracer<void,void,0,true>>
-                                            (new math::tracer::tracer<void,void,0,true> ("modelViewProjectionMatrix" + s.str()));
+                                        m1[i][j] = std::shared_ptr<math::tracer::tracer<void,void,0>>
+                                            (new math::tracer::tracer<void,void,0> ("modelViewProjectionMatrix" + s.str()));
                                     }
                                 }
 
