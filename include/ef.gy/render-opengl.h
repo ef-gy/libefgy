@@ -350,11 +350,34 @@ namespace efgy
                     return true;
                 }
 
+                /**\brief Clear flags
+                 *
+                 * These are the flags to glClear() that are used every time you
+                 * try to render a scene with this render programme. Set to 0 to
+                 * not clear anything.
+                 *
+                 * \see https://www.opengl.org/sdk/docs/man2/xhtml/glClear.xml
+                 *      for a description of the possible flags.
+                 */
                 GLint clear;
 
+                /**\brief Vertex render programme
+                 *
+                 * A shorthand type template for the standard render programme
+                 * at this depth. The type alias template is required, because
+                 * the framebuffer render programme only takes templates without
+                 * a depth specifier, so we need to cut that out of the type.
+                 *
+                 * \tparam Ve The GLSL version to generate a programme for.
+                 */
                 template<enum opengl::glsl::version Ve>
                 using vertex = render::glsl::vertex::regular<d,Ve>;
 
+                /**\brief Framebuffer render programme
+                 *
+                 * This is the framebuffer render programme that is used to
+                 * render the scene with.
+                 */
                 renderToFramebufferProgramme
                     <Q,V,vertex,render::glsl::fragment::regular> programme;
 
@@ -536,6 +559,16 @@ namespace efgy
                  */
                 bool initialised;
 
+                /**\brief Vertex render programme
+                 *
+                 * A shorthand type template for the fractal flame render
+                 * programme at this depth. The type alias template is required,
+                 * because the framebuffer render programme only takes templates
+                 * without a depth specifier, so we need to cut that out of the
+                 * type.
+                 *
+                 * \tparam Ve The GLSL version to generate a programme for.
+                 */
                 template<enum opengl::glsl::version Ve>
                 using vertex = render::glsl::vertex::fractalFlame<d,Ve>;
 
@@ -659,6 +692,16 @@ namespace efgy
                     lowerRenderer.frameEnd();
                 };
 
+                /**\brief Clear framebuffer
+                 *
+                 * Calls the lower rendere's clear() method to clear the
+                 * framebuffer. The bits argument decides which parts to clear.
+                 *
+                 * \param[in] bits A bitmask of what to clear.
+                 *
+                 * \see https://www.opengl.org/sdk/docs/man2/xhtml/glClear.xml
+                 *      for a description of the possible flags for bits.
+                 */
                 void clear (GLint bits)
                 {
                     lowerRenderer.clear(bits);
@@ -1159,11 +1202,27 @@ namespace efgy
                     }
                 };
 
+                /**\brief Clear framebuffer
+                 *
+                 * Sets a flag that will cause glClear() to be called on the
+                 * next render.
+                 *
+                 * \param[in] bits A bitmask of what to clear.
+                 *
+                 * \see https://www.opengl.org/sdk/docs/man2/xhtml/glClear.xml
+                 *      for a description of the possible flags for bits.
+                 */
                 void clear (GLint bits)
                 {
                     render.clear = bits;
                 }
 
+                /**\brief Upload vertex data
+                 *
+                 * Uploads the vertex data that has been prepared so far to the
+                 * graphics card. This will also flush the vertices, triindices
+                 * and lineindeces members, and reset the indices counter.
+                 */
                 void upload (void)
                 {
                     if (!prepared)
