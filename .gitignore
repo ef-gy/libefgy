@@ -11,3 +11,4 @@ matrix
 documentation/*.tag
 *.dSYM
 .DS_*
+documentation.xml
