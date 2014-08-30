@@ -688,24 +688,7 @@ namespace efgy
                 template<unsigned int n>
                 bool uniform (const char *name, const math::matrix<Q,n,n> &matrix, const bool asArray = true)
                 {
-                    if (use())
-                    {
-                        GLfloat mat[(n*n)];
-                        unsigned int k = 0;
-                        for (unsigned int i = 0; i < n; i++)
-                        {
-                            for (unsigned int j = 0; j < n; j++)
-                            {
-                                mat[k] = GLfloat(matrix[i][j]);
-                                k++;
-                            }
-                        }
-
-                        glUniform1fv(uniform(name), (n*n), mat);
-                        return true;
-                    }
-                    
-                    return false;
+                    return uniform(uniform(name), matrix, asArray);
                 }
 
                 /**\brief Load uniform 4x4 matrix
@@ -851,54 +834,24 @@ namespace efgy
                     return false;
                 }
 
-                /**\brief Load integer uniform
+                /**\brief Load uniform by name
                  *
-                 * Activate the programme and upload an integer uniform variable
-                 * to the specified uniform index. The index array that is used
-                 * to look up the actual uniform variable ID is obtained during
-                 * the compilation process of the shader porgramme.
+                 * Wrapper function to be able to specify a name instead of a
+                 * uniform ID.
                  *
                  * \param[in] name  The name of the uniform to use.
-                 * \param[in] value The integer value to load.
+                 * \param[in] value The value to load.
+                 *
+                 * \tparam T The type of the value to load.
                  *
                  * \return True if the programme was bound correctly and the
-                 *         matrix has been handed off to OpenGL, false
+                 *         data has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const char *name, const GLint &value)
+                template<typename T>
+                bool uniform (const char *name, const T &value)
                 {
-                    if (use())
-                    {
-                        glUniform1i(uniform(name), value);
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                /**\brief Load uniform floating point vector
-                 *
-                 * Activate the programme and upload a uniform float vector
-                 * to the specified uniform index. The index array that is used
-                 * to look up the actual uniform variable ID is obtained during
-                 * the compilation process of the shader porgramme.
-                 *
-                 * \param[in] name  The name of the uniform to use.
-                 * \param[in] value The floating point vector to load.
-                 *
-                 * \return True if the programme was bound correctly and the
-                 *         matrix has been handed off to OpenGL, false
-                 *         otherwise.
-                 */
-                bool uniform (const char *name, const GLfloat value[4])
-                {
-                    if (use())
-                    {
-                        glUniform4f(uniform(name), value[0], value[1], value[2], value[3]);
-                        return true;
-                    }
-
-                    return false;
+                    return uniform(uniform(name), value);
                 }
 
                 /**\brief Load arbitrary NxN matrix
@@ -1085,79 +1038,24 @@ namespace efgy
                     return false;
                 }
 
-                /**\brief Load integer uniform
+                /**\brief Load uniform by name
                  *
-                 * Activate the programme and upload an integer uniform variable
-                 * to the specified uniform index. The index array that is used
-                 * to look up the actual uniform variable ID is obtained during
-                 * the compilation process of the shader porgramme.
+                 * Wrapper function to be able to specify a name instead of a
+                 * uniform ID. This is the const version of the wrapper.
                  *
                  * \param[in] name  The name of the uniform to use.
-                 * \param[in] value The integer value to load.
+                 * \param[in] value The value to load.
+                 *
+                 * \tparam T The type of the value to load.
                  *
                  * \return True if the programme was bound correctly and the
-                 *         matrix has been handed off to OpenGL, false
+                 *         data has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const char *name, const GLint &value) const
+                template<typename T>
+                bool uniform (const char *name, const T &value) const
                 {
-                    if (use())
-                    {
-                        glUniform1i(uniform(name), value);
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                /**\brief Load uniform floating point vector
-                 *
-                 * Activate the programme and upload a uniform float vector
-                 * to the specified uniform index. The index array that is used
-                 * to look up the actual uniform variable ID is obtained during
-                 * the compilation process of the shader porgramme.
-                 *
-                 * \param[in] name  The name of the uniform to use.
-                 * \param[in] value The floating point vector to load.
-                 *
-                 * \return True if the programme was bound correctly and the
-                 *         matrix has been handed off to OpenGL, false
-                 *         otherwise.
-                 */
-                bool uniform (const char *name, const GLfloat value[4]) const
-                {
-                    if (use())
-                    {
-                        glUniform4f(uniform(name), value[0], value[1], value[2], value[3]);
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                /**\brief Load uniform floating point vector
-                 *
-                 * Activate the programme and upload a uniform float vector
-                 * to the specified uniform index. The index array that is used
-                 * to look up the actual uniform variable ID is obtained during
-                 * the compilation process of the shader porgramme.
-                 *
-                 * \param[in] name  The name of the uniform to use.
-                 * \param[in] value The floating point vector to load.
-                 *
-                 * \return True if the programme was bound correctly and the
-                 *         matrix has been handed off to OpenGL, false
-                 *         otherwise.
-                 */
-                bool uniform (const char *name, const std::array<GLfloat,4> &value) const
-                {
-                    if (use())
-                    {
-                        glUniform4f(uniform(name), value[0], value[1], value[2], value[3]);
-                        return true;
-                    }
-                    
-                    return false;
+                    return uniform(uniform(name), value);
                 }
 
                 /**\brief Look up uniform by name
