@@ -57,6 +57,78 @@ namespace efgy
          */
         namespace glsl
         {
+            template<unsigned int d>
+            static inline void name
+                (const std::string &name,
+                 math::vector<math::tracer::runtime,d> &pVector)
+            {
+                for (unsigned int i = 0; i < d; i++)
+                {
+                    std::stringstream s("");
+                    s << i;
+                    pVector[i] = std::shared_ptr<math::tracer::tracer<void,void,0>>
+                        (new math::tracer::tracer<void,void,0> (name + "[" + s.str() + "]"));
+                }
+            }
+            
+            template<unsigned int d>
+            static inline void name
+                (const std::string &name,
+                 math::matrix<math::tracer::runtime,d,d> &pMatrix)
+            {
+                unsigned int k = 0;
+                for (unsigned int i = 0; i < d; i++)
+                {
+                    for (unsigned int j = 0; j < d; j++)
+                    {
+                        std::stringstream s("");
+                        s << "[" << k << "]";
+                        k++;
+                        pMatrix[i][j] = std::shared_ptr<math::tracer::tracer<void,void,0>>
+                            (new math::tracer::tracer<void,void,0> (name + s.str()));
+                    }
+                }
+            }
+
+            template<unsigned int d>
+            static inline void transform
+                (std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform>> &uniform,
+                 math::vector<math::tracer::runtime,4> &gl_Position,
+                 math::vector<math::tracer::runtime,d+1> &position)
+            {
+                std::stringstream vn("");
+                vn << "mvp" << d;
+
+                uniform.push_back
+                    (opengl::glsl::variable<opengl::glsl::gv_uniform>
+                     (vn.str(), "float", "", (d+1)*(d+1)));
+
+                math::matrix<math::tracer::runtime,(d+1),(d+1)> m1;
+                name(vn.str(), m1);
+
+                geometry::transformation::projective<math::tracer::runtime,d> combined(m1);
+
+                transform<d-1>(uniform,gl_Position,combined * position);
+            }
+            
+            template<>
+            void transform<3>
+                (std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform>> &uniform,
+                 math::vector<math::tracer::runtime,4> &gl_Position,
+                 math::vector<math::tracer::runtime,4> &position)
+            {
+                uniform.push_back
+                    (opengl::glsl::variable<opengl::glsl::gv_uniform>
+                     ("mvp3", "float", "", 16));
+
+                math::matrix<math::tracer::runtime,4,4> m1;
+                name("mvp3", m1);
+
+                geometry::transformation::linear<math::tracer::runtime,4> l1(m1);
+
+                gl_Position = l1 * position;
+            }
+
             /**\brief GLSL vertex shaders
              *
              * Contains the vertex shaders used by the default OpenGL renderer.
@@ -73,13 +145,32 @@ namespace efgy
                     public:
                         fractalFlame(void)
                             : opengl::glsl::shader<V>
-                                ("indexVarying = index;\n"
-                                 "gl_Position = mvp3 * position;\n",
+                                ("indexVarying = index;\n",
                                  { opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4"),
                                    opengl::glsl::variable<opengl::glsl::gv_attribute>("index", "float", "highp") },
-                                 { opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float", "lowp") },
-                                 { opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3", "mat4") } )
-                            {}
+                                 { opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float", "lowp") } )
+                            {
+                                math::vector<math::tracer::runtime,d+1> P;
+                                name("position", P);
+
+                                transform<d>(opengl::glsl::shader<V>::uniform, gl_Position, P);
+                                opengl::glsl::shader<V>::main += position();
+                            }
+
+                        std::string position (void)
+                        {
+                            std::stringstream m("");
+
+                            for (unsigned int i = 0; i < (d+1); i++)
+                            {
+                                m << "gl_Position[" << i << "] = "
+                                << gl_Position[i] << ";\n";
+                            }
+
+                            return m.str();
+                        }
+
+                        math::vector<math::tracer::runtime,4> gl_Position;
                 };
 
                 /*
@@ -101,78 +192,6 @@ namespace efgy
                                  { opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3", "mat3") } )
                             {}
                 };
-
-                template<unsigned int d>
-                static inline void name
-                    (const std::string &name,
-                     math::vector<math::tracer::runtime,d> &pVector)
-                {
-                    for (unsigned int i = 0; i < d; i++)
-                    {
-                        std::stringstream s("");
-                        s << i;
-                        pVector[i] = std::shared_ptr<math::tracer::tracer<void,void,0>>
-                            (new math::tracer::tracer<void,void,0> (name + "[" + s.str() + "]"));
-                    }
-                }
-
-                template<unsigned int d>
-                static inline void name
-                    (const std::string &name,
-                     math::matrix<math::tracer::runtime,d,d> &pMatrix)
-                {
-                    unsigned int k = 0;
-                    for (unsigned int i = 0; i < d; i++)
-                    {
-                        for (unsigned int j = 0; j < d; j++)
-                        {
-                            std::stringstream s("");
-                            s << "[" << k << "]";
-                            k++;
-                            pMatrix[i][j] = std::shared_ptr<math::tracer::tracer<void,void,0>>
-                                (new math::tracer::tracer<void,void,0> (name + s.str()));
-                        }
-                    }
-                }
-
-                template<unsigned int d>
-                static inline void transform
-                    (std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform>> &uniform,
-                     math::vector<math::tracer::runtime,4> &gl_Position,
-                     math::vector<math::tracer::runtime,d+1> &position)
-                {
-                    std::stringstream vn("");
-                    vn << "mvp" << d;
-
-                    uniform.push_back
-                        (opengl::glsl::variable<opengl::glsl::gv_uniform>
-                         (vn.str(), "float", "", (d+1)*(d+1)));
-
-                    math::matrix<math::tracer::runtime,(d+1),(d+1)> m1;
-                    name(vn.str(), m1);
-
-                    geometry::transformation::projective<math::tracer::runtime,d> combined(m1);
-
-                    transform<d-1>(uniform,gl_Position,combined * position);
-                }
-
-                template<>
-                void transform<3>
-                    (std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform>> &uniform,
-                     math::vector<math::tracer::runtime,4> &gl_Position,
-                     math::vector<math::tracer::runtime,4> &position)
-                {
-                    uniform.push_back
-                        (opengl::glsl::variable<opengl::glsl::gv_uniform>
-                         ("mvp3", "float", "", 16));
-
-                    math::matrix<math::tracer::runtime,4,4> m1;
-                    name("mvp3", m1);
-
-                    geometry::transformation::linear<math::tracer::runtime,4> l1(m1);
-
-                    gl_Position = l1 * position;
-                }
 
                 /*
                  *
@@ -494,9 +513,9 @@ namespace efgy
                 bool matrices (const geometry::transformation::affine<Q,d> &combined,
                                const math::matrix<Q,d,d> &normalMatrix)
                 {
-                    return histogram.uniform("mvp3", combined.transformationMatrix, false)
+                    return histogram.uniform("mvp3", combined.transformationMatrix, d > 2)
                         && histogram.uniform("normalMatrix", normalMatrix, false)
-                        && colouring.uniform("mvp3", combined.transformationMatrix, false)
+                        && colouring.uniform("mvp3", combined.transformationMatrix, d > 2)
                         && colouring.uniform("normalMatrix", normalMatrix, false);
                 }
 
