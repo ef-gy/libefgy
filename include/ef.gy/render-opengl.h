@@ -332,8 +332,8 @@ namespace efgy
                 bool matrices (const geometry::transformation::affine<Q,d> &combined,
                                const math::matrix<Q,d,d> &normalMatrix)
                 {
-                    return programme.uniform(uniformProjectionMatrix3, combined.transformationMatrix, d > 2)
-                        && programme.uniform(uniformNormalMatrix, normalMatrix);
+                    return programme.uniform("mvp3", combined.transformationMatrix, d > 2)
+                        && programme.uniform("normalMatrix", normalMatrix);
                 }
 
                 /**\brief Render to current OpenGL context
@@ -455,10 +455,10 @@ namespace efgy
                 bool matrices (const geometry::transformation::affine<Q,d> &combined,
                                const math::matrix<Q,d,d> &normalMatrix)
                 {
-                    return histogram.uniform(uniformProjectionMatrix3, combined.transformationMatrix)
-                        && histogram.uniform(uniformNormalMatrix, normalMatrix)
-                        && colouring.uniform(uniformProjectionMatrix3, combined.transformationMatrix)
-                        && colouring.uniform(uniformNormalMatrix, normalMatrix);
+                    return histogram.uniform("mvp3", combined.transformationMatrix)
+                        && histogram.uniform("normalMatrix", normalMatrix)
+                        && colouring.uniform("mvp3", combined.transformationMatrix)
+                        && colouring.uniform("normalMatrix", normalMatrix);
                 }
 
                 /**\brief Render to current OpenGL context
@@ -529,12 +529,12 @@ namespace efgy
 
                     postProcess.use(width, height);
                     
-                    postProcess.uniform(efgy::opengl::uniformScreenFramebuffer, 0);
-                    postProcess.uniform(efgy::opengl::uniformScreenHistogram, 1);
+                    postProcess.uniform("screenFramebuffer", 0);
+                    postProcess.uniform("screenHistogram", 1);
                     
                     glActiveTexture(GL_TEXTURE0 + 2);
                     colourMap.bind();
-                    postProcess.uniform(efgy::opengl::uniformColourMap, 2);
+                    postProcess.uniform("colourMap", 2);
                     
                     glBlendFunc (GL_ONE, GL_ZERO);
                     
@@ -906,9 +906,9 @@ namespace efgy
                     {
                         render (width, height, [this] ()
                                 {
-                                    render.programme.uniform(efgy::opengl::uniformColour, wireframeColour);
+                                    render.programme.uniform("colour", wireframeColour);
                                     pushLines();
-                                    render.programme.uniform(efgy::opengl::uniformColour, surfaceColour);
+                                    render.programme.uniform("colour", surfaceColour);
                                     pushFaces();
                                 });
                     }
@@ -1216,9 +1216,9 @@ namespace efgy
                     {
                         render (width, height, [this] ()
                                 {
-                                    render.programme.uniform(efgy::opengl::uniformColour, wireframeColour);
+                                    render.programme.uniform("colour", wireframeColour);
                                     pushLines();
-                                    render.programme.uniform(efgy::opengl::uniformColour, surfaceColour);
+                                    render.programme.uniform("colour", surfaceColour);
                                     pushFaces();
                                 });
                     }

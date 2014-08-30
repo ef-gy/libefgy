@@ -115,23 +115,6 @@ namespace efgy
             attributeNormal,
             attributeIndex
         };
-        
-        /**\brief Uniforms
-         *
-         * Contains a list of default uniforms for the shaders.
-         */
-        enum uniforms
-        {
-            uniformProjectionMatrix,
-            uniformProjectionMatrix3,
-            uniformProjectionMatrix2,
-            uniformNormalMatrix,
-            uniformColour,
-            uniformScreenFramebuffer,
-            uniformScreenHistogram,
-            uniformColourMap,
-            uniformMax
-        };
 
         /**\brief Shader programme
          *
@@ -691,7 +674,7 @@ namespace efgy
                  * look up the actual uniform variable ID is obtained during the
                  * compilation process of the shader porgramme.
                  *
-                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] name   The name of the uniform to use.
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
@@ -703,7 +686,7 @@ namespace efgy
                  *         otherwise.
                  */
                 template<unsigned int n>
-                bool uniform (const enum uniforms &index, const math::matrix<Q,n,n> &matrix, const bool asArray = true)
+                bool uniform (const char *name, const math::matrix<Q,n,n> &matrix, const bool asArray = true)
                 {
                     if (use())
                     {
@@ -718,7 +701,7 @@ namespace efgy
                             }
                         }
 
-                        glUniform1fv(uniforms[index], (n*n), mat);
+                        glUniform1fv(uniform(name), (n*n), mat);
                         return true;
                     }
                     
@@ -732,7 +715,7 @@ namespace efgy
                  * look up the actual uniform variable ID is obtained during the
                  * compilation process of the shader porgramme.
                  *
-                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] name   The name of the uniform to use.
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
@@ -743,7 +726,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const math::matrix<Q,4,4> &matrix, const bool asArray = false)
+                bool uniform (const char *name, const math::matrix<Q,4,4> &matrix, const bool asArray = false)
                 {
                     if (use())
                     {
@@ -767,11 +750,11 @@ namespace efgy
 
                         if (asArray)
                         {
-                            glUniform1fv(uniforms[index], 16, mat);
+                            glUniform1fv(uniform(name), 16, mat);
                         }
                         else
                         {
-                            glUniformMatrix4fv(uniforms[index], 1, GL_FALSE, mat);
+                            glUniformMatrix4fv(uniform(name), 1, GL_FALSE, mat);
                         }
                         return true;
                     }
@@ -786,7 +769,7 @@ namespace efgy
                  * look up the actual uniform variable ID is obtained during the
                  * compilation process of the shader porgramme.
                  *
-                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] name   The name of the uniform to use.
                  * \param[in] matrix The 3x3 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
@@ -797,7 +780,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const math::matrix<Q,3,3> &matrix, const bool asArray = false)
+                bool uniform (const char *name, const math::matrix<Q,3,3> &matrix, const bool asArray = false)
                 {
                     if (use())
                     {
@@ -814,11 +797,11 @@ namespace efgy
 
                         if (asArray)
                         {
-                            glUniform1fv(uniforms[index], 9, mat);
+                            glUniform1fv(uniform(name), 9, mat);
                         }
                         else
                         {
-                            glUniformMatrix3fv(uniforms[index], 1, GL_FALSE, mat);
+                            glUniformMatrix3fv(uniform(name), 1, GL_FALSE, mat);
                         }
                         return true;
                     }
@@ -833,7 +816,7 @@ namespace efgy
                  * look up the actual uniform variable ID is obtained during the
                  * compilation process of the shader porgramme.
                  *
-                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] name   The name of the uniform to use.
                  * \param[in] matrix The 2x2 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
@@ -844,7 +827,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const math::matrix<Q,2,2> &matrix, const bool asArray = false)
+                bool uniform (const char *name, const math::matrix<Q,2,2> &matrix, const bool asArray = false)
                 {
                     if (use())
                     {
@@ -856,11 +839,11 @@ namespace efgy
 
                         if (asArray)
                         {
-                            glUniform1fv(uniforms[index], 4, mat);
+                            glUniform1fv(uniform(name), 4, mat);
                         }
                         else
                         {
-                            glUniformMatrix2fv(uniforms[index], 1, GL_FALSE, mat);
+                            glUniformMatrix2fv(uniform(name), 1, GL_FALSE, mat);
                         }
                         return true;
                     }
@@ -875,18 +858,18 @@ namespace efgy
                  * to look up the actual uniform variable ID is obtained during
                  * the compilation process of the shader porgramme.
                  *
-                 * \param[in] index The index into the uniform ID array to use.
+                 * \param[in] name  The name of the uniform to use.
                  * \param[in] value The integer value to load.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const GLint &value)
+                bool uniform (const char *name, const GLint &value)
                 {
                     if (use())
                     {
-                        glUniform1i(uniforms[index], value);
+                        glUniform1i(uniform(name), value);
                         return true;
                     }
 
@@ -900,18 +883,18 @@ namespace efgy
                  * to look up the actual uniform variable ID is obtained during
                  * the compilation process of the shader porgramme.
                  *
-                 * \param[in] index The index into the uniform ID array to use.
+                 * \param[in] name  The name of the uniform to use.
                  * \param[in] value The floating point vector to load.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const GLfloat value[4])
+                bool uniform (const char *name, const GLfloat value[4])
                 {
                     if (use())
                     {
-                        glUniform4f(uniforms[index], value[0], value[1], value[2], value[3]);
+                        glUniform4f(uniform(name), value[0], value[1], value[2], value[3]);
                         return true;
                     }
 
@@ -925,7 +908,7 @@ namespace efgy
                  * look up the actual uniform variable ID is obtained during the
                  * compilation process of the shader porgramme.
                  *
-                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] name   The name of the uniform to use.
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
@@ -937,7 +920,7 @@ namespace efgy
                  *         otherwise.
                  */
                 template<unsigned int n>
-                bool uniform (const enum uniforms &index, const math::matrix<Q,n,n> &matrix, const bool asArray = true) const
+                bool uniform (const char *name, const math::matrix<Q,n,n> &matrix, const bool asArray = true) const
                 {
                     if (use())
                     {
@@ -952,7 +935,7 @@ namespace efgy
                             }
                         }
                         
-                        glUniform1fv(uniforms[index], (n*n), mat);
+                        glUniform1fv(uniform(name), (n*n), mat);
                         return true;
                     }
                     
@@ -966,7 +949,7 @@ namespace efgy
                  * look up the actual uniform variable ID is obtained during the
                  * compilation process of the shader porgramme.
                  *
-                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] name   The name of the uniform to use.
                  * \param[in] matrix The 4x4 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
@@ -977,7 +960,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const math::matrix<Q,4,4> &matrix, const bool asArray = true) const
+                bool uniform (const char *name, const math::matrix<Q,4,4> &matrix, const bool asArray = true) const
                 {
                     if (use())
                     {
@@ -1001,11 +984,11 @@ namespace efgy
 
                         if (asArray)
                         {
-                            glUniform1fv(uniforms[index], 16, mat);
+                            glUniform1fv(uniform(name), 16, mat);
                         }
                         else
                         {
-                            glUniformMatrix4fv(uniforms[index], 1, GL_FALSE, mat);
+                            glUniformMatrix4fv(uniform(name), 1, GL_FALSE, mat);
                         }
                         return true;
                     }
@@ -1020,7 +1003,7 @@ namespace efgy
                  * look up the actual uniform variable ID is obtained during the
                  * compilation process of the shader porgramme.
                  *
-                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] name   The name of the uniform to use.
                  * \param[in] matrix The 3x3 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
@@ -1031,7 +1014,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const math::matrix<Q,3,3> &matrix, const bool asArray = true) const
+                bool uniform (const char *name, const math::matrix<Q,3,3> &matrix, const bool asArray = true) const
                 {
                     if (use())
                     {
@@ -1048,11 +1031,11 @@ namespace efgy
 
                         if (asArray)
                         {
-                            glUniform1fv(uniforms[index], 9, mat);
+                            glUniform1fv(uniform(name), 9, mat);
                         }
                         else
                         {
-                            glUniformMatrix3fv(uniforms[index], 1, GL_FALSE, mat);
+                            glUniformMatrix3fv(uniform(name), 1, GL_FALSE, mat);
                         }
                         return true;
                     }
@@ -1067,7 +1050,7 @@ namespace efgy
                  * look up the actual uniform variable ID is obtained during the
                  * compilation process of the shader porgramme.
                  *
-                 * \param[in] index  The index into the uniform ID array to use.
+                 * \param[in] name   The name of the uniform to use.
                  * \param[in] matrix The 2x2 matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
@@ -1078,7 +1061,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const math::matrix<Q,2,2> &matrix, const bool asArray = true) const
+                bool uniform (const char *name, const math::matrix<Q,2,2> &matrix, const bool asArray = true) const
                 {
                     if (use())
                     {
@@ -1090,11 +1073,11 @@ namespace efgy
 
                         if (asArray)
                         {
-                            glUniform1fv(uniforms[index], 4, mat);
+                            glUniform1fv(uniform(name), 4, mat);
                         }
                         else
                         {
-                            glUniformMatrix2fv(uniforms[index], 1, GL_FALSE, mat);
+                            glUniformMatrix2fv(uniform(name), 1, GL_FALSE, mat);
                         }
                         return true;
                     }
@@ -1109,18 +1092,18 @@ namespace efgy
                  * to look up the actual uniform variable ID is obtained during
                  * the compilation process of the shader porgramme.
                  *
-                 * \param[in] index The index into the uniform ID array to use.
+                 * \param[in] name  The name of the uniform to use.
                  * \param[in] value The integer value to load.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const GLint &value) const
+                bool uniform (const char *name, const GLint &value) const
                 {
                     if (use())
                     {
-                        glUniform1i(uniforms[index], value);
+                        glUniform1i(uniform(name), value);
                         return true;
                     }
 
@@ -1134,18 +1117,18 @@ namespace efgy
                  * to look up the actual uniform variable ID is obtained during
                  * the compilation process of the shader porgramme.
                  *
-                 * \param[in] index The index into the uniform ID array to use.
+                 * \param[in] name  The name of the uniform to use.
                  * \param[in] value The floating point vector to load.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const GLfloat value[4]) const
+                bool uniform (const char *name, const GLfloat value[4]) const
                 {
                     if (use())
                     {
-                        glUniform4f(uniforms[index], value[0], value[1], value[2], value[3]);
+                        glUniform4f(uniform(name), value[0], value[1], value[2], value[3]);
                         return true;
                     }
 
@@ -1159,46 +1142,45 @@ namespace efgy
                  * to look up the actual uniform variable ID is obtained during
                  * the compilation process of the shader porgramme.
                  *
-                 * \param[in] index The index into the uniform ID array to use.
+                 * \param[in] name  The name of the uniform to use.
                  * \param[in] value The floating point vector to load.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const enum uniforms &index, const std::array<GLfloat,4> &value) const
+                bool uniform (const char *name, const std::array<GLfloat,4> &value) const
                 {
                     if (use())
                     {
-                        glUniform4f(uniforms[index], value[0], value[1], value[2], value[3]);
+                        glUniform4f(uniform(name), value[0], value[1], value[2], value[3]);
                         return true;
                     }
                     
                     return false;
                 }
 
-                /**\brief Get Uniform ID
+                /**\brief Look up uniform by name
                  *
-                 * Look up an ID of a uniform based on its name. The programme
-                 * must have been compiled and linked for this function to work.
+                 * Queries OpenGL to get the named uniform's location. This is
+                 * a wrapper around glGetUniformLocation() that automatically
+                 * inserts the local programme ID.
                  *
-                 * \param[in] name The name of the ID to look up.
+                 * \note This method may be modified to actively cache its
+                 *       results in a future version.
                  *
-                 * \returns The ID for the given uniform name.
+                 * \param[in] uniform The name of the uniform to look up.
+                 *
+                 * \returns The namd uniform's location.
+                 *
+                 * \see https://www.opengl.org/sdk/docs/man/docbook4/xhtml/glGetUniformLocation.xml
                  */
-                GLint getUniform (const char *name) const
+                GLint uniform (const char *uniform) const
                 {
-                    return glGetUniformLocation (programmeID, name);
+                    return glGetUniformLocation(programmeID, uniform);
                 }
 
             protected:
-                /**\brief Default uniforms
-                 *
-                 * Contains the indices of the default uniforms. This array is
-                 * populated after linking the shaders.
-                 */
-                GLint uniforms[uniformMax];
-
                 /**\brief Programme ID
                  *
                  * The programme ID as returned by OpenGL; set to zero as long
@@ -1268,16 +1250,6 @@ namespace efgy
                         
                         return false;
                     }
-                    
-                    // Get uniform locations.
-                    uniforms[uniformProjectionMatrix]  = glGetUniformLocation(programmeID, "mvp3");
-                    uniforms[uniformProjectionMatrix3] = glGetUniformLocation(programmeID, "mvp3");
-                    uniforms[uniformProjectionMatrix2] = glGetUniformLocation(programmeID, "mvp2");
-                    uniforms[uniformNormalMatrix]      = glGetUniformLocation(programmeID, "normalMatrix");
-                    uniforms[uniformColour]            = glGetUniformLocation(programmeID, "colour");
-                    uniforms[uniformScreenFramebuffer] = glGetUniformLocation(programmeID, "screenFramebuffer");
-                    uniforms[uniformScreenHistogram]   = glGetUniformLocation(programmeID, "screenHistogram");
-                    uniforms[uniformColourMap]         = glGetUniformLocation(programmeID, "colourMap");
 
                     // Release vertex and fragment shaders.
                     if (vertShader) {
