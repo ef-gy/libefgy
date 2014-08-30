@@ -217,7 +217,7 @@ namespace efgy
                  *         otherwise.
                  */
                 template<unsigned int n>
-                bool uniform (const GLint ID, const math::matrix<Q,n,n> &matrix, const bool asArray = true)
+                bool uniform (const GLint ID, const math::matrix<Q,n,n> &matrix, const bool asArray)
                 {
                     if (use())
                     {
@@ -255,7 +255,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const GLint ID, const math::matrix<Q,4,4> &matrix, const bool asArray = false)
+                bool uniform (const GLint ID, const math::matrix<Q,4,4> &matrix, const bool asArray)
                 {
                     if (use())
                     {
@@ -307,7 +307,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const GLint ID, const math::matrix<Q,3,3> &matrix, const bool asArray = false)
+                bool uniform (const GLint ID, const math::matrix<Q,3,3> &matrix, const bool asArray)
                 {
                     if (use())
                     {
@@ -352,7 +352,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const GLint ID, const math::matrix<Q,2,2> &matrix, const bool asArray = false)
+                bool uniform (const GLint ID, const math::matrix<Q,2,2> &matrix, const bool asArray)
                 {
                     if (use())
                     {
@@ -439,7 +439,7 @@ namespace efgy
                  *         otherwise.
                  */
                 template<unsigned int n>
-                bool uniform (const GLint ID, const math::matrix<Q,n,n> &matrix, const bool asArray = true) const
+                bool uniform (const GLint ID, const math::matrix<Q,n,n> &matrix, const bool asArray) const
                 {
                     if (use())
                     {
@@ -477,7 +477,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const GLint ID, const math::matrix<Q,4,4> &matrix, const bool asArray = true) const
+                bool uniform (const GLint ID, const math::matrix<Q,4,4> &matrix, const bool asArray) const
                 {
                     if (use())
                     {
@@ -529,7 +529,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const GLint ID, const math::matrix<Q,3,3> &matrix, const bool asArray = true) const
+                bool uniform (const GLint ID, const math::matrix<Q,3,3> &matrix, const bool asArray) const
                 {
                     if (use())
                     {
@@ -574,7 +574,7 @@ namespace efgy
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
-                bool uniform (const GLint ID, const math::matrix<Q,2,2> &matrix, const bool asArray = true) const
+                bool uniform (const GLint ID, const math::matrix<Q,2,2> &matrix, const bool asArray) const
                 {
                     if (use())
                     {
@@ -667,12 +667,10 @@ namespace efgy
                     return false;
                 }
 
-                /**\brief Load arbitrary NxN matrix
+                /**\brief Load arbitrary NxN matrix by name
                  *
-                 * Activate the programme and upload an NxN uniform variable to
-                 * the specified uniform index. The index array that is used to
-                 * look up the actual uniform variable ID is obtained during the
-                 * compilation process of the shader porgramme.
+                 * Wrapper function to be able to specify a name instead of a
+                 * uniform ID.
                  *
                  * \param[in] name   The name of the uniform to use.
                  * \param[in] matrix The 4x4 matrix to load. The contents of
@@ -680,158 +678,17 @@ namespace efgy
                  *                   before handing the data to OpenGL.
                  * \param[in] asArray Upload as a flat array instead of using
                  *                   the proper matrix function.
+                 *
+                 * \tparam n Depth of the matrix to upload.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
                 template<unsigned int n>
-                bool uniform (const char *name, const math::matrix<Q,n,n> &matrix, const bool asArray = true)
+                bool uniform (const char *name, const math::matrix<Q,n,n> &matrix, const bool asArray)
                 {
                     return uniform(uniform(name), matrix, asArray);
-                }
-
-                /**\brief Load uniform 4x4 matrix
-                 *
-                 * Activate the programme and upload a 4x4 uniform variable to
-                 * the specified uniform index. The index array that is used to
-                 * look up the actual uniform variable ID is obtained during the
-                 * compilation process of the shader porgramme.
-                 *
-                 * \param[in] name   The name of the uniform to use.
-                 * \param[in] matrix The 4x4 matrix to load. The contents of
-                 *                   this matrix are turned into a GLfloat array
-                 *                   before handing the data to OpenGL.
-                 * \param[in] asArray Upload as a flat array instead of using
-                 *                   the proper matrix function.
-                 *
-                 * \return True if the programme was bound correctly and the
-                 *         matrix has been handed off to OpenGL, false
-                 *         otherwise.
-                 */
-                bool uniform (const char *name, const math::matrix<Q,4,4> &matrix, const bool asArray = false)
-                {
-                    if (use())
-                    {
-                        GLfloat mat[16] =
-                          { GLfloat(matrix[0][0]),
-                            GLfloat(matrix[0][1]),
-                            GLfloat(matrix[0][2]),
-                            GLfloat(matrix[0][3]),
-                            GLfloat(matrix[1][0]),
-                            GLfloat(matrix[1][1]),
-                            GLfloat(matrix[1][2]),
-                            GLfloat(matrix[1][3]),
-                            GLfloat(matrix[2][0]),
-                            GLfloat(matrix[2][1]),
-                            GLfloat(matrix[2][2]),
-                            GLfloat(matrix[2][3]),
-                            GLfloat(matrix[3][0]),
-                            GLfloat(matrix[3][1]),
-                            GLfloat(matrix[3][2]),
-                            GLfloat(matrix[3][3]) };
-
-                        if (asArray)
-                        {
-                            glUniform1fv(uniform(name), 16, mat);
-                        }
-                        else
-                        {
-                            glUniformMatrix4fv(uniform(name), 1, GL_FALSE, mat);
-                        }
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                /**\brief Load uniform 3x3 matrix
-                 *
-                 * Activate the programme and upload a 3x3 uniform variable to
-                 * the specified uniform index. The index array that is used to
-                 * look up the actual uniform variable ID is obtained during the
-                 * compilation process of the shader porgramme.
-                 *
-                 * \param[in] name   The name of the uniform to use.
-                 * \param[in] matrix The 3x3 matrix to load. The contents of
-                 *                   this matrix are turned into a GLfloat array
-                 *                   before handing the data to OpenGL.
-                 * \param[in] asArray Upload as a flat array instead of using
-                 *                   the proper matrix function.
-                 *
-                 * \return True if the programme was bound correctly and the
-                 *         matrix has been handed off to OpenGL, false
-                 *         otherwise.
-                 */
-                bool uniform (const char *name, const math::matrix<Q,3,3> &matrix, const bool asArray = false)
-                {
-                    if (use())
-                    {
-                        GLfloat mat[9] =
-                          { GLfloat(matrix[0][0]),
-                            GLfloat(matrix[0][1]),
-                            GLfloat(matrix[0][2]),
-                            GLfloat(matrix[1][0]),
-                            GLfloat(matrix[1][1]),
-                            GLfloat(matrix[1][2]),
-                            GLfloat(matrix[2][0]),
-                            GLfloat(matrix[2][1]),
-                            GLfloat(matrix[2][2]) };
-
-                        if (asArray)
-                        {
-                            glUniform1fv(uniform(name), 9, mat);
-                        }
-                        else
-                        {
-                            glUniformMatrix3fv(uniform(name), 1, GL_FALSE, mat);
-                        }
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                /**\brief Load uniform 2x2 matrix
-                 *
-                 * Activate the programme and upload a 2x2 uniform variable to
-                 * the specified uniform index. The index array that is used to
-                 * look up the actual uniform variable ID is obtained during the
-                 * compilation process of the shader porgramme.
-                 *
-                 * \param[in] name   The name of the uniform to use.
-                 * \param[in] matrix The 2x2 matrix to load. The contents of
-                 *                   this matrix are turned into a GLfloat array
-                 *                   before handing the data to OpenGL.
-                 * \param[in] asArray Upload as a flat array instead of using
-                 *                   the proper matrix function.
-                 *
-                 * \return True if the programme was bound correctly and the
-                 *         matrix has been handed off to OpenGL, false
-                 *         otherwise.
-                 */
-                bool uniform (const char *name, const math::matrix<Q,2,2> &matrix, const bool asArray = false)
-                {
-                    if (use())
-                    {
-                        GLfloat mat[4] =
-                          { GLfloat(matrix[0][0]),
-                            GLfloat(matrix[0][1]),
-                            GLfloat(matrix[1][0]),
-                            GLfloat(matrix[1][1]) };
-
-                        if (asArray)
-                        {
-                            glUniform1fv(uniform(name), 4, mat);
-                        }
-                        else
-                        {
-                            glUniformMatrix2fv(uniform(name), 1, GL_FALSE, mat);
-                        }
-                        return true;
-                    }
-
-                    return false;
                 }
 
                 /**\brief Load uniform by name
@@ -854,188 +711,28 @@ namespace efgy
                     return uniform(uniform(name), value);
                 }
 
-                /**\brief Load arbitrary NxN matrix
+                /**\brief Load arbitrary NxN matrix by name
                  *
-                 * Activate the programme and upload an NxN uniform variable to
-                 * the specified uniform index. The index array that is used to
-                 * look up the actual uniform variable ID is obtained during the
-                 * compilation process of the shader porgramme.
+                 * Wrapper function to be able to specify a name instead of a
+                 * uniform ID. This is the const version of the wrapper.
                  *
                  * \param[in] name   The name of the uniform to use.
-                 * \param[in] matrix The 4x4 matrix to load. The contents of
+                 * \param[in] matrix The nxn matrix to load. The contents of
                  *                   this matrix are turned into a GLfloat array
                  *                   before handing the data to OpenGL.
                  * \param[in] asArray Upload as a flat array instead of using
                  *                   the proper matrix function.
+                 *
+                 * \tparam n Depth of the matrix to upload.
                  *
                  * \return True if the programme was bound correctly and the
                  *         matrix has been handed off to OpenGL, false
                  *         otherwise.
                  */
                 template<unsigned int n>
-                bool uniform (const char *name, const math::matrix<Q,n,n> &matrix, const bool asArray = true) const
+                bool uniform (const char *name, const math::matrix<Q,n,n> &matrix, const bool asArray) const
                 {
-                    if (use())
-                    {
-                        GLfloat mat[(n*n)];
-                        unsigned int k = 0;
-                        for (unsigned int i = 0; i < n; i++)
-                        {
-                            for (unsigned int j = 0; j < n; j++)
-                            {
-                                mat[k] = GLfloat(matrix[i][j]);
-                                k++;
-                            }
-                        }
-                        
-                        glUniform1fv(uniform(name), (n*n), mat);
-                        return true;
-                    }
-                    
-                    return false;
-                }
-
-                /**\brief Load uniform 4x4 matrix
-                 *
-                 * Activate the programme and upload a 4x4 uniform variable to
-                 * the specified uniform index. The index array that is used to
-                 * look up the actual uniform variable ID is obtained during the
-                 * compilation process of the shader porgramme.
-                 *
-                 * \param[in] name   The name of the uniform to use.
-                 * \param[in] matrix The 4x4 matrix to load. The contents of
-                 *                   this matrix are turned into a GLfloat array
-                 *                   before handing the data to OpenGL.
-                 * \param[in] asArray Upload as a flat array instead of using
-                 *                   the proper matrix function.
-                 *
-                 * \return True if the programme was bound correctly and the
-                 *         matrix has been handed off to OpenGL, false
-                 *         otherwise.
-                 */
-                bool uniform (const char *name, const math::matrix<Q,4,4> &matrix, const bool asArray = true) const
-                {
-                    if (use())
-                    {
-                        GLfloat mat[16] =
-                          { GLfloat(matrix[0][0]),
-                            GLfloat(matrix[0][1]),
-                            GLfloat(matrix[0][2]),
-                            GLfloat(matrix[0][3]),
-                            GLfloat(matrix[1][0]),
-                            GLfloat(matrix[1][1]),
-                            GLfloat(matrix[1][2]),
-                            GLfloat(matrix[1][3]),
-                            GLfloat(matrix[2][0]),
-                            GLfloat(matrix[2][1]),
-                            GLfloat(matrix[2][2]),
-                            GLfloat(matrix[2][3]),
-                            GLfloat(matrix[3][0]),
-                            GLfloat(matrix[3][1]),
-                            GLfloat(matrix[3][2]),
-                            GLfloat(matrix[3][3]) };
-
-                        if (asArray)
-                        {
-                            glUniform1fv(uniform(name), 16, mat);
-                        }
-                        else
-                        {
-                            glUniformMatrix4fv(uniform(name), 1, GL_FALSE, mat);
-                        }
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                /**\brief Load uniform 3x3 matrix
-                 *
-                 * Activate the programme and upload a 3x3 uniform variable to
-                 * the specified uniform index. The index array that is used to
-                 * look up the actual uniform variable ID is obtained during the
-                 * compilation process of the shader porgramme.
-                 *
-                 * \param[in] name   The name of the uniform to use.
-                 * \param[in] matrix The 3x3 matrix to load. The contents of
-                 *                   this matrix are turned into a GLfloat array
-                 *                   before handing the data to OpenGL.
-                 * \param[in] asArray Upload as a flat array instead of using
-                 *                   the proper matrix function.
-                 *
-                 * \return True if the programme was bound correctly and the
-                 *         matrix has been handed off to OpenGL, false
-                 *         otherwise.
-                 */
-                bool uniform (const char *name, const math::matrix<Q,3,3> &matrix, const bool asArray = true) const
-                {
-                    if (use())
-                    {
-                        GLfloat mat[9] =
-                          { GLfloat(matrix[0][0]),
-                            GLfloat(matrix[0][1]),
-                            GLfloat(matrix[0][2]),
-                            GLfloat(matrix[1][0]),
-                            GLfloat(matrix[1][1]),
-                            GLfloat(matrix[1][2]),
-                            GLfloat(matrix[2][0]),
-                            GLfloat(matrix[2][1]),
-                            GLfloat(matrix[2][2]) };
-
-                        if (asArray)
-                        {
-                            glUniform1fv(uniform(name), 9, mat);
-                        }
-                        else
-                        {
-                            glUniformMatrix3fv(uniform(name), 1, GL_FALSE, mat);
-                        }
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                /**\brief Load uniform 2x2 matrix
-                 *
-                 * Activate the programme and upload a 2x2 uniform variable to
-                 * the specified uniform index. The index array that is used to
-                 * look up the actual uniform variable ID is obtained during the
-                 * compilation process of the shader porgramme.
-                 *
-                 * \param[in] name   The name of the uniform to use.
-                 * \param[in] matrix The 2x2 matrix to load. The contents of
-                 *                   this matrix are turned into a GLfloat array
-                 *                   before handing the data to OpenGL.
-                 * \param[in] asArray Upload as a flat array instead of using
-                 *                   the proper matrix function.
-                 *
-                 * \return True if the programme was bound correctly and the
-                 *         matrix has been handed off to OpenGL, false
-                 *         otherwise.
-                 */
-                bool uniform (const char *name, const math::matrix<Q,2,2> &matrix, const bool asArray = true) const
-                {
-                    if (use())
-                    {
-                        GLfloat mat[4] =
-                          { GLfloat(matrix[0][0]),
-                            GLfloat(matrix[0][1]),
-                            GLfloat(matrix[1][0]),
-                            GLfloat(matrix[1][1]) };
-
-                        if (asArray)
-                        {
-                            glUniform1fv(uniform(name), 4, mat);
-                        }
-                        else
-                        {
-                            glUniformMatrix2fv(uniform(name), 1, GL_FALSE, mat);
-                        }
-                        return true;
-                    }
-
-                    return false;
+                    return uniform(uniform(name), matrix, asArray);
                 }
 
                 /**\brief Load uniform by name
@@ -1063,6 +760,28 @@ namespace efgy
                  * Queries OpenGL to get the named uniform's location. This is
                  * a wrapper around glGetUniformLocation() that automatically
                  * inserts the local programme ID.
+                 *
+                 * \note This method may be modified to actively cache its
+                 *       results in a future version.
+                 *
+                 * \param[in] uniform The name of the uniform to look up.
+                 *
+                 * \returns The namd uniform's location.
+                 *
+                 * \see https://www.opengl.org/sdk/docs/man/docbook4/xhtml/glGetUniformLocation.xml
+                 */
+                GLint uniform (const char *uniform)
+                {
+                    return use() ? glGetUniformLocation(programmeID, uniform) : -1;
+                }
+
+                /**\brief Look up uniform by name
+                 *
+                 * Queries OpenGL to get the named uniform's location. This is
+                 * a wrapper around glGetUniformLocation() that automatically
+                 * inserts the local programme ID.
+                 *
+                 * This is the const-overloaded version of the function.
                  *
                  * \note This method may be modified to actively cache its
                  *       results in a future version.

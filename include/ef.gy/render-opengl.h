@@ -333,7 +333,7 @@ namespace efgy
                                const math::matrix<Q,d,d> &normalMatrix)
                 {
                     return programme.uniform("mvp3", combined.transformationMatrix, d > 2)
-                        && programme.uniform("normalMatrix", normalMatrix);
+                        && programme.uniform("normalMatrix", normalMatrix, false);
                 }
 
                 /**\brief Render to current OpenGL context
@@ -455,10 +455,10 @@ namespace efgy
                 bool matrices (const geometry::transformation::affine<Q,d> &combined,
                                const math::matrix<Q,d,d> &normalMatrix)
                 {
-                    return histogram.uniform("mvp3", combined.transformationMatrix)
-                        && histogram.uniform("normalMatrix", normalMatrix)
-                        && colouring.uniform("mvp3", combined.transformationMatrix)
-                        && colouring.uniform("normalMatrix", normalMatrix);
+                    return histogram.uniform("mvp3", combined.transformationMatrix, false)
+                        && histogram.uniform("normalMatrix", normalMatrix, false)
+                        && colouring.uniform("mvp3", combined.transformationMatrix, false)
+                        && colouring.uniform("normalMatrix", normalMatrix, false);
                 }
 
                 /**\brief Render to current OpenGL context
