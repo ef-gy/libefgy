@@ -102,6 +102,79 @@ namespace efgy
                             {}
                 };
 
+                template<unsigned int d>
+                static inline void name
+                    (const std::string &name,
+                     math::vector<math::tracer::runtime,d> &pVector)
+                {
+                    for (unsigned int i = 0; i < d; i++)
+                    {
+                        std::stringstream s("");
+                        s << i;
+                        pVector[i] = std::shared_ptr<math::tracer::tracer<void,void,0>>
+                            (new math::tracer::tracer<void,void,0> (name + "[" + s.str() + "]"));
+                    }
+                }
+
+                template<unsigned int d>
+                static inline void name
+                    (const std::string &name,
+                     math::matrix<math::tracer::runtime,d,d> &pMatrix)
+                {
+                    unsigned int k = 0;
+                    for (unsigned int i = 0; i < d; i++)
+                    {
+                        for (unsigned int j = 0; j < d; j++)
+                        {
+                            std::stringstream s("");
+                            s << "[" << k << "]";
+                            k++;
+                            
+                            pMatrix[i][j] = std::shared_ptr<math::tracer::tracer<void,void,0>>
+                                (new math::tracer::tracer<void,void,0> (name + s.str()));
+                        }
+                    }
+                }
+
+                template<unsigned int d>
+                static inline void transform
+                    (std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform>> &uniform,
+                     math::vector<math::tracer::runtime,4> &gl_Position,
+                     math::vector<math::tracer::runtime,d+1> &position)
+                {
+                    std::stringstream vn("");
+                    vn << "mvp" << d;
+                    
+                    uniform.push_back
+                        (opengl::glsl::variable<opengl::glsl::gv_uniform>
+                         (vn.str(), "float", "", (d+1)*(d+1)));
+
+                    math::matrix<math::tracer::runtime,(d+1),(d+1)> m1;
+                    name(vn.str(), m1);
+                    
+                    geometry::transformation::projective<math::tracer::runtime,d> combined(m1);
+
+                    transform<d-1>(uniform,gl_Position,combined * position);
+                }
+
+                template<>
+                void transform<3>
+                    (std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform>> &uniform,
+                     math::vector<math::tracer::runtime,4> &gl_Position,
+                     math::vector<math::tracer::runtime,4> &position)
+                {
+                    uniform.push_back
+                        (opengl::glsl::variable<opengl::glsl::gv_uniform>
+                         ("mvp3", "float", "", 16));
+                    
+                    math::matrix<math::tracer::runtime,4,4> m1;
+                    name("mvp3", m1);
+                    
+                    geometry::transformation::linear<math::tracer::runtime,4> l1(m1);
+
+                    gl_Position = l1 * position;
+                }
+
                 /*
                  *
                  * \tparam V GLSL shader version to produce.
@@ -124,45 +197,12 @@ namespace efgy
                                  { opengl::glsl::variable<opengl::glsl::gv_uniform>("normalMatrix", "mat3"),
                                    opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4") } )
                             {
-                                transform(opengl::glsl::shader<V>::uniform, gl_Position);
+                                math::vector<math::tracer::runtime,d+1> P;
+                                name("position", P);
+
+                                transform<d>(opengl::glsl::shader<V>::uniform, gl_Position, P);
                                 opengl::glsl::shader<V>::main += position();
                             }
-
-                        static void transform
-                            (std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform>> &uniform,
-                             math::vector<math::tracer::runtime,4> &gl_Position)
-                        {
-                            std::stringstream vn("");
-                            vn << "mvp" << d;
-
-                            uniform.push_back
-                                (opengl::glsl::variable<opengl::glsl::gv_uniform>
-                                    (vn.str(), "float", "", (d+1)*(d+1)));
-
-                            math::matrix<math::tracer::runtime,(d+1),(d+1)> m1;
-                            math::vector<math::tracer::runtime,(d+1)> position;
-                            unsigned int k = 0;
-                            for (unsigned int i = 0; i < (d+1); i++)
-                            {
-                                std::stringstream s("");
-                                s << i;
-                                position[i] = std::shared_ptr<math::tracer::tracer<void,void,0>>
-                                (new math::tracer::tracer<void,void,0> ("position[" + s.str() + "]"));
-                                for (unsigned int j = 0; j < (d+1); j++)
-                                {
-                                    s.str("");
-                                    s << "[" << k << "]";
-                                    k++;
-                                    
-                                    m1[i][j] = std::shared_ptr<math::tracer::tracer<void,void,0>>
-                                    (new math::tracer::tracer<void,void,0> (vn.str() + s.str()));
-                                }
-                            }
-                            
-                            geometry::transformation::linear<math::tracer::runtime,(d+1)> l1(m1);
-                            
-                            gl_Position = l1 * position;
-                        }
 
                         std::string position (void)
                         {
