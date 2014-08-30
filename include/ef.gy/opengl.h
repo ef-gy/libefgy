@@ -123,6 +123,8 @@ namespace efgy
         enum uniforms
         {
             uniformProjectionMatrix,
+            uniformProjectionMatrix3,
+            uniformProjectionMatrix2,
             uniformNormalMatrix,
             uniformColour,
             uniformScreenFramebuffer,
@@ -1268,7 +1270,9 @@ namespace efgy
                     }
                     
                     // Get uniform locations.
-                    uniforms[uniformProjectionMatrix]  = glGetUniformLocation(programmeID, "modelViewProjectionMatrix");
+                    uniforms[uniformProjectionMatrix]  = glGetUniformLocation(programmeID, "mvp3");
+                    uniforms[uniformProjectionMatrix3] = glGetUniformLocation(programmeID, "mvp3");
+                    uniforms[uniformProjectionMatrix2] = glGetUniformLocation(programmeID, "mvp2");
                     uniforms[uniformNormalMatrix]      = glGetUniformLocation(programmeID, "normalMatrix");
                     uniforms[uniformColour]            = glGetUniformLocation(programmeID, "colour");
                     uniforms[uniformScreenFramebuffer] = glGetUniformLocation(programmeID, "screenFramebuffer");

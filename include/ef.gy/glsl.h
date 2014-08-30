@@ -98,7 +98,7 @@ namespace efgy
                      * \param[in] pElements  Number of array elements.
                      */
                     constexpr variable
-                        (const char *pName, const char *pType = "float", const char *pPrecision = "", unsigned int pElements = 1)
+                        (const std::string &pName, const char *pType = "float", const char *pPrecision = "", unsigned int pElements = 1)
                         : name(pName), type(pType), precision(pPrecision), elements(pElements)
                         {}
 
@@ -106,7 +106,7 @@ namespace efgy
                      *
                      * Name of the variable, as used in the source code.
                      */
-                    const char *name;
+                    const std::string name;
 
                     /**\brief Variable type
                      *
