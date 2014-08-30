@@ -129,7 +129,6 @@ namespace efgy
                             std::stringstream s("");
                             s << "[" << k << "]";
                             k++;
-                            
                             pMatrix[i][j] = std::shared_ptr<math::tracer::tracer<void,void,0>>
                                 (new math::tracer::tracer<void,void,0> (name + s.str()));
                         }
@@ -144,14 +143,14 @@ namespace efgy
                 {
                     std::stringstream vn("");
                     vn << "mvp" << d;
-                    
+
                     uniform.push_back
                         (opengl::glsl::variable<opengl::glsl::gv_uniform>
                          (vn.str(), "float", "", (d+1)*(d+1)));
 
                     math::matrix<math::tracer::runtime,(d+1),(d+1)> m1;
                     name(vn.str(), m1);
-                    
+
                     geometry::transformation::projective<math::tracer::runtime,d> combined(m1);
 
                     transform<d-1>(uniform,gl_Position,combined * position);
@@ -166,10 +165,10 @@ namespace efgy
                     uniform.push_back
                         (opengl::glsl::variable<opengl::glsl::gv_uniform>
                          ("mvp3", "float", "", 16));
-                    
+
                     math::matrix<math::tracer::runtime,4,4> m1;
                     name("mvp3", m1);
-                    
+
                     geometry::transformation::linear<math::tracer::runtime,4> l1(m1);
 
                     gl_Position = l1 * position;
@@ -829,6 +828,12 @@ namespace efgy
                 GLuint &height;
 
             protected:
+                /**\copydoc opengl<Q,2>::render */
+                efgy::opengl::renderProgramme<Q,d> render;
+
+                /**\copydoc opengl<Q,2>::fractalFlame */
+                efgy::opengl::fractalFlameRenderProgramme<Q,d> fractalFlame;
+
                 /**\brief Affine transformation matrix
                  *
                  * This is a reference to the affine transformation matrix that
