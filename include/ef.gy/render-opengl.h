@@ -941,13 +941,13 @@ namespace efgy
                  * graphics card. This will also flush the vertices, triindices
                  * and lineindeces members, and reset the indices counter.
                  *
-                 * \tparam e The depth of the vertex.
+                 * \tparam T Type of the vertex array model.
                  *
                  * \param[in] vertexArrayModel Vertex array model to use for the
                  *                             upload.
                  */
-                template<unsigned int e>
-                void upload (efgy::opengl::vertexArrayExtended<Q,e> &vertexArrayModel)
+                template<typename T>
+                void upload (T &vertexArrayModel)
                 {
                     if (!prepared)
                     {
@@ -978,13 +978,13 @@ namespace efgy
                  * context. Used internally; the function does not modify any
                  * programme state, so everything has to be prepared in advance.
                  *
-                 * \tparam e The depth of the vertex.
+                 * \tparam T Type of the vertex array model.
                  *
                  * \param[in] vertexArrayModel Vertex array model to use for the
                  *                             upload.
                  */
-                template<unsigned int e>
-                void pushLines (efgy::opengl::vertexArrayExtended<Q,e> &vertexArrayModel) const
+                template<typename T>
+                void pushLines (T &vertexArrayModel) const
                 {
                     if (prepared && (wireframeColour[3] > 0.f) && !fractalFlameColouring)
                     {
@@ -1005,13 +1005,13 @@ namespace efgy
                  * context. Used internally; the function does not modify any
                  * programme state, so everything has to be prepared in advance.
                  *
-                 * \tparam e The depth of the vertex.
+                 * \tparam T Type of the vertex array model.
                  *
                  * \param[in] vertexArrayModel Vertex array model to use for the
                  *                             upload.
                  */
-                template<unsigned int e>
-                void pushFaces (efgy::opengl::vertexArrayExtended<Q,e> &vertexArrayModel) const
+                template<typename T>
+                void pushFaces (T &vertexArrayModel) const
                 {
                     if (prepared && ((surfaceColour[3] > 0.f) || fractalFlameColouring))
                     {
