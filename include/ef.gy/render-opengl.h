@@ -719,7 +719,8 @@ namespace efgy
                  * Initialise an object with sane defaults.
                  */
                 opengl (void)
-                    : prepared(false)
+                    : prepared(false),
+                      fractalFlameColouring(false)
                     {}
 
                 /**\brief Has the scene been prepared?
@@ -829,6 +830,13 @@ namespace efgy
                  * outlines of models to be rendered.
                  */
                 efgy::opengl::indexBuffer linebuffer;
+
+                /**\brief Use Fractal Flame Colouring?
+                 *
+                 * Set to true to use the fractal flame colouring algorithm
+                 * instead of the 'normal' render programme.
+                 */
+                bool fractalFlameColouring;
 
                 /**\brief Add vertex to vertex buffer
                  *
@@ -1002,7 +1010,6 @@ namespace efgy
                      opengl<Q,d-1> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection),
                       lowerRenderer(pLowerRenderer),
-                      fractalFlameColouring(pLowerRenderer.fractalFlameColouring),
                       context(pLowerRenderer.context)
                     {}
 
@@ -1085,9 +1092,6 @@ namespace efgy
                     lowerRenderer.setColourMap();
                 }
 
-                /**\copydoc opengl<Q,2>::fractalFlameColouring */
-                bool &fractalFlameColouring;
-
                 /**\copydoc opengl<Q,2>::context */
                 opengl<Q,0> &context;
 
@@ -1165,7 +1169,6 @@ namespace efgy
                      const geometry::projection<Q,3> &pProjection,
                      opengl<Q,2> &pLowerRenderer)
                     : transformation(pTransformation), projection(pProjection),
-                      fractalFlameColouring(pLowerRenderer.fractalFlameColouring),
                       context(pLowerRenderer.context),
                       lowerRenderer(pLowerRenderer)
                     {}
@@ -1175,7 +1178,7 @@ namespace efgy
                 {
                     const geometry::transformation::projective<Q,3> combined = transformation * projection;
 
-                    if (fractalFlameColouring)
+                    if (context.fractalFlameColouring)
                     {
                         fractalFlame.matrices (combined);
                     }
@@ -1191,7 +1194,7 @@ namespace efgy
                 {
                     context.upload(vertexArrayModel);
 
-                    if (fractalFlameColouring)
+                    if (context.fractalFlameColouring)
                     {
                         fractalFlame (context.width, context.height, [this] ()
                                       {
@@ -1244,9 +1247,6 @@ namespace efgy
                     fractalFlame.setColourMap();
                 }
 
-                /**\copydoc opengl<Q,2>::fractalFlameColouring */
-                bool &fractalFlameColouring;
-
                 /**\copydoc opengl<Q,2>::context */
                 opengl<Q,0> &context;
 
@@ -1256,7 +1256,7 @@ namespace efgy
                 /**\copydoc opengl<Q,2>::pushLines */
                 void pushLines (void) const
                 {
-                    if (context.prepared && (context.wireframeColour[3] > 0.f) && !fractalFlameColouring)
+                    if (context.prepared && (context.wireframeColour[3] > 0.f) && !context.fractalFlameColouring)
                     {
                         glDepthMask ((context.wireframeColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
                         
@@ -1272,7 +1272,7 @@ namespace efgy
                 /**\copydoc opengl<Q,2>::pushFaces */
                 void pushFaces (void) const
                 {
-                    if (context.prepared && ((context.surfaceColour[3] > 0.f) || fractalFlameColouring))
+                    if (context.prepared && ((context.surfaceColour[3] > 0.f) || context.fractalFlameColouring))
                     {
                         glDepthMask ((context.surfaceColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
 
@@ -1340,8 +1340,8 @@ namespace efgy
                 constexpr opengl (const geometry::transformation::affine<Q,2> &pTransformation,
                                   const geometry::projection<Q,2> &,
                                   const opengl<Q,1> &)
-                    : transformation(pTransformation),
-                      fractalFlameColouring(false) {}
+                    : transformation(pTransformation)
+                    {}
 
                 /**\brief Start new frame
                  *
@@ -1359,7 +1359,7 @@ namespace efgy
                     const geometry::transformation::affine<Q,2> combined
                         = transformation * scale;
 
-                    if (fractalFlameColouring)
+                    if (context.fractalFlameColouring)
                     {
                         fractalFlame.matrices (combined);
                     }
@@ -1379,7 +1379,7 @@ namespace efgy
                 {
                     context.upload(vertexArrayModel);
                     
-                    if (fractalFlameColouring)
+                    if (context.fractalFlameColouring)
                     {
                         fractalFlame (context.width, context.height, [this] ()
                                       {
@@ -1447,13 +1447,6 @@ namespace efgy
                     context.add(pV, R, RN, index);
                 }
 
-                /**\brief Use Fractal Flame Colouring?
-                 *
-                 * Set to true to use the fractal flame colouring algorithm
-                 * instead of the 'normal' render programme.
-                 */
-                bool fractalFlameColouring;
-
                 /**\brief Vertex array
                  *
                  * Contains vertex buffer metadata for the individual vertices
@@ -1469,7 +1462,7 @@ namespace efgy
                  */
                 void pushLines (void) const
                 {
-                    if (context.prepared && (context.wireframeColour[3] > 0.f) && !fractalFlameColouring)
+                    if (context.prepared && (context.wireframeColour[3] > 0.f) && !context.fractalFlameColouring)
                     {
                         glDepthMask ((context.wireframeColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
                         
@@ -1490,7 +1483,7 @@ namespace efgy
                  */
                 void pushFaces (void) const
                 {
-                    if (context.prepared && ((context.surfaceColour[3] > 0.f) || fractalFlameColouring))
+                    if (context.prepared && ((context.surfaceColour[3] > 0.f) || context.fractalFlameColouring))
                     {
                         glDepthMask ((context.surfaceColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
                         
