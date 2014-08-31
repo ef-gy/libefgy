@@ -1025,6 +1025,28 @@ namespace efgy
                         glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
                     }
                 }
+
+                template<unsigned int e>
+                void render (opengl<Q,e> &context)
+                {
+                    if (fractalFlameColouring)
+                    {
+                        context.fractalFlame (width, height, [this,&context] ()
+                                              {
+                                                  pushFaces(context.vertexArrayModel);
+                                              });
+                    }
+                    else
+                    {
+                        context.render (width, height, [this,&context] ()
+                                        {
+                                            context.render.programme.uniform("colour", wireframeColour);
+                                            pushLines(context.vertexArrayModel);
+                                            context.render.programme.uniform("colour", surfaceColour);
+                                            pushFaces(context.vertexArrayModel);
+                                        });
+                    }
+                }
         };
 
         /**\brief OpenGL renderer
@@ -1247,24 +1269,7 @@ namespace efgy
                 void frameEnd (void)
                 {
                     context.upload(vertexArrayModel);
-
-                    if (context.fractalFlameColouring)
-                    {
-                        fractalFlame (context.width, context.height, [this] ()
-                                      {
-                                          context.pushFaces(vertexArrayModel);
-                                      });
-                    }
-                    else
-                    {
-                        render (context.width, context.height, [this] ()
-                                {
-                                    render.programme.uniform("colour", context.wireframeColour);
-                                    context.pushLines(vertexArrayModel);
-                                    render.programme.uniform("colour", context.surfaceColour);
-                                    context.pushFaces(vertexArrayModel);
-                                });
-                    }
+                    context.render(*this);
                 };
 
                 /**\copydoc opengl<Q,2>::clear */
@@ -1337,6 +1342,8 @@ namespace efgy
                  * dimensions, even though OpenGL natively operates in 3D.
                  */
                 opengl<Q,2> &lowerRenderer;
+
+                friend class opengl<Q,0>;
         };
 
         /**\brief OpenGL renderer (2D fix point)
@@ -1400,24 +1407,7 @@ namespace efgy
                 void frameEnd (void)
                 {
                     context.upload(vertexArrayModel);
-                    
-                    if (context.fractalFlameColouring)
-                    {
-                        fractalFlame (context.width, context.height, [this] ()
-                                      {
-                                          context.pushFaces(vertexArrayModel);
-                                      });
-                    }
-                    else
-                    {
-                        render (context.width, context.height, [this] ()
-                                {
-                                    render.programme.uniform("colour", context.wireframeColour);
-                                    context.pushLines(vertexArrayModel);
-                                    render.programme.uniform("colour", context.surfaceColour);
-                                    context.pushFaces(vertexArrayModel);
-                                });
-                    }
+                    context.render(*this);
                 };
 
                 /**\brief Clear framebuffer
@@ -1500,6 +1490,8 @@ namespace efgy
                  * fractalFlameColouring boolean is set to true.
                  */
                 efgy::opengl::fractalFlameRenderProgramme<Q,2> fractalFlame;
+
+                friend class opengl<Q,0>;
         };
 
         template<typename Q> class opengl<Q,1> {};
