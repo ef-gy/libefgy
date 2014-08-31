@@ -971,6 +971,60 @@ namespace efgy
                         efgy::opengl::error();
                     }
                 }
+
+                /**\brief Render lines
+                 *
+                 * Draws all currently prepared lines to the current OpenGL
+                 * context. Used internally; the function does not modify any
+                 * programme state, so everything has to be prepared in advance.
+                 *
+                 * \tparam e The depth of the vertex.
+                 *
+                 * \param[in] vertexArrayModel Vertex array model to use for the
+                 *                             upload.
+                 */
+                template<unsigned int e>
+                void pushLines (efgy::opengl::vertexArrayExtended<Q,e> &vertexArrayModel) const
+                {
+                    if (prepared && (wireframeColour[3] > 0.f) && !fractalFlameColouring)
+                    {
+                        glDepthMask ((wireframeColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
+
+                        vertexArrayModel.use();
+                        vertexbuffer.bind();
+                        linebuffer.bind();
+                        vertexArrayModel.setup();
+
+                        glDrawElements(GL_LINES, lindices, GL_UNSIGNED_INT, 0);
+                    }
+                }
+
+                /**\brief Render faces
+                 *
+                 * Draws all currently prepared faces to the current OpenGL
+                 * context. Used internally; the function does not modify any
+                 * programme state, so everything has to be prepared in advance.
+                 *
+                 * \tparam e The depth of the vertex.
+                 *
+                 * \param[in] vertexArrayModel Vertex array model to use for the
+                 *                             upload.
+                 */
+                template<unsigned int e>
+                void pushFaces (efgy::opengl::vertexArrayExtended<Q,e> &vertexArrayModel) const
+                {
+                    if (prepared && ((surfaceColour[3] > 0.f) || fractalFlameColouring))
+                    {
+                        glDepthMask ((surfaceColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
+
+                        vertexArrayModel.use();
+                        vertexbuffer.bind();
+                        elementbuffer.bind();
+                        vertexArrayModel.setup();
+
+                        glDrawElements(GL_TRIANGLES, tindices, GL_UNSIGNED_INT, 0);
+                    }
+                }
         };
 
         /**\brief OpenGL renderer
@@ -1198,7 +1252,7 @@ namespace efgy
                     {
                         fractalFlame (context.width, context.height, [this] ()
                                       {
-                                          pushFaces();
+                                          context.pushFaces(vertexArrayModel);
                                       });
                     }
                     else
@@ -1206,9 +1260,9 @@ namespace efgy
                         render (context.width, context.height, [this] ()
                                 {
                                     render.programme.uniform("colour", context.wireframeColour);
-                                    pushLines();
+                                    context.pushLines(vertexArrayModel);
                                     render.programme.uniform("colour", context.surfaceColour);
-                                    pushFaces();
+                                    context.pushFaces(vertexArrayModel);
                                 });
                     }
                 };
@@ -1252,38 +1306,6 @@ namespace efgy
 
                 /**\copydoc opengl<Q,2>::vertexArrayModel */
                 efgy::opengl::vertexArrayExtended<Q,3> vertexArrayModel;
-
-                /**\copydoc opengl<Q,2>::pushLines */
-                void pushLines (void) const
-                {
-                    if (context.prepared && (context.wireframeColour[3] > 0.f) && !context.fractalFlameColouring)
-                    {
-                        glDepthMask ((context.wireframeColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
-                        
-                        vertexArrayModel.use();
-                        context.vertexbuffer.bind();
-                        context.linebuffer.bind();
-                        vertexArrayModel.setup();
-                        
-                        glDrawElements(GL_LINES, context.lindices, GL_UNSIGNED_INT, 0);
-                    }
-                }
-
-                /**\copydoc opengl<Q,2>::pushFaces */
-                void pushFaces (void) const
-                {
-                    if (context.prepared && ((context.surfaceColour[3] > 0.f) || context.fractalFlameColouring))
-                    {
-                        glDepthMask ((context.surfaceColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
-
-                        vertexArrayModel.use();
-                        context.vertexbuffer.bind();
-                        context.elementbuffer.bind();
-                        vertexArrayModel.setup();
-
-                        glDrawElements(GL_TRIANGLES, context.tindices, GL_UNSIGNED_INT, 0);
-                    }
-                }
 
             protected:
                 /**\brief 3D affine transformation
@@ -1383,7 +1405,7 @@ namespace efgy
                     {
                         fractalFlame (context.width, context.height, [this] ()
                                       {
-                                          pushFaces();
+                                          context.pushFaces(vertexArrayModel);
                                       });
                     }
                     else
@@ -1391,9 +1413,9 @@ namespace efgy
                         render (context.width, context.height, [this] ()
                                 {
                                     render.programme.uniform("colour", context.wireframeColour);
-                                    pushLines();
+                                    context.pushLines(vertexArrayModel);
                                     render.programme.uniform("colour", context.surfaceColour);
-                                    pushFaces();
+                                    context.pushFaces(vertexArrayModel);
                                 });
                     }
                 };
@@ -1453,48 +1475,6 @@ namespace efgy
                  * in the vertex buffer.
                  */
                 efgy::opengl::vertexArrayExtended<Q,2> vertexArrayModel;
-
-                /**\brief Render lines
-                 *
-                 * Draws all currently prepared lines to the current OpenGL
-                 * context. Used internally; the function does not modify any
-                 * programme state, so everything has to be prepared in advance.
-                 */
-                void pushLines (void) const
-                {
-                    if (context.prepared && (context.wireframeColour[3] > 0.f) && !context.fractalFlameColouring)
-                    {
-                        glDepthMask ((context.wireframeColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
-                        
-                        vertexArrayModel.use();
-                        context.vertexbuffer.bind();
-                        context.linebuffer.bind();
-                        vertexArrayModel.setup();
-                        
-                        glDrawElements(GL_LINES, context.lindices, GL_UNSIGNED_INT, 0);
-                    }
-                }
-
-                /**\brief Render faces
-                 *
-                 * Draws all currently prepared faces to the current OpenGL
-                 * context. Used internally; the function does not modify any
-                 * programme state, so everything has to be prepared in advance.
-                 */
-                void pushFaces (void) const
-                {
-                    if (context.prepared && ((context.surfaceColour[3] > 0.f) || context.fractalFlameColouring))
-                    {
-                        glDepthMask ((context.surfaceColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
-                        
-                        vertexArrayModel.use();
-                        context.vertexbuffer.bind();
-                        context.elementbuffer.bind();
-                        vertexArrayModel.setup();
-                        
-                        glDrawElements(GL_TRIANGLES, context.tindices, GL_UNSIGNED_INT, 0);
-                    }
-                }
 
                 opengl<Q,0> context;
 
