@@ -926,6 +926,43 @@ namespace efgy
                     lineindices.push_back(nstartb);
                     lineindices.push_back(nendb);
                 }
+
+                /**\brief Upload vertex data
+                 *
+                 * Uploads the vertex data that has been prepared so far to the
+                 * graphics card. This will also flush the vertices, triindices
+                 * and lineindeces members, and reset the indices counter.
+                 *
+                 * \tparam e The depth of the vertex.
+                 *
+                 * \param[in] vertexArrayModel Vertex array model to use for the
+                 *                             upload.
+                 */
+                template<unsigned int e>
+                void upload (efgy::opengl::vertexArrayExtended<Q,e> &vertexArrayModel)
+                {
+                    if (!prepared)
+                    {
+                        prepared = true;
+
+                        vertexArrayModel.use();
+                        vertexbuffer.load(vertices.size() * sizeof(GLfloat), vertices.data());
+                        elementbuffer.load(triindices.size() * sizeof(unsigned int), triindices.data());
+                        linebuffer.load(lineindices.size() * sizeof(unsigned int), lineindices.data());
+                        vertexArrayModel.setup();
+
+                        tindices = GLsizei(triindices.size());
+                        lindices = GLsizei(lineindices.size());
+
+                        vertices.clear();
+                        triindices.clear();
+                        lineindices.clear();
+                        indices = 0;
+
+                        // log errors
+                        efgy::opengl::error();
+                    }
+                }
         };
 
         /**\brief OpenGL renderer
@@ -1152,7 +1189,7 @@ namespace efgy
                 /**\copydoc opengl<Q,2>::frameEnd */
                 void frameEnd (void)
                 {
-                    upload();
+                    context.upload(vertexArrayModel);
 
                     if (fractalFlameColouring)
                     {
@@ -1177,32 +1214,6 @@ namespace efgy
                 void clear (GLint bits)
                 {
                     render.clear = bits;
-                }
-
-                /**\copydoc opengl<Q,2>::upload */
-                void upload (void)
-                {
-                    if (!context.prepared)
-                    {
-                        context.prepared = true;
-                        
-                        vertexArrayModel.use();
-                        context.vertexbuffer.load(context.vertices.size() * sizeof(GLfloat), context.vertices.data());
-                        context.elementbuffer.load(context.triindices.size() * sizeof(unsigned int), context.triindices.data());
-                        context.linebuffer.load(context.lineindices.size() * sizeof(unsigned int), context.lineindices.data());
-                        vertexArrayModel.setup();
-                        
-                        context.tindices = GLsizei(context.triindices.size());
-                        context.lindices = GLsizei(context.lineindices.size());
-                        
-                        context.vertices.clear();
-                        context.triindices.clear();
-                        context.lineindices.clear();
-                        context.indices = 0;
-                        
-                        // log errors
-                        efgy::opengl::error();
-                    }
                 }
 
                 /**\copydoc opengl<Q,2>::draw */
@@ -1366,7 +1377,7 @@ namespace efgy
                  */
                 void frameEnd (void)
                 {
-                    upload();
+                    context.upload(vertexArrayModel);
                     
                     if (fractalFlameColouring)
                     {
@@ -1400,37 +1411,6 @@ namespace efgy
                 void clear (GLint bits)
                 {
                     render.clear = bits;
-                }
-
-                /**\brief Upload vertex data
-                 *
-                 * Uploads the vertex data that has been prepared so far to the
-                 * graphics card. This will also flush the vertices, triindices
-                 * and lineindeces members, and reset the indices counter.
-                 */
-                void upload (void)
-                {
-                    if (!context.prepared)
-                    {
-                        context.prepared = true;
-                        
-                        vertexArrayModel.use();
-                        context.vertexbuffer.load(context.vertices.size() * sizeof(GLfloat), context.vertices.data());
-                        context.elementbuffer.load(context.triindices.size() * sizeof(unsigned int), context.triindices.data());
-                        context.linebuffer.load(context.lineindices.size() * sizeof(unsigned int), context.lineindices.data());
-                        vertexArrayModel.setup();
-                        
-                        context.tindices = GLsizei(context.triindices.size());
-                        context.lindices = GLsizei(context.lineindices.size());
-                        
-                        context.vertices.clear();
-                        context.triindices.clear();
-                        context.lineindices.clear();
-                        context.indices = 0;
-                        
-                        // log errors
-                        efgy::opengl::error();
-                    }
                 }
 
                 /**\brief Create random colour map
