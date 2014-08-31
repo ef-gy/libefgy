@@ -504,19 +504,14 @@ namespace efgy
                  *
                  * \param[in] combined     The combined (MVC) projective
                  *                         transformation.
-                 * \param[in] normalMatrix The normal matrix to use for
-                 *                         lighting.
                  *
                  * \return True if the uniforms were uploaded successfully,
                  *         false otherwise.
                  */
-                bool matrices (const geometry::transformation::affine<Q,d> &combined,
-                               const math::matrix<Q,d,d> &normalMatrix)
+                bool matrices (const geometry::transformation::affine<Q,d> &combined)
                 {
                     return histogram.uniform("mvp3", combined.transformationMatrix, d > 2)
-                        && histogram.uniform("normalMatrix", normalMatrix, false)
-                        && colouring.uniform("mvp3", combined.transformationMatrix, d > 2)
-                        && colouring.uniform("normalMatrix", normalMatrix, false);
+                        && colouring.uniform("mvp3", combined.transformationMatrix, d > 2);
                 }
 
                 /**\brief Render to current OpenGL context
@@ -942,14 +937,14 @@ namespace efgy
                 void frameStart (void)
                 {
                     const geometry::transformation::projective<Q,3> combined = transformation * projection;
-                    const math::matrix<Q,3,3> normalMatrix = math::transpose(math::invert(math::transpose(math::matrix<Q,3,3>(transformation.transformationMatrix))));
 
                     if (fractalFlameColouring)
                     {
-                        fractalFlame.matrices (combined, normalMatrix);
+                        fractalFlame.matrices (combined);
                     }
                     else
                     {
+                        const math::matrix<Q,3,3> normalMatrix = math::transpose(math::invert(math::transpose(math::matrix<Q,3,3>(transformation.transformationMatrix))));
                         render.matrices (combined, normalMatrix);
                     }
                 };
@@ -1251,7 +1246,7 @@ namespace efgy
 
                     if (fractalFlameColouring)
                     {
-                        fractalFlame.matrices (combined, math::matrix<Q,2,2>());
+                        fractalFlame.matrices (combined);
                     }
                     else
                     {
