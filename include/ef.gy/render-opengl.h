@@ -293,7 +293,7 @@ namespace efgy
                     public:
                         fractalFlame(void)
                             : opengl::glsl::shader<V>
-                                ("gl_FragColor = vec4(indexVarying,indexVarying,indexVarying,0.5);\n",
+                                ("gl_FragColor = vec4(indexVarying,indexVarying,1.0,0.5);\n",
                                  { opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float", "lowp") })
                             {}
                 };
@@ -308,7 +308,7 @@ namespace efgy
                     public:
                         histogram(void)
                             : opengl::glsl::shader<V>
-                                ("gl_FragColor = vec4(0.995,0.995,0.995,0.995);\n")
+                                ("gl_FragColor = vec4(0.995,0.995,1.0,0.995);\n")
                             {}
                 };
 
@@ -324,6 +324,27 @@ namespace efgy
                             : opengl::glsl::shader<V>
                                 ("gl_FragColor = colorVarying;\n",
                                  { opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4", "lowp") })
+                            {}
+                };
+
+                /*
+                 *
+                 * \tparam V GLSL shader version to produce.
+                 */
+                template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
+                class postProcessFloat : public opengl::glsl::shader<V>
+                {
+                    public:
+                        postProcessFloat(void)
+                            : opengl::glsl::shader<V>
+                                ("highp vec2 fb = texture2D(screenFramebuffer, UV).xz;\n"
+                                 "highp float intensity = fb.y;\n"
+                                 "highp float index     = fb.x;\n"
+                                 "gl_FragColor = texture2D(colourMap, vec2(index/intensity,0.0)) * (1.0-(1.0/intensity));\n",
+                                 { opengl::glsl::variable<opengl::glsl::gv_varying>("UV", "vec2", "lowp") },
+                                 { opengl::glsl::variable<opengl::glsl::gv_uniform>("screenFramebuffer", "sampler2D"),
+                                   opengl::glsl::variable<opengl::glsl::gv_uniform>("screenHistogram", "sampler2D"),
+                                   opengl::glsl::variable<opengl::glsl::gv_uniform>("colourMap", "sampler2D") })
                             {}
                 };
 
@@ -510,8 +531,15 @@ namespace efgy
                  */
                 bool matrices (const geometry::transformation::affine<Q,d> &combined)
                 {
-                    return histogram.uniform("mvp3", combined.transformationMatrix, d > 2)
-                        && colouring.uniform("mvp3", combined.transformationMatrix, d > 2);
+                    if (floatTextures)
+                    {
+                        return colouringFloat.uniform("mvp3", combined.transformationMatrix, d > 2);
+                    }
+                    else
+                    {
+                        return histogram.uniform("mvp3", combined.transformationMatrix, d > 2)
+                            && colouring.uniform("mvp3", combined.transformationMatrix, d > 2);
+                    }
                 }
 
                 /**\brief Render to current OpenGL context
@@ -535,6 +563,7 @@ namespace efgy
                         initialised = true;
 
                         postProcess.copy();
+                        postProcessFloat.copy();
 
                         static const GLfloat fullscreenQuadBufferData[] =
                         {
@@ -551,11 +580,21 @@ namespace efgy
                         vertexArray.setup();
                         
                         setColourMap();
+
+                        floatTextures = (opengl::extension::version().first >= 3)
+                                     || opengl::extension::have("GL_ARB_texture_float");
                     }
 
-                    glClearColor(1,1,1,1);
-                    
-                    colouring.use(width, height, 0);
+                    if (floatTextures)
+                    {
+                        glClearColor(0,0,0,1);
+                        colouringFloat.use(width, height, 0);
+                    }
+                    else
+                    {
+                        glClearColor(1,1,1,1);
+                        colouring.use(width, height, 0);
+                    }
                     
                     glDepthMask(GL_TRUE);
                     glBlendFunc (GL_ONE, GL_ZERO);
@@ -563,38 +602,65 @@ namespace efgy
                     glDepthFunc(GL_LEQUAL);
                     
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                    glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
-                    
-                    draw();
-                    
-                    histogram.use(width, height, 1);
-                    
-                    glDepthMask(GL_FALSE);
-                    glDisable(GL_DEPTH_TEST);
 
-//                        glClearColor(0,0,0,1);
-                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                    
-//                        glBlendFunc (GL_ONE, GL_ONE);
-                    glBlendFunc (GL_ZERO, GL_SRC_COLOR);
+                    if (floatTextures)
+                    {
+//                        glBlendFunc (GL_SRC_COLOR, GL_DST_COLOR);
+                        glBlendFunc (GL_ONE, GL_ONE);
+                    }
+                    else
+                    {
+                        glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
+                    }
                     
                     draw();
 
-                    postProcess.use(width, height);
-                    
-                    postProcess.uniform("screenFramebuffer", 0);
-                    postProcess.uniform("screenHistogram", 1);
-                    
+                    if (!floatTextures)
+                    {
+                        histogram.use(width, height, 1);
+                        
+                        glDepthMask(GL_FALSE);
+                        glDisable(GL_DEPTH_TEST);
+                        
+                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                        glBlendFunc (GL_ZERO, GL_SRC_COLOR);
+                        draw();
+                    }
+
+                    if (floatTextures)
+                    {
+                        postProcessFloat.use(width, height);
+                        
+                        postProcessFloat.uniform("screenFramebuffer", 0);
+                        postProcessFloat.uniform("screenHistogram", 1);
+                    }
+                    else
+                    {
+                        postProcess.use(width, height);
+
+                        postProcess.uniform("screenFramebuffer", 0);
+                        postProcess.uniform("screenHistogram", 1);
+                    }
+
                     glActiveTexture(GL_TEXTURE0 + 2);
                     colourMap.bind();
-                    postProcess.uniform("colourMap", 2);
-                    
+
+                    if (floatTextures)
+                    {
+                        postProcessFloat.uniform("colourMap", 2);
+                    }
+                    else
+                    {
+                        postProcess.uniform("colourMap", 2);
+                    }
+
                     glBlendFunc (GL_ONE, GL_ZERO);
-                    
+
                     vertexArray.use();
                     vertices.bind();
                     vertexArray.setup();
-                    
+
                     glDrawArrays(GL_TRIANGLES, 0, 6);
 
                     return true;
@@ -655,6 +721,16 @@ namespace efgy
                  */
                 renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::fractalFlame> colouring;
 
+                /**\brief Colouring render pass programme
+                 *
+                 * Stores the OpenGL programme that creates the colour index
+                 * texture for the flame algorithm. This colour information is
+                 * used to sample the colour map.
+                 *
+                 * \note This is the floating point variant.
+                 */
+                renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::fractalFlame,GL_RGBA32F,GL_RGBA,GL_FLOAT> colouringFloat;
+
                 /**\brief Histogram render pass programme
                  *
                  * Stores the OpenGL programme that creates the histogram
@@ -670,6 +746,16 @@ namespace efgy
                  * output framebuffer.
                  */
                 renderToFramebufferProgramme<Q,V,render::glsl::vertex::postProcess,render::glsl::fragment::postProcess> postProcess;
+
+                /**\brief Merge pass programme
+                 *
+                 * Stores the OpenGL programme that combines the textures
+                 * creates in the first two passes to output fragments for the
+                 * output framebuffer.
+                 *
+                 * \note This is the floating point variant.
+                 */
+                renderToFramebufferProgramme<Q,V,render::glsl::vertex::postProcess,render::glsl::fragment::postProcessFloat> postProcessFloat;
 
                 /**\brief Vertex array for fullscreen quad
                  *
@@ -694,6 +780,13 @@ namespace efgy
                  * something much more interesting.
                  */
                 texture2D colourMap;
+
+                /**\brief Are floating point available?
+                 *
+                 * 'true' if the OpenGL context supports floating point
+                 * textures.
+                 */
+                bool floatTextures;
         };
     };
 

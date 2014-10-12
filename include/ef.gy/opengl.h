@@ -80,6 +80,89 @@ namespace efgy
                 }
         };
 
+        /**\brief OpenGL extension test
+         *
+         * Contains methods to get the list of available OpenGL extensions and
+         * to test for the availability of a particular extension.
+         *
+         * \see https://www.opengl.org/sdk/docs/man/html/glGetString.xhtml with
+         *      the parameter GL_EXTENSIONS.
+         */
+        class extension
+        {
+            public:
+                /**\brief Get all OpenGL extensions
+                 *
+                 * This function gets a list of all supported OpenGL extensions
+                 * and returns them as a std::vector. Useful for logging, or
+                 * when you need to query a lot of extensions.
+                 *
+                 * \returns A vector of strings that contains all the available
+                 *          extensions.
+                 */
+                static std::vector<std::string> get (void)
+                {
+                    std::vector<std::string> ret;
+                    GLuint i = 0;
+                    GLint n;
+                    glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+                    const char *s;
+                    while (i < n)
+                    {
+                        s = (const char*)glGetStringi(GL_EXTENSIONS, i);
+                        if (s != 0)
+                        {
+                            ret.push_back(s);
+                        }
+                        i++;
+                    }
+                    return ret;
+                }
+
+                /**\brief Test if a specific OpenGL extension is available
+                 *
+                 * This will test if the given extension is available at
+                 * runtime.
+                 *
+                 * \param[in] e The extension to test for.
+                 *
+                 * \returns true if the extension is available, false otherwise.
+                 */
+                static bool have (const std::string &e)
+                {
+                    GLuint i = 0;
+                    GLint n;
+                    glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+                    const char *s;
+                    while (i < n)
+                    {
+                        s = (const char*)glGetStringi(GL_EXTENSIONS, i);
+                        if ((s != 0) && (s == e))
+                        {
+                            return true;
+                        }
+                        i++;
+                    }
+                    return false;
+                }
+
+                /**\brief Get OpenGL major/minor version
+                 *
+                 * Queries OpenGL for the supported major and minor version of
+                 * the current OpenGL context.
+                 *
+                 * \returns A std::pair of major and minor version.
+                 */
+                static std::pair<GLuint,GLuint> version (void)
+                {
+                    GLint major, minor;
+                    glGetIntegerv(GL_MAJOR_VERSION, &major);
+                    glGetIntegerv(GL_MINOR_VERSION, &minor);
+                    
+                    return std::pair<GLuint,GLuint>(major, minor);
+                }
+        };
+
         /**\brief Rounds up to the nearest power of two
          *
          * This function uses one of the infamous Bit Twiddling Hacks to round a
