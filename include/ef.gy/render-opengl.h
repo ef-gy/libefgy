@@ -293,7 +293,7 @@ namespace efgy
                     public:
                         fractalFlame(void)
                             : opengl::glsl::shader<V>
-                                ("gl_FragColor = vec4(indexVarying,indexVarying,1.0,0.5);\n",
+                                ("gl_FragColor = vec4(indexVarying,1.0,1.0,0.5);\n",
                                  { opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float", "lowp") })
                             {}
                 };
@@ -337,10 +337,10 @@ namespace efgy
                     public:
                         postProcessFloat(void)
                             : opengl::glsl::shader<V>
-                                ("highp vec2 fb = texture2D(screenFramebuffer, UV).xz;\n"
+                                ("highp vec2 fb = texture2D(screenFramebuffer, UV).xy;\n"
                                  "highp float intensity = fb.y;\n"
                                  "highp float index     = fb.x;\n"
-                                 "gl_FragColor = texture2D(colourMap, vec2(index/intensity,0.0)) * (1.0-(1.0/intensity));\n",
+                                 "gl_FragColor = texture2D(colourMap, vec2(index/intensity,0.0)) * (1.0-(max(0.0,1.0/log2(intensity+2.0))));\n",
                                  { opengl::glsl::variable<opengl::glsl::gv_varying>("UV", "vec2", "lowp") },
                                  { opengl::glsl::variable<opengl::glsl::gv_uniform>("screenFramebuffer", "sampler2D"),
                                    opengl::glsl::variable<opengl::glsl::gv_uniform>("screenHistogram", "sampler2D"),
@@ -518,6 +518,46 @@ namespace efgy
                     : initialised(false), colouring(), histogram(), postProcess()
                     {}
 
+                /**\brief Initialise renderer
+                 *
+                 * Performs some required initialisation of the OpenGL rendering
+                 * context. We can't do this in the constructor because that
+                 * would typically run before the context exists.
+                 *
+                 * \returns 'true' if the context is now initialised.
+                 */
+                bool initialise (void)
+                {
+                    if (!initialised)
+                    {
+                        initialised = true;
+                        
+                        postProcess.copy();
+                        postProcessFloat.copy();
+                        
+                        static const GLfloat fullscreenQuadBufferData[] =
+                        {
+                            -1.0f, -1.0f,
+                            1.0f, -1.0f,
+                            -1.0f,  1.0f,
+                            -1.0f,  1.0f,
+                            1.0f, -1.0f,
+                            1.0f,  1.0f
+                        };
+                        
+                        vertexArray.use();
+                        vertices.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
+                        vertexArray.setup();
+                        
+                        setColourMap();
+                        
+                        floatTextures = (opengl::extension::version().first >= 3)
+                                      || opengl::extension::have("GL_ARB_texture_float");
+                    }
+                    
+                    return initialised;
+                }
+
                 /**\brief Load matrix uniforms
                  *
                  * Updates the projection and normal matrices of the OpenGL
@@ -531,6 +571,8 @@ namespace efgy
                  */
                 bool matrices (const geometry::transformation::affine<Q,d> &combined)
                 {
+                    initialise();
+
                     if (floatTextures)
                     {
                         return colouringFloat.uniform("mvp3", combined.transformationMatrix, d > 2);
@@ -548,6 +590,9 @@ namespace efgy
                  * specify in the draw function. Shader programmes are compiled
                  * and activated as necessary.
                  *
+                 * \note If floating point textures are available then this will
+                 *       do a single-pass render.
+                 *
                  * \param[in] width  Width of the viewport to render to.
                  * \param[in] height Height of the viewport to render to.
                  * \param[in] draw   Function to do the actual rendering.
@@ -558,32 +603,7 @@ namespace efgy
                  */
                 bool operator () (const GLuint &width, const GLuint &height, std::function<void()> draw)
                 {
-                    if (!initialised)
-                    {
-                        initialised = true;
-
-                        postProcess.copy();
-                        postProcessFloat.copy();
-
-                        static const GLfloat fullscreenQuadBufferData[] =
-                        {
-                            -1.0f, -1.0f,
-                             1.0f, -1.0f,
-                            -1.0f,  1.0f,
-                            -1.0f,  1.0f,
-                             1.0f, -1.0f,
-                             1.0f,  1.0f
-                        };
-                        
-                        vertexArray.use();
-                        vertices.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
-                        vertexArray.setup();
-                        
-                        setColourMap();
-
-                        floatTextures = (opengl::extension::version().first >= 3)
-                                     || opengl::extension::have("GL_ARB_texture_float");
-                    }
+                    initialise();
 
                     if (floatTextures)
                     {
@@ -596,20 +616,25 @@ namespace efgy
                         colouring.use(width, height, 0);
                     }
                     
-                    glDepthMask(GL_TRUE);
-                    glBlendFunc (GL_ONE, GL_ZERO);
-                    glEnable(GL_DEPTH_TEST);
-                    glDepthFunc(GL_LEQUAL);
-                    
-                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                     if (floatTextures)
                     {
+                        glDepthMask(GL_FALSE);
+                        glBlendFunc (GL_ONE, GL_ZERO);
+                        glDisable(GL_DEPTH_TEST);
+                        
+                        glClear(GL_COLOR_BUFFER_BIT);
 //                        glBlendFunc (GL_SRC_COLOR, GL_DST_COLOR);
                         glBlendFunc (GL_ONE, GL_ONE);
                     }
                     else
                     {
+                        glDepthMask(GL_TRUE);
+                        glBlendFunc (GL_ONE, GL_ZERO);
+                        glEnable(GL_DEPTH_TEST);
+                        glDepthFunc(GL_LEQUAL);
+                        
+                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                         glBlendFunc (GL_SRC_ALPHA, GL_SRC_ALPHA);
                     }
                     
@@ -729,7 +754,7 @@ namespace efgy
                  *
                  * \note This is the floating point variant.
                  */
-                renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::fractalFlame,GL_RGBA32F,GL_RGBA,GL_FLOAT> colouringFloat;
+                renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::fractalFlame,GL_RGB32F,GL_RGB,GL_FLOAT> colouringFloat;
 
                 /**\brief Histogram render pass programme
                  *
