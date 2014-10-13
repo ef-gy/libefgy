@@ -43,7 +43,10 @@ namespace efgy
                 lookAt(math::vector<Q,d> pFrom, math::vector<Q,d> pTo)
                     : from(pFrom), to(pTo)
                     {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-compare"
                         for (unsigned int i = 0; i < (d-2); i++)
+#pragma clang diagnostic pop
                         {
                             for (unsigned int j = 0; j < d; j++)
                             {

@@ -186,7 +186,10 @@ namespace efgy
                         v[i] = (*this)[0];
                     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-compare"
                     for (unsigned int i = 0; i < (n-1); i++)
+#pragma clang diagnostic pop
                     {
                         const unsigned int p = i + 1;
 

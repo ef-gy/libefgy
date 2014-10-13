@@ -550,9 +550,13 @@ namespace efgy
                         vertexArray.setup();
                         
                         setColourMap();
-                        
+
+#ifdef EMSCRIPTEN
+                        floatTextures = false;
+#else
                         floatTextures = (opengl::extension::version().first >= 3)
                                       || opengl::extension::have("GL_ARB_texture_float");
+#endif
                     }
                     
                     return initialised;

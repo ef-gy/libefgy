@@ -109,11 +109,14 @@ namespace efgy
                             {
                                 const Q sinrsq = sin(r2);
                                 const Q cosrsq = cos(r2);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-compare"
                                 for (unsigned int i : range<unsigned int>(0,depth,depth,false))
                                     if ((i % 2 == 0) && (i < (d-1)))
                                         rv[i] = V[i] * sinrsq - V[(i+1)] * cosrsq;
                                     else
                                         rv[i] = V[(i-1)] * cosrsq + V[i] * sinrsq;
+#pragma clang diagnostic pop
                             }
                                 break;
                             case 4: // "horseshoe"
