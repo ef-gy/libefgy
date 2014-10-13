@@ -758,7 +758,19 @@ namespace efgy
                  *
                  * \note This is the floating point variant.
                  */
+#if defined(GL_RG16F)
+                renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::fractalFlame,GL_RG16F,GL_RG,GL_FLOAT> colouringFloat;
+#elif defined(GL_RGB16F)
+                renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::fractalFlame,GL_RGB16F,GL_RGB,GL_FLOAT> colouringFloat;
+#elif defined(GL_RGB32F)
                 renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::fractalFlame,GL_RGB32F,GL_RGB,GL_FLOAT> colouringFloat;
+#elif defined(GL_HALF_FLOAT_OES)
+                renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::fractalFlame,GL_RGB,GL_RGB,GL_HALF_FLOAT_OES> colouringFloat;
+#elif defined(GL_HALF_FLOAT)
+                renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::fractalFlame,GL_RGB,GL_RGB,GL_HALF_FLOAT> colouringFloat;
+#else
+                renderToTextureProgramme<Q,V,vertex,render::glsl::fragment::fractalFlame,GL_RGB,GL_RGB,GL_FLOAT> colouringFloat;
+#endif
 
                 /**\brief Histogram render pass programme
                  *

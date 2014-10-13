@@ -103,6 +103,7 @@ namespace efgy
                 static std::vector<std::string> get (void)
                 {
                     std::vector<std::string> ret;
+#if defined(GL_NUM_EXTENSIONS)
                     GLuint i = 0;
                     GLint n;
                     glGetIntegerv(GL_NUM_EXTENSIONS, &n);
@@ -116,6 +117,7 @@ namespace efgy
                         }
                         i++;
                     }
+#endif
                     return ret;
                 }
 
@@ -130,6 +132,7 @@ namespace efgy
                  */
                 static bool have (const std::string &e)
                 {
+#if defined(GL_NUM_EXTENSIONS)
                     GLuint i = 0;
                     GLint n;
                     glGetIntegerv(GL_NUM_EXTENSIONS, &n);
@@ -143,6 +146,7 @@ namespace efgy
                         }
                         i++;
                     }
+#endif
                     return false;
                 }
 
@@ -155,9 +159,13 @@ namespace efgy
                  */
                 static std::pair<GLuint,GLuint> version (void)
                 {
-                    GLint major, minor;
+                    GLint major = 1, minor = 0;
+#if defined(GL_MAJOR_VERSION)
                     glGetIntegerv(GL_MAJOR_VERSION, &major);
+#endif
+#if defined(GL_MINOR_VERSION)
                     glGetIntegerv(GL_MINOR_VERSION, &minor);
+#endif
                     
                     return std::pair<GLuint,GLuint>(major, minor);
                 }
