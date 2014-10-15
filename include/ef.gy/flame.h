@@ -85,13 +85,17 @@ namespace efgy
                             return rv;
                         }
 
+                        // The commented variables are in the Fractal Flame
+                        // paper, but won't be used until the remaining
+                        // variations are implemented
+
                         const Q theta = atan(V[0]/V[1]);
-                        const Q phi   = atan(V[1]/V[0]);
+                        //const Q phi   = atan(V[1]/V[0]);
                         const Q r2    = math::lengthSquared(V);
                         const Q r     = sqrt(r2);
                         const Q omega = Q(std::rand() % 2) * Q(M_PI);
-                        const Q delta = (std::rand() % 2) == 1 ? Q(1) : Q(-1);
-                        const Q psi   = Q(std::rand() % 10000) / Q(10000);
+                        //const Q delta = (std::rand() % 2) == 1 ? Q(1) : Q(-1);
+                        //const Q psi   = Q(std::rand() % 10000) / Q(10000);
 
                         switch (f)
                         {

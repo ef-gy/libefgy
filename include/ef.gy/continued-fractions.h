@@ -265,7 +265,7 @@ namespace efgy
                                 continuedFractional rv;
                                 N px = N(0),
                                   py = N(0);
-                                bool xInf = false, yInf = false, rInf = false;
+                                bool xInf = false, yInf = false;
                                 while (1)
                                 {
                                     fractional<N> ae = fractional<N>(op.a, op.e),
