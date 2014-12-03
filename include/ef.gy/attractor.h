@@ -30,6 +30,7 @@
 
 #include <ef.gy/polytope.h>
 #include <ef.gy/projection.h>
+#include <ef.gy/euclidian.h>
 #include <vector>
 #include <cstdlib>
 #include <random>
@@ -64,17 +65,17 @@ namespace efgy
 
                     math::vector<Q,parent::renderDepth,format> vec {{}};
 
-                    for (unsigned int i = 0; i < od; i++)
+                    for (unsigned int i = 0; i < 4; i++)
                     {
                         for (auto &v : vec)
                         {
-                            v = Q(10)/Q(PRNG());
+                            v = Q(PRNG()%20000)/Q(10000) - Q(1.0);
                         }
                         seeds.push_back(vec);
                     }
 
                     std::vector<math::vector<Q,parent::renderDepth,format>> points;
-                    for (unsigned int i = 0; i < 5; i++)
+                    for (int i = -5; i <= 5; i++)
                     {
                         points.push_back({{Q(i)/Q(5)}});
                     }
@@ -83,18 +84,23 @@ namespace efgy
                     
                     for (unsigned int i = 0; i < parameter.iterations; i++)
                     {
-                        for (auto &p : points2)
+                        for (auto &p : points)
                         {
+                            auto o = p;
+
                             for (auto &s : seeds)
                             {
-                                p = p + s;
+                                p = p + s / math::length(o - s);
                             }
-                            p = p / Q(seeds.size());
+                            //p = p / Q(seeds.size());
                         }
 
-                        faces.push_back({{points[0],points[1],points2[1],points2[0]}});
+                        for (unsigned int j = 0; j < (points.size()-1); j++)
+                        {
+                            faces.push_back({{points[j],points[(j+1)],points2[(j+1)],points2[j]}});
+                        }
 
-                        points = points2;
+                        points2 = points;
                     }
                 }
 
