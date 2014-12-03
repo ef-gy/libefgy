@@ -75,14 +75,14 @@ namespace efgy
                     }
 
                     std::vector<math::vector<Q,parent::renderDepth,format>> points;
-                    for (int i = -5; i <= 5; i++)
+                    for (const auto &i : range<Q>(-parameter.radius/Q(2), parameter.radius/Q(2), parameter.precision, false))
                     {
-                        points.push_back({{Q(i)/Q(5)}});
+                        points.push_back({{i}});
                     }
 
                     std::vector<math::vector<Q,parent::renderDepth,format>> points2 = points;
                     
-                    for (unsigned int i = 0; i < parameter.iterations; i++)
+                    for (const auto &i : range<int>(0, parameter.iterations*10, false))
                     {
                         for (auto &p : points)
                         {
@@ -90,9 +90,8 @@ namespace efgy
 
                             for (auto &s : seeds)
                             {
-                                p = p + s / math::length(o - s);
+                                p = p + (s - o) / math::length(o - s);
                             }
-                            //p = p / Q(seeds.size());
                         }
 
                         for (unsigned int j = 0; j < (points.size()-1); j++)
