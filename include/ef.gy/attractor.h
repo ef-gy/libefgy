@@ -69,7 +69,7 @@ namespace efgy
                     {
                         for (auto &v : vec)
                         {
-                            v = Q(PRNG()%20000)/Q(10000) - Q(1.0);
+                            v = (Q(PRNG()%20000)/Q(10000) - Q(1.0)) * parameter.radius2;
                         }
                         seeds.push_back(vec);
                     }
