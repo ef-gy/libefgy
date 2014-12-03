@@ -40,6 +40,7 @@
 
 #include <ef.gy/parametric.h>
 #include <ef.gy/flame.h>
+#include <ef.gy/attractor.h>
 
 #include <set>
 #include <string>
@@ -554,6 +555,7 @@ namespace efgy
             with<Q,func,d,sierpinski::carpet,format>(arg,type,dims,rdims,tag);
             with<Q,func,d,randomAffineIFS,format>(arg,type,dims,rdims,tag);
             with<Q,func,d,flame::random,format>(arg,type,dims,rdims,tag);
+            with<Q,func,d,attractor,format>(arg,type,dims,rdims,tag);
 
             return func<Q,cube,d,d,format>::pass(arg);
         }
