@@ -41,17 +41,17 @@
  * the following in a shell:
  *
  * \code
- * $ git clone git://git.becquerel.org/jyujin/libefgy.git
+ * $ git clone https://github.com/ef-gy/libefgy.git
  * \endcode
  *
  * The primary location for the library's documentation is:
- * http://ef.gy/documentation/libefgy
+ * https://ef.gy/documentation/libefgy
  * ; please note that the online version has Disqus comments enabled, and that
  * some pages in all HTML versions of the documentation may include YouTube
  * videos - if you're uneasy about this for privacy reasons, then feel free to
  * browse the headers directly in the git repository.
  *
- * Also feel free to browse the blog at http://ef.gy/ if you happen to be in
+ * Also feel free to browse the blog at https://ef.gy/ if you happen to be in
  * the area :).
  *
  * \section libefgy-installation Installation

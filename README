@@ -7,15 +7,8 @@ related to maths that still come in handy.
 ## OBTAINING LIBEFGY #########################################################
 
 The library is distributed free of charge under a very permissive licence. The
-public GIT repository is at http://git.becquerel.org/jyujin/libefgy.git - see
-the documentation at http://ef.gy/documentation/libefgy for more details.
-
-### MIRRORS ##################################################################
-
-The libefgy source code is also available at:
-
-  * https://code.google.com/p/libefgy/
-  * https://github.com/ef-gy/libefgy
+public GIT repository is at https://github.com/ef-gy/libefgy - see the
+documentation at https://ef.gy/documentation/libefgy for more details.
 
 ## INSTALLATION ##############################################################
 
@@ -43,7 +36,7 @@ documentation/html, so that you can then just open the file
 documentation/html/index.xhtml in a browser.
 
 The HTML documentation for the current development version is also available
-online at: http://ef.gy/documentation/libefgy
+online at: https://ef.gy/documentation/libefgy
 
 ## LICENCE ###################################################################
 
