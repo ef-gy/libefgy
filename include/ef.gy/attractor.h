@@ -40,13 +40,13 @@ namespace efgy
     namespace geometry
     {
         template <typename Q, unsigned int od>
-        class attractor : public polytope<Q,od,od,4,math::format::cartesian>
+        class randomAttractor : public polytope<Q,od,od,4,math::format::cartesian>
         {
             public:
                 typedef polytope<Q,od,od,4,math::format::cartesian> parent;
                 using typename parent::format;
 
-                attractor (const parameters<Q> &pParameter, const format &pFormat)
+                randomAttractor (const parameters<Q> &pParameter, const format &pFormat)
                     : parent(pParameter, pFormat)
                     {
                         calculateObject();
@@ -108,7 +108,7 @@ namespace efgy
                 /**\copydoc polytope::id() */
                 static constexpr const char *id (void)
                 {
-                    return "attractor";
+                    return "random-attractor";
                 }
         };
     };
