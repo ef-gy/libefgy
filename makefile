@@ -5,7 +5,7 @@ INCLUDEDIR:=$(DESTDIR)$(PREFIX)/include
 MANDIR:=$(DESTDIR)$(PREFIX)/share/man
 
 NAME:=libefgy
-VERSION:=7
+VERSION:=8
 
 CC:=clang
 CXX:=clang++
