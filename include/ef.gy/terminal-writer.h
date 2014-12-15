@@ -97,6 +97,21 @@ namespace efgy
                 writer &to (const ssize_t &column, const ssize_t &line)
                 {
                     position = {column, line};
+
+                    return *this;
+                }
+
+                writer &x (const ssize_t &column)
+                {
+                    position[0] = column;
+
+                    return *this;
+                }
+
+                writer &y (const ssize_t &line)
+                {
+                    position[1] = line;
+
                     return *this;
                 }
 
