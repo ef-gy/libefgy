@@ -151,7 +151,7 @@ namespace efgy
          *         code points.
          */
         template<typename T = long>
-        class screen: public std::vector<std::vector<cell<T> > >
+        class screen: public std::vector<std::vector<cell<T>>>
         {
             public:
                 /**\brief Alias for the parent class
@@ -159,7 +159,7 @@ namespace efgy
                  * This class extends a nested std::vector, so this typedef
                  * provides a convenient handle to this base class.
                  */
-                typedef std::vector<std::vector<cell<T> > > parent;
+                typedef std::vector<std::vector<cell<T>>> parent;
 
                 using parent::resize;
 
@@ -209,7 +209,7 @@ namespace efgy
                 {
                     resize(lines);
 
-                    for (std::vector<cell<T> > &column : *this)
+                    for (std::vector<cell<T>> &column : *this)
                     {
                         column.resize(columns);
                     }
