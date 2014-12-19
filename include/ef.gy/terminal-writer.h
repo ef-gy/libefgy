@@ -54,13 +54,22 @@ namespace efgy
                 {
                     const auto dim = output.size();
 
-                    position[1] = (position[1] >= 0) ? position[1] : (dim[1] + position[1]);
-                    position[0] = (position[0] >= 0) ? position[0] : (dim[0] + position[0]);
+                    position[0]  = (position[0] >= 0) ? position[0] : (dim[0] + position[0]);
+                    position[1]  = (position[1] >= 0) ? position[1] : (dim[1] + position[1]);
+
+                    position[0]  = (position[0] >= 0) ? position[0] : 0;
+                    position[1]  = (position[1] >= 0) ? position[1] : 0;
+
+                    position[1] += (position[0] >= dim[0]) ? 1 : 0;
+                    position[0]  = (position[0] >= dim[0]) ? 0 : position[0];
+                    position[1]  = (position[1] >= dim[1]) ? 0 : position[1];
 
                     auto &cell = output.target[position[1]][position[0]];
                     cell.content = ch;
                     cell.foregroundColour = foreground;
                     cell.backgroundColour = background;
+
+                    position[0]++;
                     return *this;
                 }
 
@@ -68,7 +77,7 @@ namespace efgy
                 writer &write (const std::basic_string<C> &str,
                                const std::size_t &width)
                 {
-                    for (std::size_t i = 0; i < width; i++, position[0]++)
+                    for (std::size_t i = 0; i < width; i++)
                     {
                         write(i < str.size() ? str[i] : ' ');
                     }
@@ -84,8 +93,7 @@ namespace efgy
                     const std::size_t fullchars = perc > 0 ? (width-2) * perc : 0;
 
                     write(left);
-                    position[0]++;
-                    for (std::size_t i = 0; i < (width - 2); i++, position[0]++)
+                    for (std::size_t i = 0; i < (width - 2); i++)
                     {
                         write(i < fullchars ? full : ' ');
                     }
