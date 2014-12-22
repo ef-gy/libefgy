@@ -50,7 +50,7 @@ namespace efgy
                 int background;
                 std::array<ssize_t,2> position;
 
-                writer &write (const T &ch)
+                writer &solve (void)
                 {
                     const auto dim = output.size();
 
@@ -64,8 +64,18 @@ namespace efgy
                     position[0]  = (position[0] >= dim[0]) ? 0 : position[0];
                     position[1]  = (position[1] >= dim[1]) ? 0 : position[1];
 
+                    return *this;
+                }
+
+                writer &write (const T &ch)
+                {
+                    solve();
+
                     auto &cell = output.target[position[1]][position[0]];
-                    cell.content = ch;
+                    if (ch > 0)
+                    {
+                        cell.content = ch;
+                    }
                     cell.foregroundColour = foreground;
                     cell.backgroundColour = background;
 
@@ -119,6 +129,58 @@ namespace efgy
                 writer &y (const ssize_t &line)
                 {
                     position[1] = line;
+
+                    return *this;
+                }
+
+                writer &colour (const std::size_t &columns, const std::size_t &lines)
+                {
+                    const auto pos = position;
+
+                    for (std::size_t l = 0; l < lines; l++)
+                    {
+                        position[0] = pos[0];
+                        position[1] = pos[1] + l;
+                        for (std::size_t c = 0; c < columns; c++)
+                        {
+                            write(0);
+                        }
+                    }
+
+                    return *this;
+                }
+
+                writer &box (const std::size_t &columns, const std::size_t lines)
+                {
+                    const auto pos = position;
+
+                    for (std::size_t l = 0; l < lines; l++)
+                    {
+                        position[0] = pos[0];
+                        position[1] = pos[1] + l;
+                        for (std::size_t c = 0; c < columns; c++)
+                        {
+                            if ((l == 0) || (l == (lines-1)))
+                            {
+                                if ((c == 0) || (c == (columns-1)))
+                                {
+                                    write('+');
+                                }
+                                else
+                                {
+                                    write('-');
+                                }
+                            }
+                            else if ((c == 0) || (c == (columns-1)))
+                            {
+                                write('|');
+                            }
+                            else
+                            {
+                                write(0);
+                            }
+                        }
+                    }
 
                     return *this;
                 }
