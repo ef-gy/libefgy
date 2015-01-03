@@ -298,7 +298,7 @@ int testVT100Decode (std::ostream &log)
 
         if (ce != 1)
         {
-            log << "vt100 decode emitted the wrong number of (commands) commands; should be 1, was " << ce << "\n";
+            log << "vt100 decode emitted the wrong number of (correct) commands; should be 1, was " << ce << "\n";
             return 52;
         }
 
