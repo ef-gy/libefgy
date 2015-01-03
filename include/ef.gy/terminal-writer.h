@@ -1,7 +1,7 @@
 /**\file
  *
  * \copyright
- * Copyright (c) 2012-2014, ef.gy Project Members
+ * Copyright (c) 2012-2015, ef.gy Project Members
  * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -184,6 +184,28 @@ namespace efgy
 
                     return *this;
                 }
+
+                writer &clear (const ssize_t &columns = -1, const ssize_t &lines = -1, const T &sym = ' ')
+                {
+                    const auto dim = output.size();
+                    const auto pos = position;
+
+                    const std::size_t cs = columns < 0 ? dim[0] - pos[0] : columns;
+                    const std::size_t ls = lines   < 0 ? dim[1] - pos[1] : lines;
+
+                    for (std::size_t l = 0; l < ls; l++)
+                    {
+                        position[0] = pos[0];
+                        position[1] = pos[1] + l;
+                        for (std::size_t c = 0; c < cs; c++)
+                        {
+                            write(sym);
+                        }
+                    }
+
+                    return *this;
+                }
+
 
             protected:
                 terminal<T> &output;
