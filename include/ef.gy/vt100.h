@@ -104,6 +104,20 @@ namespace efgy
                 using terminal<T>::read;
                 using terminal<T>::cursor;
 
+                class command
+                {
+                    public:
+                        command(const T& pCode,
+                                const std::vector<long> &pParameter = std::vector<long>())
+                            : code(pCode), parameter(pParameter)
+                            {}
+
+                        T code;
+                        std::vector<long> parameter;
+                };
+
+                std::vector<command> commandQueue;
+
                 /**\brief Flush current buffer contents
                  *
                  * Updates the current state of the terminal by writing vt100
@@ -319,18 +333,6 @@ namespace efgy
                     return ops;
                 }
 
-                class command
-                {
-                    public:
-                        command(const T& pCode,
-                                const std::vector<long> &pParameter = std::vector<long>())
-                            : code(pCode), parameter(pParameter)
-                            {}
-
-                        T code;
-                        std::vector<long> parameter;
-                };
-
                 static std::vector<command> decode
                     (std::vector<T> &queue,
                      std::function<bool(const command&)> emitCommand = 0,
@@ -465,124 +467,70 @@ namespace efgy
                     return r;
                 }
 
+                bool read
+                    (std::function<bool(const command&)> emitCommand = 0,
+                     std::function<bool(const T&)>       emitLiteral = 0)
+                {
+                    do
+                    {
+                        terminal<T>::read();
+                    }
+                    while (input.rdbuf()->in_avail() > 0);
+
+                    auto q = decode(queue, [emitCommand, this] (const command &c) -> bool
+                        {
+                            if (c.code == 'R')
+                            {
+                                switch (c.parameter.size())
+                                {
+                                    case 0:
+                                        cursor[1] = 0;
+                                        cursor[0] = 0;
+                                        break;
+                                    case 1:
+                                        cursor[1] = c.parameter[0]-1;
+                                        cursor[0] = 0;
+                                        break;
+                                    default:
+                                        cursor[1] = c.parameter[0]-1;
+                                        cursor[0] = c.parameter[1]-1;
+                                        break;
+                                }
+                            }
+                            return (bool)emitCommand ? emitCommand(c) : true;
+                        }, [emitLiteral] (const T &l) -> bool
+                        {
+                            return (bool)emitLiteral ? emitLiteral(l) : true;
+                        });
+
+                    commandQueue.insert(commandQueue.end(), q.begin(), q.end());
+
+                    return true;
+                }
+
                 /**\brief Query current cursor position from terminal
                  *
                  * This function will ask the terminal where the cursor
-                 * currently resides, then updates the cursor position with
-                 * that position once the terminal replies.
+                 * currently resides, then try to read() from the input stream
+                 * at least once iff doRead was not set to false.. This may or
+                 * may not update the input position depending on whether the
+                 * terminal replies immediately.
                  *
-                 * \returns 'true' if the position was updated, 'false'
-                 *          otherwise. The code will actively wait for a valid
-                 *          reply, so you won't see this function returning
-                 *          'false'.
+                 * \param[in] doRead Whether to try reading from the terminal
+                 *                   at least once.
+                 *
+                 * \returns 'true' if the query was sent was updated, 'false'
+                 *          otherwise. The code will always emit the query, so
+                 *          'false' should not come up.
                  */
-                bool updatePosition (void)
+                bool updatePosition (bool doRead = true)
                 {
                     output << "\e[6n";
 
-                    enum parserState state = text;
-                    std::vector<T> result;
-
-                    bool haveCommand = false;
-                    std::string vtparam;
-                    std::vector<std::string> vtparams;
-                    T vtcommand;
-
-                    do
+                    if (doRead)
                     {
                         read();
-                        vtparam = "";
-                        vtparams.resize(0);
-                        result.resize(0);
-
-                        for (T v : queue)
-                        {
-                            switch (state)
-                            {
-                                case text:
-                                    switch (v)
-                                    {
-                                        case '\e':
-                                            if (!haveCommand)
-                                            {
-                                                state = escape1;
-                                                break;
-                                            }
-                                        default:
-                                            result.push_back(v);
-                                    }
-                                    break;
-                                case escape1:
-                                    switch (v)
-                                    {
-                                        case '[':
-                                            state = escape2;
-                                            break;
-                                        default:
-                                            state = text;
-                                            result.push_back(T('\e'));
-                                            result.push_back(v);
-                                    }
-                                    break;
-                                case escape2:
-                                    switch (v)
-                                    {
-                                        case '0': vtparam += "0"; break;
-                                        case '1': vtparam += "1"; break;
-                                        case '2': vtparam += "2"; break;
-                                        case '3': vtparam += "3"; break;
-                                        case '4': vtparam += "4"; break;
-                                        case '5': vtparam += "5"; break;
-                                        case '6': vtparam += "6"; break;
-                                        case '7': vtparam += "7"; break;
-                                        case '8': vtparam += "8"; break;
-                                        case '9': vtparam += "9"; break;
-                                        case ';':
-                                            vtparams.push_back(vtparam);
-                                            vtparam = "";
-                                            break;
-                                        default:
-                                            vtparams.push_back(vtparam);
-                                            vtcommand = v;
-                                            state = text;
-                                            haveCommand = true;
-                                            break;
-                                    }
-                                    break;
-                            }
-                        }
-
-                        queue = result;
-                        if (vtcommand == 'R')
-                        {
-                            std::stringstream st;
-                            switch (vtparams.size())
-                            {
-                                case 0:
-                                    cursor[1] = 0;
-                                    cursor[0] = 0;
-                                    break;
-                                case 1:
-                                    st.clear();
-                                    st.str(vtparams[0]);
-                                    st >> cursor[1];
-                                    cursor[1]--;
-                                    cursor[0] = 0;
-                                    break;
-                                default:
-                                    st.clear();
-                                    st.str(vtparams[0]);
-                                    st >> cursor[1];
-                                    st.clear();
-                                    st.str(vtparams[1]);
-                                    st >> cursor[0];
-                                    cursor[1]--;
-                                    cursor[0]--;
-                                    break;
-                            }
-                        }
                     }
-                    while (!haveCommand);
 
                     return true;
                 }
