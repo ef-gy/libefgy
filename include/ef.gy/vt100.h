@@ -5,7 +5,7 @@
  * terminal::terminal instance.
  *
  * \copyright
- * Copyright (c) 2012-2014, ef.gy Project Members
+ * Copyright (c) 2012-2015, ef.gy Project Members
  * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,7 @@
 #define EF_GY_VT100_H
 
 #include <ef.gy/terminal.h>
+#include <ef.gy/maybe.h>
 #include <sstream>
 #include <functional>
 
@@ -316,6 +317,129 @@ namespace efgy
                     }
 
                     return ops;
+                }
+
+                class command
+                {
+                    public:
+                        command(const T& pCode,
+                                const std::vector<long> &pParameter = std::vector<long>())
+                            : code(pCode), parameter(pParameter)
+                            {}
+
+                        T code;
+                        std::vector<long> parameter;
+                };
+
+                static std::vector<command> decode (std::vector<T> &queue)
+                {
+                    std::vector<command> r;
+
+                    enum parserState state = text;
+                    std::vector<T> result;
+
+                    maybe<long> vtparam;
+                    std::vector<long> vtparams;
+
+                    for (T v : queue)
+                    {
+                        switch (state)
+                        {
+                            case text:
+                                switch (v)
+                                {
+                                    case '\e':
+                                        state = escape1;
+                                        break;
+                                    default:
+                                        result.push_back(v);
+                                }
+                                break;
+                            case escape1:
+                                switch (v)
+                                {
+                                    case '[':
+                                        state = escape2;
+                                        break;
+                                    default:
+                                        state = text;
+                                        result.push_back(T('\e'));
+                                        result.push_back(v);
+                                }
+                                break;
+                            case escape2:
+                                switch (v)
+                                {
+                                    case '0':
+                                    case '1':
+                                    case '2':
+                                    case '3':
+                                    case '4':
+                                    case '5':
+                                    case '6':
+                                    case '7':
+                                    case '8':
+                                    case '9':
+                                        vtparam = (long)vtparam * 10 + (v - '0');
+                                        break;
+                                    case ';':
+                                        if ((bool)vtparam)
+                                        {
+                                            vtparams.push_back((long)vtparam);
+                                            vtparam = maybe<long>();
+                                        }
+                                        break;
+                                    default:
+                                        if ((bool)vtparam)
+                                        {
+                                            vtparams.push_back((long)vtparam);
+                                            vtparam = maybe<long>();
+                                        }
+                                        r.push_back(command(v, vtparams));
+                                        state = text;
+                                        vtparams.clear();
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+
+                    if (state == escape1)
+                    {
+                        result.push_back(T('\e'));
+                    }
+                    else if (state == escape2)
+                    {
+                        result.push_back(T('\e'));
+                        result.push_back('[');
+
+                        bool first = true;
+                        for (auto p : vtparams)
+                        {
+                            if (first)
+                            {
+                                first = false;
+                            }
+                            else
+                            {
+                                result.push_back(';');
+                            }
+
+                            std::vector<T> pv = {{}};
+
+                            while (p > 0)
+                            {
+                                pv.push_back(p % 10);
+                                p /= 10;
+                            }
+
+                            pv.insert(pv.end(), pv.rbegin(), pv.rend());
+                        }
+                    }
+
+                    queue = result;
+
+                    return r;
                 }
 
                 /**\brief Query current cursor position from terminal
