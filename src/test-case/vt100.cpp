@@ -265,6 +265,58 @@ int testVT100Decode (std::ostream &log)
         }
     }
 
+    sq = "p\e[11r";
+
+    {
+        long ce = 0, le = 0;
+        std::vector<long> queue(sq.begin(), sq.end());
+
+        auto dec = vt100<long>::decode(queue, [&ce] (const vt100<long>::command &c) -> bool
+            {
+                if (   c.code == 'r'
+                    && c.parameter.size() == 1
+                    && c.parameter[0] == 11)
+                {
+                    ce++;
+                }
+                return false;
+            },
+            [&le] (const long &l) -> bool
+            {
+                if (l == 'p')
+                {
+                    le++;
+                }
+                return false;
+            });
+
+        if (dec.size() != 0)
+        {
+            log << "vt100 decode returned an incorrect number of results; should be 0, have " << dec.size() << ".\n";
+            return 51;
+        }
+
+        if (ce != 1)
+        {
+            log << "vt100 decode emitted the wrong number of (commands) commands; should be 1, was " << ce << "\n";
+            return 52;
+        }
+
+        if (le != 1)
+        {
+            log << "vt100 decode emitted the wrong number of (correct) literalss; should be 1, was " << le << "\n";
+            return 53;
+        }
+
+        std::string s(queue.begin(), queue.end());
+
+        if (s != "")
+        {
+            log << "vt100 decode came up with the wrong remainder; should be '' but is '" << s << "'.\n";
+            return 54;
+        }
+    }
+
     return 0;
 }
 

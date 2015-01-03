@@ -331,7 +331,10 @@ namespace efgy
                         std::vector<long> parameter;
                 };
 
-                static std::vector<command> decode (std::vector<T> &queue)
+                static std::vector<command> decode
+                    (std::vector<T> &queue,
+                     std::function<bool(const command&)> emitCommand = 0,
+                     std::function<bool(const T&)>       emitLiteral = 0)
                 {
                     std::vector<command> r;
 
@@ -352,7 +355,10 @@ namespace efgy
                                         state = escape1;
                                         break;
                                     default:
-                                        result.push_back(v);
+                                        if (!emitLiteral || emitLiteral(v))
+                                        {
+                                            result.push_back(v);
+                                        }
                                 }
                                 break;
                             case escape1:
@@ -363,8 +369,14 @@ namespace efgy
                                         break;
                                     default:
                                         state = text;
-                                        result.push_back(T('\e'));
-                                        result.push_back(v);
+                                        if (!emitLiteral || emitLiteral(T('\e')))
+                                        {
+                                            result.push_back(T('\e'));
+                                        }
+                                        if (!emitLiteral || emitLiteral(v))
+                                        {
+                                            result.push_back(v);
+                                        }
                                 }
                                 break;
                             case escape2:
@@ -395,7 +407,11 @@ namespace efgy
                                             vtparams.push_back((long)vtparam);
                                             vtparam = maybe<long>();
                                         }
-                                        r.push_back(command(v, vtparams));
+                                        command c(v, vtparams);
+                                        if (!emitCommand || emitCommand(c))
+                                        {
+                                            r.push_back(c);
+                                        }
                                         state = text;
                                         vtparams.clear();
                                         break;
@@ -404,6 +420,8 @@ namespace efgy
                         }
                     }
 
+                    /* incomplete commands: don't emit but feed back into the
+                       buffer */
                     if (state == escape1)
                     {
                         result.push_back(T('\e'));
