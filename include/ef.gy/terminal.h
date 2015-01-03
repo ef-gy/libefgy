@@ -14,7 +14,7 @@
  * stuck with the documentation for some reason.
  *
  * \copyright
- * Copyright (c) 2012-2014, ef.gy Project Members
+ * Copyright (c) 2012-2015, ef.gy Project Members
  * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -491,8 +491,7 @@ namespace efgy
                     }
                     else
                     {
-                        char n;
-                        input >> n;
+                        char n = input.read();
                         queue.push_back(T(n));
                         return maybe<T>(T(n));
                     }
