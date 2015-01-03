@@ -491,9 +491,16 @@ namespace efgy
                     }
                     else
                     {
-                        char n = input.read();
-                        queue.push_back(T(n));
-                        return maybe<T>(T(n));
+                        char n;
+                        if (input.get(n))
+                        {
+                            queue.push_back(T(n));
+                            return maybe<T>(T(n));
+                        }
+                        else
+                        {
+                            return maybe<T>();
+                        }
                     }
                 }
 
