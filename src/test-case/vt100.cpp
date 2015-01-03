@@ -238,7 +238,7 @@ int testVT100Decode (std::ostream &log)
 
         if (s != "]foo")
         {
-            log << "vt100 decode come up with the wrong remainder; should be ']foo' but is '" << s << "'.\n";
+            log << "vt100 decode came up with the wrong remainder; should be ']foo' but is '" << s << "'.\n";
             return 36;
         }
     }
@@ -256,27 +256,13 @@ int testVT100Decode (std::ostream &log)
             return 41;
         }
 
-/*
         std::string s(queue.begin(), queue.end());
-
-        for (const long l : sq)
-        {
-            log << l << "\n";
-        }
-
-        log << "----\n";
-
-        for (const long l : s)
-        {
-            log << l << "\n";
-        }
 
         if (s != sq)
         {
-            log << "vt100 decode come up with the wrong remainder; should be '" << sq << "' but is '" << s << "'.\n";
+            log << "vt100 decode came up with the wrong remainder; should be '" << sq << "' but is '" << s << "'.\n";
             return 42;
         }
-*/
     }
 
     return 0;

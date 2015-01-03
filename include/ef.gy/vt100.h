@@ -414,6 +414,11 @@ namespace efgy
                         result.push_back('[');
 
                         bool first = true;
+                        if ((bool)vtparam)
+                        {
+                            vtparams.push_back((long)vtparam);
+                            vtparam = maybe<long>();
+                        }
                         for (auto p : vtparams)
                         {
                             if (first)
@@ -425,15 +430,15 @@ namespace efgy
                                 result.push_back(';');
                             }
 
-                            std::vector<T> pv = {{}};
+                            std::vector<T> pv;
 
                             while (p > 0)
                             {
-                                pv.push_back(p % 10);
+                                pv.push_back('0' + p % 10);
                                 p /= 10;
                             }
 
-                            pv.insert(pv.end(), pv.rbegin(), pv.rend());
+                            result.insert(result.end(), pv.rbegin(), pv.rend());
                         }
                     }
 
