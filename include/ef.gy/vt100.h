@@ -479,6 +479,7 @@ namespace efgy
 
                     auto q = decode(queue, [emitCommand, this] (const command &c) -> bool
                         {
+                            bool keep = true;
                             if (c.code == 'R')
                             {
                                 switch (c.parameter.size())
@@ -496,8 +497,9 @@ namespace efgy
                                         cursor[0] = c.parameter[1]-1;
                                         break;
                                 }
+                                keep = false;
                             }
-                            return (bool)emitCommand ? emitCommand(c) : true;
+                            return (bool)emitCommand ? emitCommand(c) : keep;
                         }, [emitLiteral] (const T &l) -> bool
                         {
                             return (bool)emitLiteral ? emitLiteral(l) : true;
