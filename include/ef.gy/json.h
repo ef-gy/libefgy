@@ -4,7 +4,7 @@
  * Contains helper functionality for JSON output.
  *
  * \copyright
- * Copyright (c) 2012-2014, ef.gy Project Members
+ * Copyright (c) 2012-2015, ef.gy Project Members
  * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,8 @@
 #include <string>
 #include <memory>
 
+#include <ef.gy/maybe.h>
+
 namespace efgy
 {
     /**\brief JSON helpers
@@ -53,10 +55,12 @@ namespace efgy
          *
          * \see http://www.json.org/
          */
-        template <typename numeric = long double>
+        template <typename tNumeric = long double>
         class value
         {
             public:
+                typedef tNumeric numeric;
+
                 value (void) : type(null), payload(0) {}
                 value (const bool &pValue) : type(pValue ? yes : no), payload(0) {}
                 value (const value &b) : type(null), payload(0)
@@ -65,18 +69,15 @@ namespace efgy
                     }
                 value (const char *b) : type(null), payload(0)
                     {
-                        toString();
-                        getString() = b;
+                        toString() = b;
                     }
                 value (const std::string &b) : type(null), payload(0)
                     {
-                        toString();
-                        getString() = b;
+                        toString() = b;
                     }
                 value (const numeric &b) : type(null), payload(0)
                     {
-                        toNumber();
-                        getNumber() = b;
+                        toNumber() = b;
                     }
 
                 ~value (void)
@@ -100,28 +101,22 @@ namespace efgy
                     endObject
                 } type;
 
-                void *payload;
-
                 value &operator = (const value &b)
                 {
                     clear();
                     switch (b.type)
                     {
                         case object:
-                            toObject();
-                            getObject() = b.getObject();
+                            toObject() = b.asObject();
                             break;
                         case array:
-                            toArray();
-                            getArray() = b.getArray();
+                            toArray() = b.asArray();
                             break;
                         case string:
-                            toString();
-                            getString() = b.getString();
+                            toString() = b.asString();
                             break;
                         case number:
-                            toNumber();
-                            getNumber() = b.getNumber();
+                            toNumber() = b.asNumber();
                             break;
                         case yes:
                         case no:
@@ -137,77 +132,182 @@ namespace efgy
                     return *this;
                 }
 
-                const std::map<std::string,value<numeric>> &getObject (void) const
+                const std::size_t size(void) const
                 {
+                    if (isObject())
+                    {
+                        const auto &a = *((const std::map<std::string,value<numeric>>*)payload);
+                        return a.size();
+                    }
+                    else if (isArray())
+                    {
+                        const auto &a = *((const std::vector<value<numeric>>*)payload);
+                        return a.size();
+                    }
+                    return 0;
+                }
+
+                const value<numeric> operator () (const std::string &i) const
+                {
+                    if (isObject())
+                    {
+                        return (*((const std::map<std::string,value<numeric>>*)payload))[i];
+                    }
+                    return value<numeric>();
+                }
+
+                value<numeric> &operator () (const std::string &i)
+                {
+                    return toObject()[i];
+                }
+
+                constexpr const bool isObject (void) const
+                {
+                    return type == object;
+                }
+
+                const std::map<std::string,value<numeric>> asObject (void) const
+                {
+                    if (!isObject())
+                    {
+                        return std::map<std::string,value<numeric>>();
+                    }
                     return *((const std::map<std::string,value<numeric>>*)payload);
                 }
 
-                const std::vector<value<numeric>> &getArray (void) const
+                std::map<std::string,value<numeric>> &toObject (void)
                 {
-                    return *((const std::vector<value<numeric>>*)payload);
-                }
-
-                const std::string &getString (void) const
-                {
-                    return *((const std::string*)payload);
-                }
-
-                const numeric &getNumber (void) const
-                {
-                    return *((const numeric*)payload);
-                }
-
-                std::map<std::string,value<numeric>> &getObject (void)
-                {
+                    if (!isObject())
+                    {
+                        clear();
+                        type = object;
+                        payload = new std::map<std::string,value<numeric>>();
+                    }
                     return *((std::map<std::string,value<numeric>>*)payload);
                 }
 
-                std::vector<value<numeric>> &getArray (void)
+                value<numeric> &push (const value<numeric> &v)
                 {
+                    toArray().push_back(v);
+                    return *this;
+                }
+
+                const value<numeric> operator [] (const std::size_t &i) const
+                {
+                    if (isArray())
+                    {
+                        const auto &a = *((const std::vector<value<numeric>>*)payload);
+                        if (i < a.size())
+                        {
+                            return a[i];
+                        }
+                    }
+                    return value<numeric>();
+                }
+
+                value<numeric> &operator [] (const std::size_t &i)
+                {
+                    return toArray()[i];
+                }
+
+                operator const maybe<std::vector<value<numeric>>> (void) const
+                {
+                    return maybe<std::vector<value<numeric>>>(asArray(), !isArray());
+                }
+
+                constexpr const bool isArray (void) const
+                {
+                    return type == array;
+                }
+
+                const std::vector<value<numeric>> asArray (void) const
+                {
+                    if (!isArray())
+                    {
+                        return std::vector<value<numeric>>();
+                    }
+                    return *((const std::vector<value<numeric>>*)payload);
+                }
+
+                std::vector<value<numeric>> &toArray (void)
+                {
+                    if (!isArray())
+                    {
+                        clear();
+                        type = array;
+                        payload = new std::vector<value<numeric>>();
+                    }
                     return *((std::vector<value<numeric>>*)payload);
                 }
 
-                std::string &getString (void)
+                operator const maybe<std::string> (void) const
                 {
+                    return maybe<std::string>(asString(),!isString());
+                }
+
+                constexpr const bool isString (void) const
+                {
+                    return type == string;
+                }
+
+                const std::string asString (void) const
+                {
+                    if (!isString())
+                    {
+                        return "";
+                    }
+                    return *((const std::string*)payload);
+                }
+
+                std::string &toString (void)
+                {
+                    if (!isString())
+                    {
+                        clear();
+                        type = string;
+                        payload = new std::string();
+                    }
                     return *((std::string*)payload);
                 }
 
-                numeric &getNumber (void)
+                constexpr operator const numeric (void) const
                 {
-                    return *((numeric*)payload);
+                    return asNumber();
                 }
 
-                bool getBoolean (void) const
+                constexpr operator const maybe<numeric> (void) const
+                {
+                    return maybe<numeric>(asNumber(),!isNumber());
+                }
+
+                constexpr explicit operator bool (void) const
                 {
                     return type == yes;
                 }
 
-                void toObject (void)
+                constexpr const bool isNumber (void) const
                 {
-                    clear();
-                    type = object;
-                    payload = new std::map<std::string,value<numeric>>();
+                    return type == number;
                 }
 
-                void toArray (void)
+                const numeric asNumber (void) const
                 {
-                    clear();
-                    type = array;
-                    payload = new std::vector<value<numeric>>();
+                    if (!isNumber())
+                    {
+                        return 0;
+                    }
+                    return *((numeric*)payload);
                 }
 
-                void toString (void)
+                numeric &toNumber (void)
                 {
-                    clear();
-                    type = string;
-                    payload = new std::string();
-                }
-            
-                void toNumber (void)
-                {
-                    clear();
-                    type = number;
-                    payload = new numeric();
+                    if (!isNumber())
+                    {
+                        clear();
+                        type = number;
+                        payload = new numeric();
+                    }
+                    return *((numeric*)payload);
                 }
 
             protected:
@@ -243,6 +343,9 @@ namespace efgy
                     }
                     type = null;
                 }
+
+                void *payload;
+
         };
     };
 };

@@ -5,7 +5,7 @@
  * functions for basic, atomic types and certain combined types.
  *
  * \copyright
- * Copyright (c) 2012-2014, ef.gy Project Members
+ * Copyright (c) 2012-2015, ef.gy Project Members
  * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -505,16 +505,16 @@ namespace efgy
             switch (pValue.type)
             {
                 case json::value<Q>::object:
-                    stream << pValue.getObject();
+                    stream << pValue.asObject();
                     break;
                 case json::value<Q>::array:
-                    stream << pValue.getArray();
+                    stream << pValue.asArray();
                     break;
                 case json::value<Q>::string:
-                    stream << pValue.getString();
+                    stream << pValue.asString();
                     break;
                 case json::value<Q>::number:
-                    stream << pValue.getNumber();
+                    stream << (Q)pValue;
                     break;
                 case json::value<Q>::yes:
                     stream << true;
@@ -653,7 +653,7 @@ namespace efgy
                             case json::value<Q>::endObject:
                                 return nstream;
                             case json::value<Q>::string:
-                                key = v.getString();
+                                key = v.asString();
                                 state = read_object_colon;
                                 break;
                             default:
@@ -690,7 +690,7 @@ namespace efgy
                             case json::value<Q>::endObject:
                                 return nstream;
                             default:
-                                pValue.getObject()[key] = v;
+                                pValue.toObject()[key] = v;
                                 state = read_object_comma;
                                 break;
                         }
@@ -726,7 +726,7 @@ namespace efgy
                             return nstream;
                         }
                         stream = nstream;
-                        pValue.getArray().push_back(v);
+                        pValue.toArray().push_back(v);
                     }
                         i = -1;
                         break;
@@ -769,7 +769,7 @@ namespace efgy
                                 ss << c;
                                 break;
                             default:
-                                ss >> pValue.getNumber();
+                                ss >> pValue.toNumber();
                                 return stream.substr(i);
                         }
                         break;
@@ -777,16 +777,16 @@ namespace efgy
                         switch (c)
                         {
                             case 't':
-                                pValue.getString().append(1, '\t');
+                                pValue.toString().append(1, '\t');
                                 break;
                             case 'v':
-                                pValue.getString().append(1, '\v');
+                                pValue.toString().append(1, '\v');
                                 break;
                             case 'n':
-                                pValue.getString().append(1, '\n');
+                                pValue.toString().append(1, '\n');
                                 break;
                             default:
-                                pValue.getString().append(1, c);
+                                pValue.toString().append(1, c);
                                 break;
                         }
                         state = read_string;
@@ -801,7 +801,7 @@ namespace efgy
                                 state = read_string_escape;
                                 break;
                             default:
-                                pValue.getString().append(1, c);
+                                pValue.toString().append(1, c);
                                 break;
                         }
                         break;
@@ -911,7 +911,7 @@ namespace efgy
             switch (state)
             {
                 case read_number:
-                    ss >> pValue.getNumber();
+                    ss >> pValue.toNumber();
                     break;
                 default:
                     break;

@@ -11,7 +11,7 @@
  * one reason or another.
  *
  * \copyright
- * Copyright (c) 2012-2014, ef.gy Project Members
+ * Copyright (c) 2012-2015, ef.gy Project Members
  * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -81,10 +81,11 @@ namespace efgy
              * Construct a 'maybe' that contains the value passed as the first
              * parameter. A copy of this value is created in the process.
              *
-             * \param[in] pJust The value to use.
+             * \param[in] pJust    The value to use.
+             * \param[in] pNothing Whether pJust is considered "nothing".
              */
-            constexpr maybe (const T &pJust)
-                : nothing(false), just(pJust)
+            constexpr maybe (const T &pJust, bool pNothing = false)
+                : nothing(pNothing), just(pJust)
                 {}
 
             /**\brief Copy constructor

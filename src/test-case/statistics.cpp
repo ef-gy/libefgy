@@ -4,7 +4,7 @@
  * Test cases in this file test the functions in libefgy's statistics header.
  *
  * \copyright
- * Copyright (c) 2012-2014, ef.gy Project Members
+ * Copyright (c) 2012-2015, ef.gy Project Members
  * \copyright
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
