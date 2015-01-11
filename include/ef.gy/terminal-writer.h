@@ -133,15 +133,19 @@ namespace efgy
                     return *this;
                 }
 
-                writer &colour (const std::size_t &columns, const std::size_t &lines)
+                writer &colour (const ssize_t columns = -1, const ssize_t lines = -1)
                 {
+                    const auto dim = output.size();
                     const auto pos = position;
 
-                    for (std::size_t l = 0; l < lines; l++)
+                    const std::size_t cs = columns < 0 ? dim[0] - pos[0] + columns : columns;
+                    const std::size_t ls = lines   < 0 ? dim[1] - pos[1] + lines   : lines;
+
+                    for (std::size_t l = 0; l < ls; l++)
                     {
                         position[0] = pos[0];
                         position[1] = pos[1] + l;
-                        for (std::size_t c = 0; c < columns; c++)
+                        for (std::size_t c = 0; c < cs; c++)
                         {
                             write(0);
                         }
@@ -150,19 +154,23 @@ namespace efgy
                     return *this;
                 }
 
-                writer &box (const std::size_t &columns, const std::size_t lines)
+                writer &box (const ssize_t columns = -1, const ssize_t lines = -1)
                 {
+                    const auto dim = output.size();
                     const auto pos = position;
 
-                    for (std::size_t l = 0; l < lines; l++)
+                    const std::size_t cs = columns < 0 ? dim[0] - pos[0] + columns : columns;
+                    const std::size_t ls = lines   < 0 ? dim[1] - pos[1] + lines   : lines;
+
+                    for (std::size_t l = 0; l < ls; l++)
                     {
                         position[0] = pos[0];
                         position[1] = pos[1] + l;
-                        for (std::size_t c = 0; c < columns; c++)
+                        for (std::size_t c = 0; c < cs; c++)
                         {
-                            if ((l == 0) || (l == (lines-1)))
+                            if ((l == 0) || (l == (ls-1)))
                             {
-                                if ((c == 0) || (c == (columns-1)))
+                                if ((c == 0) || (c == (cs-1)))
                                 {
                                     write('+');
                                 }
@@ -171,7 +179,7 @@ namespace efgy
                                     write('-');
                                 }
                             }
-                            else if ((c == 0) || (c == (columns-1)))
+                            else if ((c == 0) || (c == (cs-1)))
                             {
                                 write('|');
                             }
@@ -185,13 +193,13 @@ namespace efgy
                     return *this;
                 }
 
-                writer &clear (const ssize_t &columns = -1, const ssize_t &lines = -1, const T &sym = ' ')
+                writer &clear (const ssize_t columns = -1, const ssize_t lines = -1, const T sym = ' ')
                 {
                     const auto dim = output.size();
                     const auto pos = position;
 
-                    const std::size_t cs = columns < 0 ? dim[0] - pos[0] : columns;
-                    const std::size_t ls = lines   < 0 ? dim[1] - pos[1] : lines;
+                    const std::size_t cs = columns < 0 ? dim[0] - pos[0] + columns : columns;
+                    const std::size_t ls = lines   < 0 ? dim[1] - pos[1] + lines   : lines;
 
                     for (std::size_t l = 0; l < ls; l++)
                     {
