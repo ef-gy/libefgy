@@ -67,7 +67,7 @@ namespace efgy
                     return *this;
                 }
 
-                writer &write (const T &ch)
+                writer &write (const T ch)
                 {
                     solve();
 
@@ -97,7 +97,7 @@ namespace efgy
 
                 writer &bar(const ssize_t &min, const ssize_t &max,
                             const std::size_t &width,
-                            const T &full = '#', const T &left = '[', const T &right = ']')
+                            const T full = '#', const T left = '[', const T right = ']')
                 {
                     const double perc = double(min)/double(max);
                     const std::size_t fullchars = perc > 0 ? (width-2) * perc : 0;
@@ -106,6 +106,48 @@ namespace efgy
                     for (std::size_t i = 0; i < (width - 2); i++)
                     {
                         write(i < fullchars ? full : ' ');
+                    }
+                    write(right);
+
+                    return *this;
+                }
+
+                writer &bar2(const ssize_t min1, const ssize_t max1,
+                             const ssize_t min2, const ssize_t max2,
+                             const std::size_t width,
+                             const T full = 0x2588,
+                             const T uhf = 0x2580, const T lhf = 0x2584,
+                             const T left = '[', const T right = ']')
+                {
+                    const double perc1 = max1 > 0 ? double(min1)/double(max1) : 0.;
+                    const double perc2 = max2 > 0 ? double(min2)/double(max2) : 0.;
+                    const double minw = perc1 < perc2 ? perc1 : perc2;
+                    const std::size_t barwidth = width-2;
+                    const std::size_t fullchars = minw * barwidth;
+                    const std::size_t uchars = perc1 * barwidth;
+                    const std::size_t lchars = perc2 * barwidth;
+
+//                    std::cerr << perc1 << " - " << perc2 << " - " << minw << "\n";
+
+                    write(left);
+                    for (std::size_t i = 0; i < barwidth; i++)
+                    {
+                        if (i < fullchars)
+                        {
+                            write(full);
+                        }
+                        else if (i < uchars)
+                        {
+                            write(uhf);
+                        }
+                        else if (i < lchars)
+                        {
+                            write(lhf);
+                        }
+                        else
+                        {
+                            write(' ');
+                        }
                     }
                     write(right);
 
