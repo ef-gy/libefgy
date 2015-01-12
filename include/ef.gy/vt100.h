@@ -208,6 +208,8 @@ namespace efgy
                                         output << "\e[" << vtl << ";" << vtc << "H";
                                         ops++;
                                     }
+                                    cursor[0] = c;
+                                    cursor[1] = l;
                                 }
                                 else if (cursor[1] != l)
                                 {
@@ -222,6 +224,7 @@ namespace efgy
                                         output << "\e[" << -sp << "B";
                                         ops++;
                                     }
+                                    cursor[1] = l;
                                 }
                                 else if (cursor[0] != c)
                                 {
@@ -236,6 +239,7 @@ namespace efgy
                                         output << "\e[" << -sp << "C";
                                         ops++;
                                     }
+                                    cursor[0] = c;
                                 }
 
                                 if (tcell.foregroundColour != currentForegroundColour)
@@ -250,6 +254,7 @@ namespace efgy
                                         output << "\e[38;5;" << tcell.foregroundColour << "m";
                                         ops++;
                                     }
+                                    currentForegroundColour = tcell.foregroundColour;
                                 }
                                 if (tcell.backgroundColour != currentBackgroundColour)
                                 {
@@ -263,6 +268,7 @@ namespace efgy
                                         output << "\e[48;5;" << tcell.backgroundColour << "m";
                                         ops++;
                                     }
+                                    currentBackgroundColour = tcell.backgroundColour;
                                 }
 
                                 if ((tcell.content < 0x20) || (tcell.content == 0x7f))
@@ -318,10 +324,7 @@ namespace efgy
                                 }
 
                                 current[l][c] = tcell;
-                                cursor[1] = l;
-                                cursor[0] = c+1;
-                                currentForegroundColour = tcell.foregroundColour;
-                                currentBackgroundColour = tcell.backgroundColour;
+                                cursor[0]++;
                                 if (ops >= targetOps)
                                 {
                                     return ops;
