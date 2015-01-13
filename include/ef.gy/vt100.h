@@ -180,6 +180,8 @@ namespace efgy
                                 {
                                     output << "\n";
                                     ops++;
+                                    cursor[0] = 0;
+                                    cursor[1] = l;
                                 }
                                 else if ((cursor[1] != l) && (cursor[0] != c))
                                 {
