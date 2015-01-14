@@ -218,12 +218,26 @@ namespace efgy
                                     signed long sp = (signed long)cursor[1] - (signed long)l;
                                     if (sp > 0)
                                     {
-                                        output << "\e[" << sp << "A";
+                                        if (sp == 1)
+                                        {
+                                            output << "\e[A";
+                                        }
+                                        else
+                                        {
+                                            output << "\e[" << sp << "A";
+                                        }
                                         ops++;
                                     }
                                     else
                                     {
-                                        output << "\e[" << -sp << "B";
+                                        if (sp == -1)
+                                        {
+                                            output << "\e[B";
+                                        }
+                                        else
+                                        {
+                                            output << "\e[" << -sp << "B";
+                                        }
                                         ops++;
                                     }
                                     cursor[1] = l;
@@ -233,12 +247,26 @@ namespace efgy
                                     signed long sp = (signed long)cursor[0] - (signed long)c;
                                     if (sp > 0)
                                     {
-                                        output << "\e[" << sp << "D";
+                                        if (sp == 1)
+                                        {
+                                            output << "\e[D";
+                                        }
+                                        else
+                                        {
+                                            output << "\e[" << sp << "D";
+                                        }
                                         ops++;
                                     }
                                     else
                                     {
-                                        output << "\e[" << -sp << "C";
+                                        if (sp == -1)
+                                        {
+                                            output << "\e[C";
+                                        }
+                                        else
+                                        {
+                                            output << "\e[" << -sp << "C";
+                                        }
                                         ops++;
                                     }
                                     cursor[0] = c;
