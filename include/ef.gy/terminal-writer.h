@@ -156,7 +156,7 @@ namespace efgy
                               const std::size_t min2, const std::size_t max2,
                               const std::size_t width,
                               const std::size_t colour1, const std::size_t colour2,
-                              const T uhf = 0x2580, 
+                              const T lhf = 0x2584, 
                               const T left = '[', const T right = ']')
                 {
                     const double perc1 = max1 > 0 ? double(min1)/double(max1) : 0.;
@@ -175,21 +175,21 @@ namespace efgy
                     {
                         if (i < fullchars)
                         {
-                            foreground = colour1;
-                            background = colour2;
-                            write(uhf);
+                            foreground = colour2;
+                            background = colour1;
+                            write(lhf);
                         }
                         else if (i < uchars)
                         {
-                            foreground = colour1;
-                            background = bg;
-                            write(uhf);
+                            foreground = bg;
+                            background = colour1;
+                            write(lhf);
                         }
                         else if (i < lchars)
                         {
-                            foreground = bg;
-                            background = colour2;
-                            write(uhf);
+                            foreground = colour2;
+                            background = bg;
+                            write(lhf);
                         }
                         else
                         {
