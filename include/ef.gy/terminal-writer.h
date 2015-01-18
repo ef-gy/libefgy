@@ -30,6 +30,7 @@
 
 #include <ef.gy/terminal.h>
 #include <string>
+#include <algorithm>
 
 namespace efgy
 {
@@ -95,11 +96,11 @@ namespace efgy
                     return *this;
                 }
 
-                writer &bar(const ssize_t &min, const ssize_t &max,
-                            const std::size_t &width,
+                writer &bar(const ssize_t min, const ssize_t max,
+                            const std::size_t width,
                             const T full = '#', const T left = '[', const T right = ']')
                 {
-                    const double perc = double(min)/double(max);
+                    const double perc = max > 0 ? double(std::max(min,ssize_t(0)))/double(max) : 0.;
                     const std::size_t fullchars = perc > 0 ? (width-2) * perc : 0;
 
                     write(left);
@@ -112,15 +113,15 @@ namespace efgy
                     return *this;
                 }
 
-                writer &bar2(const std::size_t min1, const std::size_t max1,
-                             const std::size_t min2, const std::size_t max2,
+                writer &bar2(const ssize_t min1, const ssize_t max1,
+                             const ssize_t min2, const ssize_t max2,
                              const std::size_t width,
                              const T full = 0x2588,
                              const T uhf = 0x2580, const T lhf = 0x2584,
                              const T left = '[', const T right = ']')
                 {
-                    const double perc1 = max1 > 0 ? double(min1)/double(max1) : 0.;
-                    const double perc2 = max2 > 0 ? double(min2)/double(max2) : 0.;
+                    const double perc1 = max1 > 0 ? double(std::max(min1,ssize_t(0)))/double(max1) : 0.;
+                    const double perc2 = max2 > 0 ? double(std::max(min2,ssize_t(0)))/double(max2) : 0.;
                     const double minw = perc1 < perc2 ? perc1 : perc2;
                     const std::size_t barwidth = width-2;
                     const std::size_t fullchars = minw * barwidth;
@@ -152,15 +153,15 @@ namespace efgy
                     return *this;
                 }
 
-                writer &bar2c(const std::size_t min1, const std::size_t max1,
-                              const std::size_t min2, const std::size_t max2,
+                writer &bar2c(const ssize_t min1, const ssize_t max1,
+                              const ssize_t min2, const ssize_t max2,
                               const std::size_t width,
                               const std::size_t colour1, const std::size_t colour2,
                               const T lhf = 0x2584, 
                               const T left = '[', const T right = ']')
                 {
-                    const double perc1 = max1 > 0 ? double(min1)/double(max1) : 0.;
-                    const double perc2 = max2 > 0 ? double(min2)/double(max2) : 0.;
+                    const double perc1 = max1 > 0 ? double(std::max(min1,ssize_t(0)))/double(max1) : 0.;
+                    const double perc2 = max2 > 0 ? double(std::max(min2,ssize_t(0)))/double(max2) : 0.;
                     const double minw = perc1 < perc2 ? perc1 : perc2;
                     const std::size_t barwidth = width-2;
                     const std::size_t fullchars = minw * barwidth;
