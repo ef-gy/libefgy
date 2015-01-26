@@ -294,8 +294,8 @@ namespace efgy
                     const auto dim = output.size();
                     const auto pos = position;
 
-                    const std::size_t cs = columns < 0 ? dim[0] - pos[0] + columns : columns;
-                    const std::size_t ls = lines   < 0 ? dim[1] - pos[1] + lines   : lines;
+                    const std::size_t cs = columns < 0 ? dim[0] - pos[0] + columns + 1 : columns;
+                    const std::size_t ls = lines   < 0 ? dim[1] - pos[1] + lines   + 1 : lines;
 
                     for (std::size_t l = 0; l < ls; l++)
                     {
