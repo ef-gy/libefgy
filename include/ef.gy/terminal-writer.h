@@ -86,11 +86,24 @@ namespace efgy
 
                 template<typename C>
                 writer &write (const std::basic_string<C> &str,
-                               const std::size_t &width)
+                               const std::size_t width,
+                               const ssize_t colour = -1)
                 {
+                    const auto fg = foreground;
+
+                    if (colour != -1)
+                    {
+                        foreground = colour;
+                    }
+
                     for (std::size_t i = 0; i < width; i++)
                     {
                         write(i < str.size() ? str[i] : ' ');
+                    }
+
+                    if (colour != -1)
+                    {
+                        foreground = fg;
                     }
 
                     return *this;
