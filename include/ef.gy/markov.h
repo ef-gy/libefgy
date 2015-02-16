@@ -366,7 +366,7 @@ namespace efgy
                 chain &operator << (const std::tuple<std::basic_string<T>, counter> &in)
                 {
                     input &input = std::get<0>(in);
-                    return (*this) << make_string(input, std::get<1>(in));
+                    return (*this) << std::make_tuple(input, std::get<1>(in));
                 }
 
                 /**\brief Random number generator
