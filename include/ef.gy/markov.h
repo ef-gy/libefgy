@@ -41,6 +41,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 
 namespace efgy
 {
@@ -267,7 +268,7 @@ namespace efgy
                  * streams.
                  *
                  * The model is trained by constructing a null state and then
-                 * folding along the input data, shifting new Ts in an
+                 * folding along the input data, shifting new Ts in and
                  * increasing counters as appropriate for the transitions that
                  * occur in the input.
                  *
@@ -278,11 +279,41 @@ namespace efgy
                  */
                 chain &operator << (const input &input)
                 {
+                    return *this << std::make_tuple(input, 1);
+                }
+
+                /**\brief Train model with rate of occurence
+                 *
+                 * Use the given input to refine the model; this is provided as
+                 * an 'insertion operator', as C++-ers like to call it, so that
+                 * it feels familiar to programmers used to working with C++
+                 * streams.
+                 *
+                 * The model is trained by constructing a null state and then
+                 * folding along the input data, shifting new Ts in and
+                 * increasing counters as appropriate for the transitions that
+                 * occur in the input.
+                 *
+                 * This particular operator uses the first element of the tuple
+                 * as the chain of data to input, and the second to determine
+                 * how often that input occurs.
+                 *
+                 * \param[in] in A tuple of a vector of Ts to train the model
+                 *               with and a counter of how often that occurs.
+                 *
+                 * \returns A reference to this instance, much like a stream
+                 *          would behave.
+                 */
+                chain &operator << (const std::tuple<input, counter> &in)
+                {
+                    const input &input = std::get<0>(in);
+                    const counter &c = std::get<1>(in);
+
                     memory m = std::accumulate
                         (input.begin(), input.end(), memory(),
-                         [this] (memory s, const T &v) -> memory
+                         [this, c] (memory s, const T &v) -> memory
                          {
-                            transitions[s][v]++;
+                            transitions[s][v] += c;
 
                             std::transform
                                 (s.begin()+1, s.end(), s.begin(),
@@ -317,36 +348,25 @@ namespace efgy
                     return (*this) << input(pInput.begin(), pInput.end());
                 }
 
-                /**\brief Copy, then train model
+                /**\brief Train model with string and rate of occurence
                  *
-                 * This is a const overload of the regular insertion operator;
-                 * instead of modifying the model itself, this will create a
-                 * copy of the current state and then train that copy.
+                 * An overload of the plain training function; this variant
+                 * makes it possible to pass a regular string type if the T
+                 * parameter makes it possible to do so.
                  *
-                 * \param[in] input A vector of Ts to train the model with.
+                 * This variant also lets you pass the rate of occurence as
+                 * the second half of the tuple.
                  *
-                 * \returns A copy of the model, refined with the given input.
+                 * \param[in] in A string of Ts to train the model with and a
+                 *               counter of how often that occurs.
+                 *
+                 * \returns A reference to this instance, much like a stream
+                 *          would behave.
                  */
-                chain operator << (const input &input) const
+                chain &operator << (const std::tuple<std::basic_string<T>, counter> &in)
                 {
-                    chain cs = *this;
-                    return (cs << input);
-                }
-
-                /**\brief Copy, then train model with string
-                 *
-                 * This is a const overload of the regular insertion operator;
-                 * instead of modifying the model itself, this will create a
-                 * copy of the current state and then train that copy.
-                 *
-                 * \param[in] pInput A string of Ts to train the model with.
-                 *
-                 * \returns A copy of the model, refined with the given input.
-                 */
-                chain operator << (const std::basic_string<T> &pInput) const
-                {
-                    chain cs = *this;
-                    return (cs << input(pInput.begin(), pInput.end()));
+                    input &input = std::get<0>(in);
+                    return (*this) << make_string(input, std::get<1>(in));
                 }
 
                 /**\brief Random number generator
