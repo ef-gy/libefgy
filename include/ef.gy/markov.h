@@ -260,6 +260,46 @@ namespace efgy
                     return *this;
                 }
 
+                /**\brief Train model with rate of occurence
+                 *
+                 * Use the given input to refine the model.
+                 *
+                 * The model is trained by constructing a null state and then
+                 * folding along the input data, shifting new Ts in and
+                 * increasing counters as appropriate for the transitions that
+                 * occur in the input.
+                 *
+				 * \param[in] input An input vector for the model.
+                 * \param[in] c     How often the vector occurs.
+                 *
+                 * \returns A reference to this instance, much like a stream
+                 *          would behave.
+                 */
+                chain &train (const input &input, const counter &c)
+                {
+                    memory m = std::accumulate
+                        (input.begin(), input.end(), memory(),
+                         [this, c] (memory s, const T &v) -> memory
+                         {
+                            transitions[s][v] += c;
+
+                            std::transform
+                                (s.begin()+1, s.end(), s.begin(),
+                                 [] (maybe<T> &i) -> maybe<T>
+                                 {
+                                    return i;
+                                 });
+
+                            *(s.end()-1) = v;
+
+                            return s;
+                         });
+
+                    transitions[m][maybe<T>()]++;
+
+                    return *this;
+                }
+
                 /**\brief Train model
                  *
                  * Use the given input to refine the model; this is provided as
@@ -279,7 +319,7 @@ namespace efgy
                  */
                 chain &operator << (const input &input)
                 {
-                    return *this << std::make_tuple(input, 1);
+					return train(input, 1);
                 }
 
                 /**\brief Train model with rate of occurence
@@ -306,30 +346,7 @@ namespace efgy
                  */
                 chain &operator << (const std::tuple<input, counter> &in)
                 {
-                    const input &input = std::get<0>(in);
-                    const counter &c = std::get<1>(in);
-
-                    memory m = std::accumulate
-                        (input.begin(), input.end(), memory(),
-                         [this, c] (memory s, const T &v) -> memory
-                         {
-                            transitions[s][v] += c;
-
-                            std::transform
-                                (s.begin()+1, s.end(), s.begin(),
-                                 [] (maybe<T> &i) -> maybe<T>
-                                 {
-                                    return i;
-                                 });
-
-                            *(s.end()-1) = v;
-
-                            return s;
-                         });
-
-                    transitions[m][maybe<T>()]++;
-
-                    return *this;
+					return train(std::get<0>(in), std::get<1>(in));
                 }
 
                 /**\brief Train model with string
@@ -345,7 +362,7 @@ namespace efgy
                  */
                 chain &operator << (const std::basic_string<T> &pInput)
                 {
-                    return (*this) << input(pInput.begin(), pInput.end());
+					return train(input(pInput.begin(), pInput.end()), 1);
                 }
 
                 /**\brief Train model with string and rate of occurence
@@ -365,8 +382,8 @@ namespace efgy
                  */
                 chain &operator << (const std::tuple<std::basic_string<T>, counter> &in)
                 {
-                    input &input = std::get<0>(in);
-                    return (*this) << std::make_tuple(input, std::get<1>(in));
+                    const auto &inp = std::get<0>(in);
+					return train(input(inp.begin(), inp.end()), std::get<1>(in));
                 }
 
                 /**\brief Random number generator
