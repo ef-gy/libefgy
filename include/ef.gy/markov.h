@@ -146,18 +146,21 @@ namespace efgy
                  * parameter by sequentially feeding the elements in that array
                  * into the model.
                  *
-                 * \tparam n Length of the array that is passed.
+                 * \tparam Array The type of the data array that is passed.
+                 *
+                 * \note Array must be iterable and the elements must work with
+                 *       the << operator of this class.
                  *
                  * \param[in] pRNG  The random number generator to use.
                  * \param[in] pData The data to train the model with.
                  */
-                template<std::size_t n>
-                chain(const random &pRNG, const std::array<const T*,n> &pData)
+                template<typename Array>
+                chain(const random &pRNG, const Array &pData)
                     : RNG(pRNG)
                     {
-                        for (const std::basic_string<T> &str : pData)
+                        for (const auto &data : pData)
                         {
-                            (*this) << str;
+                            (*this) << data;
                         }
                     }
 
