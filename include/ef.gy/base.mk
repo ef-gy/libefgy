@@ -70,7 +70,7 @@ documentation.xml: documentation/xml/combine.xslt documentation/xml/index.xml xs
 
 # meta rules to reformat sources
 format:
-	$(CLANG_FORMAT) -i $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(IINCLUDES)
+	$(CLANG_FORMAT) -i $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(wildcard include/$(BASE)/*.h)
 
 # meta rules for javascript
 js: $(JSBINARIES)
