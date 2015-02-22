@@ -45,50 +45,40 @@ using namespace efgy;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testJSONOutput (std::ostream &log)
-{
-    std::map<const char*,int> m;
+int testJSONOutput(std::ostream &log) {
+  std::map<const char *, int> m;
 
-    m["a"] = 42;
-    m["b"] = 23;
-    m["c"] = 1;
+  m["a"] = 42;
+  m["b"] = 23;
+  m["c"] = 1;
 
-    std::map<const char*,std::map<const char*,int>> mx;
+  std::map<const char *, std::map<const char *, int> > mx;
 
-    mx["d"] = m;
+  mx["d"] = m;
 
-    std::ostringstream s("");
+  std::ostringstream s("");
 
-    s   << json::tag()
-        << false
-        << 1
-        << "foo"
-        << 2
-        << "bar \"baz\""
-        << 42.23
-        << std::array<double,2>({23,42})
-        << m
-        << mx
-        << true;
+  s << json::tag() << false << 1 << "foo" << 2 << "bar \"baz\"" << 42.23
+    << std::array<double, 2>({
+    23, 42
+  }) << m << mx << true;
 
-    if (s.str() != "false1\"foo\"2\"bar \\\"baz\\\"\"42.23[23,42]"
-                   "{\"a\":42,\"b\":23,\"c\":1}"
-                   "{\"d\":{\"a\":42,\"b\":23,\"c\":1}}true")
-    {
-        log << "unexpected JSON output: " << s.str();
-        return 1;
-    }
+  if (s.str() != "false1\"foo\"2\"bar \\\"baz\\\"\"42.23[23,42]"
+                 "{\"a\":42,\"b\":23,\"c\":1}"
+                 "{\"d\":{\"a\":42,\"b\":23,\"c\":1}}true") {
+    log << "unexpected JSON output: " << s.str();
+    return 1;
+  }
 
-    json::value<> v;
+  json::value<> v;
 
-    s.str("");
+  s.str("");
 
-    s   << json::tag()
-        << v;
+  s << json::tag() << v;
 
-    log << s.str();
+  log << s.str();
 
-    return 0;
+  return 0;
 }
 
 /**\brief JSON input tests
@@ -98,42 +88,41 @@ int testJSONOutput (std::ostream &log)
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testJSONInput (std::ostream &log)
-{
-    json::value<> v;
-    std::string pr = "{ true }";
+int testJSONInput(std::ostream &log) {
+  json::value<> v;
+  std::string pr = "{ true }";
 
-//    pr >> v;
+  //    pr >> v;
 
-    v.type = json::value<>::yes;
+  v.type = json::value<>::yes;
 
-    log << json::tag() << v;
+  log << json::tag() << v;
 
-    std::string tmp = ("true" >> v);
+  std::string tmp = ("true" >> v);
 
-    log << json::tag() << tmp << v;
+  log << json::tag() << tmp << v;
 
-    tmp = ("42.23" >> v);
+  tmp = ("42.23" >> v);
 
-    log << json::tag() << tmp << v;
+  log << json::tag() << tmp << v;
 
-    tmp = ("[true,false,null]" >> v);
+  tmp = ("[true,false,null]" >> v);
 
-    log << json::tag() << tmp << v;
+  log << json::tag() << tmp << v;
 
-    tmp = ("{\"a\":true,\"b\":false}" >> v);
+  tmp = ("{\"a\":true,\"b\":false}" >> v);
 
-    log << json::tag() << tmp << v;
+  log << json::tag() << tmp << v;
 
-    tmp = ("{\"a\":true,\"b\":false,\"q\":[false,true,false],\"c\":null}" >> v);
+  tmp = ("{\"a\":true,\"b\":false,\"q\":[false,true,false],\"c\":null}" >> v);
 
-    log << json::tag() << tmp << v;
+  log << json::tag() << tmp << v;
 
-    tmp = ("{\"a\":true,\"b\":false,\"q\":[1,2,3,4],\"c\":null}" >> v);
+  tmp = ("{\"a\":true,\"b\":false,\"q\":[1,2,3,4],\"c\":null}" >> v);
 
-    log << json::tag() << tmp << v;
+  log << json::tag() << tmp << v;
 
-    return 0;
+  return 0;
 }
 
 TEST_BATCH(testJSONOutput, testJSONInput)

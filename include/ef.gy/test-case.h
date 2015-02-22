@@ -56,94 +56,82 @@
 #include <iostream>
 #include <vector>
 
-namespace efgy
-{
-    /**\brief Functions and types related to test cases
-     *
-     * This namespace contains functions and types that make defining automatic
-     * unit tests easier.
-     */
-    namespace test
-    {
-        /**\brief Test case function pointer
-         *
-         * All test cases in a batch are added to a vector to run, so it's
-         * important to get their function prototypes right. This typedef
-         * reflects the expected function prototype: return an int and take
-         * an ostream.
-         */
-        typedef int(*testCase)(std::ostream &log);
+namespace efgy {
+/**\brief Functions and types related to test cases
+ *
+ * This namespace contains functions and types that make defining automatic
+ * unit tests easier.
+ */
+namespace test {
+/**\brief Test case function pointer
+ *
+ * All test cases in a batch are added to a vector to run, so it's
+ * important to get their function prototypes right. This typedef
+ * reflects the expected function prototype: return an int and take
+ * an ostream.
+ */
+typedef int (*testCase)(std::ostream &log);
 
-        /**\brief Run test case batch
-         *
-         * Runs all test cases specified in the testCases vector. This produces
-         * output on stderr about the progress of running these test cases, and
-         * the individual test cases are instructed to output any log messages
-         * to stderr as well.
-         *
-         * The test cases are run in the sequence specified by the testCases
-         * vector until either all of the test cases ran successfully, or until
-         * one of them fails, in which case execution stops and the function
-         * returns whatever that failed test case returned.
-         *
-         * \param[in] testCases The test cases to run.
-         *
-         * \return 0 if all test cases ran successfully, the return value of
-         *         the first test that failed otherwise.
-         */
-        int run (int, char **, const std::vector<testCase> &testCases)
-        {
-            try
-            {
-                for (std::vector<testCase>::const_iterator it = testCases.begin();
-                     it != testCases.end();
-                     it++)
-                {
-                    std::cerr << "running test case " << (std::distance(testCases.begin(), it) + 1)
-                              << " in batch of " << testCases.size() << ": ";
-                    int res = (*it)(std::cerr);
-                    if (res != 0)
-                    {
-                        std::cerr << "failed; code: " << res << "\n";
-                        return res;
-                    }
-                    std::cerr << "OK\n";
-                }
-            }
-            catch (std::exception &e)
-            {
-                std::cerr << "Exception: " << e.what() << "\n";
-                return -1;
-            }
-            catch (...)
-            {
-                std::cerr << "Unknown Exception\n";
-                return -1;
-            }
+/**\brief Run test case batch
+ *
+ * Runs all test cases specified in the testCases vector. This produces
+ * output on stderr about the progress of running these test cases, and
+ * the individual test cases are instructed to output any log messages
+ * to stderr as well.
+ *
+ * The test cases are run in the sequence specified by the testCases
+ * vector until either all of the test cases ran successfully, or until
+ * one of them fails, in which case execution stops and the function
+ * returns whatever that failed test case returned.
+ *
+ * \param[in] testCases The test cases to run.
+ *
+ * \return 0 if all test cases ran successfully, the return value of
+ *         the first test that failed otherwise.
+ */
+int run(int, char **, const std::vector<testCase> &testCases) {
+  try {
+    for (std::vector<testCase>::const_iterator it = testCases.begin();
+         it != testCases.end(); it++) {
+      std::cerr << "running test case "
+                << (std::distance(testCases.begin(), it) + 1) << " in batch of "
+                << testCases.size() << ": ";
+      int res = (*it)(std::cerr);
+      if (res != 0) {
+        std::cerr << "failed; code: " << res << "\n";
+        return res;
+      }
+      std::cerr << "OK\n";
+    }
+  }
+  catch (std::exception & e) {
+    std::cerr << "Exception: " << e.what() << "\n";
+    return -1;
+  }
+  catch (...) {
+    std::cerr << "Unknown Exception\n";
+    return -1;
+  }
 
-            return 0;
-        }
+  return 0;
+}
 
-        /** \brief Get next return value
-         *
-         * This function returns a non-zero integer to return after a test case
-         * was unsuccessful. This is useful if one wants to add test cases to an
-         * existing test later and avoid returning any one value more than once.
-         */
-        static inline int next_integer (void)
-        {
-            static int counter = 1;
-            ++counter;
-            if(counter == 0)
-            {
-            	return ++counter;
-            }
-            else
-            {
-                return counter;
-            }
-        }
-    };
+/** \brief Get next return value
+ *
+ * This function returns a non-zero integer to return after a test case
+ * was unsuccessful. This is useful if one wants to add test cases to an
+ * existing test later and avoid returning any one value more than once.
+ */
+static inline int next_integer(void) {
+  static int counter = 1;
+  ++counter;
+  if (counter == 0) {
+    return ++counter;
+  } else {
+    return counter;
+  }
+}
+};
 };
 
 #if defined(RUN_TEST_CASES)
@@ -160,9 +148,8 @@ extern const std::vector<efgy::test::testCase> testCases;
  * defined in the programme including this header. Needless to say you should
  * not define your own main function in test case files.
  */
-int main (int argc, char **argv)
-{
-    return efgy::test::run (argc, argv, testCases);
+int main(int argc, char **argv) {
+  return efgy::test::run(argc, argv, testCases);
 }
 
 /**\brief Define test batch
@@ -186,9 +173,11 @@ int main (int argc, char **argv)
  *       is defined or not. If it is, then this will set a global variable
  *       as described; if not then this macro is simply discarded.
  */
-#define TEST_BATCH(...)\
-static const efgy::test::testCase testCasesArray[] = { __VA_ARGS__ };\
-const std::vector<efgy::test::testCase> testCases (testCasesArray, testCasesArray + sizeof(testCasesArray) / sizeof(efgy::test::testCase));
+#define TEST_BATCH(...)                                                        \
+  static const efgy::test::testCase testCasesArray[] = { __VA_ARGS__ };        \
+  const std::vector<efgy::test::testCase> testCases(                           \
+      testCasesArray,                                                          \
+      testCasesArray + sizeof(testCasesArray) / sizeof(efgy::test::testCase));
 
 #else
 /**\brief Define test batch
@@ -213,6 +202,5 @@ const std::vector<efgy::test::testCase> testCases (testCasesArray, testCasesArra
  *       as described; if not then this macro is simply discarded.
  */
 #define TEST_BATCH(...)
-
 
 #endif

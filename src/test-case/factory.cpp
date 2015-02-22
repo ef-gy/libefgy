@@ -44,29 +44,27 @@ using namespace efgy::math;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testGeometryFactory (std::ostream &log)
-{
-    std::cerr << "\n";
-    model<float,functor::echo,cube,7,7,format::cartesian>::with(log, 5, 0, format::cartesian());
+int testGeometryFactory(std::ostream &log) {
+  std::cerr << "\n";
+  model<float, functor::echo, cube, 7, 7, format::cartesian>::with(
+      log, 5, 0, format::cartesian());
 
-    std::set<const char *> models;
-    models = with<float,functor::models,7>(models, "*", 0, 0);
+  std::set<const char *> models;
+  models = with<float, functor::models, 7>(models, "*", 0, 0);
 
-    bool haveCube = false;
+  bool haveCube = false;
 
-    for (std::string m : models)
-    {
-        haveCube || (haveCube = (m == "cube"));
-        std::cerr << m << "\n";
-    }
+  for (std::string m : models) {
+    haveCube || (haveCube = (m == "cube"));
+    std::cerr << m << "\n";
+  }
 
-    if (!haveCube)
-    {
-        log << "no cube model\n";
-        return 1;
-    }
+  if (!haveCube) {
+    log << "no cube model\n";
+    return 1;
+  }
 
-    return 0;
+  return 0;
 }
 
 TEST_BATCH(testGeometryFactory)

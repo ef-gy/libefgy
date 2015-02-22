@@ -31,15 +31,13 @@
 #if !defined(EF_GY_XML_H)
 #define EF_GY_XML_H
 
-namespace efgy
-{
-    /**\brief XML helpers
-     *
-     * This namespace contains helper functionality for XML output.
-     */
-    namespace xml
-    {
-    };
+namespace efgy {
+/**\brief XML helpers
+ *
+ * This namespace contains helper functionality for XML output.
+ */
+namespace xml {
+};
 };
 
 #endif

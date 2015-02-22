@@ -47,43 +47,38 @@ using namespace efgy;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-template<unsigned int order>
-int testMarkovChain (std::ostream &log)
-{
-    typename markov::chain<char, order>::random PRNG(1);
-    markov::chain<char, order> mc(PRNG);
+template <unsigned int order> int testMarkovChain(std::ostream &log) {
+  typename markov::chain<char, order>::random PRNG(1);
+  markov::chain<char, order> mc(PRNG);
 
-    std::string str1("frob");
-    std::string str2("frib");
-    std::string str3("frab");
-    std::string str4("foo");
-    std::string str5("bar");
-    std::string str6("baz");
+  std::string str1("frob");
+  std::string str2("frib");
+  std::string str3("frab");
+  std::string str4("foo");
+  std::string str5("bar");
+  std::string str6("baz");
 
-    mc << typename markov::chain<char,order>::input(str1.begin(), str1.end());
-    mc << typename markov::chain<char,order>::input(str2.begin(), str2.end());
-    mc << typename markov::chain<char,order>::input(str3.begin(), str3.end());
-    mc << typename markov::chain<char,order>::input(str4.begin(), str4.end());
-    mc << typename markov::chain<char,order>::input(str5.begin(), str5.end());
-    mc << typename markov::chain<char,order>::input(str6.begin(), str6.end());
+  mc << typename markov::chain<char, order>::input(str1.begin(), str1.end());
+  mc << typename markov::chain<char, order>::input(str2.begin(), str2.end());
+  mc << typename markov::chain<char, order>::input(str3.begin(), str3.end());
+  mc << typename markov::chain<char, order>::input(str4.begin(), str4.end());
+  mc << typename markov::chain<char, order>::input(str5.begin(), str5.end());
+  mc << typename markov::chain<char, order>::input(str6.begin(), str6.end());
 
-    typename markov::chain<char, order>::output out;
+  typename markov::chain<char, order>::output out;
 
-    mc >> out;
-    std::cerr << std::string(out.begin(), out.end()) << "\n";
-    mc >> out;
-    std::cerr << std::string(out.begin(), out.end()) << "\n";
-    mc >> out;
-    std::cerr << std::string(out.begin(), out.end()) << "\n";
-    mc >> out;
-    std::cerr << std::string(out.begin(), out.end()) << "\n";
-    mc >> out;
-    std::cerr << std::string(out.begin(), out.end()) << "\n";
+  mc >> out;
+  std::cerr << std::string(out.begin(), out.end()) << "\n";
+  mc >> out;
+  std::cerr << std::string(out.begin(), out.end()) << "\n";
+  mc >> out;
+  std::cerr << std::string(out.begin(), out.end()) << "\n";
+  mc >> out;
+  std::cerr << std::string(out.begin(), out.end()) << "\n";
+  mc >> out;
+  std::cerr << std::string(out.begin(), out.end()) << "\n";
 
-    return 0;
+  return 0;
 }
 
-TEST_BATCH
-    (testMarkovChain<1>,
-     testMarkovChain<2>,
-     testMarkovChain<3>)
+TEST_BATCH(testMarkovChain<1>, testMarkovChain<2>, testMarkovChain<3>)

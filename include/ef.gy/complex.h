@@ -33,136 +33,112 @@
 
 #include <ef.gy/fractions.h>
 
-namespace efgy
-{
-    namespace math
-    {
-        template <typename Q>
-        class complex
-        {
-            public:
-                typedef typename numeric::traits<Q>::integral integral;
-                typedef Q rational;
+namespace efgy {
+namespace math {
+template <typename Q> class complex {
+public:
+  typedef typename numeric::traits<Q>::integral integral;
+  typedef Q rational;
 
-                constexpr complex () : one(Q(0)), i(Q(0)) {}
+  constexpr complex() : one(Q(0)), i(Q(0)) {}
 
-                constexpr complex (const Q &pOne) : one(pOne), i(Q(0)) {}
+  constexpr complex(const Q &pOne) : one(pOne), i(Q(0)) {}
 
-                constexpr complex (const Q &pOne, const Q &pI) : one(pOne), i(pI) {}
+  constexpr complex(const Q &pOne, const Q &pI) : one(pOne), i(pI) {}
 
-                complex &operator = (const complex &b)
-                {
-                    one = b.one;
-                    i = b.i;
+  complex &operator=(const complex &b) {
+    one = b.one;
+    i = b.i;
 
-                    return *this;
-                }
+    return *this;
+  }
 
-                complex &operator = (const Q &b)
-                {
-                    one = b;
-                    i = integral(0);
+  complex &operator=(const Q &b) {
+    one = b;
+    i = integral(0);
 
-                    return *this;
-                }
+    return *this;
+  }
 
-                constexpr complex operator + (const complex &b) const
-                {
-                    return complex (one + b.one, i + b.i);
-                }
+  constexpr complex operator+(const complex &b) const {
+    return complex(one + b.one, i + b.i);
+  }
 
-                complex &operator += (const complex &b)
-                {
-                    complex r = (*this) + b;
+  complex &operator+=(const complex &b) {
+    complex r = (*this) + b;
 
-                    return ((*this) = r);
-                }
+    return ((*this) = r);
+  }
 
-                constexpr complex operator - (const complex &b) const
-                {
-                    return complex (one - b.one, i - b.i);
-                }
+  constexpr complex operator-(const complex &b) const {
+    return complex(one - b.one, i - b.i);
+  }
 
-                complex &operator -= (const complex &b)
-                {
-                    complex r = (*this) - b;
+  complex &operator-=(const complex &b) {
+    complex r = (*this) - b;
 
-                    return ((*this) = r);
-                }
+    return ((*this) = r);
+  }
 
-                constexpr complex operator * (const complex &b) const
-                {
-                    // (a + bi) * (c + di) = (ac - bd) + (bc + ad)*i
-                    return complex (one * b.one - i * b.i, i * b.one + one * b.i);
-                }
+  constexpr complex operator*(const complex &b) const {
+    // (a + bi) * (c + di) = (ac - bd) + (bc + ad)*i
+    return complex(one * b.one - i * b.i, i * b.one + one * b.i);
+  }
 
-                complex &operator *= (const complex &b)
-                {
-                    complex r = (*this) * b;
+  complex &operator*=(const complex &b) {
+    complex r = (*this) * b;
 
-                    return ((*this) = r);
-                }
+    return ((*this) = r);
+  }
 
-                complex operator ^ (const integral &b) const
-                {
-                    if (b == integral(0))
-                    {
-                        return complex(integral(1));
-                    }
-                    else
-                    {
-                        complex rv = *this;
+  complex operator^(const integral &b) const {
+    if (b == integral(0)) {
+      return complex(integral(1));
+    } else {
+      complex rv = *this;
 
-                        for (integral i = integral(1); i < b; i++)
-                        {
-                            rv *= (*this);
-                        }
+      for (integral i = integral(1); i < b; i++) {
+        rv *= (*this);
+      }
 
-                        return rv;
-                    }
-                }
+      return rv;
+    }
+  }
 
-                complex &operator ^= (const integral &b)
-                {
-                    complex r = (*this) ^ b;
+  complex &operator^=(const integral &b) {
+    complex r = (*this) ^ b;
 
-                    return ((*this) = r);
-                }
+    return ((*this) = r);
+  }
 
-                constexpr complex operator / (const complex &b) const
-                {
-                    // (a + bi) / (c + di) = (ac + bd)/(c*c + d*d) + (bc - ad)/(c*c + d*d)*i
-                    return complex
-                        ((one * b.one + i * b.i) / (b.one * b.one + b.i * b.i),
-                         (i * b.one - one * b.i) / (b.one * b.one + b.i * b.i));
-                }
+  constexpr complex operator/(const complex &b) const {
+    // (a + bi) / (c + di) = (ac + bd)/(c*c + d*d) + (bc - ad)/(c*c + d*d)*i
+    return complex((one * b.one + i * b.i) / (b.one * b.one + b.i * b.i),
+                   (i * b.one - one * b.i) / (b.one * b.one + b.i * b.i));
+  }
 
-                complex &operator /= (const complex &b)
-                {
-                    complex r = (*this) / b;
+  complex &operator/=(const complex &b) {
+    complex r = (*this) / b;
 
-                    return ((*this) = r);
-                }
+    return ((*this) = r);
+  }
 
-                Q one;
-                Q i;
-        };
+  Q one;
+  Q i;
+};
 
-        namespace numeric
-        {
-            template<typename Q>
-            class traits<complex<Q>>
-            {
-                public:
-                    typedef typename traits<Q>::integral integral;
-                    typedef typename traits<Q>::rational rational;
-                    typedef complex<Q> self;
-                    typedef complex<Q> derivable;
+namespace numeric {
+template <typename Q> class traits<complex<Q> > {
+public:
+  typedef typename traits<Q>::integral integral;
+  typedef typename traits<Q>::rational rational;
+  typedef complex<Q> self;
+  typedef complex<Q> derivable;
 
-                    static const bool stable = false;
-            };
-        };
-    };
+  static const bool stable = false;
+};
+};
+};
 };
 
 #endif

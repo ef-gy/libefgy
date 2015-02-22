@@ -51,39 +51,38 @@ typedef primitive<long double, unsigned long long> longDouble;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testE (std::ostream &log)
-{
-    e<longDouble> eD1 (1, 1, 0, 1);
-    e<longDouble> eD2 (1, 1, 0, 4);
-    e<longDouble> eD3 (1, 1, 0, 8);
-    e<longDouble> eD4 (1, 1, 0, 12);
+int testE(std::ostream &log) {
+  e<longDouble> eD1(1, 1, 0, 1);
+  e<longDouble> eD2(1, 1, 0, 4);
+  e<longDouble> eD3(1, 1, 0, 8);
+  e<longDouble> eD4(1, 1, 0, 12);
 
-    log << "e<longDouble,1> = " << (long double)longDouble(eD1) << "\n";
-    log << "e<longDouble,4> = " << (long double)longDouble(eD2) << "\n";
-    log << "e<longDouble,8> = " << (long double)longDouble(eD3) << "\n";
-    log << "e<longDouble,12> = " << (long double)longDouble(eD4) << "\n";
+  log << "e<longDouble,1> = " << (long double) longDouble(eD1) << "\n";
+  log << "e<longDouble,4> = " << (long double) longDouble(eD2) << "\n";
+  log << "e<longDouble,8> = " << (long double) longDouble(eD3) << "\n";
+  log << "e<longDouble,12> = " << (long double) longDouble(eD4) << "\n";
 
-    e<long double> eDL1 (1, 1, 0, 1);
-    e<long double> eDL2 (1, 1, 0, 4);
-    e<long double> eDL3 (1, 1, 0, 8);
-    e<long double> eDL4 (1, 1, 0, 12);
+  e<long double> eDL1(1, 1, 0, 1);
+  e<long double> eDL2(1, 1, 0, 4);
+  e<long double> eDL3(1, 1, 0, 8);
+  e<long double> eDL4(1, 1, 0, 12);
 
-    log << "e<long double,1> = " << (long double)eDL1 << "\n";
-    log << "e<long double,4> = " << (long double)eDL2 << "\n";
-    log << "e<long double,8> = " << (long double)eDL3 << "\n";
-    log << "e<long double,12> = " << (long double)eDL4 << "\n";
+  log << "e<long double,1> = " << (long double) eDL1 << "\n";
+  log << "e<long double,4> = " << (long double) eDL2 << "\n";
+  log << "e<long double,8> = " << (long double) eDL3 << "\n";
+  log << "e<long double,12> = " << (long double) eDL4 << "\n";
 
-    e<fraction> eQ1 (fraction(1), fraction(1), fraction(0), 1);
-    e<fraction> eQ2 (fraction(1), fraction(1), fraction(0), 4);
-    e<fraction> eQ3 (fraction(1), fraction(1), fraction(0), 8);
-    e<fraction> eQ4 (fraction(1), fraction(1), fraction(0), 12);
+  e<fraction> eQ1(fraction(1), fraction(1), fraction(0), 1);
+  e<fraction> eQ2(fraction(1), fraction(1), fraction(0), 4);
+  e<fraction> eQ3(fraction(1), fraction(1), fraction(0), 8);
+  e<fraction> eQ4(fraction(1), fraction(1), fraction(0), 12);
 
-    log << "e<fraction,1> = " << fraction(eQ1) << "\n";
-    log << "e<fraction,4> = " << fraction(eQ2) << "\n";
-    log << "e<fraction,8> = " << fraction(eQ3) << "\n";
-    log << "e<fraction,12> = " << fraction(eQ4) << "\n";
+  log << "e<fraction,1> = " << fraction(eQ1) << "\n";
+  log << "e<fraction,4> = " << fraction(eQ2) << "\n";
+  log << "e<fraction,8> = " << fraction(eQ3) << "\n";
+  log << "e<fraction,12> = " << fraction(eQ4) << "\n";
 
-    return 0;
+  return 0;
 }
 
 TEST_BATCH(testE)

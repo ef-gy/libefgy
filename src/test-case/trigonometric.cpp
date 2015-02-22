@@ -47,18 +47,16 @@ using efgy::range;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testSine (std::ostream &log)
-{
-    double s, c;
+int testSine(std::ostream &log) {
+  double s, c;
 
-    for (double x : range<double>(0,3.14,30,true))
-    {
-        s = sines(x, c);
+  for (double x : range<double>(0, 3.14, 30, true)) {
+    s = sines(x, c);
 
-        log << "sine(" << x << ") = " << s << ":" << c << "\n";
-    }
+    log << "sine(" << x << ") = " << s << ":" << c << "\n";
+  }
 
-    return 0;
+  return 0;
 }
 
 TEST_BATCH(testSine)

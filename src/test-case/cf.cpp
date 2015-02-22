@@ -46,60 +46,55 @@ using std::string;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testContinuedFractionArithmetic (std::ostream &log)
-{
-    numeric::fractional<long long> af(6,11), bf(4,5), rf;
-    numeric::continuedFractional<long long> a(af), b(bf), r;
+int testContinuedFractionArithmetic(std::ostream &log) {
+  numeric::fractional<long long> af(6, 11), bf(4, 5), rf;
+  numeric::continuedFractional<long long> a(af), b(bf), r;
 
-    rf = af + bf;
-    log << af << " + " << bf << " = " << rf << "\n";
+  rf = af + bf;
+  log << af << " + " << bf << " = " << rf << "\n";
 
-    r = a + b;
-    rf = r;
-    log << a  << " + " << b  << " = " << r  << " = " << rf << "\n";
+  r = a + b;
+  rf = r;
+  log << a << " + " << b << " = " << r << " = " << rf << "\n";
 
-    if (rf != r)
-    {
-        return 1;
-    }
+  if (rf != r) {
+    return 1;
+  }
 
-    rf = af - bf;
-    log << af << " - " << bf << " = " << rf << "\n";
+  rf = af - bf;
+  log << af << " - " << bf << " = " << rf << "\n";
 
-    r = a - b;
-    rf = r;
-    log << a  << " - " << b  << " = " << r  << " = " << rf << "\n";
+  r = a - b;
+  rf = r;
+  log << a << " - " << b << " = " << r << " = " << rf << "\n";
 
-    if (rf != r)
-    {
-        return 2;
-    }
+  if (rf != r) {
+    return 2;
+  }
 
-    rf = af * bf;
-    log << af << " * " << bf << " = " << rf << "\n";
+  rf = af * bf;
+  log << af << " * " << bf << " = " << rf << "\n";
 
-    r = a * b;
-    rf = r;
-    log << a  << " * " << b  << " = " << r  << " = " << rf << "\n";
+  r = a * b;
+  rf = r;
+  log << a << " * " << b << " = " << r << " = " << rf << "\n";
 
-    if (rf != r)
-    {
-        return 3;
-    }
+  if (rf != r) {
+    return 3;
+  }
 
-    rf = af / bf;
-    log << af << " / " << bf << " = " << rf << "\n";
+  rf = af / bf;
+  log << af << " / " << bf << " = " << rf << "\n";
 
-    r = a / b;
-    rf = r;
-    log << a  << " / " << b  << " = " << r  << " = " << rf << "\n";
+  r = a / b;
+  rf = r;
+  log << a << " / " << b << " = " << r << " = " << rf << "\n";
 
-    if (rf != r)
-    {
-        return 4;
-    }
+  if (rf != r) {
+    return 4;
+  }
 
-    return 0;
+  return 0;
 }
 
 TEST_BATCH(testContinuedFractionArithmetic)

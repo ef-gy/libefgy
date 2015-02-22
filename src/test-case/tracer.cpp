@@ -48,21 +48,20 @@ using efgy::math::matrix;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testTracer (std::ostream &log)
-{
-    std::shared_ptr<tracer<int,void,0>> frobrt(tracer<int,void,0>(1));
-    runtime frobrt2 (new tracer<int,void,0>(1));
-    runtime frobrt3 (frobrt);
+int testTracer(std::ostream &log) {
+  std::shared_ptr<tracer<int, void, 0> > frobrt(tracer<int, void, 0>(1));
+  runtime frobrt2(new tracer<int, void, 0>(1));
+  runtime frobrt3(frobrt);
 
-    auto frobd  = frobrt + 2;
-    runtime frobde = frobrt + 3;
+  auto frobd = frobrt + 2;
+  runtime frobde = frobrt + 3;
 
-    frobde /= frobd;
+  frobde /= frobd;
 
-    log << frobd << "\n";
-    log << frobde << "\n";
+  log << frobd << "\n";
+  log << frobde << "\n";
 
-    return 0;
+  return 0;
 }
 
 /**\brief Test case for the numeric tracer with matrix operations
@@ -74,35 +73,32 @@ int testTracer (std::ostream &log)
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testTracerMatrix (std::ostream &log)
-{
-    matrix<runtime,3,3> m1;
-    matrix<runtime,3,3> m2;
+int testTracerMatrix(std::ostream &log) {
+  matrix<runtime, 3, 3> m1;
+  matrix<runtime, 3, 3> m2;
 
-    for (unsigned int i = 0; i < 3; i++)
-    {
-        for (unsigned int j = 0; j < 3; j++)
-        {
-            std::stringstream s("");
-            s << "_" << i << "_" << j;
+  for (unsigned int i = 0; i < 3; i++) {
+    for (unsigned int j = 0; j < 3; j++) {
+      std::stringstream s("");
+      s << "_" << i << "_" << j;
 
-            m1[i][j] = std::shared_ptr<tracer<void,void,0>> (new tracer<void,void,0> ("a" + s.str()));
-            m2[i][j] = std::shared_ptr<tracer<void,void,0>> (new tracer<void,void,0> ("b" + s.str()));
-        }
+      m1[i][j] = std::shared_ptr<tracer<void, void, 0> >(
+          new tracer<void, void, 0>("a" + s.str()));
+      m2[i][j] = std::shared_ptr<tracer<void, void, 0> >(
+          new tracer<void, void, 0>("b" + s.str()));
     }
+  }
 
-    matrix<runtime,3,3> m3 = m1 * m2;
+  matrix<runtime, 3, 3> m3 = m1 * m2;
 
-    for (unsigned int i = 0; i < 3; i++)
-    {
-        for (unsigned int j = 0; j < 3; j++)
-        {
-            log << "result" << "_" << i << "_" << j << " = "
-                << m3[i][j] << "\n";
-        }
+  for (unsigned int i = 0; i < 3; i++) {
+    for (unsigned int j = 0; j < 3; j++) {
+      log << "result"
+          << "_" << i << "_" << j << " = " << m3[i][j] << "\n";
     }
+  }
 
-    return 0;
+  return 0;
 }
 
 TEST_BATCH(testTracer, testTracerMatrix)

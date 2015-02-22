@@ -35,11 +35,9 @@
 #include <ef.gy/render.h>
 #include <ef.gy/stream-css.h>
 
-namespace efgy
-{
-    namespace render
-    {
-    };
+namespace efgy {
+namespace render {
+};
 };
 
 #endif

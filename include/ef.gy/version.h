@@ -157,25 +157,24 @@
  * using namespace efgy;
  * \endcode
  */
-namespace efgy
-{
-    /**\brief Library version
-     *
-     * This is the version of the header files you're including. You could test
-     * this if you expect trouble with certain versions, or you know that your
-     * code requires a very specific version of these headers.
-     *
-     * \note libefgy uses a very simple integer versioning scheme. There are no
-     *       'major' and 'minor' versions and releases - every release gets the
-     *       next available number, and that's it. This seems uncommon these
-     *       days, but when you think about it, it makes a lot of sense:
-     *       there's no such things as 'minor' changes, either you changed
-     *       something or you haven't. Any change, no matter how minute, will
-     *       ruin someone's day, so why not just stick with a plain ol' number
-     *       that you can test for much more easily than a convoluted version
-     *       string? ;)
-     */
-    static const unsigned int version = 8;
+namespace efgy {
+/**\brief Library version
+ *
+ * This is the version of the header files you're including. You could test
+ * this if you expect trouble with certain versions, or you know that your
+ * code requires a very specific version of these headers.
+ *
+ * \note libefgy uses a very simple integer versioning scheme. There are no
+ *       'major' and 'minor' versions and releases - every release gets the
+ *       next available number, and that's it. This seems uncommon these
+ *       days, but when you think about it, it makes a lot of sense:
+ *       there's no such things as 'minor' changes, either you changed
+ *       something or you haven't. Any change, no matter how minute, will
+ *       ruin someone's day, so why not just stick with a plain ol' number
+ *       that you can test for much more easily than a convoluted version
+ *       string? ;)
+ */
+static const unsigned int version = 8;
 };
 
 #endif

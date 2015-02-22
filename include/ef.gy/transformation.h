@@ -34,462 +34,374 @@
 #include <ef.gy/euclidian.h>
 #include <ef.gy/matrix.h>
 
-namespace efgy
-{
-    namespace geometry
-    {
-        /**\brief Contains vector transformation templates
-         *
-         * This namespace groups all templates that transform vector space
-         * elements to other vector space elements. Or, in non-mathemese:
-         * things that turn 3D coordinates to 2D coordinates, or things that
-         * move stuff around in 3D space. Except it's not just 3D and 2D
-         * vectors that we'd want to work with.
-         */
-        namespace transformation
-        {
-            template <typename Q, unsigned int d> class projective;
-            
-            /**\brief Template for linear maps on the vector space Q^d
-             *
-             * Handles linear maps, or endomorphisms, on Q^d. Maps are
-             * described via their transformation matrices, using the
-             * standard basis on Q^d.
-             *
-             * \tparam Q The data type that describes the underlying field of 
-             * the vector space.
-             *
-             * \tparam d The dimension of the vector space.
-             */
-            template <typename Q, unsigned int d>
-            class linear
-            {
-                public:
-                    /**\brief Constructor for the identity  map
-                     *
-                     * Constructs a transformation whose matrix is 
-                     * the identity matrix.
-                     */
-                    linear ()
-                        {
-                            for (unsigned int i = 0; i < d; i++)
-                            {
-                                for (unsigned int j = 0; j < d; j++)
-                                {
-                                    matrix[i][j] = (i == j) ? 1 : 0;
-                                }
-                            }
-                        }
+namespace efgy {
+namespace geometry {
+/**\brief Contains vector transformation templates
+ *
+ * This namespace groups all templates that transform vector space
+ * elements to other vector space elements. Or, in non-mathemese:
+ * things that turn 3D coordinates to 2D coordinates, or things that
+ * move stuff around in 3D space. Except it's not just 3D and 2D
+ * vectors that we'd want to work with.
+ */
+namespace transformation {
+template <typename Q, unsigned int d> class projective;
 
-                    /**\brief Constructor to copy a matrix
-                     *
-                     * Copies an appropriately-sized matrix
-                     */
-                    linear (const math::matrix<Q,d,d> &pMatrix)
-                        : matrix(pMatrix) {}
+/**\brief Template for linear maps on the vector space Q^d
+ *
+ * Handles linear maps, or endomorphisms, on Q^d. Maps are
+ * described via their transformation matrices, using the
+ * standard basis on Q^d.
+ *
+ * \tparam Q The data type that describes the underlying field of
+ * the vector space.
+ *
+ * \tparam d The dimension of the vector space.
+ */
+template <typename Q, unsigned int d> class linear {
+public:
+  /**\brief Constructor for the identity  map
+   *
+   * Constructs a transformation whose matrix is
+   * the identity matrix.
+   */
+  linear() {
+    for (unsigned int i = 0; i < d; i++) {
+      for (unsigned int j = 0; j < d; j++) {
+        matrix[i][j] = (i == j) ? 1 : 0;
+      }
+    }
+  }
 
-                    /**\brief Applies a transformation to a vector.
-                     *
-                     * Applies a transformation to a vector by
-                     * multiplying the transformation matrix to it.
-                     *
-                     * \tparam format The vector format to use.
-                     *
-                     * \param pV a vector from Q^d
-                     *
-                     * \returns The transformed vector, which is also
-                     * in Q^d.
-                     */
-                    template <typename format>
-                    math::vector<Q,d,format> operator *
-                        (const math::vector<Q,d,format> &pV) const
-                    {
-                        math::vector<Q,d,format> rv;
+  /**\brief Constructor to copy a matrix
+   *
+   * Copies an appropriately-sized matrix
+   */
+  linear(const math::matrix<Q, d, d> &pMatrix) : matrix(pMatrix) {}
 
-                        math::matrix<Q,1,d> vectorMatrix;
+  /**\brief Applies a transformation to a vector.
+   *
+   * Applies a transformation to a vector by
+   * multiplying the transformation matrix to it.
+   *
+   * \tparam format The vector format to use.
+   *
+   * \param pV a vector from Q^d
+   *
+   * \returns The transformed vector, which is also
+   * in Q^d.
+   */
+  template <typename format>
+  math::vector<Q, d, format> operator*(
+      const math::vector<Q, d, format> &pV) const {
+    math::vector<Q, d, format> rv;
 
-                        for (unsigned int i = 0; i < d; i++)
-                        {
-                            vectorMatrix[0][i] = pV[i];
-                        }
+    math::matrix<Q, 1, d> vectorMatrix;
 
-                        vectorMatrix
-                            = vectorMatrix
-                            * matrix;
+    for (unsigned int i = 0; i < d; i++) {
+      vectorMatrix[0][i] = pV[i];
+    }
 
-                        for (unsigned int i = 0; i < d; i++)
-                        {
-                            rv[i] = vectorMatrix[0][i];
-                        }
+    vectorMatrix = vectorMatrix * matrix;
 
-                        return rv;
-                    }
+    for (unsigned int i = 0; i < d; i++) {
+      rv[i] = vectorMatrix[0][i];
+    }
 
-                    /*\brief Composes two linear maps.
-                     *
-                     * Composes two linear maps on Q^d by multiplying 
-                     * their transformation matrices.
-                     *
-                     * \param pB The linear map object that will be composed
-                     * with the current object.
-                     *
-                     * \returns A linear map that is the composition of 
-                     * the current object and pB.
-                     */
-                    linear operator *
-                        (const linear &pB) const
-                    {
-                        linear t;
-                        t.matrix = this->matrix * pB.matrix;
-                        return t;
-                    }
-                    
-                    /*\brief Composes a linear and a projective map.
-                     *
-                     * Composes a linear and a projective transformation.
-                     *
-                     * \param pB a projective transformation.
-                     *
-                     * \returns A projective transformation that is the 
-                     * composition of pB and the current object.
-                     */
-                    projective<Q,d> operator *
-                        (const projective<Q,d> &pB) const
-                    {
-                        return pB * (*this);
-                    }
+    return rv;
+  }
 
-                    /*\brief The transformation matrix.
-                     *
-                     * The transformation matrix of a linear map.
-                     */
-                    math::matrix<Q,d,d> matrix;
-            };
+  /*\brief Composes two linear maps.
+   *
+   * Composes two linear maps on Q^d by multiplying
+   * their transformation matrices.
+   *
+   * \param pB The linear map object that will be composed
+   * with the current object.
+   *
+   * \returns A linear map that is the composition of
+   * the current object and pB.
+   */
+  linear operator*(const linear &pB) const {
+    linear t;
+    t.matrix = this->matrix * pB.matrix;
+    return t;
+  }
 
-            /* \brief The identity map on Q^d.
-             *
-             * Wrapper class for the identity map on Q^d.
-             *
-             * \tparam Q The underlying field of the vector space.
-             *
-             * \tparam d The dimension of the vector space
-             *
-             * \bug Assignments to the transformation matrix of objects
-             * of this class are possible, so an object to this class
-             * can have a non-identity transformation matrix (and thus
-             * not behave like an identity map). 
-             */ 
-            template <typename Q, unsigned int d>
-            class identity : public linear<Q,d>
-            {
-                public:
-                    identity() : linear<Q,d>() {}
+  /*\brief Composes a linear and a projective map.
+   *
+   * Composes a linear and a projective transformation.
+   *
+   * \param pB a projective transformation.
+   *
+   * \returns A projective transformation that is the
+   * composition of pB and the current object.
+   */
+  projective<Q, d> operator*(const projective<Q, d> &pB) const {
+    return pB * (*this);
+  }
 
-                protected:
-                    using linear<Q,d>::matrix;
-            };
+  /*\brief The transformation matrix.
+   *
+   * The transformation matrix of a linear map.
+   */
+  math::matrix<Q, d, d> matrix;
+};
 
-            /* \brief Affine transformation on Q^d
-             *
-             * Template for affine transformations on Q^d. An affine transformation
-             * is considered to be composed of a translation and a linear map.
-             *
-             * \tparam Q The underlying field of the corresponding 
-             * vector space
-             *
-             * \tparam d The dimension of the corresponding vector space
-             */
-            template <typename Q, unsigned int d>
-            class affine
-            {
-                public:
-                    /* \brief Constructor for the identity transformation
-                     *
-                     * Constructor for the identity transformation
-                     * */
-                    affine ()
-                        {
-                            for (unsigned int i = 0; i <= d; i++)
-                            {
-                                for (unsigned int j = 0; j <= d; j++)
-                                {
-                                    transformationMatrix[i][j] = (i == j) ? 1 : 0;
-                                }
-                            }
-                        }
+/* \brief The identity map on Q^d.
+ *
+ * Wrapper class for the identity map on Q^d.
+ *
+ * \tparam Q The underlying field of the vector space.
+ *
+ * \tparam d The dimension of the vector space
+ *
+ * \bug Assignments to the transformation matrix of objects
+ * of this class are possible, so an object to this class
+ * can have a non-identity transformation matrix (and thus
+ * not behave like an identity map).
+ */
+template <typename Q, unsigned int d> class identity : public linear<Q, d> {
+public:
+  identity() : linear<Q, d>() {}
 
-                    /* \brief Constructs an affine transformation from a linear map
-                     *
-                     * Constructs an affine transformation from a linear map,
-                     * with a translation of zero.
-                     *
-                     * \param L a linear map on Q^d
-                     */
-                    affine (const linear<Q,d> &L)
-                        {
-                            for (unsigned int i = 0; i < d; i++)
-                            {
-                                for (unsigned int j = 0; j < d; j++)
-                                {
-                                    transformationMatrix[i][j] = L.matrix[i][j];
-                                }
-                            }
-                            for (unsigned int i = 0; i < d; i++)
-                            {
-                                transformationMatrix[i][d] = Q(0);
-                                transformationMatrix[d][i] = Q(0);
-                            }
-                            transformationMatrix[d][d] = Q(1);
-                        }
+protected:
+  using linear<Q, d>::matrix;
+};
 
-                    /* \brief Applies a transformation to a vector.
-                     *
-                     * Applies an affine transformation to a vector.
-                     *
-                     * \tparam format The vector format to use.
-                     *
-                     * \param pV The vector the transformation is applied to.
-                     *
-                     * \returns The transformed vector.
-                     */
-                    template <typename format>
-                    math::vector<Q,d,format> operator *
-                        (const math::vector<Q,d,format> &pV) const
-                    {
-                        math::vector<Q,d,format> rv;
+/* \brief Affine transformation on Q^d
+ *
+ * Template for affine transformations on Q^d. An affine transformation
+ * is considered to be composed of a translation and a linear map.
+ *
+ * \tparam Q The underlying field of the corresponding
+ * vector space
+ *
+ * \tparam d The dimension of the corresponding vector space
+ */
+template <typename Q, unsigned int d> class affine {
+public:
+  /* \brief Constructor for the identity transformation
+   *
+   * Constructor for the identity transformation
+   * */
+  affine() {
+    for (unsigned int i = 0; i <= d; i++) {
+      for (unsigned int j = 0; j <= d; j++) {
+        transformationMatrix[i][j] = (i == j) ? 1 : 0;
+      }
+    }
+  }
 
-                        math::matrix<Q,1,d+1> vectorMatrix;
+  /* \brief Constructs an affine transformation from a linear map
+   *
+   * Constructs an affine transformation from a linear map,
+   * with a translation of zero.
+   *
+   * \param L a linear map on Q^d
+   */
+  affine(const linear<Q, d> &L) {
+    for (unsigned int i = 0; i < d; i++) {
+      for (unsigned int j = 0; j < d; j++) {
+        transformationMatrix[i][j] = L.matrix[i][j];
+      }
+    }
+    for (unsigned int i = 0; i < d; i++) {
+      transformationMatrix[i][d] = Q(0);
+      transformationMatrix[d][i] = Q(0);
+    }
+    transformationMatrix[d][d] = Q(1);
+  }
 
-                        for (unsigned int i = 0; i < d; i++)
-                        {
-                            vectorMatrix[0][i] = pV[i];
-                        }
+  /* \brief Applies a transformation to a vector.
+   *
+   * Applies an affine transformation to a vector.
+   *
+   * \tparam format The vector format to use.
+   *
+   * \param pV The vector the transformation is applied to.
+   *
+   * \returns The transformed vector.
+   */
+  template <typename format>
+  math::vector<Q, d, format> operator*(
+      const math::vector<Q, d, format> &pV) const {
+    math::vector<Q, d, format> rv;
 
-                        vectorMatrix[0][d] = 1;
+    math::matrix<Q, 1, d + 1> vectorMatrix;
 
-                        vectorMatrix
-                            = vectorMatrix
-                            * transformationMatrix;
+    for (unsigned int i = 0; i < d; i++) {
+      vectorMatrix[0][i] = pV[i];
+    }
 
-                        for (unsigned int i = 0; i < d; i++)
-                        {
-                            rv[i] = vectorMatrix[0][i] / vectorMatrix[0][d];
-                        }
+    vectorMatrix[0][d] = 1;
 
-                        return rv;
-                    }
+    vectorMatrix = vectorMatrix * transformationMatrix;
 
-                    /* \brief Composes two affine transformations.
-                     *
-                     * Composes the current object with another transformation 
-                     * by multiplying their transformation matrices.
-                     *
-                     * \param pB The affine transformation that will be composed
-                     * with the current object.
-                     *
-                     * \returns The composition of the current object and pB.
-                     */
-                    affine operator *
-                        (const affine &pB) const
-                    {
-                        affine t;
-                        t.transformationMatrix = this->transformationMatrix * pB.transformationMatrix;
-                        return t;
-                    }
+    for (unsigned int i = 0; i < d; i++) {
+      rv[i] = vectorMatrix[0][i] / vectorMatrix[0][d];
+    }
 
+    return rv;
+  }
 
-                    /* \brief Composes the current object with a projective transformation.
-                     *
-                     * Composes the current object with a projective transformation. 
-                     *
-                     * \param pB The projective transformation that will be composed
-                     * with the current object.
-                     *
-                     * \returns The projective transformation that is the composition
-                     * of the current object and pB.
-                     */
-                    projective<Q,d> operator *
-                        (const projective<Q,d> &pB) const
-                    {
-                        projective<Q,d> t;
-                        t.transformationMatrix = this->transformationMatrix * pB.transformationMatrix;
-                        return t;
-                    }
+  /* \brief Composes two affine transformations.
+   *
+   * Composes the current object with another transformation
+   * by multiplying their transformation matrices.
+   *
+   * \param pB The affine transformation that will be composed
+   * with the current object.
+   *
+   * \returns The composition of the current object and pB.
+   */
+  affine operator*(const affine &pB) const {
+    affine t;
+    t.transformationMatrix =
+        this->transformationMatrix * pB.transformationMatrix;
+    return t;
+  }
 
-                    math::matrix<Q,d+1,d+1> transformationMatrix;
-            };
+  /* \brief Composes the current object with a projective transformation.
+   *
+   * Composes the current object with a projective transformation.
+   *
+   * \param pB The projective transformation that will be composed
+   * with the current object.
+   *
+   * \returns The projective transformation that is the composition
+   * of the current object and pB.
+   */
+  projective<Q, d> operator*(const projective<Q, d> &pB) const {
+    projective<Q, d> t;
+    t.transformationMatrix =
+        this->transformationMatrix * pB.transformationMatrix;
+    return t;
+  }
 
-            template <typename Q, unsigned int d>
-            class projective : public affine<Q,d>
-            {
-                public:
-                    projective ()
-                        : affine<Q,d>()
-                        {}
+  math::matrix<Q, d + 1, d + 1> transformationMatrix;
+};
 
-                    template <typename format>
-                    math::vector<Q,d-1,format> operator *
-                        (const math::vector<Q,d,format> &pP) const
-                    {
-                        math::vector<Q,d-1,format> result;
-                    
-                        math::vector<Q,d> R = affine<Q,d>(*this) * pP;
+template <typename Q, unsigned int d> class projective : public affine<Q, d> {
+public:
+  projective() : affine<Q, d>() {}
 
-                        for (unsigned int i = 0; i < (d-1); i++)
-                        {
-                            result[i] = R[i] / R[(d-1)];
-                        }
-                    
-                        return result;
-                    }
+  template <typename format>
+  math::vector<Q, d - 1, format> operator*(
+      const math::vector<Q, d, format> &pP) const {
+    math::vector<Q, d - 1, format> result;
 
-                    projective operator *
-                        (const affine<Q,d> &pB) const
-                    {
-                        projective<Q,d> t;
-                        t.transformationMatrix = this->transformationMatrix * pB.transformationMatrix;
-                        return t;
-                    }
+    math::vector<Q, d> R = affine<Q, d>(*this) * pP;
 
-                    using affine<Q,d>::transformationMatrix;
-            };
+    for (unsigned int i = 0; i < (d - 1); i++) {
+      result[i] = R[i] / R[(d - 1)];
+    }
 
-            template <typename Q, unsigned int d>
-            class scale : public affine<Q,d>
-            {
-                public:
-                    scale(const Q &pScale)
-                        : targetScale(pScale)
-                        {
-                            updateMatrix();
-                        }
+    return result;
+  }
 
-                    void updateMatrix (void)
-                    {
-                        for (unsigned int i = 0; i <= d; i++)
-                        {
-                            for (unsigned int j = 0; j <= d; j++)
-                            {
-                                if (i == j)
-                                {
-                                    transformationMatrix[i][j] = i != d ? targetScale : Q(1);
-                                }
-                                else
-                                {
-                                    transformationMatrix[i][j] = 0;
-                                }
-                            }
-                        }
-                    }
+  projective operator*(const affine<Q, d> &pB) const {
+    projective<Q, d> t;
+    t.transformationMatrix =
+        this->transformationMatrix * pB.transformationMatrix;
+    return t;
+  }
 
-                    using affine<Q,d>::transformationMatrix;
+  using affine<Q, d>::transformationMatrix;
+};
 
-                protected:
-                    const Q &targetScale;
-            };
+template <typename Q, unsigned int d> class scale : public affine<Q, d> {
+public:
+  scale(const Q &pScale) : targetScale(pScale) { updateMatrix(); }
 
-            template <typename Q, unsigned int d>
-            class rotation : public affine<Q,d>
-            {
-                public:
-                    rotation(const Q &pAngle, const unsigned int &pAxis1, const unsigned int &pAxis2)
-                        : angle(pAngle), axis1(pAxis1), axis2(pAxis2)
-                        {
-                            updateMatrix();
-                        }
-                
-                    void updateMatrix (void)
-                    {
-                        for (unsigned int i = 0; i <= d; i++)
-                        {
-                            for (unsigned int j = 0; j <= d; j++)
-                            {
-                                if ((i == axis1) && (j == axis1))
-                                {
-                                    transformationMatrix[i][j] =  cos(angle);
-                                }
-                                else if ((i == axis1) && (j == axis2))
-                                {
-                                    transformationMatrix[i][j] = -sin(angle);
-                                }
-                                else if ((i == axis2) && (j == axis2))
-                                {
-                                    transformationMatrix[i][j] =  cos(angle);
-                                }
-                                else if ((i == axis2) && (j == axis1))
-                                {
-                                    transformationMatrix[i][j] =  sin(angle);
-                                }
-                                else if (i == j)
-                                {
-                                    transformationMatrix[i][j] = Q(1);
-                                }
-                                else
-                                {
-                                    transformationMatrix[i][j] = 0;
-                                }
-                            }
-                        }
-                        
-                        if ((axis1 + axis2 + d + 1) % 2 == 1)
-                        {
-                            transformationMatrix = math::transpose(transformationMatrix);
-                        }
-                    }
+  void updateMatrix(void) {
+    for (unsigned int i = 0; i <= d; i++) {
+      for (unsigned int j = 0; j <= d; j++) {
+        if (i == j) {
+          transformationMatrix[i][j] = i != d ? targetScale : Q(1);
+        } else {
+          transformationMatrix[i][j] = 0;
+        }
+      }
+    }
+  }
 
-                    using affine<Q,d>::transformationMatrix;
+  using affine<Q, d>::transformationMatrix;
 
-                protected:
-                    const Q &angle;
-                    const unsigned int &axis1;
-                    const unsigned int &axis2;
-            };
+protected:
+  const Q &targetScale;
+};
 
-            template <typename Q, unsigned int d>
-            class translation : public affine<Q,d>
-            {
-                public:
-                    translation(const math::vector<Q,d> &pFrom)
-                        : from(pFrom)
-                        {
-                            updateMatrix();
-                        }
+template <typename Q, unsigned int d> class rotation : public affine<Q, d> {
+public:
+  rotation(const Q &pAngle, const unsigned int &pAxis1,
+           const unsigned int &pAxis2)
+      : angle(pAngle), axis1(pAxis1), axis2(pAxis2) {
+    updateMatrix();
+  }
 
-                    void updateMatrix (void)
-                    {
-                        if (d == 3)
-                        {
-                            transformationMatrix[3][0] = from[0];
-                            transformationMatrix[3][1] = from[1];
-                            transformationMatrix[3][2] = from[2];
-                        }
-                        else for (unsigned int i = 0; i <= d; i++)
-                        {
-                            for (unsigned int j = 0; j <= d; j++)
-                            {
-                                if ((i == d) && (j < d))
-                                {
-                                    transformationMatrix[i][j] = from[j];
-                                }
-                                else if (i == j)
-                                {
-                                    transformationMatrix[i][j] = 1;
-                                }
-                                else
-                                {
-                                    transformationMatrix[i][j] = 0;
-                                }
-                            }
-                        }
-                    }
+  void updateMatrix(void) {
+    for (unsigned int i = 0; i <= d; i++) {
+      for (unsigned int j = 0; j <= d; j++) {
+        if ((i == axis1) && (j == axis1)) {
+          transformationMatrix[i][j] = cos(angle);
+        } else if ((i == axis1) && (j == axis2)) {
+          transformationMatrix[i][j] = -sin(angle);
+        } else if ((i == axis2) && (j == axis2)) {
+          transformationMatrix[i][j] = cos(angle);
+        } else if ((i == axis2) && (j == axis1)) {
+          transformationMatrix[i][j] = sin(angle);
+        } else if (i == j) {
+          transformationMatrix[i][j] = Q(1);
+        } else {
+          transformationMatrix[i][j] = 0;
+        }
+      }
+    }
 
-                    using affine<Q,d>::transformationMatrix;
+    if ((axis1 + axis2 + d + 1) % 2 == 1) {
+      transformationMatrix = math::transpose(transformationMatrix);
+    }
+  }
 
-                protected:
-                    math::vector<Q,d> from;
-            };
-        };
-    };
+  using affine<Q, d>::transformationMatrix;
+
+protected:
+  const Q &angle;
+  const unsigned int &axis1;
+  const unsigned int &axis2;
+};
+
+template <typename Q, unsigned int d> class translation : public affine<Q, d> {
+public:
+  translation(const math::vector<Q, d> &pFrom) : from(pFrom) { updateMatrix(); }
+
+  void updateMatrix(void) {
+    if (d == 3) {
+      transformationMatrix[3][0] = from[0];
+      transformationMatrix[3][1] = from[1];
+      transformationMatrix[3][2] = from[2];
+    } else
+      for (unsigned int i = 0; i <= d; i++) {
+        for (unsigned int j = 0; j <= d; j++) {
+          if ((i == d) && (j < d)) {
+            transformationMatrix[i][j] = from[j];
+          } else if (i == j) {
+            transformationMatrix[i][j] = 1;
+          } else {
+            transformationMatrix[i][j] = 0;
+          }
+        }
+      }
+  }
+
+  using affine<Q, d>::transformationMatrix;
+
+protected:
+  math::vector<Q, d> from;
+};
+};
+};
 };
 
 #endif

@@ -32,16 +32,14 @@
 #if !defined(EF_GY_GEOMETRY_H)
 #define EF_GY_GEOMETRY_H
 
-namespace efgy
-{
-    /**\brief Geometric templates
-     *
-     * Contains templates dealing with geometry: vector space transformations,
-     * projections, mesh creation, polygon operators, etc.
-     */
-    namespace geometry
-    {
-    };
+namespace efgy {
+/**\brief Geometric templates
+ *
+ * Contains templates dealing with geometry: vector space transformations,
+ * projections, mesh creation, polygon operators, etc.
+ */
+namespace geometry {
+};
 };
 
 #endif

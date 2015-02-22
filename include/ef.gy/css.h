@@ -31,16 +31,14 @@
 #if !defined(EF_GY_CSS_H)
 #define EF_GY_CSS_H
 
-namespace efgy
-{
-    /**\brief CSS helpers
-     *
-     * Namespace for helper classes and functions used to generate CSS
-     * serialisations.
-     */
-    namespace css
-    {
-    };
+namespace efgy {
+/**\brief CSS helpers
+ *
+ * Namespace for helper classes and functions used to generate CSS
+ * serialisations.
+ */
+namespace css {
+};
 };
 
 #endif

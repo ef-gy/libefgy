@@ -1,5 +1,5 @@
 /**\file
- * \brief Test cases for s-expression parsing 
+ * \brief Test cases for s-expression parsing
  *
  * \copyright
  * Copyright (c) 2012-2015, ef.gy Project Members
@@ -44,29 +44,25 @@ using efgy::cons;
  *
  * \returns Zero if everything was okay, a nonzero integer otherwise
  */
-int testConstruction(std::ostream &log)
-{
-   atom<int> a(23);
+int testConstruction(std::ostream &log) {
+  atom<int> a(23);
 
-   if(a.data != 23)
-   {
-       log << "Expected data value: 23. Actual value: " << a.data;
-       return next_integer();
-   }
-   
-   cons<int, int> c(23, 42);
-   if(c.car != 23) 
-   {
-       log << "Expected value of car(cons(23, 42)): 23. Actual value: " << c.car;
-       return next_integer();
-   }
-   if(c.cdr.just != 42) 
-   {
-       log << "Expected value of cdr(cons(23, 42)): 42. Actual value: " << c.cdr;
-       return next_integer();
-   }
+  if (a.data != 23) {
+    log << "Expected data value: 23. Actual value: " << a.data;
+    return next_integer();
+  }
 
-   return 0;
+  cons<int, int> c(23, 42);
+  if (c.car != 23) {
+    log << "Expected value of car(cons(23, 42)): 23. Actual value: " << c.car;
+    return next_integer();
+  }
+  if (c.cdr.just != 42) {
+    log << "Expected value of cdr(cons(23, 42)): 42. Actual value: " << c.cdr;
+    return next_integer();
+  }
+
+  return 0;
 }
 
 /* \brief Tests stream output of s-expressions
@@ -78,26 +74,22 @@ int testConstruction(std::ostream &log)
  *
  * \returns Zero if everything was okay, a nonzero integer otherwise
  */
-int testStreamOutput(std::ostream &log)
-{
-    atom<int> a(23);
-    cons<int, int> c(23, 42);
-    
-    std::ostringstream test;
-    test << a;
-    test << "\n" << c;
-   
-    std::string expected = "23\n(23 . 42)"; 
-    if(test.str() != expected)
-    {
-        log << "Detected error in stream output. Expected: " << expected;
-        log << "\nActual: " << test.str();
-        return next_integer();
-    }
-    else
-    {
-        return 0;
-    }
+int testStreamOutput(std::ostream &log) {
+  atom<int> a(23);
+  cons<int, int> c(23, 42);
+
+  std::ostringstream test;
+  test << a;
+  test << "\n" << c;
+
+  std::string expected = "23\n(23 . 42)";
+  if (test.str() != expected) {
+    log << "Detected error in stream output. Expected: " << expected;
+    log << "\nActual: " << test.str();
+    return next_integer();
+  } else {
+    return 0;
+  }
 }
 
 TEST_BATCH(testConstruction, testStreamOutput)

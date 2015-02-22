@@ -44,11 +44,10 @@ using namespace efgy;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testXMLoutput (std::ostream &log)
-{
-    log << xml::tag() << xml::precision(16);
+int testXMLoutput(std::ostream &log) {
+  log << xml::tag() << xml::precision(16);
 
-    return 0;
+  return 0;
 }
 
 TEST_BATCH(testXMLoutput)

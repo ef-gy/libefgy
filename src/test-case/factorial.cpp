@@ -47,30 +47,24 @@ using namespace std;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-int testFactorial(ostream &log)
-{
+int testFactorial(ostream &log) {
 
-    if(factorial<int>(0) != 1)
-    {
-        log << "Factorial of 0 should be 1.";
-        return 1;
-    }
+  if (factorial<int>(0) != 1) {
+    log << "Factorial of 0 should be 1.";
+    return 1;
+  }
 
-    
-    if(factorial<int>(1) != 1)
-    {
-        log << "Factorial of 1 should be 1.";
-        return 2;
-    }
+  if (factorial<int>(1) != 1) {
+    log << "Factorial of 1 should be 1.";
+    return 2;
+  }
 
+  if (factorial<int>(5) != 120) {
+    log << "Factorial of 5 should be 120.";
+    return 3;
+  }
 
-    if(factorial<int>(5) != 120)
-    {
-        log << "Factorial of 5 should be 120.";
-        return 3;
-    }
-
-    return 0;
+  return 0;
 }
 
 TEST_BATCH(testFactorial)

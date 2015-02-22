@@ -36,11 +36,9 @@
 #include <ef.gy/render.h>
 #include <ef.gy/stream-json.h>
 
-namespace efgy
-{
-    namespace render
-    {
-    };
+namespace efgy {
+namespace render {
+};
 };
 
 #endif
