@@ -9,21 +9,22 @@ NAME:=
 BASE=$(NAME)
 VERSION:=1
 
-CC:=clang
-CXX:=clang++
-EMXX:=em++
-PKGCONFIG:=pkg-config
-INSTALL:=install
-XSLTPROC:=xsltproc
-CURL:=curl
-CLANG_FORMAT:=clang-format
+# standard programmes (may or may not be used)
+CC:=$(shell which clang false | head -n 1)
+CXX:=$(shell which clang++ false | head -n 1)
+EMXX:=$(shell which em++ false | head -n 1)
+PKGCONFIG:=$(shell which pkg-config false | head -n 1)
+INSTALL:=$(shell which install false | head -n 1)
+XSLTPROC:=$(shell which xsltproc false | head -n 1)
+CURL:=$(shell which curl false | head -n 1)
+CLANG_FORMAT:=$(shell which clang-format false | head -n 1)
 
 LIBRARIES:=
 
 DEBUG:=false
 
-PCCFLAGS:=$(shell $(PKGCONFIG) --cflags $(LIBRARIES) 2>/dev/null)
-PCLDFLAGS:=$(shell $(PKGCONFIG) --libs $(LIBRARIES) 2>/dev/null)
+PCCFLAGS:=$(shell $(PKGCONFIG) --cflags $(LIBRARIES))
+PCLDFLAGS:=$(shell $(PKGCONFIG) --libs $(LIBRARIES))
 CFLAGS:=-O2 $(shell if $(DEBUG); then echo '-g'; fi)
 CXXFLAGS:=$(CFLAGS)
 EMCFLAGS:=-O2 --llvm-lto 3
