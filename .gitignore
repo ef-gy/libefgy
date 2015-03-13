@@ -13,3 +13,5 @@ documentation/*.tag
 .DS_*
 documentation.xml
 dependencies.mk
+include/asio*
+.third-party

@@ -116,5 +116,15 @@ test-case-%: src/test-case/%.cpp
 %.js: src/%.cpp include/*/*.h
 	$(EMXX) -std=$(CXX_STANDARD) -Iinclude/ -D NOLIBRARIES $(EMXXFLAGS) $< $(LDFLAGS) -o $@
 
-dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS)
+# dependency calculations
+dependencies.mk: $(BINARIES_SRC) include/*/*.h include/*.h $(DATAHEADERS)
 	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ -MM $(BINARIES_SRC) | sed -E 's/(.*).o: /\1: /' > $@
+
+# common third party libraries
+include/asio.hpp: .third-party/asio/.git
+	ln -s ../.third-party/asio/asio/include/asio.hpp $@
+	ln -s ../.third-party/asio/asio/include/asio include/asio
+
+.third-party/asio/.git:
+	mkdir -p .third-party
+	cd .third-party && $(GIT) clone https://github.com/chriskohlhoff/asio.git
