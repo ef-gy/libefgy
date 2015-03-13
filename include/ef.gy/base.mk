@@ -117,7 +117,7 @@ test-case-%: src/test-case/%.cpp
 	$(EMXX) -std=$(CXX_STANDARD) -Iinclude/ -D NOLIBRARIES $(EMXXFLAGS) $< $(LDFLAGS) -o $@
 
 # dependency calculations
-dependencies.mk: $(BINARIES_SRC) include/*/*.h include/*.h $(DATAHEADERS)
+dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS)
 	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ -MM $(BINARIES_SRC) | sed -E 's/(.*).o: /\1: /' > $@
 
 # common third party libraries
