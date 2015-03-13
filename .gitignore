@@ -12,3 +12,4 @@ documentation/*.tag
 *.dSYM
 .DS_*
 documentation.xml
+dependencies.mk

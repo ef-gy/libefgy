@@ -1,3 +1,5 @@
+# vim: set noexpandtab:
+
 DESTDIR:=
 PREFIX:=/usr/local
 BINDIR:=$(DESTDIR)$(PREFIX)/bin
@@ -18,6 +20,7 @@ INSTALL:=$(shell which install false | head -n 1)
 XSLTPROC:=$(shell which xsltproc false | head -n 1)
 CURL:=$(shell which curl false | head -n 1)
 CLANG_FORMAT:=$(shell which clang-format false | head -n 1)
+GIT:=$(shell which git false | head -n 1)
 
 LIBRARIES:=
 
@@ -33,6 +36,7 @@ LDFLAGS:=
 CXX_STANDARD:=c++11
 
 DATABASE:=
+BINARIES_SRC:=$(wildcard src/*.cpp) $(wildcard src/test-case/*.cpp)
 BINARIES:=$(basename $(notdir $(wildcard src/*.cpp)) $(addprefix test-case-,$(notdir $(wildcard src/test-case/*.cpp))))
 JSBINARIES:=$(addsuffix .js,$(BINARIES))
 TESTBINARIES:=$(filter test-case-%,$(BINARIES))
@@ -44,8 +48,12 @@ IMANPAGES:=$(addprefix $(MANDIR)/man1/,$(notdir $(wildcard src/*.1)))
 
 DATAHEADERS=$(wildcard include/data/*.h)
 
+include dependencies.mk
+
 # don't delete intermediary files
 .SECONDARY:
+
+.PHONY: all clean scrub archive install uninstall
 
 # meta rules
 all: $(DATABASES) $(BINARIES)
@@ -60,7 +68,7 @@ uninstall:
 archive: ../$(NAME)-$(VERSION).tar.gz
 
 ../$(NAME)-$(VERSION).tar.gz:
-	git archive --format=tar --prefix=$(NAME)-$(VERSION)/ HEAD | gzip -9 >$@
+	$(GIT) archive --format=tar --prefix=$(NAME)-$(VERSION)/ HEAD | gzip -9 >$@
 
 # meta rules for documentation
 documentation documentation/xml/combine.xslt documentation/xml/index.xml: doxyfile $(wildcard include/*/* xslt/doxy*)
@@ -99,11 +107,14 @@ $(MANDIR)/man1/%.1: src/%.1
 	rm -f $@ && $(SQLITE3) $@ < $<
 
 # pattern rules for C++ code
-%: src/%.cpp include/*/*.h $(DATAHEADERS)
+%: src/%.cpp
 	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ $(CXXFLAGS) $(PCCFLAGS) $< $(LDFLAGS) $(PCLDFLAGS) -o $@ && ($(DEBUG) || strip -x $@)
 
-test-case-%: src/test-case/%.cpp include/*/*.h
+test-case-%: src/test-case/%.cpp
 	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ -DRUN_TEST_CASES $(CXXFLAGS) $(PCCFLAGS) $< $(LDFLAGS) $(PCLDFLAGS) -o $@
 
 %.js: src/%.cpp include/*/*.h
 	$(EMXX) -std=$(CXX_STANDARD) -Iinclude/ -D NOLIBRARIES $(EMXXFLAGS) $< $(LDFLAGS) -o $@
+
+dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS)
+	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ -MM $(BINARIES_SRC) | sed -E 's/(.*).o: /\1: /' > $@
