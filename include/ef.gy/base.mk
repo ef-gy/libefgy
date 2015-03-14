@@ -50,8 +50,6 @@ IMANPAGES:=$(addprefix $(MANDIR)/man1/,$(notdir $(wildcard src/*.1)))
 
 DATAHEADERS=$(wildcard include/data/*.h)
 
-include dependencies.mk
-
 # don't delete intermediary files
 .SECONDARY:
 
@@ -133,3 +131,5 @@ $(THIRDPARTY)/.volatile:
 
 $(THIRDPARTY)/asio/.git: $(THIRDPARTY)/.volatile
 	cd $(THIRDPARTY) && $(GIT) clone https://github.com/chriskohlhoff/asio.git
+
+include dependencies.mk
