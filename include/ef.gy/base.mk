@@ -5,11 +5,14 @@ PREFIX:=/usr/local
 BINDIR:=$(DESTDIR)$(PREFIX)/bin
 INCLUDEDIR:=$(DESTDIR)$(PREFIX)/include
 MANDIR:=$(DESTDIR)$(PREFIX)/share/man
+THIRDPARTY:=./.third-party
 
 # define these in your project!
 NAME:=
 BASE=$(NAME)
 VERSION:=1
+
+USE_ASIO:=false
 
 # standard programmes (may or may not be used)
 CC:=$(shell which clang false | head -n 1)
@@ -23,11 +26,12 @@ CLANG_FORMAT:=$(shell which clang-format false | head -n 1)
 GIT:=$(shell which git false | head -n 1)
 
 LIBRARIES:=
+THIRDPARTYHEADERS:=$(shell $(USE_ASIO) && echo "include/asio.hpp")
 
 DEBUG:=false
 
-PCCFLAGS:=$(shell $(PKGCONFIG) --cflags $(LIBRARIES))
-PCLDFLAGS:=$(shell $(PKGCONFIG) --libs $(LIBRARIES))
+PCCFLAGS:=$(shell $(PKGCONFIG) --cflags $(LIBRARIES) 2>/dev/null)
+PCLDFLAGS:=$(shell $(PKGCONFIG) --libs $(LIBRARIES) 2>/dev/null)
 CFLAGS:=-O2 $(shell if $(DEBUG); then echo '-g'; fi)
 CXXFLAGS:=$(CFLAGS)
 EMCFLAGS:=-O2 --llvm-lto 3
@@ -117,14 +121,17 @@ test-case-%: src/test-case/%.cpp
 	$(EMXX) -std=$(CXX_STANDARD) -Iinclude/ -D NOLIBRARIES $(EMXXFLAGS) $< $(LDFLAGS) -o $@
 
 # dependency calculations
-dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS)
+dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS) $(THIRDPARTYHEADERS)
 	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ -MM $(BINARIES_SRC) | sed -E 's/(.*).o: /\1: /' > $@
 
 # common third party libraries
-include/asio.hpp: .third-party/asio/.git
-	ln -s ../.third-party/asio/asio/include/asio.hpp $@
-	ln -s ../.third-party/asio/asio/include/asio include/asio
+include/asio.hpp: $(THIRDPARTY)/asio/.git
+	ln -sf ../.third-party/asio/asio/include/asio.hpp $@
+	ln -sfh ../.third-party/asio/asio/include/asio include/asio
 
-.third-party/asio/.git:
-	mkdir -p .third-party
-	cd .third-party && $(GIT) clone https://github.com/chriskohlhoff/asio.git
+$(THIRDPARTY)/.volatile:
+	mkdir -p $(THIRDPARTY) || true
+	touch $@
+
+$(THIRDPARTY)/asio/.git: $(THIRDPARTY)/.volatile
+	cd $(THIRDPARTY) && $(GIT) clone https://github.com/chriskohlhoff/asio.git
