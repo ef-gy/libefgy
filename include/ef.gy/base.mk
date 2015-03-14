@@ -12,8 +12,6 @@ NAME:=
 BASE=$(NAME)
 VERSION:=1
 
-USE_ASIO:=false
-
 # standard programmes (may or may not be used)
 CC:=$(shell which clang false | head -n 1)
 CXX:=$(shell which clang++ false | head -n 1)
@@ -26,7 +24,7 @@ CLANG_FORMAT:=$(shell which clang-format false | head -n 1)
 GIT:=$(shell which git false | head -n 1)
 
 LIBRARIES:=
-THIRDPARTYHEADERS:=$(shell $(USE_ASIO) && echo "include/asio.hpp")
+THIRDPARTYHEADERS:=
 
 DEBUG:=false
 

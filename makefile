@@ -4,4 +4,4 @@ NAME:=libefgy
 BASE:=ef.gy
 VERSION:=8
 
-USE_ASIO:=true
+http-hello src/http-hello.cpp: include/asio.hpp
