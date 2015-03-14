@@ -15,3 +15,4 @@ documentation.xml
 dependencies.mk
 include/asio*
 .third-party
+http-hello
