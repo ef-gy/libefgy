@@ -123,7 +123,7 @@ dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS) $(THIRDPARTYHEADER
 # common third party libraries
 include/asio.hpp: $(THIRDPARTY)/asio/.git
 	ln -sf ../.third-party/asio/asio/include/asio.hpp $@
-	ln -sfh ../.third-party/asio/asio/include/asio include/asio
+	ln -sfn ../.third-party/asio/asio/include/asio include/asio
 
 $(THIRDPARTY)/.volatile:
 	mkdir -p $(THIRDPARTY) || true
