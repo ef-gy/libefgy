@@ -1,4 +1,9 @@
 /**\file
+ * \brief Terminal I/O Helpers
+ *
+ * The templates in this file extend the functionality of the terminal.h base
+ * templates with useful 'standard' constructs, like drawing text and boxes at
+ * given offsets on the screen.
  *
  * \copyright
  * Copyright (c) 2012-2015, ef.gy Project Members
@@ -34,17 +39,66 @@
 
 namespace efgy {
 namespace terminal {
+
+/**\brief Terminal Helper Extension
+ *
+ * Objects of this template wrap around a "normal" terminal class to allow for
+ * easier drawing of text, boxes, etc.
+ *
+ * \note The methods in this class are implemented such that you can chain
+ *       commands easily, by always returning a reference to the objct they were
+ *       called on.
+ *
+ * \note All of the methods here only update the target buffer of the terminal,
+ *       meaning you still have to sync/flush the changes in order for them to
+ *       actually be sent out.
+ *
+ * \tparam T The character type of the terminal to handle, e.g. long for UTF8.
+ */
 template <typename T = long> class writer {
 public:
+  /**\brief Construct with terminal
+   *
+   * Constructs a new terminal output helper and binds it to the given terminal
+   * instance. Also sets colours and position to sensible defaults (i.e.
+   * top-left, writing white on black).
+   *
+   * \param[out] pOutput The output terminal to bind to.
+   */
   writer(terminal<T> &pOutput)
       : output(pOutput), foreground(7), background(0), position({
     0, 0
   }) {}
 
+  /**\brief Current background colour.
+   *
+   * New writes use this colour, except for some very specialised functions that
+   * override the foreground colour, e.g. coloured multi-bars.
+   */
   std::size_t foreground;
+
+  /**\brief Current background colour.
+   *
+   * New writes use this colour, except for some very specialised functions that
+   * override the background colour, e.g. coloured multi-bars.
+   */
   std::size_t background;
+
+  /**\brief Current cursor position
+   *
+   * This is the position on-screen that new writes go to.
+   */
   std::array<ssize_t, 2> position;
 
+  /**\brief Resolve cursor position
+   *
+   * This function implements line wrapping and negative positions (used to
+   * indicate positions from the right/bottom instead of the left/top). Output
+   * functions use this after updating the cursor position, so that the cursor
+   * is moved to somewhere it can actually be seen.
+   *
+   * \returns A reference to *this.
+   */
   writer &solve(void) {
     const auto dim = output.size();
 
@@ -61,6 +115,17 @@ public:
     return *this;
   }
 
+  /**\brief Output a single character
+   *
+   * Given a single character of the target terminal's type, this will write
+   * that character to the terminal and update the screen position - with line
+   * wrapping, if needed. The current foreground and background colours are also
+   * applied.
+   *
+   * \param[in] ch The character to write.
+   *
+   * \returns A reference to *this.
+   */
   writer &write(const T ch) {
     solve();
 
