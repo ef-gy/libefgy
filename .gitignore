@@ -16,3 +16,4 @@ dependencies.mk
 include/asio*
 .third-party
 http-hello
+irc-hello
