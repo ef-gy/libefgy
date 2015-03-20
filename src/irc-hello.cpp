@@ -57,6 +57,8 @@ int main(int argc, char *argv[]) {
       tcp::endpoint endpoint = *endpoint_iterator;
       net::irc::server<tcp> s(io_service, endpoint);
 
+      s.name = argv[1];
+
       io_service.run();
     }
 

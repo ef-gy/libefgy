@@ -31,8 +31,6 @@
 
 #include <set>
 #include <map>
-#include <string>
-#include <sstream>
 #include <iomanip>
 
 #include <regex>
@@ -55,7 +53,7 @@ template <typename base, typename requestProcessor> class session;
 namespace processor {
 template <class sock> class base {
 public:
-  typedef session<sock, base<sock>> session;
+  typedef session<sock, base<sock> > session;
 
   bool nick(session &session, const std::string &nick) {
     session.nick = nick;
@@ -74,7 +72,8 @@ public:
     return true;
   }
 
-  bool user(session &session, const std::string &user, const std::string &mode, const std::string &real) {
+  bool user(session &session, const std::string &user, const std::string &mode,
+            const std::string &real) {
     session.user = user;
 
     switch (session.status) {
@@ -91,19 +90,26 @@ public:
     return true;
   }
 
+  bool ping(session &session, const std::string &server1,
+            const std::string &server2) {
+    session.reply("PONG", {
+      server1, server2
+    });
+
+    return true;
+  }
+
   bool hello(session &session) {
     session.reply(RPL_WELCOME);
 
     return motd(session);
   }
 
-  bool motd(session &session) {
-    return true;
-  }
+  bool motd(session &session) { return true; }
 };
 }
 
-template <typename base, typename requestProcessor = processor::base<base>>
+template <typename base, typename requestProcessor = processor::base<base> >
 using server = net::server<base, requestProcessor, session>;
 
 template <typename base, typename requestProcessor> class session {
@@ -125,9 +131,7 @@ public:
   std::string user;
   std::string nick;
 
-  std::string prefix(void) {
-    return nick + "!" + user + "@host";
-  }
+  std::string prefix(void) { return nick + "!" + user + "@host"; }
 
   std::set<std::string> subscriptions;
 
@@ -136,7 +140,8 @@ public:
   serverType &server;
 
   session(serverType &pServer)
-      : server(pServer), socket(pServer.io), status(expect_nick_user), input() {}
+      : server(pServer), socket(pServer.io), status(expect_nick_user), input() {
+  }
 
   ~session(void) {
     status = shutdown;
@@ -158,7 +163,36 @@ public:
 
   void start() { read(); }
 
-  bool reply(const enum numericMessage num, const std::vector<std::string> &params, std::string trail) {
+  bool reply(const std::string &command, const std::vector<std::string> &params,
+             std::string trail = "") {
+    std::stringstream reply;
+
+    reply << ":" << server.name << " " << command;
+
+    for (const std::string &param : params) {
+      if (param != "") {
+        reply << " " << param;
+      }
+    }
+
+    if (trail != "") {
+      reply << " :" << trail;
+    }
+
+    reply << "\r\n";
+
+    std::cerr << "sent: " << reply.str();
+
+    asio::async_write(socket, asio::buffer(reply.str()),
+                      [&](std::error_code ec, std::size_t length) {
+      handleWrite(ec);
+    });
+
+    return true;
+  }
+
+  bool reply(const enum numericMessage num,
+             const std::vector<std::string> &params, std::string trail = "") {
     std::stringstream reply;
 
     if (trail == "") {
@@ -171,12 +205,13 @@ public:
       }
     }
 
-    reply << ":server "
-          << std::setfill('0') << std::setw(3) << long(num) << " "
-          << nick;
+    reply << ":" << server.name << " " << std::setfill('0') << std::setw(3)
+          << long(num) << " " << nick;
 
     for (const std::string &param : params) {
-      reply << " " << param;
+      if (param != "") {
+        reply << " " << param;
+      }
     }
 
     if (trail != "") {
@@ -196,7 +231,9 @@ public:
   }
 
   bool reply(const enum numericMessage num, const std::string &trail = "") {
-    return reply (num, {}, trail);
+    return reply(num, {
+    },
+                 trail);
   }
 
 protected:
@@ -206,7 +243,8 @@ protected:
     }
 
     if (!error) {
-      static const std::regex line("(:([^ ]+) )?([A-Z]+)( ([^: \r]+))?( ([^: \r]+))?( ([^: \r]+))?( :([^\r]+))?\r?");
+      static const std::regex line("(:([^ ]+) )?([A-Z]+)( ([^: \r]+))?( ([^: "
+                                   "\r]+))?( ([^: \r]+))?( :([^\r]+))?\r?");
       std::istream is(&input);
       std::string s;
       std::smatch matches;
@@ -224,14 +262,14 @@ protected:
           server.processor.nick(*this, param1);
         } else if (matches[3] == "USER") {
           server.processor.user(*this, param1, param2, trailing);
+        } else if (matches[3] == "PING") {
+          server.processor.ping(*this, param1, param2);
         } else {
-          server.log << "unknown command:" << s << "\n";
+          server.log << "[" << prefix() << "] unknown command:" << s << "\n";
         }
       } else {
-        server.log << "malformed message: " << s << "\n";
+        server.log << "[" << prefix() << "] malformed message:" << s << "\n";
       }
-
-      server.log << "[" << nick << "] [" << user << "] received:" << s << "\n";
 
       read();
     } else {
