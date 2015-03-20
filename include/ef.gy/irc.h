@@ -33,6 +33,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <iomanip>
 
 #include <regex>
 #include <system_error>
@@ -45,15 +46,71 @@ namespace efgy {
 namespace net {
 namespace irc {
 
+enum numericMessage {
+  RPL_WELCOME = 1
+};
+
 template <typename base, typename requestProcessor> class session;
 
-template <typename base, typename requestProcessor>
+namespace processor {
+template <class sock> class base {
+public:
+  typedef session<sock, base<sock>> session;
+
+  bool nick(session &session, const std::string &nick) {
+    session.nick = nick;
+
+    switch (session.status) {
+    case session::expect_nick_user:
+      session.status = session::expect_user;
+      break;
+    case session::expect_nick:
+      session.status = session::nominal;
+      return hello(session);
+    default:
+      break;
+    }
+
+    return true;
+  }
+
+  bool user(session &session, const std::string &user, const std::string &mode, const std::string &real) {
+    session.user = user;
+
+    switch (session.status) {
+    case session::expect_nick_user:
+      session.status = session::expect_nick;
+      break;
+    case session::expect_user:
+      session.status = session::nominal;
+      return hello(session);
+    default:
+      break;
+    }
+
+    return true;
+  }
+
+  bool hello(session &session) {
+    session.reply(RPL_WELCOME);
+
+    return motd(session);
+  }
+
+  bool motd(session &session) {
+    return true;
+  }
+};
+}
+
+template <typename base, typename requestProcessor = processor::base<base>>
 using server = net::server<base, requestProcessor, session>;
 
 template <typename base, typename requestProcessor> class session {
 protected:
   typedef server<base, requestProcessor> serverType;
 
+public:
   enum {
     expect_nick_user,
     expect_nick,
@@ -63,11 +120,15 @@ protected:
     shutdown
   } status;
 
-public:
   typename base::socket socket;
 
   std::string user;
   std::string nick;
+
+  std::string prefix(void) {
+    return nick + "!" + user + "@host";
+  }
+
   std::set<std::string> subscriptions;
 
   std::string content;
@@ -97,7 +158,45 @@ public:
 
   void start() { read(); }
 
-  void reply() {
+  bool reply(const enum numericMessage num, const std::vector<std::string> &params, std::string trail) {
+    std::stringstream reply;
+
+    if (trail == "") {
+      switch (num) {
+      case RPL_WELCOME:
+        trail = "Welcome to the Internet Relay Network " + prefix();
+        break;
+      default:
+        break;
+      }
+    }
+
+    reply << ":server "
+          << std::setfill('0') << std::setw(3) << long(num) << " "
+          << nick;
+
+    for (const std::string &param : params) {
+      reply << " " << param;
+    }
+
+    if (trail != "") {
+      reply << " :" << trail;
+    }
+
+    reply << "\r\n";
+
+    std::cerr << "sent: " << reply.str();
+
+    asio::async_write(socket, asio::buffer(reply.str()),
+                      [&](std::error_code ec, std::size_t length) {
+      handleWrite(ec);
+    });
+
+    return true;
+  }
+
+  bool reply(const enum numericMessage num, const std::string &trail = "") {
+    return reply (num, {}, trail);
   }
 
 protected:
@@ -107,14 +206,32 @@ protected:
     }
 
     if (!error) {
-      static const std::regex line("(:[^ ]+)? (.*)\r?");
+      static const std::regex line("(:([^ ]+) )?([A-Z]+)( ([^: \r]+))?( ([^: \r]+))?( ([^: \r]+))?( :([^\r]+))?\r?");
       std::istream is(&input);
       std::string s;
       std::smatch matches;
 
       std::getline(is, s);
 
-      server.log << s << "\n";
+      if (std::regex_match(s, matches, line)) {
+        const std::string &param1 = matches[5];
+        const std::string &param2 = matches[7];
+        const std::string &param3 = matches[9];
+
+        const std::string &trailing = matches[11];
+
+        if (matches[3] == "NICK") {
+          server.processor.nick(*this, param1);
+        } else if (matches[3] == "USER") {
+          server.processor.user(*this, param1, param2, trailing);
+        } else {
+          server.log << "unknown command:" << s << "\n";
+        }
+      } else {
+        server.log << "malformed message: " << s << "\n";
+      }
+
+      server.log << "[" << nick << "] [" << user << "] received:" << s << "\n";
 
       read();
     } else {
@@ -128,7 +245,7 @@ protected:
     }
 
     if (!error) {
-      read();
+      //read();
     } else {
       delete this;
     }

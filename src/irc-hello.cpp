@@ -31,10 +31,6 @@
 using namespace efgy;
 using asio::ip::tcp;
 
-class processor {
-public:
-};
-
 /**\brief Main function for the IRC demo
  *
  * This is the main function for the IRC Hello World demo.
@@ -59,7 +55,7 @@ int main(int argc, char *argv[]) {
 
     if (endpoint_iterator != end) {
       tcp::endpoint endpoint = *endpoint_iterator;
-      net::irc::server<tcp, processor> s(io_service, endpoint);
+      net::irc::server<tcp> s(io_service, endpoint);
 
       io_service.run();
     }
