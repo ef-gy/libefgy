@@ -90,11 +90,24 @@ public:
     return true;
   }
 
-  bool ping(session &session, const std::string &server1,
-            const std::string &server2) {
-    session.reply("PONG", {
-      server1, server2
-    });
+  bool nick(session &session, const std::vector<std::string> &param) {
+    return nick(session, param[0]);
+  }
+
+  bool user(session &session, const std::vector<std::string> &param) {
+    return user(session, param[0], param[1], param[3]);
+  }
+
+  bool ping(session &session, const std::vector<std::string> &param) {
+    session.reply("PONG", param);
+
+    return true;
+  }
+
+  bool other(session &session, const std::string &command,
+             const std::vector<std::string> &param) {
+    session.server.log << "[" << session.prefix()
+                       << "] unknown command:" << command << "\n";
 
     return true;
   }
@@ -106,6 +119,21 @@ public:
   }
 
   bool motd(session &session) { return true; }
+
+  bool remember(session &session) {
+    sessions.insert(&session);
+
+    return true;
+  }
+
+  bool forget(session &session) {
+    sessions.erase(&session);
+
+    return true;
+  }
+
+protected:
+  std::set<session *> sessions;
 };
 }
 
@@ -146,6 +174,8 @@ public:
   ~session(void) {
     status = shutdown;
 
+    server.processor.forget(*this);
+
     try {
       socket.shutdown(base::socket::shutdown_both);
     }
@@ -163,20 +193,32 @@ public:
 
   void start() { read(); }
 
-  bool reply(const std::string &command, const std::vector<std::string> &params,
-             std::string trail = "") {
+  bool reply(const std::string &command,
+             const std::vector<std::string> &params) {
+    bool have_trailing = false;
+
     std::stringstream reply;
 
     reply << ":" << server.name << " " << command;
 
     for (const std::string &param : params) {
       if (param != "") {
-        reply << " " << param;
-      }
-    }
+        if (have_trailing) {
+          std::cerr
+              << "WARNING: IRC: Ignored parameter after trailing parameter:"
+              << param << "\n";
+        }
 
-    if (trail != "") {
-      reply << " :" << trail;
+        if (param.find(' ') != std::string::npos) {
+          reply << " :" << param;
+          have_trailing = true;
+          continue;
+        }
+
+        reply << " " << param;
+      } else {
+        std::cerr << "WARNING: IRC: empty parameter in reply.\n";
+      }
     }
 
     reply << "\r\n";
@@ -191,49 +233,25 @@ public:
     return true;
   }
 
-  bool reply(const enum numericMessage num,
-             const std::vector<std::string> &params, std::string trail = "") {
-    std::stringstream reply;
+  bool reply(const enum numericMessage num, std::vector<std::string> params = {
+  }) {
+    std::stringstream code;
 
-    if (trail == "") {
+    if (params.size() == 0) {
       switch (num) {
       case RPL_WELCOME:
-        trail = "Welcome to the Internet Relay Network " + prefix();
+        params.push_back("Welcome to the Internet Relay Network " + prefix());
         break;
       default:
         break;
       }
     }
 
-    reply << ":" << server.name << " " << std::setfill('0') << std::setw(3)
-          << long(num) << " " << nick;
+    code << std::setfill('0') << std::setw(3) << long(num);
 
-    for (const std::string &param : params) {
-      if (param != "") {
-        reply << " " << param;
-      }
-    }
+    params.insert(params.begin(), nick);
 
-    if (trail != "") {
-      reply << " :" << trail;
-    }
-
-    reply << "\r\n";
-
-    std::cerr << "sent: " << reply.str();
-
-    asio::async_write(socket, asio::buffer(reply.str()),
-                      [&](std::error_code ec, std::size_t length) {
-      handleWrite(ec);
-    });
-
-    return true;
-  }
-
-  bool reply(const enum numericMessage num, const std::string &trail = "") {
-    return reply(num, {
-    },
-                 trail);
+    return reply(code.str(), params);
   }
 
 protected:
@@ -243,8 +261,12 @@ protected:
     }
 
     if (!error) {
-      static const std::regex line("(:([^ ]+) )?([A-Z]+)( ([^: \r]+))?( ([^: "
-                                   "\r]+))?( ([^: \r]+))?( :([^\r]+))?\r?");
+      static const std::regex line(
+          "(:([^ ]+) )?([A-Z]+)( ([^: \r][^ \r]*))?( ([^: \r][^ \r]*))?( ([^: "
+          "\r][^ \r]*))?( ([^: \r][^ \r]*))?( ([^: \r][^ \r]*))?( ([^: \r][^ "
+          "\r]*))?( ([^: \r][^ \r]*))?( ([^: \r][^ \r]*))?( ([^: \r][^ "
+          "\r]*))?( ([^: \r][^ \r]*))?( ([^: \r][^ \r]*))?( ([^: \r][^ "
+          "\r]*))?( ([^: \r][^ \r]*))?( ([^: \r][^ \r]*))?( :([^\r]+))? *\r?");
       std::istream is(&input);
       std::string s;
       std::smatch matches;
@@ -252,20 +274,23 @@ protected:
       std::getline(is, s);
 
       if (std::regex_match(s, matches, line)) {
-        const std::string &param1 = matches[5];
-        const std::string &param2 = matches[7];
-        const std::string &param3 = matches[9];
-
-        const std::string &trailing = matches[11];
+        std::vector<std::string> param;
+        for (unsigned int i : {
+          5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33
+        }) {
+          if (matches[i] != "") {
+            param.push_back(matches[i]);
+          }
+        }
 
         if (matches[3] == "NICK") {
-          server.processor.nick(*this, param1);
+          server.processor.nick(*this, param);
         } else if (matches[3] == "USER") {
-          server.processor.user(*this, param1, param2, trailing);
+          server.processor.user(*this, param);
         } else if (matches[3] == "PING") {
-          server.processor.ping(*this, param1, param2);
+          server.processor.ping(*this, param);
         } else {
-          server.log << "[" << prefix() << "] unknown command:" << s << "\n";
+          server.processor.other(*this, matches[3], param);
         }
       } else {
         server.log << "[" << prefix() << "] malformed message:" << s << "\n";
