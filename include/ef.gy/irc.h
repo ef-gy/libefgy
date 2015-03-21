@@ -45,7 +45,11 @@ namespace net {
 namespace irc {
 
 enum numericMessage {
-  RPL_WELCOME = 1
+  RPL_WELCOME = 1,
+  RPL_NAMREPLY = 353,
+  RPL_ENDOFNAMES = 366,
+  RPL_NOTOPIC = 331,
+  RPL_TOPIC = 332
 };
 
 template <typename base, typename requestProcessor> class session;
@@ -72,6 +76,10 @@ public:
     return true;
   }
 
+  bool nick(session &session, const std::vector<std::string> &param) {
+    return nick(session, param[0]);
+  }
+
   bool user(session &session, const std::string &user, const std::string &mode,
             const std::string &real) {
     session.user = user;
@@ -90,10 +98,6 @@ public:
     return true;
   }
 
-  bool nick(session &session, const std::vector<std::string> &param) {
-    return nick(session, param[0]);
-  }
-
   bool user(session &session, const std::vector<std::string> &param) {
     return user(session, param[0], param[1], param[3]);
   }
@@ -101,6 +105,44 @@ public:
   bool ping(session &session, const std::vector<std::string> &param) {
     session.reply("PONG", param);
 
+    return true;
+  }
+
+  bool join(session &session, const std::string channel) {
+    std::string names;
+
+    session.subscriptions.insert(channel);
+
+    for (auto &sess : sessions) {
+      if (sess->subscriptions.find(channel) != sess->subscriptions.end()) {
+        names += (names == "" ? "" : " ") + sess->nick;
+      }
+    }
+
+    session.reply("JOIN", {
+      channel
+    },
+                  session.prefix());
+
+      //session.reply(RPL_TOPIC, {channel, "Ain't nobody got time for that."});
+    session.reply(RPL_NOTOPIC, {
+      channel, "No topic is set"
+    });
+    session.reply(RPL_NAMREPLY, {
+      channel, names
+    });
+    session.reply(RPL_ENDOFNAMES, {
+      channel, "End of NAMES list"
+    });
+
+    return true;
+  }
+
+  bool join(session &session, const std::vector<std::string> &param) {
+    return join(session, param[0]);
+  }
+
+  bool part(session &session, const std::vector<std::string> &param) {
     return true;
   }
 
@@ -113,6 +155,8 @@ public:
   }
 
   bool hello(session &session) {
+    remember(session);
+
     session.reply(RPL_WELCOME);
 
     return motd(session);
@@ -194,12 +238,18 @@ public:
   void start() { read(); }
 
   bool reply(const std::string &command,
-             const std::vector<std::string> &params) {
+             const std::vector<std::string> &params = {
+  },
+             std::string source = "") {
     bool have_trailing = false;
+
+    if (source == "") {
+      source = server.name;
+    }
 
     std::stringstream reply;
 
-    reply << ":" << server.name << " " << command;
+    reply << ":" << source << " " << command;
 
     for (const std::string &param : params) {
       if (param != "") {
@@ -234,7 +284,8 @@ public:
   }
 
   bool reply(const enum numericMessage num, std::vector<std::string> params = {
-  }) {
+  },
+             std::string source = "") {
     std::stringstream code;
 
     if (params.size() == 0) {
@@ -289,6 +340,10 @@ protected:
           server.processor.user(*this, param);
         } else if (matches[3] == "PING") {
           server.processor.ping(*this, param);
+        } else if (matches[3] == "JOIN") {
+          server.processor.join(*this, param);
+        } else if (matches[3] == "PART") {
+          server.processor.part(*this, param);
         } else {
           server.processor.other(*this, matches[3], param);
         }
