@@ -49,7 +49,8 @@ enum numericMessage {
   RPL_NAMREPLY = 353,
   RPL_ENDOFNAMES = 366,
   RPL_NOTOPIC = 331,
-  RPL_TOPIC = 332
+  RPL_TOPIC = 332,
+  ERR_NEEDMOREPARAMS = 461
 };
 
 template <typename base, typename requestProcessor> class session;
@@ -77,6 +78,12 @@ public:
   }
 
   bool nick(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 1) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "NICK", "Not enough parameters"
+      });
+    }
+
     return nick(session, param[0]);
   }
 
@@ -99,16 +106,28 @@ public:
   }
 
   bool user(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 4) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "USER", "Not enough parameters"
+      });
+    }
+
     return user(session, param[0], param[1], param[3]);
   }
 
   bool ping(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 1) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "PING", "Not enough parameters"
+      });
+    }
+
     session.reply("PONG", param);
 
     return true;
   }
 
-  bool join(session &session, const std::string channel) {
+  bool join(session &session, const std::string &channel) {
     std::string names;
 
     session.subscriptions.insert(channel);
@@ -116,13 +135,12 @@ public:
     for (auto &sess : sessions) {
       if (sess->subscriptions.find(channel) != sess->subscriptions.end()) {
         names += (names == "" ? "" : " ") + sess->nick;
+        sess->reply("JOIN", {
+          channel
+        },
+                    session.prefix());
       }
     }
-
-    session.reply("JOIN", {
-      channel
-    },
-                  session.prefix());
 
       //session.reply(RPL_TOPIC, {channel, "Ain't nobody got time for that."});
     session.reply(RPL_NOTOPIC, {
@@ -139,11 +157,97 @@ public:
   }
 
   bool join(session &session, const std::vector<std::string> &param) {
-    return join(session, param[0]);
+    if (param.size() < 1) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "JOIN", "Not enough parameters"
+      });
+    }
+
+    std::istringstream input(param[0]);
+    std::string channel;
+
+    while (std::getline(input, channel, ',')) {
+      join(session, channel);
+    }
+
+    return true;
+  }
+
+  bool part(session &session, const std::string &channel,
+            const std::string &message) {
+    for (auto &sess : sessions) {
+      if (sess->subscriptions.find(channel) != sess->subscriptions.end()) {
+        sess->reply("PART", {
+          channel
+        },
+                    session.prefix());
+      }
+    }
+
+    session.subscriptions.erase(channel);
+
+    return true;
   }
 
   bool part(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 1) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "PART", "Not enough parameters"
+      });
+    }
+
+    std::string message = "No message";
+
+    if (param.size() > 1) {
+      message = param[1];
+    }
+
+    std::istringstream input(param[0]);
+    std::string channel;
+
+    while (std::getline(input, channel, ',')) {
+      part(session, channel, message);
+    }
+
     return true;
+  }
+
+  bool privmsg(session &session, const std::string &target,
+               const std::string &message) {
+    int targets = 0;
+
+    for (auto &sess : sessions) {
+      if (&session == sess) {
+        continue;
+      }
+
+      if (target == sess->nick) {
+        targets++;
+        sess->reply("PRIVMSG", {
+          target, message
+        },
+                    session.prefix());
+      } else if (sess->subscriptions.find(target) !=
+                 sess->subscriptions.end()) {
+        targets++;
+        sess->reply("PRIVMSG", {
+          target, message
+        },
+                    session.prefix());
+      }
+    }
+
+    return true;
+  }
+
+  bool privmsg(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 2) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "PRIVMSG", "Not enough parameters"
+      });
+    }
+
+    return privmsg(session, param[0], param[1]);
   }
 
   bool other(session &session, const std::string &command,
@@ -344,6 +448,8 @@ protected:
           server.processor.join(*this, param);
         } else if (matches[3] == "PART") {
           server.processor.part(*this, param);
+        } else if (matches[3] == "PRIVMSG") {
+          server.processor.privmsg(*this, param);
         } else {
           server.processor.other(*this, matches[3], param);
         }
