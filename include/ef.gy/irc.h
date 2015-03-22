@@ -50,7 +50,10 @@ enum numericMessage {
   RPL_ENDOFNAMES = 366,
   RPL_NOTOPIC = 331,
   RPL_TOPIC = 332,
-  ERR_NEEDMOREPARAMS = 461
+  RPL_WHOREPLY = 352,
+  RPL_ENDOFWHO = 315,
+  ERR_NEEDMOREPARAMS = 461,
+  ERR_NOCHANMODES = 477
 };
 
 template <typename base, typename requestProcessor> class session;
@@ -250,10 +253,59 @@ public:
     return privmsg(session, param[0], param[1]);
   }
 
+  bool who(session &session, const std::string &mask) {
+    for (auto &sess : sessions) {
+      if (sess->subscriptions.find(mask) != sess->subscriptions.end()) {
+        session.reply(RPL_WHOREPLY, {
+          mask, sess->user, "host", sess->server.name, sess->nick, "*",
+              "0 unknown"
+        });
+      }
+    }
+
+    session.reply(RPL_ENDOFWHO, {
+      mask, "End of /WHO list"
+    });
+
+    return true;
+  }
+
+  bool who(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 1) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "WHO", "Not enough parameters"
+      });
+    }
+
+    who(session, param[0]);
+
+    return true;
+  }
+
+  bool mode(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 1) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "WHO", "Not enough parameters"
+      });
+    }
+
+    session.reply(ERR_NOCHANMODES, {
+      param[0], "Channel doesn't support modes"
+    });
+
+    return true;
+  }
+
   bool other(session &session, const std::string &command,
              const std::vector<std::string> &param) {
     session.server.log << "[" << session.prefix()
-                       << "] unknown command:" << command << "\n";
+                       << "] unknown command:" << command;
+
+    for (auto &p : param) {
+      session.server.log << " :" << p;
+    }
+
+    session.server.log << "\n";
 
     return true;
   }
@@ -450,6 +502,10 @@ protected:
           server.processor.part(*this, param);
         } else if (matches[3] == "PRIVMSG") {
           server.processor.privmsg(*this, param);
+        } else if (matches[3] == "WHO") {
+          server.processor.who(*this, param);
+        } else if (matches[3] == "MODE") {
+          server.processor.mode(*this, param);
         } else {
           server.processor.other(*this, matches[3], param);
         }
