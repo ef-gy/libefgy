@@ -52,6 +52,8 @@ enum numericMessage {
   RPL_TOPIC = 332,
   RPL_WHOREPLY = 352,
   RPL_ENDOFWHO = 315,
+  RPL_BANLIST = 367,
+  RPL_ENDOFBANLIST = 368,
   ERR_NEEDMOREPARAMS = 461,
   ERR_NOCHANMODES = 477
 };
@@ -282,6 +284,32 @@ public:
     return true;
   }
 
+  bool mode(session &session, const std::string &channel,
+            const std::vector<std::string> &modes) {
+    std::cerr << "mode request: " << modes[0] << "\n";
+    static const std::regex ban("([-+]?)[^-+]*b");
+
+    int replycount = 0;
+
+    for (unsigned int i = 0; i < modes.size(); i++) {
+      std::smatch matches;
+      if (std::regex_match(modes[i], matches, ban)) {
+        session.reply(RPL_ENDOFBANLIST, {
+          channel, "End of channel ban list"
+        });
+        replycount++;
+      }
+    }
+
+    if (replycount == 0) {
+      session.reply(ERR_NOCHANMODES, {
+        channel, "Channel doesn't support modes"
+      });
+    }
+
+    return true;
+  }
+
   bool mode(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
       return session.reply(ERR_NEEDMOREPARAMS, {
@@ -289,11 +317,32 @@ public:
       });
     }
 
-    session.reply(ERR_NOCHANMODES, {
-      param[0], "Channel doesn't support modes"
-    });
+    std::string channel;
+    std::vector<std::string> modes;
+
+    for (auto &p : param) {
+      if (channel == "") {
+        channel = p;
+      } else {
+        modes.push_back(p);
+      }
+    }
+
+    return mode(session, channel, modes);
+  }
+
+  bool quit(session &session, const std::string &reason = "") {
+    delete &session;
 
     return true;
+  }
+
+  bool quit(session &session, const std::vector<std::string> &param) {
+    if (param.size() > 0) {
+      return quit(session, param[0]);
+    } else {
+      return quit(session);
+    }
   }
 
   bool other(session &session, const std::string &command,
@@ -506,6 +555,10 @@ protected:
           server.processor.who(*this, param);
         } else if (matches[3] == "MODE") {
           server.processor.mode(*this, param);
+        } else if (matches[3] == "QUIT") {
+          if (server.processor.quit(*this, param)) {
+            return;
+          }
         } else {
           server.processor.other(*this, matches[3], param);
         }
