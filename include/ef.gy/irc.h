@@ -95,6 +95,7 @@ public:
   bool user(session &session, const std::string &user, const std::string &mode,
             const std::string &real) {
     session.user = user;
+    session.real = real;
 
     switch (session.status) {
     case session::expect_nick_user:
@@ -152,7 +153,7 @@ public:
       channel, "No topic is set"
     });
     session.reply(RPL_NAMREPLY, {
-      channel, names
+      "=", channel, names
     });
     session.reply(RPL_ENDOFNAMES, {
       channel, "End of NAMES list"
@@ -259,8 +260,8 @@ public:
     for (auto &sess : sessions) {
       if (sess->subscriptions.find(mask) != sess->subscriptions.end()) {
         session.reply(RPL_WHOREPLY, {
-          mask, sess->user, "host", sess->server.name, sess->nick, "*",
-              "0 unknown"
+          mask, sess->user, "host", sess->server.name, sess->nick, "H@", "0",
+              sess->real
         });
       }
     }
@@ -406,6 +407,7 @@ public:
   typename base::socket socket;
 
   std::string user;
+  std::string real;
   std::string nick;
 
   std::string prefix(void) { return nick + "!" + user + "@host"; }
