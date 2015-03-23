@@ -86,7 +86,7 @@ public:
   bool nick(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
       return session.reply(ERR_NEEDMOREPARAMS, {
-        "NICK", "Not enough parameters"
+        "NICK"
       });
     }
 
@@ -115,7 +115,7 @@ public:
   bool user(session &session, const std::vector<std::string> &param) {
     if (param.size() < 4) {
       return session.reply(ERR_NEEDMOREPARAMS, {
-        "USER", "Not enough parameters"
+        "USER"
       });
     }
 
@@ -125,7 +125,7 @@ public:
   bool ping(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
       return session.reply(ERR_NEEDMOREPARAMS, {
-        "PING", "Not enough parameters"
+        "PING"
       });
     }
 
@@ -165,7 +165,7 @@ public:
   bool names(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
       return session.reply(ERR_NEEDMOREPARAMS, {
-        "NAMES", "Not enough parameters"
+        "NAMES"
       });
     }
 
@@ -199,7 +199,7 @@ public:
   bool join(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
       return session.reply(ERR_NEEDMOREPARAMS, {
-        "JOIN", "Not enough parameters"
+        "JOIN"
       });
     }
 
@@ -232,7 +232,7 @@ public:
   bool part(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
       return session.reply(ERR_NEEDMOREPARAMS, {
-        "PART", "Not enough parameters"
+        "PART"
       });
     }
 
@@ -283,7 +283,7 @@ public:
   bool privmsg(session &session, const std::vector<std::string> &param) {
     if (param.size() < 2) {
       return session.reply(ERR_NEEDMOREPARAMS, {
-        "PRIVMSG", "Not enough parameters"
+        "PRIVMSG"
       });
     }
 
@@ -310,7 +310,7 @@ public:
   bool who(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
       return session.reply(ERR_NEEDMOREPARAMS, {
-        "WHO", "Not enough parameters"
+        "WHO"
       });
     }
 
@@ -348,7 +348,7 @@ public:
   bool mode(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
       return session.reply(ERR_NEEDMOREPARAMS, {
-        "WHO", "Not enough parameters"
+        "MODE"
       });
     }
 
@@ -533,6 +533,14 @@ public:
       switch (num) {
       case RPL_WELCOME:
         params.push_back("Welcome to the Internet Relay Network " + prefix());
+        break;
+      default:
+        break;
+      }
+    } else if (params.size() == 1) {
+      switch (num) {
+      case ERR_NEEDMOREPARAMS:
+        params.push_back("Not enough parameters");
         break;
       default:
         break;

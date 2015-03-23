@@ -17,3 +17,4 @@ include/asio*
 .third-party
 http-hello
 irc-hello
+*.db
