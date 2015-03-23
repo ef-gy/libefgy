@@ -55,6 +55,7 @@ enum numericMessage {
   RPL_BANLIST = 367,
   RPL_ENDOFBANLIST = 368,
   ERR_NEEDMOREPARAMS = 461,
+  ERR_NOSUCHSERVER = 402,
   ERR_NOCHANMODES = 477
 };
 
@@ -133,14 +134,53 @@ public:
     return true;
   }
 
-  bool join(session &session, const std::string &channel) {
-    std::string names;
+  bool names(session &session, const std::string &channel,
+             const std::string &target = "") {
+    if ((target != "") && (target != session.server.name)) {
+      session.reply(ERR_NOSUCHSERVER, {
+        target, "No such server"
+      });
 
-    session.subscriptions.insert(channel);
+      return true;
+    }
+
+    std::string names;
 
     for (auto &sess : sessions) {
       if (sess->subscriptions.find(channel) != sess->subscriptions.end()) {
         names += (names == "" ? "" : " ") + sess->nick;
+      }
+    }
+
+    session.reply(RPL_NAMREPLY, {
+      "=", channel, names
+    });
+    session.reply(RPL_ENDOFNAMES, {
+      channel, "End of NAMES list"
+    });
+
+    return true;
+  }
+
+  bool names(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 1) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "NAMES", "Not enough parameters"
+      });
+    }
+
+    if (param.size() > 1) {
+      return names(session, param[0], param[1]);
+    }
+
+    return names(session, param[0]);
+  }
+
+  bool join(session &session, const std::string &channel) {
+    session.subscriptions.insert(channel);
+
+    for (auto &sess : sessions) {
+      if (sess->subscriptions.find(channel) != sess->subscriptions.end()) {
         sess->reply("JOIN", {
           channel
         },
@@ -152,14 +192,8 @@ public:
     session.reply(RPL_NOTOPIC, {
       channel, "No topic is set"
     });
-    session.reply(RPL_NAMREPLY, {
-      "=", channel, names
-    });
-    session.reply(RPL_ENDOFNAMES, {
-      channel, "End of NAMES list"
-    });
 
-    return true;
+    return names(session, channel);
   }
 
   bool join(session &session, const std::vector<std::string> &param) {
