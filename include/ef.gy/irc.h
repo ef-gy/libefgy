@@ -56,6 +56,7 @@ enum numericMessage {
   RPL_ENDOFBANLIST = 368,
   ERR_NEEDMOREPARAMS = 461,
   ERR_NOSUCHSERVER = 402,
+  ERR_NOTONCHANNEL = 442,
   ERR_NOCHANMODES = 477
 };
 
@@ -134,16 +135,7 @@ public:
     return true;
   }
 
-  bool names(session &session, const std::string &channel,
-             const std::string &target = "") {
-    if ((target != "") && (target != session.server.name)) {
-      session.reply(ERR_NOSUCHSERVER, {
-        target, "No such server"
-      });
-
-      return true;
-    }
-
+  bool names(session &session, const std::string &channel) {
     std::string names;
 
     for (auto &sess : sessions) {
@@ -162,6 +154,19 @@ public:
     return true;
   }
 
+  bool names(session &session, const std::string &channel,
+             const std::string &target) {
+    if (target != session.server.name) {
+      session.reply(ERR_NOSUCHSERVER, {
+        target, "No such server"
+      });
+
+      return false;
+    }
+
+    return names(session, channel);
+  }
+
   bool names(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
       return session.reply(ERR_NEEDMOREPARAMS, {
@@ -176,6 +181,41 @@ public:
     return names(session, param[0]);
   }
 
+  bool topic(session &session, const std::string &channel) {
+      //session.reply(RPL_TOPIC, {channel, "Ain't nobody got time for that."});
+    session.reply(RPL_NOTOPIC, {
+      channel,
+    });
+
+    return true;
+  }
+
+  bool topic(session &session, const std::string &channel,
+             const std::string &newtopic) {
+    if (session.subscriptions.find(channel) == session.subscriptions.end()) {
+      session.reply(ERR_NOTONCHANNEL, {
+        channel,
+      });
+      return false;
+    }
+
+    return topic(session, channel);
+  }
+
+  bool topic(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 1) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "TOPIC"
+      });
+    }
+
+    if (param.size() > 1) {
+      return topic(session, param[0], param[1]);
+    }
+
+    return topic(session, param[0]);
+  }
+
   bool join(session &session, const std::string &channel) {
     session.subscriptions.insert(channel);
 
@@ -188,12 +228,7 @@ public:
       }
     }
 
-      //session.reply(RPL_TOPIC, {channel, "Ain't nobody got time for that."});
-    session.reply(RPL_NOTOPIC, {
-      channel, "No topic is set"
-    });
-
-    return names(session, channel);
+    return topic(session, channel) && names(session, channel);
   }
 
   bool join(session &session, const std::vector<std::string> &param) {
@@ -542,6 +577,12 @@ public:
       case ERR_NEEDMOREPARAMS:
         params.push_back("Not enough parameters");
         break;
+      case RPL_NOTOPIC:
+        params.push_back("No topic is set");
+        break;
+      case ERR_NOTONCHANNEL:
+        params.push_back("You're not on that channel");
+        break;
       default:
         break;
       }
@@ -589,6 +630,10 @@ protected:
           server.processor.user(*this, param);
         } else if (matches[3] == "PING") {
           server.processor.ping(*this, param);
+        } else if (matches[3] == "NAMES") {
+          server.processor.names(*this, param);
+        } else if (matches[3] == "TOPIC") {
+          server.processor.topic(*this, param);
         } else if (matches[3] == "JOIN") {
           server.processor.join(*this, param);
         } else if (matches[3] == "PART") {
