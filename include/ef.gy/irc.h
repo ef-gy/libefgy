@@ -32,6 +32,7 @@
 #include <set>
 #include <map>
 #include <iomanip>
+#include <memory>
 
 #include <regex>
 #include <system_error>
@@ -62,10 +63,16 @@ enum numericMessage {
 
 template <typename base, typename requestProcessor> class session;
 
+template <typename session> class channel {
+public:
+  std::string topic;
+};
+
 namespace processor {
 template <class sock> class base {
 public:
   typedef session<sock, base<sock> > session;
+  typedef channel<session> channel;
 
   bool nick(session &session, const std::string &nick) {
     session.nick = nick;
@@ -452,7 +459,8 @@ public:
   }
 
 protected:
-  std::set<session *> sessions;
+  std::set<session*> sessions;
+  std::map<std::string, std::shared_ptr<channel>> channels;
 };
 }
 
