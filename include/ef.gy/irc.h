@@ -32,7 +32,6 @@
 #include <set>
 #include <map>
 #include <iomanip>
-#include <memory>
 
 #include <regex>
 #include <system_error>
@@ -459,8 +458,8 @@ public:
   }
 
 protected:
-  std::set<session*> sessions;
-  std::map<std::string, std::shared_ptr<channel>> channels;
+  std::set<session *> sessions;
+  std::map<std::string, std::shared_ptr<channel> > channels;
 };
 }
 
@@ -472,6 +471,8 @@ protected:
   typedef server<base, requestProcessor> serverType;
 
 public:
+  std::shared_ptr<session> self;
+
   enum {
     expect_nick_user,
     expect_nick,
@@ -496,8 +497,8 @@ public:
   serverType &server;
 
   session(serverType &pServer)
-      : server(pServer), socket(pServer.io), status(expect_nick_user), input() {
-  }
+      : self(this), server(pServer), socket(pServer.io),
+        status(expect_nick_user), input() {}
 
   ~session(void) {
     status = shutdown;
@@ -665,7 +666,7 @@ protected:
 
       read();
     } else {
-      delete this;
+      self.reset();
     }
   }
 
@@ -677,7 +678,7 @@ protected:
     if (!error) {
       //read();
     } else {
-      delete this;
+      self.reset();
     }
   }
 
