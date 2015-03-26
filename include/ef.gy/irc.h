@@ -298,7 +298,7 @@ public:
     int targets = 0;
 
     for (auto &sess : sessions) {
-      if (&session == sess) {
+      if (session.self == sess) {
         continue;
       }
 
@@ -407,8 +407,14 @@ public:
     return mode(session, channel, modes);
   }
 
-  bool quit(session &session, const std::string &reason = "") {
-    delete &session;
+  bool quit(session &session) {
+    forget(session);
+
+    return true;
+  }
+
+  bool quit(session &session, const std::string &reason) {
+    forget(session);
 
     return true;
   }
@@ -446,19 +452,19 @@ public:
   bool motd(session &session) { return true; }
 
   bool remember(session &session) {
-    sessions.insert(&session);
+    sessions.insert(session.self);
 
     return true;
   }
 
   bool forget(session &session) {
-    sessions.erase(&session);
+    sessions.erase(session.self);
 
     return true;
   }
 
 protected:
-  std::set<session *> sessions;
+  std::set<std::shared_ptr<session> > sessions;
   std::map<std::string, std::shared_ptr<channel> > channels;
 };
 }
@@ -502,8 +508,6 @@ public:
 
   ~session(void) {
     status = shutdown;
-
-    server.processor.forget(*this);
 
     try {
       socket.shutdown(base::socket::shutdown_both);
@@ -666,6 +670,7 @@ protected:
 
       read();
     } else {
+      server.processor.quit(*this, "read error");
       self.reset();
     }
   }
@@ -678,6 +683,7 @@ protected:
     if (!error) {
       //read();
     } else {
+      server.processor.quit(*this, "write error");
       self.reset();
     }
   }
