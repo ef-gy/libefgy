@@ -43,6 +43,16 @@
 namespace efgy {
 namespace net {
 namespace irc {
+std::regex mask(const std::string &pattern) {
+  static const std::regex special("[.()]");
+  static const std::regex wildmany("\\*");
+  static const std::regex wildone("\\?");
+
+  return std::regex(std::regex_replace(
+      std::regex_replace(std::regex_replace(pattern, special, "\\$1"), wildmany,
+                         ".*"),
+      wildone, "."));
+}
 
 enum numericMessage {
   RPL_WELCOME = 1,
@@ -357,18 +367,42 @@ public:
     return privmsg(session, param[0], param[1]);
   }
 
-  bool who(session &session, const std::string &mask) {
+  bool who(session &qsession, const std::string &query) {
+    std::regex m = mask(query);
+    std::set<std::shared_ptr<session> > matches;
+
     for (auto &sess : sessions) {
-      if (sess->subscriptions.find(mask) != sess->subscriptions.end()) {
-        session.reply(RPL_WHOREPLY, {
-          mask, sess->user, sess->host, sess->server.name, sess->nick, "H@",
-              "0", sess->real
-        });
+      for (auto &sub : sess->subscriptions) {
+        if (std::regex_match(sub, m)) {
+          matches.insert(sess->self);
+        }
+      }
+      if (std::regex_match(sess->user, m)) {
+        matches.insert(sess->self);
+      } else if (std::regex_match(sess->real, m)) {
+        matches.insert(sess->self);
+      } else if (std::regex_match(sess->nick, m)) {
+        matches.insert(sess->self);
+      } else if (std::regex_match(sess->host, m)) {
+        matches.insert(sess->self);
       }
     }
 
-    session.reply(RPL_ENDOFWHO, {
-      mask, "End of /WHO list"
+    for (auto &sess : matches) {
+      std::string sub = "*";
+
+      if (sess->subscriptions.find(query) != sess->subscriptions.end()) {
+        sub = query;
+      }
+
+      qsession.reply(RPL_WHOREPLY, {
+        sub, sess->user, sess->host, sess->server.name, sess->nick, "H@", "0",
+            sess->real
+      });
+    }
+
+    qsession.reply(RPL_ENDOFWHO, {
+      query, "End of /WHO list"
     });
 
     return true;
@@ -468,6 +502,10 @@ public:
   }
 
   bool hello(session &session) {
+    static const std::regex npr("[^A-Za-z0-9]+");
+
+    session.host = "user/" + std::regex_replace(session.real, npr, "-");
+
     remember(session);
 
     session.reply(RPL_WELCOME);
