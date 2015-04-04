@@ -56,6 +56,9 @@ std::regex mask(const std::string &pattern) {
 
 enum numericMessage {
   RPL_WELCOME = 1,
+  RPL_WHOISUSER = 311,
+  RPL_ENDOFWHOIS = 318,
+  RPL_WHOISCHANNELS = 319,
   RPL_NAMREPLY = 353,
   RPL_ENDOFNAMES = 366,
   RPL_NOTOPIC = 331,
@@ -65,8 +68,10 @@ enum numericMessage {
   RPL_BANLIST = 367,
   RPL_ENDOFBANLIST = 368,
   ERR_NEEDMOREPARAMS = 461,
+  ERR_NOSUCHNICK = 401,
   ERR_NOSUCHSERVER = 402,
   ERR_NOTONCHANNEL = 442,
+  // ERR_ALREADYREGISTRED [sic]: that's the spelling in RFC 2812
   ERR_ALREADYREGISTRED = 462,
   ERR_NOCHANMODES = 477
 };
@@ -415,9 +420,62 @@ public:
       });
     }
 
-    who(session, param[0]);
+    return who(session, param[0]);
+  }
+
+  bool whois(session &qsession, const std::string &query) {
+    std::regex m = mask(query);
+    std::set<std::shared_ptr<session> > matches;
+
+    for (auto &sess : sessions) {
+      if (std::regex_match(sess->user, m)) {
+        matches.insert(sess->self);
+      } else if (std::regex_match(sess->real, m)) {
+        matches.insert(sess->self);
+      } else if (std::regex_match(sess->nick, m)) {
+        matches.insert(sess->self);
+      } else if (std::regex_match(sess->host, m)) {
+        matches.insert(sess->self);
+      }
+    }
+
+    for (auto &sess : matches) {
+      qsession.reply(RPL_WHOISUSER, {
+        sess->nick, sess->user, sess->host, "*", sess->real
+      });
+
+      std::string channels = "";
+
+      for (auto &sub : sess->subscriptions) {
+        channels += (channels == "" ? "" : " ") + sub;
+      }
+
+      qsession.reply(RPL_WHOISCHANNELS, {
+        sess->nick, channels
+      });
+
+      qsession.reply(RPL_ENDOFWHOIS, {
+        sess->nick
+      });
+    }
+
+    if (matches.size() == 0) {
+      qsession.reply(ERR_NOSUCHNICK, {
+        query
+      });
+    }
 
     return true;
+  }
+
+  bool whois(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 1) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "WHOIS"
+      });
+    }
+
+    return whois(session, param[0]);
   }
 
   bool mode(session &session, const std::string &channel,
@@ -431,7 +489,7 @@ public:
       std::smatch matches;
       if (std::regex_match(modes[i], matches, ban)) {
         session.reply(RPL_ENDOFBANLIST, {
-          channel, "End of channel ban list"
+          channel
         });
         replycount++;
       }
@@ -439,7 +497,7 @@ public:
 
     if (replycount == 0) {
       session.reply(ERR_NOCHANMODES, {
-        channel, "Channel doesn't support modes"
+        channel
       });
     }
 
@@ -656,6 +714,9 @@ public:
       }
     } else if (params.size() == 1) {
       switch (num) {
+      case ERR_NOSUCHNICK:
+        params.push_back("No such nick/channel");
+        break;
       case ERR_NEEDMOREPARAMS:
         params.push_back("Not enough parameters");
         break;
@@ -664,6 +725,15 @@ public:
         break;
       case ERR_NOTONCHANNEL:
         params.push_back("You're not on that channel");
+        break;
+      case RPL_ENDOFWHOIS:
+        params.push_back("End of WHOIS list");
+        break;
+      case RPL_ENDOFBANLIST:
+        params.push_back("End of channel ban list");
+        break;
+      case ERR_NOCHANMODES:
+        params.push_back("Channel doesn't support modes");
         break;
       default:
         break;
@@ -726,6 +796,8 @@ protected:
           server.processor.privmsg(*this, param);
         } else if (matches[3] == "WHO") {
           server.processor.who(*this, param);
+        } else if (matches[3] == "WHOIS") {
+          server.processor.whois(*this, param);
         } else if (matches[3] == "MODE") {
           server.processor.mode(*this, param);
         } else if (matches[3] == "QUIT") {
