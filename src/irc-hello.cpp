@@ -42,23 +42,41 @@ using asio::ip::tcp;
  */
 int main(int argc, char *argv[]) {
   try {
-    if (argc != 3) {
-      std::cerr << "Usage: irc-hello <host> <port>\n";
+    int targets = 0;
+
+    if (argc < 2) {
+      std::cerr << "Usage: irc-hello irc:<host>:<port>...\n";
       return 1;
     }
 
     asio::io_service io_service;
     tcp::resolver resolver(io_service);
-    tcp::resolver::query query(argv[1], argv[2]);
-    tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-    tcp::resolver::iterator end;
 
-    if (endpoint_iterator != end) {
-      tcp::endpoint endpoint = *endpoint_iterator;
-      net::irc::server<tcp> s(io_service, endpoint);
+    for (unsigned int i = 1; i < argc; i++) {
+      static const std::regex irc("irc:(.+):([0-9]+)");
+      std::smatch matches;
 
-      s.name = argv[1];
+      if (std::regex_match(std::string(argv[i]), matches, irc)) {
+        std::string host = matches[1];
+        std::string port = matches[2];
 
+        tcp::resolver::query query(host, port);
+        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+        tcp::resolver::iterator end;
+
+        if (endpoint_iterator != end) {
+          tcp::endpoint endpoint = *endpoint_iterator;
+          net::irc::server<tcp> *s =
+              new net::irc::server<tcp>(io_service, endpoint);
+
+          s->name = host;
+
+          targets++;
+        }
+      }
+    }
+
+    if (targets > 0) {
       io_service.run();
     }
 
