@@ -30,6 +30,7 @@
 
 using namespace efgy;
 using asio::ip::tcp;
+using asio::local::stream_protocol;
 
 /**\brief Main function for the IRC demo
  *
@@ -45,7 +46,7 @@ int main(int argc, char *argv[]) {
     int targets = 0;
 
     if (argc < 2) {
-      std::cerr << "Usage: irc-hello irc:<host>:<port>...\n";
+      std::cerr << "Usage: irc-hello [irc:<host>:<port>|irc:unix:<path>]...\n";
       return 1;
     }
 
@@ -54,9 +55,20 @@ int main(int argc, char *argv[]) {
 
     for (unsigned int i = 1; i < argc; i++) {
       static const std::regex irc("irc:(.+):([0-9]+)");
+      static const std::regex ircSocket("irc:unix:(.+)");
       std::smatch matches;
 
-      if (std::regex_match(std::string(argv[i]), matches, irc)) {
+      if (std::regex_match(std::string(argv[i]), matches, ircSocket)) {
+        std::string socket = matches[1];
+
+        stream_protocol::endpoint endpoint(socket);
+        net::irc::server<stream_protocol> *s =
+            new net::irc::server<stream_protocol>(io_service, endpoint);
+
+        s->name = socket;
+
+        targets++;
+      } else if (std::regex_match(std::string(argv[i]), matches, irc)) {
         std::string host = matches[1];
         std::string port = matches[2];
 
