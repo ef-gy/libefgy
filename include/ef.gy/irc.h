@@ -44,7 +44,7 @@ namespace efgy {
 namespace net {
 namespace irc {
 std::regex mask(const std::string &pattern) {
-  static const std::regex special("[.()]");
+  static const std::regex special("([.()\\|]|\\[|\\])");
   static const std::regex wildmany("\\*");
   static const std::regex wildone("\\?");
 
