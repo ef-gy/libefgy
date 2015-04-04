@@ -26,8 +26,8 @@
  * \see Project Source Code: https://github.com/ef-gy/libefgy
  */
 
-#if !defined(EF_GY_HTTP_H)
-#define EF_GY_HTTP_H
+#if !defined(EF_GY_IRC_H)
+#define EF_GY_IRC_H
 
 #include <set>
 #include <map>

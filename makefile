@@ -4,5 +4,4 @@ NAME:=libefgy
 BASE:=ef.gy
 VERSION:=8
 
-http-hello src/http-hello.cpp: include/asio.hpp
-irc-hello src/irc-hello.cpp: include/asio.hpp
+server src/server.cpp: include/asio.hpp
