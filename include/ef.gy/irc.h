@@ -57,6 +57,7 @@ enum numericMessage {
   ERR_NEEDMOREPARAMS = 461,
   ERR_NOSUCHSERVER = 402,
   ERR_NOTONCHANNEL = 442,
+  ERR_ALREADYREGISTRED = 462,
   ERR_NOCHANMODES = 477
 };
 
@@ -73,10 +74,33 @@ public:
   typedef session<sock, base<sock> > session;
   typedef channel<session> channel;
 
+  bool pass(session &session, const std::string &pass) {
+    switch (session.status) {
+    case session::expect_pass_nick_user:
+      // TODO: add password verification here
+      break;
+    default:
+      return session.reply(ERR_ALREADYREGISTRED);
+    }
+
+    return true;
+  }
+
+  bool pass(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 1) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "PASS"
+      });
+    }
+
+    return pass(session, param[0]);
+  }
+
   bool nick(session &session, const std::string &nick) {
     session.nick = nick;
 
     switch (session.status) {
+    case session::expect_pass_nick_user:
     case session::expect_nick_user:
       session.status = session::expect_user;
       break;
@@ -102,18 +126,20 @@ public:
 
   bool user(session &session, const std::string &user, const std::string &mode,
             const std::string &real) {
-    session.user = user;
-    session.real = real;
-
     switch (session.status) {
+    case session::expect_pass_nick_user:
     case session::expect_nick_user:
+      session.user = user;
+      session.real = real;
       session.status = session::expect_nick;
       break;
     case session::expect_user:
+      session.user = user;
+      session.real = real;
       session.status = session::nominal;
       return hello(session);
     default:
-      break;
+      return session.reply(ERR_ALREADYREGISTRED);
     }
 
     return true;
@@ -335,8 +361,8 @@ public:
     for (auto &sess : sessions) {
       if (sess->subscriptions.find(mask) != sess->subscriptions.end()) {
         session.reply(RPL_WHOREPLY, {
-          mask, sess->user, "host", sess->server.name, sess->nick, "H@", "0",
-              sess->real
+          mask, sess->user, sess->host, sess->server.name, sess->nick, "H@",
+              "0", sess->real
         });
       }
     }
@@ -480,6 +506,7 @@ public:
   std::shared_ptr<session> self;
 
   enum {
+    expect_pass_nick_user,
     expect_nick_user,
     expect_nick,
     expect_user,
@@ -493,8 +520,9 @@ public:
   std::string user;
   std::string real;
   std::string nick;
+  std::string host;
 
-  std::string prefix(void) { return nick + "!" + user + "@host"; }
+  std::string prefix(void) { return nick + "!" + user + "@" + host; }
 
   std::set<std::string> subscriptions;
 
@@ -504,7 +532,7 @@ public:
 
   session(serverType &pServer)
       : self(this), server(pServer), socket(pServer.io),
-        status(expect_nick_user), input() {}
+        status(expect_pass_nick_user), input(), host("unknown-host") {}
 
   ~session(void) {
     status = shutdown;
@@ -582,6 +610,9 @@ public:
       case RPL_WELCOME:
         params.push_back("Welcome to the Internet Relay Network " + prefix());
         break;
+      case ERR_ALREADYREGISTRED:
+        params.push_back("Unauthorized command (already registered)");
+        break;
       default:
         break;
       }
@@ -637,7 +668,9 @@ protected:
           }
         }
 
-        if (matches[3] == "NICK") {
+        if (matches[3] == "PASS") {
+          server.processor.pass(*this, param);
+        } else if (matches[3] == "NICK") {
           server.processor.nick(*this, param);
         } else if (matches[3] == "USER") {
           server.processor.user(*this, param);
