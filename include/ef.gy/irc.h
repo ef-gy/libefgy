@@ -73,7 +73,8 @@ enum numericMessage {
   ERR_NOTONCHANNEL = 442,
   // ERR_ALREADYREGISTRED [sic]: that's the spelling in RFC 2812
   ERR_ALREADYREGISTRED = 462,
-  ERR_NOCHANMODES = 477
+  ERR_NOCHANMODES = 477,
+  ERR_NOOPERHOST = 491
 };
 
 template <typename base, typename requestProcessor> class session;
@@ -478,6 +479,24 @@ public:
     return whois(session, param[0]);
   }
 
+  bool oper(session &session, const std::string &user,
+            const std::string &password) {
+    //TODO: Operators could come in handy, but so far there's no need for them
+    // in this basic implementation. So we just pretend that there's no O-lines,
+    // ever.
+    return session.reply(ERR_NOOPERHOST);
+  }
+
+  bool oper(session &session, const std::vector<std::string> &param) {
+    if (param.size() < 2) {
+      return session.reply(ERR_NEEDMOREPARAMS, {
+        "OPER"
+      });
+    }
+
+    return oper(session, param[0], param[1]);
+  }
+
   bool mode(session &session, const std::string &channel,
             const std::vector<std::string> &modes) {
     std::cerr << "mode request: " << modes[0] << "\n";
@@ -709,6 +728,9 @@ public:
       case ERR_ALREADYREGISTRED:
         params.push_back("Unauthorized command (already registered)");
         break;
+      case ERR_NOOPERHOST:
+        params.push_back("No O-lines for your host");
+        break;
       default:
         break;
       }
@@ -798,6 +820,8 @@ protected:
           server.processor.who(*this, param);
         } else if (matches[3] == "WHOIS") {
           server.processor.whois(*this, param);
+        } else if (matches[3] == "OPER") {
+          server.processor.oper(*this, param);
         } else if (matches[3] == "MODE") {
           server.processor.mode(*this, param);
         } else if (matches[3] == "QUIT") {
