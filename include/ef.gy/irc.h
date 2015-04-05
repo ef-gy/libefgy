@@ -70,6 +70,7 @@ enum numericMessage {
   ERR_NEEDMOREPARAMS = 461,
   ERR_NOSUCHNICK = 401,
   ERR_NOSUCHSERVER = 402,
+  ERR_UNKNOWNCOMMAND = 421,
   ERR_NOTONCHANNEL = 442,
   // ERR_ALREADYREGISTRED [sic]: that's the spelling in RFC 2812
   ERR_ALREADYREGISTRED = 462,
@@ -575,6 +576,10 @@ public:
 
     session.server.log << "\n";
 
+    session.reply(ERR_UNKNOWNCOMMAND, {
+      command
+    });
+
     return true;
   }
 
@@ -757,6 +762,8 @@ public:
       case ERR_NOCHANMODES:
         params.push_back("Channel doesn't support modes");
         break;
+      case ERR_UNKNOWNCOMMAND:
+        params.push_back("Unknown command");
       default:
         break;
       }
