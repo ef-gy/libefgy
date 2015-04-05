@@ -56,6 +56,7 @@ std::regex mask(const std::string &pattern) {
 
 enum numericMessage {
   RPL_WELCOME = 1,
+  RPL_UMODEIS = 221,
   RPL_WHOISUSER = 311,
   RPL_ENDOFWHOIS = 318,
   RPL_WHOISCHANNELS = 319,
@@ -86,9 +87,9 @@ public:
 };
 
 namespace processor {
-template <class sock> class base {
+template <class sock> class server {
 public:
-  typedef session<sock, base<sock> > session;
+  typedef session<sock, server<sock> > session;
   typedef channel<session> channel;
 
   bool pass(session &session, const std::string &pass) {
@@ -97,7 +98,7 @@ public:
       // TODO: add password verification here
       break;
     default:
-      return session.reply(ERR_ALREADYREGISTRED);
+      return session.send(ERR_ALREADYREGISTRED);
     }
 
     return true;
@@ -105,7 +106,7 @@ public:
 
   bool pass(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "PASS"
       });
     }
@@ -133,7 +134,7 @@ public:
 
   bool nick(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "NICK"
       });
     }
@@ -143,20 +144,43 @@ public:
 
   bool user(session &session, const std::string &user, const std::string &mode,
             const std::string &real) {
+    int nmode;
+
+    try {
+      nmode = std::stoi(mode);
+    }
+    catch (...) {
+      nmode = 0;
+    }
+
     switch (session.status) {
     case session::expect_pass_nick_user:
     case session::expect_nick_user:
-      session.user = user;
-      session.real = real;
-      session.status = session::expect_nick;
-      break;
     case session::expect_user:
       session.user = user;
       session.real = real;
+      session.mode = "";
+      if (nmode & 0x8) {
+        session.mode += "i";
+      }
+      if (nmode & 0x4) {
+        session.mode += "w";
+      }
+      break;
+    default:
+      return session.send(ERR_ALREADYREGISTRED);
+    }
+
+    switch (session.status) {
+    case session::expect_pass_nick_user:
+    case session::expect_nick_user:
+      session.status = session::expect_nick;
+      break;
+    case session::expect_user:
       session.status = session::nominal;
       return hello(session);
     default:
-      return session.reply(ERR_ALREADYREGISTRED);
+      return session.send(ERR_ALREADYREGISTRED);
     }
 
     return true;
@@ -164,7 +188,7 @@ public:
 
   bool user(session &session, const std::vector<std::string> &param) {
     if (param.size() < 4) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "USER"
       });
     }
@@ -174,12 +198,12 @@ public:
 
   bool ping(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "PING"
       });
     }
 
-    session.reply("PONG", param);
+    session.send("PONG", param);
 
     return true;
   }
@@ -193,10 +217,10 @@ public:
       }
     }
 
-    session.reply(RPL_NAMREPLY, {
+    session.send(RPL_NAMREPLY, {
       "=", channel, names
     });
-    session.reply(RPL_ENDOFNAMES, {
+    session.send(RPL_ENDOFNAMES, {
       channel, "End of NAMES list"
     });
 
@@ -206,7 +230,7 @@ public:
   bool names(session &session, const std::string &channel,
              const std::string &target) {
     if (target != session.server.name) {
-      session.reply(ERR_NOSUCHSERVER, {
+      session.send(ERR_NOSUCHSERVER, {
         target, "No such server"
       });
 
@@ -218,7 +242,7 @@ public:
 
   bool names(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "NAMES"
       });
     }
@@ -231,8 +255,8 @@ public:
   }
 
   bool topic(session &session, const std::string &channel) {
-      //session.reply(RPL_TOPIC, {channel, "Ain't nobody got time for that."});
-    session.reply(RPL_NOTOPIC, {
+      //session.send(RPL_TOPIC, {channel, "Ain't nobody got time for that."});
+    session.send(RPL_NOTOPIC, {
       channel,
     });
 
@@ -242,7 +266,7 @@ public:
   bool topic(session &session, const std::string &channel,
              const std::string &newtopic) {
     if (session.subscriptions.find(channel) == session.subscriptions.end()) {
-      session.reply(ERR_NOTONCHANNEL, {
+      session.send(ERR_NOTONCHANNEL, {
         channel,
       });
       return false;
@@ -253,7 +277,7 @@ public:
 
   bool topic(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "TOPIC"
       });
     }
@@ -270,10 +294,10 @@ public:
 
     for (auto &sess : sessions) {
       if (sess->subscriptions.find(channel) != sess->subscriptions.end()) {
-        sess->reply("JOIN", {
+        sess->send("JOIN", {
           channel
         },
-                    session.prefix());
+                   session.prefix());
       }
     }
 
@@ -282,7 +306,7 @@ public:
 
   bool join(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "JOIN"
       });
     }
@@ -301,10 +325,10 @@ public:
             const std::string &message) {
     for (auto &sess : sessions) {
       if (sess->subscriptions.find(channel) != sess->subscriptions.end()) {
-        sess->reply("PART", {
+        sess->send("PART", {
           channel
         },
-                    session.prefix());
+                   session.prefix());
       }
     }
 
@@ -315,7 +339,7 @@ public:
 
   bool part(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "PART"
       });
     }
@@ -347,17 +371,17 @@ public:
 
       if (target == sess->nick) {
         targets++;
-        sess->reply("PRIVMSG", {
+        sess->send("PRIVMSG", {
           target, message
         },
-                    session.prefix());
+                   session.prefix());
       } else if (sess->subscriptions.find(target) !=
                  sess->subscriptions.end()) {
         targets++;
-        sess->reply("PRIVMSG", {
+        sess->send("PRIVMSG", {
           target, message
         },
-                    session.prefix());
+                   session.prefix());
       }
     }
 
@@ -366,7 +390,7 @@ public:
 
   bool privmsg(session &session, const std::vector<std::string> &param) {
     if (param.size() < 2) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "PRIVMSG"
       });
     }
@@ -402,13 +426,13 @@ public:
         sub = query;
       }
 
-      qsession.reply(RPL_WHOREPLY, {
+      qsession.send(RPL_WHOREPLY, {
         sub, sess->user, sess->host, sess->server.name, sess->nick, "H@", "0",
             sess->real
       });
     }
 
-    qsession.reply(RPL_ENDOFWHO, {
+    qsession.send(RPL_ENDOFWHO, {
       query, "End of /WHO list"
     });
 
@@ -417,7 +441,7 @@ public:
 
   bool who(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "WHO"
       });
     }
@@ -442,7 +466,7 @@ public:
     }
 
     for (auto &sess : matches) {
-      qsession.reply(RPL_WHOISUSER, {
+      qsession.send(RPL_WHOISUSER, {
         sess->nick, sess->user, sess->host, "*", sess->real
       });
 
@@ -452,17 +476,17 @@ public:
         channels += (channels == "" ? "" : " ") + sub;
       }
 
-      qsession.reply(RPL_WHOISCHANNELS, {
+      qsession.send(RPL_WHOISCHANNELS, {
         sess->nick, channels
       });
 
-      qsession.reply(RPL_ENDOFWHOIS, {
+      qsession.send(RPL_ENDOFWHOIS, {
         sess->nick
       });
     }
 
     if (matches.size() == 0) {
-      qsession.reply(ERR_NOSUCHNICK, {
+      qsession.send(ERR_NOSUCHNICK, {
         query
       });
     }
@@ -472,7 +496,7 @@ public:
 
   bool whois(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "WHOIS"
       });
     }
@@ -485,12 +509,12 @@ public:
     //TODO: Operators could come in handy, but so far there's no need for them
     // in this basic implementation. So we just pretend that there's no O-lines,
     // ever.
-    return session.reply(ERR_NOOPERHOST);
+    return session.send(ERR_NOOPERHOST);
   }
 
   bool oper(session &session, const std::vector<std::string> &param) {
     if (param.size() < 2) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "OPER"
       });
     }
@@ -503,20 +527,20 @@ public:
     std::cerr << "mode request: " << modes[0] << "\n";
     static const std::regex ban("([-+]?)[^-+]*b");
 
-    int replycount = 0;
+    int sendcount = 0;
 
     for (unsigned int i = 0; i < modes.size(); i++) {
       std::smatch matches;
       if (std::regex_match(modes[i], matches, ban)) {
-        session.reply(RPL_ENDOFBANLIST, {
+        session.send(RPL_ENDOFBANLIST, {
           channel
         });
-        replycount++;
+        sendcount++;
       }
     }
 
-    if (replycount == 0) {
-      session.reply(ERR_NOCHANMODES, {
+    if (sendcount == 0) {
+      session.send(ERR_NOCHANMODES, {
         channel
       });
     }
@@ -526,7 +550,7 @@ public:
 
   bool mode(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.reply(ERR_NEEDMOREPARAMS, {
+      return session.send(ERR_NEEDMOREPARAMS, {
         "MODE"
       });
     }
@@ -565,6 +589,45 @@ public:
     }
   }
 
+  bool dispatch(session &session, const std::string &command,
+                const std::vector<std::string> &param) {
+    if (command == "PASS") {
+      pass(session, param);
+    } else if (command == "NICK") {
+      nick(session, param);
+    } else if (command == "USER") {
+      user(session, param);
+    } else if (command == "PING") {
+      ping(session, param);
+    } else if (command == "NAMES") {
+      names(session, param);
+    } else if (command == "TOPIC") {
+      topic(session, param);
+    } else if (command == "JOIN") {
+      join(session, param);
+    } else if (command == "PART") {
+      part(session, param);
+    } else if (command == "PRIVMSG") {
+      privmsg(session, param);
+    } else if (command == "WHO") {
+      who(session, param);
+    } else if (command == "WHOIS") {
+      whois(session, param);
+    } else if (command == "OPER") {
+      oper(session, param);
+    } else if (command == "MODE") {
+      mode(session, param);
+    } else if (command == "QUIT") {
+      if (quit(session, param)) {
+        return true;
+      }
+    } else {
+      other(session, command, param);
+    }
+
+    return true;
+  }
+
   bool other(session &session, const std::string &command,
              const std::vector<std::string> &param) {
     session.server.log << "[" << session.prefix()
@@ -576,7 +639,7 @@ public:
 
     session.server.log << "\n";
 
-    session.reply(ERR_UNKNOWNCOMMAND, {
+    session.send(ERR_UNKNOWNCOMMAND, {
       command
     });
 
@@ -590,7 +653,7 @@ public:
 
     remember(session);
 
-    session.reply(RPL_WELCOME);
+    session.send(RPL_WELCOME);
 
     return motd(session);
   }
@@ -615,7 +678,7 @@ protected:
 };
 }
 
-template <typename base, typename requestProcessor = processor::base<base> >
+template <typename base, typename requestProcessor = processor::server<base> >
 using server = net::server<base, requestProcessor, session>;
 
 template <typename base, typename requestProcessor> class session {
@@ -641,6 +704,7 @@ public:
   std::string real;
   std::string nick;
   std::string host;
+  std::string mode;
 
   std::string prefix(void) { return nick + "!" + user + "@" + host; }
 
@@ -674,19 +738,19 @@ public:
 
   void start() { read(); }
 
-  bool reply(const std::string &command,
-             const std::vector<std::string> &params = {
+  bool send(const std::string &command,
+            const std::vector<std::string> &params = {
   },
-             std::string source = "") {
+            std::string source = "") {
     bool have_trailing = false;
 
     if (source == "") {
       source = server.name;
     }
 
-    std::stringstream reply;
+    std::stringstream send;
 
-    reply << ":" << source << " " << command;
+    send << ":" << source << " " << command;
 
     for (const std::string &param : params) {
       if (param != "") {
@@ -697,22 +761,22 @@ public:
         }
 
         if (param.find(' ') != std::string::npos) {
-          reply << " :" << param;
+          send << " :" << param;
           have_trailing = true;
           continue;
         }
 
-        reply << " " << param;
+        send << " " << param;
       } else {
-        std::cerr << "WARNING: IRC: empty parameter in reply.\n";
+        std::cerr << "WARNING: IRC: empty parameter in send.\n";
       }
     }
 
-    reply << "\r\n";
+    send << "\r\n";
 
-    std::cerr << "sent: " << reply.str();
+    std::cerr << "sent: " << send.str();
 
-    asio::async_write(socket, asio::buffer(reply.str()),
+    asio::async_write(socket, asio::buffer(send.str()),
                       [&](std::error_code ec, std::size_t length) {
       handleWrite(ec);
     });
@@ -720,9 +784,9 @@ public:
     return true;
   }
 
-  bool reply(const enum numericMessage num, std::vector<std::string> params = {
+  bool send(const enum numericMessage num, std::vector<std::string> params = {
   },
-             std::string source = "") {
+            std::string source = "") {
     std::stringstream code;
 
     if (params.size() == 0) {
@@ -773,7 +837,7 @@ public:
 
     params.insert(params.begin(), nick);
 
-    return reply(code.str(), params);
+    return send(code.str(), params);
   }
 
 protected:
@@ -805,39 +869,7 @@ protected:
           }
         }
 
-        if (matches[3] == "PASS") {
-          server.processor.pass(*this, param);
-        } else if (matches[3] == "NICK") {
-          server.processor.nick(*this, param);
-        } else if (matches[3] == "USER") {
-          server.processor.user(*this, param);
-        } else if (matches[3] == "PING") {
-          server.processor.ping(*this, param);
-        } else if (matches[3] == "NAMES") {
-          server.processor.names(*this, param);
-        } else if (matches[3] == "TOPIC") {
-          server.processor.topic(*this, param);
-        } else if (matches[3] == "JOIN") {
-          server.processor.join(*this, param);
-        } else if (matches[3] == "PART") {
-          server.processor.part(*this, param);
-        } else if (matches[3] == "PRIVMSG") {
-          server.processor.privmsg(*this, param);
-        } else if (matches[3] == "WHO") {
-          server.processor.who(*this, param);
-        } else if (matches[3] == "WHOIS") {
-          server.processor.whois(*this, param);
-        } else if (matches[3] == "OPER") {
-          server.processor.oper(*this, param);
-        } else if (matches[3] == "MODE") {
-          server.processor.mode(*this, param);
-        } else if (matches[3] == "QUIT") {
-          if (server.processor.quit(*this, param)) {
-            return;
-          }
-        } else {
-          server.processor.other(*this, matches[3], param);
-        }
+        server.processor.dispatch(*this, matches[3], param);
       } else {
         server.log << "[" << prefix() << "] malformed message:" << s << "\n";
       }
