@@ -43,7 +43,7 @@
 namespace efgy {
 namespace net {
 namespace irc {
-std::regex mask(const std::string &pattern) {
+static std::regex mask(const std::string &pattern) {
   static const std::regex special("([.()\\|]|\\[|\\])");
   static const std::regex wildmany("\\*");
   static const std::regex wildone("\\?");
@@ -52,6 +52,10 @@ std::regex mask(const std::string &pattern) {
       std::regex_replace(std::regex_replace(pattern, special, "\\$1"), wildmany,
                          ".*"),
       wildone, "."));
+}
+
+static bool isChannel(const std::string &name) {
+  return (name[0] == '#' || name[0] == '&');
 }
 
 enum numericMessage {
@@ -76,7 +80,9 @@ enum numericMessage {
   // ERR_ALREADYREGISTRED [sic]: that's the spelling in RFC 2812
   ERR_ALREADYREGISTRED = 462,
   ERR_NOCHANMODES = 477,
-  ERR_NOOPERHOST = 491
+  ERR_NOOPERHOST = 491,
+  ERR_UMODEUNKNOWNFLAG = 501,
+  ERR_USERSDONTMATCH = 502
 };
 
 template <typename base, typename requestProcessor> class session;
@@ -524,8 +530,58 @@ public:
 
   bool mode(session &session, const std::string &channel,
             const std::vector<std::string> &modes) {
-    std::cerr << "mode request: " << modes[0] << "\n";
     static const std::regex ban("([-+]?)[^-+]*b");
+    static const std::string addableModes = "irw";
+    static const std::string removableModes = "iwoO";
+    bool adding = true;
+
+    // try to interpret the mode request as a user mode query first.
+    if (!isChannel(channel)) {
+      if (channel == session.nick) {
+        if (modes.size() == 0) {
+          return session.send(RPL_UMODEIS, {
+            "+" + session.mode
+          });
+        }
+
+        for (const auto &mode : modes) {
+          for (const auto &mc : mode) {
+            switch (mc) {
+            case '+':
+              adding = true;
+              break;
+            case '-':
+              adding = false;
+              break;
+            default:
+              if (adding) {
+                if (addableModes.find(mc) == std::string::npos) {
+                  session.send(ERR_UMODEUNKNOWNFLAG);
+                } else {
+                  if (session.mode.find(mc) == std::string::npos) {
+                    session.mode += mc;
+                  }
+                }
+              } else {
+                if (removableModes.find(mc) == std::string::npos) {
+                  session.send(ERR_UMODEUNKNOWNFLAG);
+                } else {
+                  auto p = session.mode.find(mc);
+                  if (p == std::string::npos) {
+                  } else {
+                    session.mode.replace(p, 1, "");
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        return true;
+      }
+
+      return session.send(ERR_USERSDONTMATCH);
+    }
 
     int sendcount = 0;
 
@@ -799,6 +855,12 @@ public:
         break;
       case ERR_NOOPERHOST:
         params.push_back("No O-lines for your host");
+        break;
+      case ERR_UMODEUNKNOWNFLAG:
+        params.push_back("Unknown MODE flag");
+        break;
+      case ERR_USERSDONTMATCH:
+        params.push_back("Cannot change mode for other users");
         break;
       default:
         break;
