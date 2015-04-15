@@ -261,10 +261,16 @@ public:
   }
 
   bool topic(session &session, const std::string &channel) {
-      //session.send(RPL_TOPIC, {channel, "Ain't nobody got time for that."});
-    session.send(RPL_NOTOPIC, {
-      channel,
-    });
+    const auto &topic = channels[channel].topic;
+    if (topic != "") {
+      session.send(RPL_TOPIC, {
+        channel, topic
+      });
+    } else {
+      session.send(RPL_NOTOPIC, {
+        channel,
+      });
+    }
 
     return true;
   }
@@ -276,6 +282,8 @@ public:
         channel,
       });
       return false;
+    } else {
+      channels[channel].topic = newtopic;
     }
 
     return topic(session, channel);
@@ -724,7 +732,7 @@ public:
 
 protected:
   std::set<std::shared_ptr<session> > sessions;
-  std::map<std::string, std::shared_ptr<channel> > channels;
+  std::map<std::string, channel> channels;
 };
 }
 
