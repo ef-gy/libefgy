@@ -558,19 +558,13 @@ public:
                 if (addableModes.find(mc) == std::string::npos) {
                   session.send(ERR_UMODEUNKNOWNFLAG);
                 } else {
-                  if (session.mode.find(mc) == std::string::npos) {
-                    session.mode += mc;
-                  }
+                  session.addMode(mc);
                 }
               } else {
                 if (removableModes.find(mc) == std::string::npos) {
                   session.send(ERR_UMODEUNKNOWNFLAG);
                 } else {
-                  auto p = session.mode.find(mc);
-                  if (p == std::string::npos) {
-                  } else {
-                    session.mode.replace(p, 1, "");
-                  }
+                  session.removeMode(mc);
                 }
               }
             }
@@ -757,12 +751,55 @@ public:
   typename base::socket socket;
 
   std::string user;
-  std::string real;
   std::string nick;
   std::string host;
-  std::string mode;
 
   std::string prefix(void) { return nick + "!" + user + "@" + host; }
+
+  std::string real;
+  std::string mode;
+
+  /**\brief Add a mode flag to the session
+   *
+   * Sets a mode flag if it wasn't set before. Then sends a notification to the
+   * client about the new mode.
+   *
+   * \param[in] nmode The flag to set.
+   *
+   * \returns The return value of send() for the mode notifcation.
+   */
+  bool addMode(const char nmode) {
+    std::set<char> modes(mode.begin(), mode.end());
+    modes.insert(nmode);
+
+    mode = std::string(modes.begin(), modes.end());
+
+    return send("MODE", {
+      nick, std::string("+") + nmode
+    },
+                prefix());
+  }
+
+  /**\brief Remove a mode flag to the session
+   *
+   * Unsets a mode flag if it wasn't set before. Then sends a notification to
+   * the client about the mode change.
+   *
+   * \param[in] nmode The flag to unset.
+   *
+   * \returns The return value of send() for the mode notifcation.
+   */
+  bool removeMode(const char nmode) {
+    std::set<char> modes(mode.begin(), mode.end());
+    modes.erase(nmode);
+
+    mode = std::string(modes.begin(), modes.end());
+
+    return send("MODE", {
+      nick, std::string("-") + nmode
+    },
+                prefix());
+  }
 
   std::set<std::string> subscriptions;
 
