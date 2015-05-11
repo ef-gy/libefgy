@@ -90,6 +90,8 @@ template <typename base, typename requestProcessor> class session;
 template <typename session> class channel {
 public:
   std::string topic;
+  std::vector<std::string> ban;
+  std::set<char> mode;
 };
 
 namespace processor {
@@ -165,12 +167,12 @@ public:
     case session::expect_user:
       session.user = user;
       session.real = real;
-      session.mode = "";
+      session.mode = {};
       if (nmode & 0x8) {
-        session.mode += "i";
+        session.addMode('i');
       }
       if (nmode & 0x4) {
-        session.mode += "w";
+        session.addMode('w');
       }
       break;
     default:
@@ -548,7 +550,7 @@ public:
       if (channel == session.nick) {
         if (modes.size() == 0) {
           return session.send(RPL_UMODEIS, {
-            "+" + session.mode
+            session.getMode()
           });
         }
 
@@ -765,7 +767,7 @@ public:
   std::string prefix(void) { return nick + "!" + user + "@" + host; }
 
   std::string real;
-  std::string mode;
+  std::set<char> mode;
 
   /**\brief Add a mode flag to the session
    *
@@ -777,10 +779,7 @@ public:
    * \returns The return value of send() for the mode notifcation.
    */
   bool addMode(const char nmode) {
-    std::set<char> modes(mode.begin(), mode.end());
-    modes.insert(nmode);
-
-    mode = std::string(modes.begin(), modes.end());
+    mode.insert(nmode);
 
     return send("MODE", {
       nick, std::string("+") + nmode
@@ -798,15 +797,23 @@ public:
    * \returns The return value of send() for the mode notifcation.
    */
   bool removeMode(const char nmode) {
-    std::set<char> modes(mode.begin(), mode.end());
-    modes.erase(nmode);
-
-    mode = std::string(modes.begin(), modes.end());
+    mode.erase(nmode);
 
     return send("MODE", {
       nick, std::string("-") + nmode
     },
                 prefix());
+  }
+
+  /**\brief Get the modestring for the session
+   *
+   * Assembles the modestring for the session so that it can be used in IRC
+   * messages.
+   *
+   * \returns A string of the form "+[modes]".
+   */
+  std::string getMode(void) {
+    return "+" + std::string(mode.begin(), mode.end());
   }
 
   std::set<std::string> subscriptions;
