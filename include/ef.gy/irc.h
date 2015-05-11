@@ -75,6 +75,7 @@ enum numericMessage {
   ERR_NEEDMOREPARAMS = 461,
   ERR_NOSUCHNICK = 401,
   ERR_NOSUCHSERVER = 402,
+  ERR_NOSUCHCHANNEL = 403,
   ERR_UNKNOWNCOMMAND = 421,
   ERR_NOTONCHANNEL = 442,
   // ERR_ALREADYREGISTRED [sic]: that's the spelling in RFC 2812
@@ -331,7 +332,13 @@ public:
     std::string channel;
 
     while (std::getline(input, channel, ',')) {
-      join(session, channel);
+      if (isChannel(channel)) {
+        join(session, channel);
+      } else {
+        session.send(ERR_NOSUCHCHANNEL, {
+          channel
+        });
+      }
     }
 
     return true;
@@ -924,6 +931,9 @@ public:
         break;
       case ERR_NEEDMOREPARAMS:
         params.push_back("Not enough parameters");
+        break;
+      case ERR_NOSUCHCHANNEL:
+        params.push_back("No such channel");
         break;
       case RPL_NOTOPIC:
         params.push_back("No topic is set");
