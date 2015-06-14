@@ -90,9 +90,57 @@ template <typename base, typename requestProcessor> class session;
 
 template <typename session> class channel {
 public:
+  std::string name;
   std::string topic;
   std::vector<std::string> ban;
   std::set<char> mode;
+
+  /**\brief Add a mode flag to the channel
+   *
+   * Sets a mode flag if it wasn't set before. Then sends a notification to the
+   * client about the new mode.
+   *
+   * \param[in] nmode The flag to set.
+   *
+   * \returns The return value of send() for the mode notifcation.
+   */
+  bool addMode(const char nmode) {
+    mode.insert(nmode);
+
+    return send("MODE", {
+      name, std::string("+") + nmode
+    },
+                prefix());
+  }
+
+  /**\brief Remove a mode flag to the channel
+   *
+   * Unsets a mode flag if it wasn't set before. Then sends a notification to
+   * the client about the mode change.
+   *
+   * \param[in] nmode The flag to unset.
+   *
+   * \returns The return value of send() for the mode notifcation.
+   */
+  bool removeMode(const char nmode) {
+    mode.erase(nmode);
+
+    return send("MODE", {
+      name, std::string("-") + nmode
+    },
+                prefix());
+  }
+
+  /**\brief Get the modestring for the channel
+   *
+   * Assembles the modestring for the channel so that it can be used in IRC
+   * messages.
+   *
+   * \returns A string of the form "+[modes]".
+   */
+  std::string getMode(void) {
+    return "+" + std::string(mode.begin(), mode.end());
+  }
 };
 
 namespace processor {
