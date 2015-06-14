@@ -52,6 +52,12 @@ namespace terminal {
  */
 template <typename T = long> class vt100 : public terminal<T> {
 public:
+  /**\brief Base terminal type
+   *
+   * A convnenient typedef to the base type for this terminal.
+   */
+  typedef terminal<T> base;
+
   /**\brief Construct with streams
    *
    * Calls the parent constructor, which will set up the streams
@@ -68,7 +74,7 @@ public:
    */
   vt100(std::istream &pInput = std::cin, std::ostream &pOutput = std::cout,
         const bool &doSetup = true)
-      : terminal<T>(pInput, pOutput, doSetup), currentForegroundColour(-1),
+      : base(pInput, pOutput, doSetup), currentForegroundColour(-1),
         currentBackgroundColour(-1), didSetup(doSetup) {}
 
   /*\brief Destructor
@@ -83,15 +89,15 @@ public:
     }
   }
 
-  using terminal<T>::current;
-  using terminal<T>::target;
-  using terminal<T>::input;
-  using terminal<T>::output;
-  using terminal<T>::queue;
-  using terminal<T>::resize;
-  using terminal<T>::size;
-  using terminal<T>::read;
-  using terminal<T>::cursor;
+  using base::current;
+  using base::target;
+  using base::input;
+  using base::output;
+  using base::queue;
+  using base::resize;
+  using base::size;
+  using base::read;
+  using base::cursor;
 
   class command {
   public:
@@ -151,8 +157,8 @@ public:
    *          again to make sure everything is updated.
    */
   std::size_t
-  flush(std::function<cell<T>(const terminal<T> &, const std::size_t &,
-                              const std::size_t &)> postProcess = 0,
+  flush(std::function<typename base::cell(const base &, const std::size_t &,
+                                          const std::size_t &)> postProcess = 0,
         std::size_t targetOps = 1024) {
     std::size_t ops = 0;
 
@@ -291,12 +297,14 @@ public:
           current[l][c] = tcell;
           cursor[0]++;
           if (ops >= targetOps) {
+            output.flush();
             return ops;
           }
         }
       }
     }
 
+    output.flush();
     return ops;
   }
 
@@ -416,7 +424,7 @@ public:
   bool read(std::function<bool(const command &)> emitCommand = 0,
             std::function<bool(const T &)> emitLiteral = 0) {
     do {
-      terminal<T>::read();
+      base::read();
     } while (input.rdbuf()->in_avail() > 0);
 
     auto q = decode(queue, [emitCommand, this](const command & c)->bool {

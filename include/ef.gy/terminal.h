@@ -154,6 +154,12 @@ public:
    */
   typedef std::vector<std::vector<cell<T> > > parent;
 
+  /**\brief Cell type
+   *
+   * Helper typedef for a single cell in the screen buffer.
+   */
+  typedef cell<T> cell;
+
   using parent::resize;
 
   /**\brief Construct with nested vectors
@@ -199,7 +205,7 @@ public:
   bool resize(const std::size_t &columns, const std::size_t &lines) {
     resize(lines);
 
-    for (std::vector<cell<T> > &column : *this) {
+    for (std::vector<cell> &column : *this) {
       column.resize(columns);
     }
 
@@ -324,6 +330,12 @@ public:
     }
   }
 #endif
+
+  /**\brief Cell type
+   *
+   * Helper typedef for an individual cell in the screen object.
+   */
+  typedef typename screen<T>::cell cell;
 
   /**\brief Input queue
    *
