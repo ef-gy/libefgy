@@ -163,18 +163,25 @@ public:
     std::size_t ops = 0;
 
     for (unsigned int l = 0; l < target.screen<T>::parent::size(); l++) {
-      for (unsigned int c = 0; c < target[l].size(); c++) {
+      const std::size_t width = target[l].size();
+
+      for (unsigned int c = 0; c < width; c++) {
         const cell<T> &ccell = current[l][c];
         const cell<T> tcell =
             postProcess ? postProcess(*this, l, c) : target[l][c];
 
         if (ccell != tcell) {
-          if ((c == 0) && (cursor[1] == (l - 1))) {
+          if ((c == 0) && (cursor[1] == l)) {
+            output << "\r";
+            ops++;
+            cursor[0] = 0;
+          } else if ((c == 0) && (cursor[1] == (l - 1))) {
             output << "\n";
             ops++;
             cursor[0] = 0;
             cursor[1] = l;
-          } else if ((cursor[1] != l) && (cursor[0] != c)) {
+          } else if ((cursor[0] != c) &&
+                     ((cursor[1] != l) || (cursor[0] >= width))) {
             std::size_t vtl = l + 1;
             std::size_t vtc = c + 1;
             if (vtl == 1) {
