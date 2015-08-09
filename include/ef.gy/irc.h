@@ -141,6 +141,10 @@ public:
   std::string getMode(void) {
     return "+" + std::string(mode.begin(), mode.end());
   }
+
+  std::string prefix(void) {
+    return name;
+  }
 };
 
 namespace processor {
