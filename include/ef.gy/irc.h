@@ -142,9 +142,7 @@ public:
     return "+" + std::string(mode.begin(), mode.end());
   }
 
-  std::string prefix(void) {
-    return name;
-  }
+  std::string prefix(void) { return name; }
 };
 
 namespace processor {
@@ -882,7 +880,7 @@ public:
   serverType &server;
 
   session(serverType &pServer)
-      : self(this), server(pServer), socket(pServer.io),
+      : self(this), server(pServer), socket(pServer.io.get()),
         status(expect_pass_nick_user), input(), host("unknown-host") {}
 
   ~session(void) {
