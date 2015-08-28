@@ -56,17 +56,12 @@ public:
 template <typename Q>
 class vector<Q, 3, format::HSL> : public std::array<Q, 3> {
 public:
-  vector(const std::array<Q, 3> &v = {
-    {}
-  },
-         const format::HSL & = format::HSL())
+  vector(const std::array<Q, 3> &v = {{}}, const format::HSL & = format::HSL())
       : std::array<Q, 3>(v), hue((*this)[0]), saturation((*this)[1]),
         lightness((*this)[2]) {}
   vector(const Q &pHue, const Q &pSaturation, const Q &pLightness)
-      : std::array<Q, 3>({
-    pHue, pSaturation, pLightness
-  }),
-        hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]) {}
+      : std::array<Q, 3>({pHue, pSaturation, pLightness}), hue((*this)[0]),
+        saturation((*this)[1]), lightness((*this)[2]) {}
 
   Q &hue;
   Q &saturation;
@@ -156,24 +151,19 @@ public:
 
     Q m = lightness - chroma / Q(2);
 
-    return { { r1 + m, g1 + m, b1 + m } };
+    return {{r1 + m, g1 + m, b1 + m}};
   }
 };
 
 template <typename Q>
 class vector<Q, 4, format::HSL> : public std::array<Q, 4> {
 public:
-  vector(const std::array<Q, 4> &v = {
-    {}
-  },
-         const format::HSL & = format::HSL())
+  vector(const std::array<Q, 4> &v = {{}}, const format::HSL & = format::HSL())
       : std::array<Q, 4>(v), hue((*this)[0]), saturation((*this)[1]),
         lightness((*this)[2]), alpha((*this)[3]) {}
   vector(const Q &pHue, const Q &pSaturation, const Q &pLightness,
          const Q &pAlpha = Q(1))
-      : std::array<Q, 4>({
-    pHue, pSaturation, pLightness, pAlpha
-  }),
+      : std::array<Q, 4>({pHue, pSaturation, pLightness, pAlpha}),
         hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]),
         alpha((*this)[3]) {}
 
@@ -185,9 +175,7 @@ public:
   vector(const vector<Q, 4, format::RGB> &v)
       : std::array<Q, 4>(), hue((*this)[0]), saturation((*this)[1]),
         lightness((*this)[2]), alpha((*this)[3]) {
-    vector<Q, 3, format::HSL> hv({
-      v[0], v[1], v[2]
-    });
+    vector<Q, 3, format::HSL> hv({v[0], v[1], v[2]});
     hue = hv.hue;
     saturation = hv.saturation;
     lightness = hv.lightness;
@@ -195,10 +183,9 @@ public:
   }
 
   operator vector<Q, 4, format::RGB>(void) const {
-    vector<Q, 3, format::RGB> rg = vector<Q, 3, format::HSL>({
-      hue, saturation, lightness
-    });
-    return { { rg[0], rg[1], rg[2], alpha } };
+    vector<Q, 3, format::RGB> rg =
+        vector<Q, 3, format::HSL>({hue, saturation, lightness});
+    return {{rg[0], rg[1], rg[2], alpha}};
   }
 };
 };

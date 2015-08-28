@@ -70,8 +70,7 @@ public:
  * cout << css::tag();
  * \encode
  */
-class tag {
-};
+class tag {};
 
 /**\brief Convert std::ostream to CSS
  *
@@ -83,8 +82,8 @@ class tag {
  * \param[out] stream The stream to write to.
  */
 template <typename C>
-    constexpr inline ostream<C> operator<<(std::basic_ostream<C> &stream,
-                                           const tag &) {
+constexpr inline ostream<C> operator<<(std::basic_ostream<C> &stream,
+                                       const tag &) {
   return ostream<C>(stream);
 }
 };

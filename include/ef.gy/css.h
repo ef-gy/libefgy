@@ -37,8 +37,7 @@ namespace efgy {
  * Namespace for helper classes and functions used to generate CSS
  * serialisations.
  */
-namespace css {
-};
+namespace css {};
 };
 
 #endif

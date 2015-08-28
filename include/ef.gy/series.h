@@ -87,9 +87,9 @@ public:
    *
    * \returns The sum of the 0th to the nth sequence member.
    */
-  constexpr static Q get(const N &n =
-                             sequenceAlgorithm::defaultSeriesIterations,
-                         const Q &f = Q(1)) {
+  constexpr static Q
+  get(const N &n = sequenceAlgorithm::defaultSeriesIterations,
+      const Q &f = Q(1)) {
     return sumTo(n, f, Q(0));
   }
 
@@ -198,10 +198,9 @@ public:
    * \param[in] x The power factor.
    * \param[in] c The centre of the power series.
    */
-  constexpr static Q get(const N &n =
-                             sequenceAlgorithm::defaultSeriesIterations,
-                         const Q &f = Q(1), const Q &x = Q(1),
-                         const Q &c = Q(0)) {
+  constexpr static Q
+  get(const N &n = sequenceAlgorithm::defaultSeriesIterations,
+      const Q &f = Q(1), const Q &x = Q(1), const Q &c = Q(0)) {
     return sumTo(n, f, x, c, Q(0));
   }
 

@@ -56,7 +56,7 @@ public:
   using parent::tag;
   using parent::indices;
 
-  std::vector<trans<Q, d> > functions;
+  std::vector<trans<Q, d>> functions;
 
   void calculateObject(void) {
     primitive<Q, pd> source(parameter, tag);
@@ -75,7 +75,7 @@ public:
 
       std::vector<Q> rindices = indices;
       indices.clear();
-      std::vector<std::array<math::vector<Q, d, format>, faceVertices> > rfaces;
+      std::vector<std::array<math::vector<Q, d, format>, faceVertices>> rfaces;
 
       while (faces.size() > 0) {
         for (unsigned int j = 0; j < functions.size(); j++) {
@@ -239,7 +239,7 @@ public:
   }
 
   void updateMatrix(void) {
-    std::mt19937 PRNG((typename std::mt19937::result_type) seed);
+    std::mt19937 PRNG((typename std::mt19937::result_type)seed);
 
     math::vector<Q, d> V;
     const Q s(Q(PRNG() % 6000) / Q(10000) + Q(.2));

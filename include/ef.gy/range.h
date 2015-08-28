@@ -130,8 +130,8 @@ protected:
 };
 
 template <typename T>
-    constexpr rangeIterator<T> operator+(const std::ptrdiff_t &a,
-                                         const rangeIterator<T> &b) {
+constexpr rangeIterator<T> operator+(const std::ptrdiff_t &a,
+                                     const rangeIterator<T> &b) {
   return b + a;
 }
 
@@ -156,30 +156,28 @@ public:
 
   constexpr iterator end(void) const { return iterator(start, stride, n); }
 
-    /**\brief Get range array
-     *
-     * Returns a std::array of the range. This method is both constexpr
-     * and static, meaning that for most data types it will be
-     * evaluated at compile time.
-     *
-     * \param start  The start of the range.
-     * \param stride The step size of the array.
-     * \param p      The array that is filled with the range.
-     * \param c      Used internally to remember where in the array we
-     *               currently are.
-     *
-     * One example:
-     * \code{.cpp}
-     * range<int, 5>::get(2, 2)
-     * {2, 4, 6, 8, 10
-     * \endcode
-     *
-     * \returns A std::array of the range.
-     */
+  /**\brief Get range array
+   *
+   * Returns a std::array of the range. This method is both constexpr
+   * and static, meaning that for most data types it will be
+   * evaluated at compile time.
+   *
+   * \param start  The start of the range.
+   * \param stride The step size of the array.
+   * \param p      The array that is filled with the range.
+   * \param c      Used internally to remember where in the array we
+   *               currently are.
+   *
+   * One example:
+   * \code{.cpp}
+   * range<int, 5>::get(2, 2)
+   * {2, 4, 6, 8, 10
+   * \endcode
+   *
+   * \returns A std::array of the range.
+   */
   constexpr static std::array<T, n> get(T start = 0, T stride = 1,
-                                        std::array<T, n> p = {
-    {}
-  },
+                                        std::array<T, n> p = {{}},
                                         const std::size_t c = n) {
     return (p[c] = (start + (stride * c))),
            c == 0 ? p : get(start, stride, p, c - 1);
@@ -220,17 +218,15 @@ public:
 
   constexpr iterator end(void) const { return iterator(start, stride, steps); }
 
-    /**\copydoc range::get
-     *
-     * With n = 0 this function becomes rather trivial, as it'll simply
-     * return a zero-length array.
-     */
+  /**\copydoc range::get
+   *
+   * With n = 0 this function becomes rather trivial, as it'll simply
+   * return a zero-length array.
+   */
   constexpr static std::array<T, 0> get(T start = 0, T stride = 1,
-                                        std::array<T, 0> p = {
-    {}
-  },
+                                        std::array<T, 0> p = {{}},
                                         const std::size_t c = 0) {
-    return std::array<T, 0> {};
+    return std::array<T, 0>{};
   }
 
   T start;

@@ -42,7 +42,6 @@ public:
     for (int i = 0; i < matrix_size; i++) {
       adjacency[i].resize(matrix_size);
     }
-
   }
 
   adjacencymatrix(const adjacencymatrix<T, size_increment> &b) {
@@ -59,7 +58,6 @@ public:
 
   adjacencymatrix<T> &operator=(const adjacencymatrix<T, size_increment> &b) {
     matrix_size = b.matrix_size;
-
   }
 
   /// add a new node without any connections
@@ -82,7 +80,7 @@ private:
   /// reconstructing the adjacency matrix too often.
   unsigned int matrix_size;
 
-  std::vector<std::vector<bool> > adjacency;
+  std::vector<std::vector<bool>> adjacency;
   std::vector<T> nodes;
 
   /// number of nodes in the graph
@@ -103,7 +101,6 @@ private:
         adjacency[k][i] = false;
       }
     }
-
   }
 
   void erase(unsigned int i) {
@@ -153,7 +150,6 @@ private:
       return found;
     }
   }
-
 };
 
 template <typename T> class node {
@@ -193,7 +189,6 @@ public:
 private:
   T data;
   std::set<node<T> *> adjacentNodes;
-
 };
 }
 }

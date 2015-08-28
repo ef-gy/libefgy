@@ -48,7 +48,6 @@ using namespace std;
  * \return Zero when everything went as expected, nonzero otherwise.
  */
 int testFactorial(ostream &log) {
-
   if (factorial<int>(0) != 1) {
     log << "Factorial of 0 should be 1.";
     return 1;

@@ -49,7 +49,7 @@ using efgy::math::matrix;
  * \return Zero when everything went as expected, nonzero otherwise.
  */
 int testTracer(std::ostream &log) {
-  std::shared_ptr<tracer<int, void, 0> > frobrt(tracer<int, void, 0>(1));
+  std::shared_ptr<tracer<int, void, 0>> frobrt(tracer<int, void, 0>(1));
   runtime frobrt2(new tracer<int, void, 0>(1));
   runtime frobrt3(frobrt);
 
@@ -82,9 +82,9 @@ int testTracerMatrix(std::ostream &log) {
       std::stringstream s("");
       s << "_" << i << "_" << j;
 
-      m1[i][j] = std::shared_ptr<tracer<void, void, 0> >(
+      m1[i][j] = std::shared_ptr<tracer<void, void, 0>>(
           new tracer<void, void, 0>("a" + s.str()));
-      m2[i][j] = std::shared_ptr<tracer<void, void, 0> >(
+      m2[i][j] = std::shared_ptr<tracer<void, void, 0>>(
           new tracer<void, void, 0>("b" + s.str()));
     }
   }

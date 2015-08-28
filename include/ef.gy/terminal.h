@@ -145,14 +145,14 @@ public:
  *         code points.
  */
 template <typename T = long>
-class screen : public std::vector<std::vector<cell<T> > > {
+class screen : public std::vector<std::vector<cell<T>>> {
 public:
   /**\brief Alias for the parent class
    *
    * This class extends a nested std::vector, so this typedef
    * provides a convenient handle to this base class.
    */
-  typedef std::vector<std::vector<cell<T> > > parent;
+  typedef std::vector<std::vector<cell<T>>> parent;
 
   /**\brief Cell type
    *
@@ -236,8 +236,8 @@ public:
    * \returns An array of the form {{ columns, lines }}.
    */
   constexpr std::array<std::size_t, 2> size(void) const {
-    return { { this->parent::size() > 0 ? (*this)[0].size() : 0,
-               this->parent::size() } };
+    return {{this->parent::size() > 0 ? (*this)[0].size() : 0,
+             this->parent::size()}};
   }
 };
 
@@ -261,44 +261,43 @@ public:
  */
 template <typename T = long> class terminal {
 public:
-    /**\brief Construct with I/O streams and set raw mode
-     *
-     * Constructs an instance of the terminal class, optionally
-     * with input and output streams that connect to the terminal.
-     * It is assumed that terminals are controlled through two
-     * character streams.
-     *
-     * The optional third parameter, set to 'true' by default, will
-     * set the terminal connected to stdin to non-canonical and
-     * non-echo mode. Non-canonical mode means that input is not
-     * processed line-by-line, but rather character-by-character,
-     * which in turn means that the application can read from stdin
-     * without the user having to press "enter" to release the
-     * input. Non-echo mode means that the input is not echoed back
-     * to the terminal.
-     *
-     * \param[out] pInput  Input stream for the terminal, e.g.
-     *                     std::cin
-     * \param[out] pOutput Output stream for the terminal, e.g.
-     *                     std::cout
-     * \param[in]  doSetup Whether to disable echo and canonical
-     *                     mode on the terminal connected to stdin
-     *
-     * \note If you intend to pass in your own streams, do note
-     *       the streams are stored in the class as references (the
-     *       input and output members), meaning that you must make
-     *       sure these two streams are not destroyed before this
-     *       object is.
-     */
+  /**\brief Construct with I/O streams and set raw mode
+   *
+   * Constructs an instance of the terminal class, optionally
+   * with input and output streams that connect to the terminal.
+   * It is assumed that terminals are controlled through two
+   * character streams.
+   *
+   * The optional third parameter, set to 'true' by default, will
+   * set the terminal connected to stdin to non-canonical and
+   * non-echo mode. Non-canonical mode means that input is not
+   * processed line-by-line, but rather character-by-character,
+   * which in turn means that the application can read from stdin
+   * without the user having to press "enter" to release the
+   * input. Non-echo mode means that the input is not echoed back
+   * to the terminal.
+   *
+   * \param[out] pInput  Input stream for the terminal, e.g.
+   *                     std::cin
+   * \param[out] pOutput Output stream for the terminal, e.g.
+   *                     std::cout
+   * \param[in]  doSetup Whether to disable echo and canonical
+   *                     mode on the terminal connected to stdin
+   *
+   * \note If you intend to pass in your own streams, do note
+   *       the streams are stored in the class as references (the
+   *       input and output members), meaning that you must make
+   *       sure these two streams are not destroyed before this
+   *       object is.
+   */
   terminal(std::istream &pInput = std::cin, std::ostream &pOutput = std::cout,
            const bool &doSetup = true)
       :
 #if defined(TCSANOW)
         didSetup(doSetup),
 #endif
-        input(pInput), output(pOutput), cursor({
-    (std::size_t) - 1, (std::size_t) - 1
-  }) {
+        input(pInput), output(pOutput),
+        cursor({(std::size_t) - 1, (std::size_t) - 1}) {
 #if defined(TCSANOW)
     if (doSetup) {
       std::ios_base::sync_with_stdio(false);
@@ -420,7 +419,7 @@ public:
    * \returns 'true' if both buffers were successfully resized,
    *          'false' otherwise.
    */
-  bool resize(const maybe<std::array<std::size_t, 2> > &size) {
+  bool resize(const maybe<std::array<std::size_t, 2>> &size) {
     return size && current.resize(std::array<std::size_t, 2>(size)) &&
            target.resize(std::array<std::size_t, 2>(size));
   }
@@ -447,15 +446,14 @@ public:
    *
    * \returns The size of the screen or 'nothing'.
    */
-  static maybe<std::array<std::size_t, 2> > getOSDimensions(void) {
+  static maybe<std::array<std::size_t, 2>> getOSDimensions(void) {
 #if defined(TIOCGWINSZ)
     winsize w;
     ioctl(0, TIOCGWINSZ, &w);
-    return maybe<std::array<std::size_t, 2> >(std::array<std::size_t, 2>({
-      { w.ws_col, w.ws_row }
-    }));
+    return maybe<std::array<std::size_t, 2>>(
+        std::array<std::size_t, 2>({{w.ws_col, w.ws_row}}));
 #else
-    return maybe<std::array<std::size_t, 2> >();
+    return maybe<std::array<std::size_t, 2>>();
 #endif
   }
 
@@ -573,7 +571,6 @@ private:
    */
   termios originalTerminalFlags;
 #endif
-
 };
 };
 };

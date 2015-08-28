@@ -1,6 +1,6 @@
 /**\file
  * \brief Handles vector transformations.
- * 
+ *
  * Contains templates for transformations of vector space elements.
  *
  * \copyright
@@ -92,8 +92,8 @@ public:
    * in Q^d.
    */
   template <typename format>
-  math::vector<Q, d, format> operator*(
-      const math::vector<Q, d, format> &pV) const {
+  math::vector<Q, d, format>
+  operator*(const math::vector<Q, d, format> &pV) const {
     math::vector<Q, d, format> rv;
 
     math::matrix<Q, 1, d> vectorMatrix;
@@ -224,8 +224,8 @@ public:
    * \returns The transformed vector.
    */
   template <typename format>
-  math::vector<Q, d, format> operator*(
-      const math::vector<Q, d, format> &pV) const {
+  math::vector<Q, d, format>
+  operator*(const math::vector<Q, d, format> &pV) const {
     math::vector<Q, d, format> rv;
 
     math::matrix<Q, 1, d + 1> vectorMatrix;
@@ -287,8 +287,8 @@ public:
   projective() : affine<Q, d>() {}
 
   template <typename format>
-  math::vector<Q, d - 1, format> operator*(
-      const math::vector<Q, d, format> &pP) const {
+  math::vector<Q, d - 1, format>
+  operator*(const math::vector<Q, d, format> &pP) const {
     math::vector<Q, d - 1, format> result;
 
     math::vector<Q, d> R = affine<Q, d>(*this) * pP;

@@ -74,8 +74,7 @@ public:
  * cout << json::tag();
  * \encode
  */
-class tag {
-};
+class tag {};
 
 /**\brief Convert std::ostream to JSON
  *
@@ -87,8 +86,8 @@ class tag {
  * \param[out] stream The stream to write to.
  */
 template <typename C>
-    constexpr inline ostream<C> operator<<(std::basic_ostream<C> &stream,
-                                           const tag &) {
+constexpr inline ostream<C> operator<<(std::basic_ostream<C> &stream,
+                                       const tag &) {
   return ostream<C>(stream);
 }
 
@@ -104,8 +103,7 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C>
-    static inline ostream<C> operator<<(ostream<C> stream,
-                                        const float &pValue) {
+static inline ostream<C> operator<<(ostream<C> stream, const float &pValue) {
   stream.stream << pValue;
 
   return stream;
@@ -123,8 +121,7 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C>
-    static inline ostream<C> operator<<(ostream<C> stream,
-                                        const double &pValue) {
+static inline ostream<C> operator<<(ostream<C> stream, const double &pValue) {
   stream.stream << pValue;
 
   return stream;
@@ -142,8 +139,8 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C>
-    static inline ostream<C> operator<<(ostream<C> stream,
-                                        const long double &pValue) {
+static inline ostream<C> operator<<(ostream<C> stream,
+                                    const long double &pValue) {
   stream.stream << pValue;
 
   return stream;
@@ -161,7 +158,7 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C>
-    static inline ostream<C> operator<<(ostream<C> stream, const int &pValue) {
+static inline ostream<C> operator<<(ostream<C> stream, const int &pValue) {
   stream.stream << pValue;
 
   return stream;
@@ -179,7 +176,7 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C>
-    static inline ostream<C> operator<<(ostream<C> stream, const long &pValue) {
+static inline ostream<C> operator<<(ostream<C> stream, const long &pValue) {
   stream.stream << pValue;
 
   return stream;
@@ -197,8 +194,8 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C>
-    static inline ostream<C> operator<<(ostream<C> stream,
-                                        const long long &pValue) {
+static inline ostream<C> operator<<(ostream<C> stream,
+                                    const long long &pValue) {
   stream.stream << pValue;
 
   return stream;
@@ -216,7 +213,7 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C>
-    static inline ostream<C> operator<<(ostream<C> stream, const bool &pValue) {
+static inline ostream<C> operator<<(ostream<C> stream, const bool &pValue) {
   stream.stream << (pValue ? "true" : "false");
 
   return stream;
@@ -234,15 +231,15 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C>
-    static inline ostream<C> operator<<(ostream<C> stream,
-                                        const std::string &pValue) {
+static inline ostream<C> operator<<(ostream<C> stream,
+                                    const std::string &pValue) {
   std::string out;
 
   for (const C &c : pValue) {
     switch (c) {
     case '\\':
     case '"': {
-      const char a[] = { '\\', c, 0 };
+      const char a[] = {'\\', c, 0};
       out.append(a, 2);
     } break;
 
@@ -270,7 +267,7 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C>
-    static inline ostream<C> operator<<(ostream<C> stream, const char *pValue) {
+static inline ostream<C> operator<<(ostream<C> stream, const char *pValue) {
   std::string out;
 
   for (; *pValue != 0; pValue++) {
@@ -278,7 +275,7 @@ template <typename C>
     switch (c) {
     case '\\':
     case '"': {
-      const char a[] = { '\\', c, 0 };
+      const char a[] = {'\\', c, 0};
       out.append(a, 2);
     } break;
 
@@ -307,8 +304,8 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C, typename E, std::size_t n>
-    static inline ostream<C> operator<<(ostream<C> stream,
-                                        const std::array<E, n> &pValue) {
+static inline ostream<C> operator<<(ostream<C> stream,
+                                    const std::array<E, n> &pValue) {
   bool notFirst = false;
   stream.stream << "[";
 
@@ -339,8 +336,8 @@ template <typename C, typename E, std::size_t n>
  * \returns A new copy of the input stream.
  */
 template <typename C, typename E>
-    static inline ostream<C> operator<<(ostream<C> stream,
-                                        const std::vector<E> &pValue) {
+static inline ostream<C> operator<<(ostream<C> stream,
+                                    const std::vector<E> &pValue) {
   bool notFirst = false;
   stream.stream << "[";
 
@@ -371,9 +368,8 @@ template <typename C, typename E>
  * \returns A new copy of the input stream.
  */
 template <typename C, typename V>
-    static inline ostream<C> operator<<(ostream<C> stream,
-                                        const std::map<std::string, V> &
-                                            pValue) {
+static inline ostream<C> operator<<(ostream<C> stream,
+                                    const std::map<std::string, V> &pValue) {
   bool notFirst = false;
   stream.stream << "{";
 
@@ -406,9 +402,8 @@ template <typename C, typename V>
  * \returns A new copy of the input stream.
  */
 template <typename C, typename V>
-    static inline ostream<C> operator<<(ostream<C> stream,
-                                        const std::map<const char *, V> &
-                                            pValue) {
+static inline ostream<C> operator<<(ostream<C> stream,
+                                    const std::map<const char *, V> &pValue) {
   bool notFirst = false;
   stream.stream << "{";
 
@@ -441,8 +436,8 @@ template <typename C, typename V>
  * \returns A new copy of the input stream.
  */
 template <typename C, typename Q>
-    static inline ostream<C> operator<<(ostream<C> stream,
-                                        const json::value<Q> &pValue) {
+static inline ostream<C> operator<<(ostream<C> stream,
+                                    const json::value<Q> &pValue) {
   switch (pValue.type) {
   case json::value<Q>::object:
     stream << pValue.asObject();
@@ -454,7 +449,7 @@ template <typename C, typename Q>
     stream << pValue.asString();
     break;
   case json::value<Q>::number:
-    stream << (Q) pValue;
+    stream << (Q)pValue;
     break;
   case json::value<Q>::yes:
     stream << true;
@@ -488,8 +483,8 @@ template <typename C, typename Q>
  * \returns The unprocessed remainder of the JSON string.
  */
 template <typename Q>
-    static inline std::string operator>>(std::string stream,
-                                         json::value<Q> &pValue) {
+static inline std::string operator>>(std::string stream,
+                                     json::value<Q> &pValue) {
   pValue = json::value<Q>();
 
   enum {

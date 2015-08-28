@@ -82,15 +82,13 @@ public:
   void frameStart(void) {
     combined = transformation * projection;
     lowerRenderer.frameStart();
-  }
-  ;
+  };
 
   /**\brief End drawing current frame
    *
    * Finalise the renderer's state. Not used by the SVG renderer.
    */
-  void frameEnd(void) const {}
-  ;
+  void frameEnd(void) const {};
 
   /**\brief Draw polygon
    *
@@ -181,15 +179,13 @@ public:
    * Reset the renderer's state and start drawing a new image.
    * Not used by the 2D SVG renderer.
    */
-  void frameStart(void) const {}
-  ;
+  void frameStart(void) const {};
 
   /**\brief End drawing current frame
    *
    * Finalise the renderer's state. Not used by the SVG renderer.
    */
-  void frameEnd(void) const {}
-  ;
+  void frameEnd(void) const {};
 
   /**\brief Draw polygon
    *
@@ -256,8 +252,7 @@ protected:
   const geometry::transformation::affine<Q, 2> &transformation;
 };
 
-template <typename Q> class svg<Q, 1> {
-};
+template <typename Q> class svg<Q, 1> {};
 
 /**\brief std::ostream SVG tag
  *
@@ -309,9 +304,8 @@ public:
  * \returns A new osvgstream with the given parameters.
  */
 template <typename C, typename Q, unsigned int d>
-    constexpr inline osvgstream<C, Q,
-                                d> operator<<(std::basic_ostream<C> &stream,
-                                              const svg<Q, d> &render) {
+constexpr inline osvgstream<C, Q, d> operator<<(std::basic_ostream<C> &stream,
+                                                const svg<Q, d> &render) {
   return osvgstream<C, Q, d>(stream, render);
 }
 
@@ -335,9 +329,9 @@ template <typename C, typename Q, unsigned int d>
  */
 template <typename C, typename Q, unsigned int d, unsigned int od,
           unsigned int f, typename format>
-    static inline osvgstream<
-        C, Q, d> operator<<(osvgstream<C, Q, d> stream,
-                            const geometry::object<Q, od, d, f, format> &poly) {
+static inline osvgstream<C, Q, d>
+operator<<(osvgstream<C, Q, d> stream,
+           const geometry::object<Q, od, d, f, format> &poly) {
   for (const auto &p : poly.faces) {
     std::array<math::vector<Q, d>,
                geometry::object<Q, od, d, f, format>::faceVertices> q;

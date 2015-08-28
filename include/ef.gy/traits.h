@@ -73,7 +73,7 @@ public:
   static const bool stable = false;
 };
 
-template <typename Q, typename I> class traits<primitive<Q, I> > {
+template <typename Q, typename I> class traits<primitive<Q, I>> {
 public:
   typedef I integral;
   typedef Q rational;

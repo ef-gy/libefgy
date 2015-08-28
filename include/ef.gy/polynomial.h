@@ -97,7 +97,7 @@ public:
   polynomial &operator-=(const integer &b) { return ((*this) = ((*this) - b)); }
 
   template <unsigned int f>
-  polynomial<Q, (degree *f)> operator*(const polynomial<Q, f> &b) const {
+  polynomial<Q, (degree * f)> operator*(const polynomial<Q, f> &b) const {
     polynomial<Q, (degree * f)> r;
 
     for (unsigned int i = 0; i < degree; i++) {

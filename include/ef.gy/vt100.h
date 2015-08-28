@@ -203,7 +203,7 @@ public:
             cursor[0] = c;
             cursor[1] = l;
           } else if (cursor[1] != l) {
-            signed long sp = (signed long) cursor[1] - (signed long) l;
+            signed long sp = (signed long)cursor[1] - (signed long)l;
             if (sp > 0) {
               if (sp == 1) {
                 output << "\e[A";
@@ -221,7 +221,7 @@ public:
             }
             cursor[1] = l;
           } else if (cursor[0] != c) {
-            signed long sp = (signed long) cursor[0] - (signed long) c;
+            signed long sp = (signed long)cursor[0] - (signed long)c;
             if (sp > 0) {
               if (sp == 1) {
                 output << "\e[D";
@@ -291,7 +291,7 @@ public:
                    << char((tcell.content & 0x3f) | 0x80);
             ops++;
           } else /* if (tcell.content < 0x80000000) */
-              {
+          {
             output << char(((tcell.content >> 30) & 0x01) | 0xfc)
                    << char(((tcell.content >> 24) & 0x3f) | 0x80)
                    << char(((tcell.content >> 18) & 0x3f) | 0x80)
@@ -367,17 +367,17 @@ public:
         case '7':
         case '8':
         case '9':
-          vtparam = (long) vtparam * 10 + (v - '0');
+          vtparam = (long)vtparam * 10 + (v - '0');
           break;
         case ';':
-          if ((bool) vtparam) {
-            vtparams.push_back((long) vtparam);
+          if ((bool)vtparam) {
+            vtparams.push_back((long)vtparam);
             vtparam = maybe<long>();
           }
           break;
         default:
-          if ((bool) vtparam) {
-            vtparams.push_back((long) vtparam);
+          if ((bool)vtparam) {
+            vtparams.push_back((long)vtparam);
             vtparam = maybe<long>();
           }
           command c(v, vtparams);
@@ -401,8 +401,8 @@ public:
       result.push_back('[');
 
       bool first = true;
-      if ((bool) vtparam) {
-        vtparams.push_back((long) vtparam);
+      if ((bool)vtparam) {
+        vtparams.push_back((long)vtparam);
         vtparam = maybe<long>();
       }
       for (auto p : vtparams) {
@@ -434,30 +434,30 @@ public:
       base::read();
     } while (input.rdbuf()->in_avail() > 0);
 
-    auto q = decode(queue, [emitCommand, this](const command & c)->bool {
-      bool keep = true;
-      if (c.code == 'R') {
-        switch (c.parameter.size()) {
-        case 0:
-          cursor[1] = 0;
-          cursor[0] = 0;
-          break;
-        case 1:
-          cursor[1] = c.parameter[0] - 1;
-          cursor[0] = 0;
-          break;
-        default:
-          cursor[1] = c.parameter[0] - 1;
-          cursor[0] = c.parameter[1] - 1;
-          break;
-        }
-        keep = false;
-      }
-      return (bool) emitCommand ? emitCommand(c) : keep;
-    },
-                    [emitLiteral](const T & l)->bool {
-      return (bool) emitLiteral ? emitLiteral(l) : true;
-    });
+    auto q = decode(queue, [emitCommand, this](const command &c) -> bool {
+                             bool keep = true;
+                             if (c.code == 'R') {
+                               switch (c.parameter.size()) {
+                               case 0:
+                                 cursor[1] = 0;
+                                 cursor[0] = 0;
+                                 break;
+                               case 1:
+                                 cursor[1] = c.parameter[0] - 1;
+                                 cursor[0] = 0;
+                                 break;
+                               default:
+                                 cursor[1] = c.parameter[0] - 1;
+                                 cursor[0] = c.parameter[1] - 1;
+                                 break;
+                               }
+                               keep = false;
+                             }
+                             return (bool)emitCommand ? emitCommand(c) : keep;
+                           },
+                    [emitLiteral](const T &l) -> bool {
+                      return (bool)emitLiteral ? emitLiteral(l) : true;
+                    });
 
     commandQueue.insert(commandQueue.end(), q.begin(), q.end());
 
@@ -517,12 +517,7 @@ private:
    */
   std::size_t currentBackgroundColour;
 
-  enum parserState {
-    text,
-    escape1,
-    escape2
-  };
-
+  enum parserState { text, escape1, escape2 };
 };
 };
 };

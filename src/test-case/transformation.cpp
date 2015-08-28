@@ -133,7 +133,7 @@ int testIdentityAssignment(std::ostream &log) {
  * \param log Stream for output messages
  *
  * \test Constructs an affine transformation from a linear map.
- * 
+ *
  * \returns Zero if the test is successful, a nonzero integer otherwise.
  */
 int testAffineConstruction(std::ostream &log) {

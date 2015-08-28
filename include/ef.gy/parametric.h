@@ -63,10 +63,9 @@ public:
   getCoordinates(const parameters<Q> &parameter,
                  const math::vector<Q, od> &ve) {
     return {
-      { Q((parameter.radius + ve[1] / Q(2) * cos(ve[0] / Q(2))) * cos(ve[0])),
-        Q((parameter.radius + ve[1] / Q(2) * cos(ve[0] / Q(2))) * sin(ve[0])),
-        Q(ve[1] / Q(2) * sin(ve[0] / Q(2))) }
-    };
+        {Q((parameter.radius + ve[1] / Q(2) * cos(ve[0] / Q(2))) * cos(ve[0])),
+         Q((parameter.radius + ve[1] / Q(2) * cos(ve[0] / Q(2))) * sin(ve[0])),
+         Q(ve[1] / Q(2) * sin(ve[0] / Q(2)))}};
   }
 };
 
@@ -86,12 +85,14 @@ public:
   constexpr static math::vector<Q, renderDepth>
   getCoordinates(const parameters<Q> &parameter,
                  const math::vector<Q, od> &ve) {
-    return { { Q((parameter.radius + cos(ve[0] / Q(2)) * sin(ve[1]) -
-                  sin(ve[0] / Q(2)) * sin(Q(2) * ve[1])) * cos(ve[0])),
-               Q((parameter.radius + cos(ve[0] / Q(2)) * sin(ve[1]) -
-                  sin(ve[0] / Q(2)) * sin(Q(2) * ve[1])) * sin(ve[0])),
-               Q(sin(ve[0] / Q(2)) * sin(ve[1]) -
-                 cos(ve[0] / Q(2)) * sin(Q(2) * ve[1])) } };
+    return {{Q((parameter.radius + cos(ve[0] / Q(2)) * sin(ve[1]) -
+                sin(ve[0] / Q(2)) * sin(Q(2) * ve[1])) *
+               cos(ve[0])),
+             Q((parameter.radius + cos(ve[0] / Q(2)) * sin(ve[1]) -
+                sin(ve[0] / Q(2)) * sin(Q(2) * ve[1])) *
+               sin(ve[0])),
+             Q(sin(ve[0] / Q(2)) * sin(ve[1]) -
+               cos(ve[0] / Q(2)) * sin(Q(2) * ve[1]))}};
   }
 };
 
@@ -111,14 +112,14 @@ public:
   constexpr static math::vector<Q, renderDepth>
   getCoordinates(const parameters<Q> &parameter,
                  const math::vector<Q, od> &ve) {
-    return { { Q(parameter.radius * (cos(ve[0] / Q(2)) * cos(ve[1]) -
-                                     sin(ve[0] / Q(2)) * sin(Q(2) * ve[1]))),
-               Q(parameter.radius * (sin(ve[0] / Q(2)) * cos(ve[1]) +
-                                     cos(ve[0] / Q(2)) * sin(Q(2) * ve[1]))),
-               Q(parameter.radius2 * cos(ve[0]) *
-                 (Q(1) + parameter.constant * sin(ve[1]))),
-               Q(parameter.radius2 * sin(ve[0]) *
-                 (Q(1) + parameter.constant * sin(ve[1]))) } };
+    return {{Q(parameter.radius * (cos(ve[0] / Q(2)) * cos(ve[1]) -
+                                   sin(ve[0] / Q(2)) * sin(Q(2) * ve[1]))),
+             Q(parameter.radius * (sin(ve[0] / Q(2)) * cos(ve[1]) +
+                                   cos(ve[0] / Q(2)) * sin(Q(2) * ve[1]))),
+             Q(parameter.radius2 * cos(ve[0]) *
+               (Q(1) + parameter.constant * sin(ve[1]))),
+             Q(parameter.radius2 * sin(ve[0]) *
+               (Q(1) + parameter.constant * sin(ve[1])))}};
   }
 };
 
@@ -139,10 +140,7 @@ public:
   static math::vector<Q, renderDepth>
   getCoordinates(const parameters<Q> &parameter,
                  const math::vector<Q, od> &ve) {
-    math::vector<Q, renderDepth, math::format::polar> vp {
-      { parameter.radius }
-    }
-    ;
+    math::vector<Q, renderDepth, math::format::polar> vp{{parameter.radius}};
     for (std::size_t i = 0; i < od; i++) {
       vp[(i + 1)] = ve[i];
     }
@@ -167,7 +165,7 @@ public:
   constexpr static math::vector<Q, renderDepth>
   getCoordinates(const parameters<Q> &parameter,
                  const math::vector<Q, od> &ve) {
-    return { { ve[0], ve[1] } };
+    return {{ve[0], ve[1]}};
   }
 };
 
@@ -188,10 +186,9 @@ public:
   getCoordinates(const parameters<Q> &parameter,
                  const math::vector<Q, od> &ve) {
     return {
-      { Q((parameter.radius + parameter.radius2 * cos(ve[1])) * cos(ve[0])),
-        Q((parameter.radius + parameter.radius2 * cos(ve[1])) * sin(ve[0])),
-        Q(parameter.radius2 * sin(ve[1])) }
-    };
+        {Q((parameter.radius + parameter.radius2 * cos(ve[1])) * cos(ve[0])),
+         Q((parameter.radius + parameter.radius2 * cos(ve[1])) * sin(ve[0])),
+         Q(parameter.radius2 * sin(ve[1]))}};
   }
 };
 
@@ -211,10 +208,10 @@ public:
   constexpr static math::vector<Q, renderDepth>
   getCoordinates(const parameters<Q> &parameter,
                  const math::vector<Q, od> &ve) {
-    return { { Q(cos(parameter.constant) * cos(ve[0])),
-               Q(cos(parameter.constant) * sin(ve[0])),
-               Q(sin(parameter.constant) * cos(ve[1])),
-               Q(sin(parameter.constant) * sin(ve[1])) } };
+    return {{Q(cos(parameter.constant) * cos(ve[0])),
+             Q(cos(parameter.constant) * sin(ve[0])),
+             Q(sin(parameter.constant) * cos(ve[1])),
+             Q(sin(parameter.constant) * sin(ve[1]))}};
   }
 };
 
@@ -236,10 +233,10 @@ public:
   constexpr static math::vector<Q, renderDepth>
   getCoordinates(const parameters<Q> &parameter,
                  const math::vector<Q, od> &ve) {
-    return { { Q(parameter.radius * cos(ve[0]) * sin(ve[1])),
-               Q(parameter.radius * sin(ve[0]) * sin(ve[1])),
-               Q(parameter.radius * (cos(ve[1]) + log(tan(ve[1] / 2.0))) +
-                 parameter.radius2 * ve[0]) } };
+    return {{Q(parameter.radius * cos(ve[0]) * sin(ve[1])),
+             Q(parameter.radius * sin(ve[0]) * sin(ve[1])),
+             Q(parameter.radius * (cos(ve[1]) + log(tan(ve[1] / 2.0))) +
+               parameter.radius2 * ve[0])}};
   }
 };
 };
@@ -335,12 +332,7 @@ public:
       }
     }
 
-    recurse(cube, 0, {
-      {}
-    },
-            {
-      {}
-    });
+    recurse(cube, 0, {{}}, {{}});
   }
 };
 

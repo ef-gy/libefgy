@@ -86,8 +86,8 @@ public:
  + \returns The parameter 'stream' after writing to it.
  */
 template <typename C>
-    constexpr inline std::basic_ostream<
-        C> &operator<<(std::basic_ostream<C> &stream, const polar &format) {
+constexpr inline std::basic_ostream<C> &
+operator<<(std::basic_ostream<C> &stream, const polar &format) {
   return stream << "[polar:" << format.precision << "]";
 }
 };
@@ -104,13 +104,11 @@ template <typename C>
 template <typename F, unsigned int n>
 class vector<F, n, format::polar> : public std::array<F, n> {
 public:
-    /**\copydoc vector::vector
-     * \param[in] s An instance of the format tag; may be used to
-     *              specify a precision for conversion operations.
-     */
-  constexpr vector(const std::array<F, n> &t = {
-    {}
-  },
+  /**\copydoc vector::vector
+   * \param[in] s An instance of the format tag; may be used to
+   *              specify a precision for conversion operations.
+   */
+  constexpr vector(const std::array<F, n> &t = {{}},
                    const format::polar &s = format::polar())
       : std::array<F, n>(t), spaceTag(s) {}
 
@@ -169,7 +167,7 @@ public:
 #pragma clang diagnostic ignored "-Wtautological-compare"
     for (unsigned int i = 0; i < (n - 1); i++)
 #pragma clang diagnostic pop
-        {
+    {
       const unsigned int p = i + 1;
 
       v[i] *= math::cosine((*this)[p], spaceTag.precision);

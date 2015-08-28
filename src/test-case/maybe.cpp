@@ -68,7 +68,8 @@ int testMaybe(std::ostream &log) {
   something = nothing;
 
   if (something) {
-    log << "'something' was changed to 'nothing', but still thinks otherwise.\n";
+    log << "'something' was changed to 'nothing', but still thinks "
+           "otherwise.\n";
     return 4;
   }
 

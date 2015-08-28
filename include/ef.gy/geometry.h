@@ -38,8 +38,7 @@ namespace efgy {
  * Contains templates dealing with geometry: vector space transformations,
  * projections, mesh creation, polygon operators, etc.
  */
-namespace geometry {
-};
+namespace geometry {};
 };
 
 #endif

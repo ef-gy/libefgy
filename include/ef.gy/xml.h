@@ -36,8 +36,7 @@ namespace efgy {
  *
  * This namespace contains helper functionality for XML output.
  */
-namespace xml {
-};
+namespace xml {};
 };
 
 #endif

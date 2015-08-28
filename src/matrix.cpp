@@ -265,8 +265,8 @@ terminal::cell<long> postProcessPolar(const terminal::terminal<long> &t,
   double r = std::sqrt(r2);
   l = hl + loff + std::sin(r) * 1.0;
   c = hc + coff + std::cos(r) * 1.0;
-  const std::size_t tl = (std::size_t) l < s[1] ? (std::size_t) l : (s[1] - 1);
-  const std::size_t tc = (std::size_t) c < s[0] ? (std::size_t) c : (s[0] - 1);
+  const std::size_t tl = (std::size_t)l < s[1] ? (std::size_t)l : (s[1] - 1);
+  const std::size_t tc = (std::size_t)c < s[0] ? (std::size_t)c : (s[0] - 1);
   terminal::cell<long> rv = t.target[tl][tc];
   terminal::cell<long> cv = t.current[tl][tc];
   rv.content =

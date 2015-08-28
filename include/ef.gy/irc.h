@@ -107,10 +107,7 @@ public:
   bool addMode(const char nmode) {
     mode.insert(nmode);
 
-    return send("MODE", {
-      name, std::string("+") + nmode
-    },
-                prefix());
+    return send("MODE", {name, std::string("+") + nmode}, prefix());
   }
 
   /**\brief Remove a mode flag to the channel
@@ -125,10 +122,7 @@ public:
   bool removeMode(const char nmode) {
     mode.erase(nmode);
 
-    return send("MODE", {
-      name, std::string("-") + nmode
-    },
-                prefix());
+    return send("MODE", {name, std::string("-") + nmode}, prefix());
   }
 
   /**\brief Get the modestring for the channel
@@ -148,7 +142,7 @@ public:
 namespace processor {
 template <class sock> class server {
 public:
-  typedef session<sock, server<sock> > session;
+  typedef session<sock, server<sock>> session;
   typedef channel<session> channel;
 
   bool pass(session &session, const std::string &pass) {
@@ -165,9 +159,7 @@ public:
 
   bool pass(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "PASS"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"PASS"});
     }
 
     return pass(session, param[0]);
@@ -193,9 +185,7 @@ public:
 
   bool nick(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "NICK"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"NICK"});
     }
 
     return nick(session, param[0]);
@@ -207,8 +197,7 @@ public:
 
     try {
       nmode = std::stoi(mode);
-    }
-    catch (...) {
+    } catch (...) {
       nmode = 0;
     }
 
@@ -247,9 +236,7 @@ public:
 
   bool user(session &session, const std::vector<std::string> &param) {
     if (param.size() < 4) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "USER"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"USER"});
     }
 
     return user(session, param[0], param[1], param[3]);
@@ -257,9 +244,7 @@ public:
 
   bool ping(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "PING"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"PING"});
     }
 
     session.send("PONG", param);
@@ -276,12 +261,8 @@ public:
       }
     }
 
-    session.send(RPL_NAMREPLY, {
-      "=", channel, names
-    });
-    session.send(RPL_ENDOFNAMES, {
-      channel, "End of NAMES list"
-    });
+    session.send(RPL_NAMREPLY, {"=", channel, names});
+    session.send(RPL_ENDOFNAMES, {channel, "End of NAMES list"});
 
     return true;
   }
@@ -289,9 +270,7 @@ public:
   bool names(session &session, const std::string &channel,
              const std::string &target) {
     if (target != session.server.name) {
-      session.send(ERR_NOSUCHSERVER, {
-        target, "No such server"
-      });
+      session.send(ERR_NOSUCHSERVER, {target, "No such server"});
 
       return false;
     }
@@ -301,9 +280,7 @@ public:
 
   bool names(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "NAMES"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"NAMES"});
     }
 
     if (param.size() > 1) {
@@ -316,13 +293,11 @@ public:
   bool topic(session &session, const std::string &channel) {
     const auto &topic = channels[channel].topic;
     if (topic != "") {
-      session.send(RPL_TOPIC, {
-        channel, topic
-      });
+      session.send(RPL_TOPIC, {channel, topic});
     } else {
       session.send(RPL_NOTOPIC, {
-        channel,
-      });
+                                 channel,
+                                });
     }
 
     return true;
@@ -332,8 +307,8 @@ public:
              const std::string &newtopic) {
     if (session.subscriptions.find(channel) == session.subscriptions.end()) {
       session.send(ERR_NOTONCHANNEL, {
-        channel,
-      });
+                                      channel,
+                                     });
       return false;
     } else {
       channels[channel].topic = newtopic;
@@ -344,9 +319,7 @@ public:
 
   bool topic(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "TOPIC"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"TOPIC"});
     }
 
     if (param.size() > 1) {
@@ -361,10 +334,7 @@ public:
 
     for (auto &sess : sessions) {
       if (sess->subscriptions.find(channel) != sess->subscriptions.end()) {
-        sess->send("JOIN", {
-          channel
-        },
-                   session.prefix());
+        sess->send("JOIN", {channel}, session.prefix());
       }
     }
 
@@ -373,9 +343,7 @@ public:
 
   bool join(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "JOIN"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"JOIN"});
     }
 
     std::istringstream input(param[0]);
@@ -385,9 +353,7 @@ public:
       if (isChannel(channel)) {
         join(session, channel);
       } else {
-        session.send(ERR_NOSUCHCHANNEL, {
-          channel
-        });
+        session.send(ERR_NOSUCHCHANNEL, {channel});
       }
     }
 
@@ -398,10 +364,7 @@ public:
             const std::string &message) {
     for (auto &sess : sessions) {
       if (sess->subscriptions.find(channel) != sess->subscriptions.end()) {
-        sess->send("PART", {
-          channel
-        },
-                   session.prefix());
+        sess->send("PART", {channel}, session.prefix());
       }
     }
 
@@ -412,9 +375,7 @@ public:
 
   bool part(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "PART"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"PART"});
     }
 
     std::string message = "No message";
@@ -444,17 +405,11 @@ public:
 
       if (target == sess->nick) {
         targets++;
-        sess->send("PRIVMSG", {
-          target, message
-        },
-                   session.prefix());
+        sess->send("PRIVMSG", {target, message}, session.prefix());
       } else if (sess->subscriptions.find(target) !=
                  sess->subscriptions.end()) {
         targets++;
-        sess->send("PRIVMSG", {
-          target, message
-        },
-                   session.prefix());
+        sess->send("PRIVMSG", {target, message}, session.prefix());
       }
     }
 
@@ -463,9 +418,7 @@ public:
 
   bool privmsg(session &session, const std::vector<std::string> &param) {
     if (param.size() < 2) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "PRIVMSG"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"PRIVMSG"});
     }
 
     return privmsg(session, param[0], param[1]);
@@ -473,7 +426,7 @@ public:
 
   bool who(session &qsession, const std::string &query) {
     std::regex m = mask(query);
-    std::set<std::shared_ptr<session> > matches;
+    std::set<std::shared_ptr<session>> matches;
 
     for (auto &sess : sessions) {
       for (auto &sub : sess->subscriptions) {
@@ -499,24 +452,19 @@ public:
         sub = query;
       }
 
-      qsession.send(RPL_WHOREPLY, {
-        sub, sess->user, sess->host, sess->server.name, sess->nick, "H@", "0",
-            sess->real
-      });
+      qsession.send(RPL_WHOREPLY,
+                    {sub, sess->user, sess->host, sess->server.name, sess->nick,
+                     "H@", "0", sess->real});
     }
 
-    qsession.send(RPL_ENDOFWHO, {
-      query, "End of /WHO list"
-    });
+    qsession.send(RPL_ENDOFWHO, {query, "End of /WHO list"});
 
     return true;
   }
 
   bool who(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "WHO"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"WHO"});
     }
 
     return who(session, param[0]);
@@ -524,7 +472,7 @@ public:
 
   bool whois(session &qsession, const std::string &query) {
     std::regex m = mask(query);
-    std::set<std::shared_ptr<session> > matches;
+    std::set<std::shared_ptr<session>> matches;
 
     for (auto &sess : sessions) {
       if (std::regex_match(sess->user, m)) {
@@ -539,9 +487,8 @@ public:
     }
 
     for (auto &sess : matches) {
-      qsession.send(RPL_WHOISUSER, {
-        sess->nick, sess->user, sess->host, "*", sess->real
-      });
+      qsession.send(RPL_WHOISUSER,
+                    {sess->nick, sess->user, sess->host, "*", sess->real});
 
       std::string channels = "";
 
@@ -549,19 +496,13 @@ public:
         channels += (channels == "" ? "" : " ") + sub;
       }
 
-      qsession.send(RPL_WHOISCHANNELS, {
-        sess->nick, channels
-      });
+      qsession.send(RPL_WHOISCHANNELS, {sess->nick, channels});
 
-      qsession.send(RPL_ENDOFWHOIS, {
-        sess->nick
-      });
+      qsession.send(RPL_ENDOFWHOIS, {sess->nick});
     }
 
     if (matches.size() == 0) {
-      qsession.send(ERR_NOSUCHNICK, {
-        query
-      });
+      qsession.send(ERR_NOSUCHNICK, {query});
     }
 
     return true;
@@ -569,9 +510,7 @@ public:
 
   bool whois(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "WHOIS"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"WHOIS"});
     }
 
     return whois(session, param[0]);
@@ -579,7 +518,7 @@ public:
 
   bool oper(session &session, const std::string &user,
             const std::string &password) {
-    //TODO: Operators could come in handy, but so far there's no need for them
+    // TODO: Operators could come in handy, but so far there's no need for them
     // in this basic implementation. So we just pretend that there's no O-lines,
     // ever.
     return session.send(ERR_NOOPERHOST);
@@ -587,9 +526,7 @@ public:
 
   bool oper(session &session, const std::vector<std::string> &param) {
     if (param.size() < 2) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "OPER"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"OPER"});
     }
 
     return oper(session, param[0], param[1]);
@@ -606,9 +543,7 @@ public:
     if (!isChannel(channel)) {
       if (channel == session.nick) {
         if (modes.size() == 0) {
-          return session.send(RPL_UMODEIS, {
-            session.getMode()
-          });
+          return session.send(RPL_UMODEIS, {session.getMode()});
         }
 
         for (const auto &mode : modes) {
@@ -649,17 +584,13 @@ public:
     for (unsigned int i = 0; i < modes.size(); i++) {
       std::smatch matches;
       if (std::regex_match(modes[i], matches, ban)) {
-        session.send(RPL_ENDOFBANLIST, {
-          channel
-        });
+        session.send(RPL_ENDOFBANLIST, {channel});
         sendcount++;
       }
     }
 
     if (sendcount == 0) {
-      session.send(ERR_NOCHANMODES, {
-        channel
-      });
+      session.send(ERR_NOCHANMODES, {channel});
     }
 
     return true;
@@ -667,9 +598,7 @@ public:
 
   bool mode(session &session, const std::vector<std::string> &param) {
     if (param.size() < 1) {
-      return session.send(ERR_NEEDMOREPARAMS, {
-        "MODE"
-      });
+      return session.send(ERR_NEEDMOREPARAMS, {"MODE"});
     }
 
     std::string channel;
@@ -756,9 +685,7 @@ public:
 
     session.server.log << "\n";
 
-    session.send(ERR_UNKNOWNCOMMAND, {
-      command
-    });
+    session.send(ERR_UNKNOWNCOMMAND, {command});
 
     return true;
   }
@@ -790,12 +717,12 @@ public:
   }
 
 protected:
-  std::set<std::shared_ptr<session> > sessions;
+  std::set<std::shared_ptr<session>> sessions;
   std::map<std::string, channel> channels;
 };
 }
 
-template <typename base, typename requestProcessor = processor::server<base> >
+template <typename base, typename requestProcessor = processor::server<base>>
 using server = net::server<base, requestProcessor, session>;
 
 template <typename base, typename requestProcessor> class session {
@@ -838,10 +765,7 @@ public:
   bool addMode(const char nmode) {
     mode.insert(nmode);
 
-    return send("MODE", {
-      nick, std::string("+") + nmode
-    },
-                prefix());
+    return send("MODE", {nick, std::string("+") + nmode}, prefix());
   }
 
   /**\brief Remove a mode flag to the session
@@ -856,10 +780,7 @@ public:
   bool removeMode(const char nmode) {
     mode.erase(nmode);
 
-    return send("MODE", {
-      nick, std::string("-") + nmode
-    },
-                prefix());
+    return send("MODE", {nick, std::string("-") + nmode}, prefix());
   }
 
   /**\brief Get the modestring for the session
@@ -888,15 +809,13 @@ public:
 
     try {
       socket.shutdown(base::socket::shutdown_both);
-    }
-    catch (std::system_error & e) {
+    } catch (std::system_error &e) {
       std::cerr << "exception while shutting down socket: " << e.what() << "\n";
     }
 
     try {
       socket.close();
-    }
-    catch (std::system_error & e) {
+    } catch (std::system_error &e) {
       std::cerr << "exception while closing socket: " << e.what() << "\n";
     }
   }
@@ -904,8 +823,7 @@ public:
   void start() { read(); }
 
   bool send(const std::string &command,
-            const std::vector<std::string> &params = {
-  },
+            const std::vector<std::string> &params = {},
             std::string source = "") {
     bool have_trailing = false;
 
@@ -941,16 +859,14 @@ public:
 
     std::cerr << "sent: " << send.str();
 
-    asio::async_write(socket, asio::buffer(send.str()),
-                      [&](std::error_code ec, std::size_t length) {
-      handleWrite(ec);
-    });
+    asio::async_write(
+        socket, asio::buffer(send.str()),
+        [&](std::error_code ec, std::size_t length) { handleWrite(ec); });
 
     return true;
   }
 
-  bool send(const enum numericMessage num, std::vector<std::string> params = {
-  },
+  bool send(const enum numericMessage num, std::vector<std::string> params = {},
             std::string source = "") {
     std::stringstream code;
 
@@ -1035,9 +951,8 @@ protected:
 
       if (std::regex_match(s, matches, line)) {
         std::vector<std::string> param;
-        for (unsigned int i : {
-          5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33
-        }) {
+        for (unsigned int i :
+             {5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33}) {
           if (matches[i] != "") {
             param.push_back(matches[i]);
           }
@@ -1061,7 +976,7 @@ protected:
     }
 
     if (!error) {
-      //read();
+      // read();
     } else {
       server.processor.quit(*this, "write error");
       self.reset();
@@ -1075,9 +990,9 @@ protected:
     default:
       asio::async_read_until(
           socket, input, "\n",
-          [&](const asio::error_code & error, std::size_t bytes_transferred) {
-        handleRead(error, bytes_transferred);
-      });
+          [&](const asio::error_code &error, std::size_t bytes_transferred) {
+            handleRead(error, bytes_transferred);
+          });
       break;
     }
   }

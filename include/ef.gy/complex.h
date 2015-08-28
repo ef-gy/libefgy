@@ -128,7 +128,7 @@ public:
 };
 
 namespace numeric {
-template <typename Q> class traits<complex<Q> > {
+template <typename Q> class traits<complex<Q>> {
 public:
   typedef typename traits<Q>::integral integral;
   typedef typename traits<Q>::rational rational;

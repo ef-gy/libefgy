@@ -1,10 +1,10 @@
 /**\file
  * \brief Genetic algorithms
- * 
+ *
  * Defines a template for classic genetic algorithms. The parameters, as well as
  * the
  * fitness functor, are set at compile time.
- * 
+ *
  * \copyright
  * Copyright (c) 2012-2015, ef.gy Project Members
  * \copyright
@@ -129,7 +129,6 @@ protected:
 
     std::vector<individual> children;
     while (children.size() < populationSize) {
-
       std::uniform_int_distribution<> dis(0, parents.size());
       int p1 = dis(rng);
       int p2 = dis(rng);
@@ -152,7 +151,6 @@ protected:
       }
       children.push_back(offspring.first);
       children.push_back(offspring.second);
-
     }
 
     population.swap(children);
@@ -186,7 +184,6 @@ public:
     }
     std::random_device rd;
     rng = std::mt19937(rd());
-
   }
 
   individual start() {
@@ -209,7 +206,6 @@ public:
       return individual();
     }
   }
-
 };
 
 /** \brief Functor that returns a random float between 0 and 1 */
@@ -220,7 +216,6 @@ public:
     std::mt19937 rng(rd());
     return std::generate_canonical<float, 10>(rng);
   }
-
 };
 
 /** \brief Implements the tournament selection method for genetic algorithms.
@@ -230,8 +225,8 @@ template <typename S, int tournamentSize> class SelectTournament {
 public:
   SelectTournament(S &s_) : GA(s_) {}
 
-  std::vector<typename S::individual> operator()(
-      int targetSize, std::vector<typename S::individual> population) {
+  std::vector<typename S::individual>
+  operator()(int targetSize, std::vector<typename S::individual> population) {
     std::random_device rd;
     std::mt19937 rng(rd());
     std::map<typename S::base, typename S::individual> current;
@@ -269,7 +264,6 @@ public:
           }
         }
       }
-
     }
     GA.population.swap(newPopulation);
 
@@ -279,7 +273,6 @@ public:
 private:
   S &GA;
 };
-
 }
 }
 

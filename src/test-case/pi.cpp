@@ -57,10 +57,10 @@ int testPi(std::ostream &log) {
   pi<longDouble> piD3(1, 3);
   pi<longDouble> piD4(1, 4);
 
-  log << "pi<longDouble,1> = " << (long double) longDouble(piD1) << "\n";
-  log << "pi<longDouble,2> = " << (long double) longDouble(piD2) << "\n";
-  log << "pi<longDouble,3> = " << (long double) longDouble(piD3) << "\n";
-  log << "pi<longDouble,4> = " << (long double) longDouble(piD4) << "\n";
+  log << "pi<longDouble,1> = " << (long double)longDouble(piD1) << "\n";
+  log << "pi<longDouble,2> = " << (long double)longDouble(piD2) << "\n";
+  log << "pi<longDouble,3> = " << (long double)longDouble(piD3) << "\n";
+  log << "pi<longDouble,4> = " << (long double)longDouble(piD4) << "\n";
 
   if (longDouble(piD1) != pi<longDouble>::get(1)) {
     log << "constexpr method returned unexpected result\n";
@@ -107,10 +107,10 @@ int testPi(std::ostream &log) {
     return 14;
   }
 
-  log << "pi<long double,1> = " << (long double) piDL1 << "\n";
-  log << "pi<long double,2> = " << (long double) piDL2 << "\n";
-  log << "pi<long double,3> = " << (long double) piDL3 << "\n";
-  log << "pi<long double,4> = " << (long double) piDL4 << "\n";
+  log << "pi<long double,1> = " << (long double)piDL1 << "\n";
+  log << "pi<long double,2> = " << (long double)piDL2 << "\n";
+  log << "pi<long double,3> = " << (long double)piDL3 << "\n";
+  log << "pi<long double,4> = " << (long double)piDL4 << "\n";
 
   pi<fraction> piQ1(fraction(1), 1);
   pi<fraction> piQ2(fraction(1), 2);

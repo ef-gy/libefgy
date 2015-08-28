@@ -20,7 +20,7 @@ PKGCONFIG:=$(shell which pkg-config false | head -n 1)
 INSTALL:=$(shell which install false | head -n 1)
 XSLTPROC:=$(shell which xsltproc false | head -n 1)
 CURL:=$(shell which curl false | head -n 1)
-CLANG_FORMAT:=$(shell which clang-format false | head -n 1)
+CLANG_FORMAT:=$(shell which clang-format clang-format-3.4 clang-format-3.5 false | head -n 1) -style=llvm
 GIT:=$(shell which git false | head -n 1)
 
 LIBRARIES:=

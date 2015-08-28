@@ -41,8 +41,7 @@ namespace efgy {
  * into plain XML to post-process in other programmes or even rendering
  * complex higher dimensional models in OpenGL or WebGL.
  */
-namespace render {
-};
+namespace render {};
 };
 
 #endif

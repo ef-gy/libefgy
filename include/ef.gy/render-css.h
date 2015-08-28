@@ -36,8 +36,7 @@
 #include <ef.gy/stream-css.h>
 
 namespace efgy {
-namespace render {
-};
+namespace render {};
 };
 
 #endif

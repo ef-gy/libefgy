@@ -80,10 +80,9 @@ public:
     exception(const std::string &pString) : std::runtime_error(pString) {}
 
     exception(const std::string &pString, const sqlite &pSQL)
-        : std::runtime_error(pSQL.database
-                                 ? pString + ": " +
-                                       sqlite3_errmsg(pSQL.database)
-                                 : pString + ": no valid database context") {}
+        : std::runtime_error(
+              pSQL.database ? pString + ": " + sqlite3_errmsg(pSQL.database)
+                            : pString + ": no valid database context") {}
   };
 
   class statement {
@@ -216,7 +215,7 @@ public:
       } else {
         throw exception("import: sqlite3_prepare_v2", *this);
       }
-    } while ((tail != 0) && (*tail != (char) 0));
+    } while ((tail != 0) && (*tail != (char)0));
 
     return true;
   }
@@ -273,7 +272,7 @@ template <> bool sqlite::statement::get(int i, long long &value) {
 
   sqlite3_int64 v = sqlite3_column_int64(stmt, i);
 
-  value = (long long) v;
+  value = (long long)v;
 
   return true;
 }

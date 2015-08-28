@@ -168,15 +168,18 @@ public:
     return exponent == typename numeric::traits<Q>::integral(0)
                ? Q(1)
                : exponent == typename numeric::traits<Q>::integral(-1)
-               ? Q(1) / base
-               : exponent == typename numeric::traits<Q>::integral(1)
-               ? base
-               : exponent % typename numeric::traits<Q>::integral(2) ==
-                     typename numeric::traits<Q>::integral(0)
-               ? raise(base * base, exponent >> 1)
-               : base * raise(base * base,
-                              (exponent -
-                               typename numeric::traits<Q>::integral(1)) >> 1);
+                     ? Q(1) / base
+                     : exponent == typename numeric::traits<Q>::integral(1)
+                           ? base
+                           : exponent % typename numeric::traits<Q>::integral(
+                                            2) ==
+                                     typename numeric::traits<Q>::integral(0)
+                                 ? raise(base * base, exponent >> 1)
+                                 : base * raise(base * base,
+                                                (exponent -
+                                                 typename numeric::traits<
+                                                     Q>::integral(1)) >>
+                                                    1);
   }
 };
 };

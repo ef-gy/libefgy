@@ -253,7 +253,7 @@ public:
                                   r.doModuloHorner(ap, bp);
                               }
       */
-        else {
+    else {
       r.doModulo(ap, bp);
     }
 
@@ -466,7 +466,8 @@ public:
 
       if (j < r.cell.size()) {
         r.cell[i] = ((Tu(cell[(j + nukeCells)]) << cellBitCount) |
-                     (Tu(cell[(i + nukeCells)]))) >> q;
+                     (Tu(cell[(i + nukeCells)]))) >>
+                    q;
       } else {
         r.cell[i] = (cell[(i + nukeCells)] >> q);
       }
@@ -530,7 +531,8 @@ public:
         cellType j = i - 1;
 
         r.cell[i] = (((Tu(cell[(j - pushCells)])) |
-                      (Tu(cell[(i - pushCells)]) << cellBitCount)) << q) >>
+                      (Tu(cell[(i - pushCells)]) << cellBitCount))
+                     << q) >>
                     cellBitCount;
       } else {
         r.cell[i] = Tu(cell[(i - pushCells)]) << q;
@@ -675,7 +677,7 @@ protected:
     }
 
     if (overflow) // overflow in the most significant cell, add extra cell
-        {
+    {
       cell.push_back(cellType(1));
     }
   }
@@ -934,10 +936,10 @@ protected:
 
 template <typename Ts, typename Tu, typename cellType,
           unsigned int cellBitCount>
-class traits<bigIntegers<Ts, Tu, cellType, cellBitCount> > {
+class traits<bigIntegers<Ts, Tu, cellType, cellBitCount>> {
 public:
   typedef bigIntegers<Ts, Tu, cellType, cellBitCount> integral;
-  typedef fractional<bigIntegers<Ts, Tu, cellType, cellBitCount> > rational;
+  typedef fractional<bigIntegers<Ts, Tu, cellType, cellBitCount>> rational;
   typedef bigIntegers<Ts, Tu, cellType, cellBitCount> self;
   typedef bigIntegers<Ts, Tu, cellType, cellBitCount> derivable;
 
@@ -946,10 +948,9 @@ public:
 
 template <typename C, typename Ts, typename Tu, typename cellType,
           unsigned int cellBitCount>
-    std::basic_ostream<
-        C> &operator<<(std::basic_ostream<C> &out,
-                       const bigIntegers<Ts, Tu, cellType, cellBitCount> &
-                           pNumber) {
+std::basic_ostream<C> &
+operator<<(std::basic_ostream<C> &out,
+           const bigIntegers<Ts, Tu, cellType, cellBitCount> &pNumber) {
   const unsigned int pBase = 10;
   bool negative = pNumber < zero();
   bool didOutput = false;
@@ -963,11 +964,11 @@ template <typename C, typename Ts, typename Tu, typename cellType,
 
   while (b > zero()) {
     const char t[2] = {
-      "0123456789abcdefghijklmnopqrstuvwxyz"
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ#,."[
-          (b % bigIntegers<Ts, Tu, cellType, cellBitCount>(pBase)).toInteger()],
-      0
-    };
+        "0123456789abcdefghijklmnopqrstuvwxyz"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ#,."[(b % bigIntegers<Ts, Tu, cellType,
+                                                         cellBitCount>(pBase))
+                                            .toInteger()],
+        0};
     std::string tq(t);
 
     s = tq + s;

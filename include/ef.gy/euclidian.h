@@ -125,8 +125,8 @@ math::vector<F, n> normalise(const math::vector<F, n> &pV) {
 template <typename F>
 constexpr math::vector<F, 3> crossProduct(const math::vector<F, 3> &a,
                                           const math::vector<F, 3> &b) {
-  return { { a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2],
-             a[0] * b[1] - a[1] * b[0] } };
+  return {{a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2],
+           a[0] * b[1] - a[1] * b[0]}};
 }
 
 /**\brief Calculate normal
@@ -230,7 +230,7 @@ normal(const std::array<math::vector<Q, 3>, 2> &pV) {
  */
 template <typename Q>
 constexpr math::vector<Q, 2> perpendicular(const math::vector<Q, 2> &v) {
-  return { { v[1] * Q(-1), v[0] } };
+  return {{v[1] * Q(-1), v[0]}};
 }
 
 /**\brief Calculate perpendicular vector (3-space)

@@ -228,7 +228,7 @@ public:
    * \return The calculated scale.
    */
   static Q get(void) {
-    return math::exponentiate::integral<Q, exponent *unitExponent>::raise(
+    return math::exponentiate::integral<Q, exponent * unitExponent>::raise(
         Q(10));
   }
 };
@@ -254,7 +254,7 @@ public:
    * \return The calculated scale.
    */
   static Q get(void) {
-    return math::exponentiate::integral<Q, exponent *unitExponent>::raise(
+    return math::exponentiate::integral<Q, exponent * unitExponent>::raise(
         Q(1024));
   }
 };
@@ -301,7 +301,7 @@ public:
     return ((exponent * unitExponent) <= 0) ? value * multiplier < base,
            exponent < 0 ? -exponent : exponent,
            unitExponent < 0 ? -unitExponent : unitExponent > ::get()
-                            : value / multiplier < base,
+                                            : value / multiplier < base,
            exponent < 0 ? -exponent : exponent,
            unitExponent < 0 ? -unitExponent : unitExponent > ::get();
   }

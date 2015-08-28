@@ -56,12 +56,9 @@ public:
 
     std::mt19937 PRNG(parameter.seed);
 
-    std::vector<math::vector<Q, parent::renderDepth, format> > seeds;
+    std::vector<math::vector<Q, parent::renderDepth, format>> seeds;
 
-    math::vector<Q, parent::renderDepth, format> vec {
-      {}
-    }
-    ;
+    math::vector<Q, parent::renderDepth, format> vec{{}};
 
     for (unsigned int i = 0; i < 4; i++) {
       for (auto &v : vec) {
@@ -70,16 +67,14 @@ public:
       seeds.push_back(vec);
     }
 
-    std::vector<math::vector<Q, parent::renderDepth, format> > points;
+    std::vector<math::vector<Q, parent::renderDepth, format>> points;
     for (const auto &i :
          range<Q>(-parameter.radius / Q(2), parameter.radius / Q(2),
                   parameter.precision, false)) {
-      points.push_back({
-        { i }
-      });
+      points.push_back({{i}});
     }
 
-    std::vector<math::vector<Q, parent::renderDepth, format> > points2 = points;
+    std::vector<math::vector<Q, parent::renderDepth, format>> points2 = points;
 
     for (const auto &i : range<int>(0, parameter.iterations * 10, false)) {
       for (auto &p : points) {
@@ -91,9 +86,8 @@ public:
       }
 
       for (unsigned int j = 0; j < (points.size() - 1); j++) {
-        faces.push_back({
-          { points[j], points[(j + 1)], points2[(j + 1)], points2[j] }
-        });
+        faces.push_back(
+            {{points[j], points[(j + 1)], points2[(j + 1)], points2[j]}});
       }
 
       points2 = points;

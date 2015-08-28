@@ -264,19 +264,20 @@ int testVT100Decode(std::ostream &log) {
     long ce = 0, le = 0;
     std::vector<long> queue(sq.begin(), sq.end());
 
-    auto dec =
-        vt100<long>::decode(queue, [&ce](const vt100<long>::command & c)->bool {
-      if (c.code == 'r' && c.parameter.size() == 1 && c.parameter[0] == 11) {
-        ce++;
-      }
-      return false;
-    },
-                            [&le](const long & l)->bool {
-      if (l == 'p') {
-        le++;
-      }
-      return false;
-    });
+    auto dec = vt100<long>::decode(
+        queue, [&ce](const vt100<long>::command &c) -> bool {
+                 if (c.code == 'r' && c.parameter.size() == 1 &&
+                     c.parameter[0] == 11) {
+                   ce++;
+                 }
+                 return false;
+               },
+        [&le](const long &l) -> bool {
+          if (l == 'p') {
+            le++;
+          }
+          return false;
+        });
 
     if (dec.size() != 0) {
       log << "vt100 decode returned an incorrect number of results; should be "

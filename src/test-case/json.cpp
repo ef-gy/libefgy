@@ -52,16 +52,14 @@ int testJSONOutput(std::ostream &log) {
   m["b"] = 23;
   m["c"] = 1;
 
-  std::map<const char *, std::map<const char *, int> > mx;
+  std::map<const char *, std::map<const char *, int>> mx;
 
   mx["d"] = m;
 
   std::ostringstream s("");
 
   s << json::tag() << false << 1 << "foo" << 2 << "bar \"baz\"" << 42.23
-    << std::array<double, 2>({
-    23, 42
-  }) << m << mx << true;
+    << std::array<double, 2>({23, 42}) << m << mx << true;
 
   if (s.str() != "false1\"foo\"2\"bar \\\"baz\\\"\"42.23[23,42]"
                  "{\"a\":42,\"b\":23,\"c\":1}"

@@ -44,24 +44,22 @@ using namespace efgy::math;
  * \return Zero when everything went as expected, nonzero otherwise.
  */
 int testRealVectors(std::ostream &log) {
-  vector<int, 3> v1 = { { 1, 2, 3 } };
-  vector<int, 3> v2 = { { 2, 3, 4 } };
+  vector<int, 3> v1 = {{1, 2, 3}};
+  vector<int, 3> v2 = {{2, 3, 4}};
   vector<int, 3> r = v1 + v2;
 
   log << v1 << " + " << v2 << " = " << r << "\n";
   log << "sizeof(int) = " << sizeof(int) << "\n";
   log << "sizeof(vector<int,3>) = " << sizeof(vector<int, 3>) << "\n";
 
-  if (r != vector<int, 3>({
-    3, 5, 7
-  })) {
+  if (r != vector<int, 3>({3, 5, 7})) {
     log << "unexpected result after vector addition; expected ([real] 3, 5, 7) "
            "but have " << r << "\n";
     return 1;
   }
 
-  vector<double, 3, format::polar> vp1 = { { 1, 2, 3 } };
-  vector<double, 3, format::polar> vp2 = { { 2, -1, 1 } };
+  vector<double, 3, format::polar> vp1 = {{1, 2, 3}};
+  vector<double, 3, format::polar> vp2 = {{2, -1, 1}};
   vector<double, 3, format::polar> rp = vp1 + vp2;
 
   log << vp1 << " + " << vp2 << " = " << rp << "\n";
@@ -69,9 +67,7 @@ int testRealVectors(std::ostream &log) {
   log << "sizeof(vector<double,3,format::polar>) = "
       << sizeof(vector<double, 3, format::polar>) << "\n";
 
-  if (rp != vector<double, 3, format::polar>({
-    3, 1, 4
-  })) {
+  if (rp != vector<double, 3, format::polar>({3, 1, 4})) {
     log << "unexpected result after vector addition; expected ([polar:10] 3, "
            "1, 4) but have " << rp << "\n";
     return 2;

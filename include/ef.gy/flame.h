@@ -79,12 +79,12 @@ protected:
     // variations are implemented
 
     const Q theta = atan(V[0] / V[1]);
-    //const Q phi   = atan(V[1]/V[0]);
+    // const Q phi   = atan(V[1]/V[0]);
     const Q r2 = math::lengthSquared(V);
     const Q r = sqrt(r2);
     const Q omega = Q(std::rand() % 2) * Q(M_PI);
-    //const Q delta = (std::rand() % 2) == 1 ? Q(1) : Q(-1);
-    //const Q psi   = Q(std::rand() % 10000) / Q(10000);
+    // const Q delta = (std::rand() % 2) == 1 ? Q(1) : Q(-1);
+    // const Q psi   = Q(std::rand() % 10000) / Q(10000);
 
     switch (f) {
     case 0: // "linear"
@@ -98,7 +98,7 @@ protected:
       rv = V / r2;
       break;
     case 3: // "swirl"
-            {
+    {
       const Q sinrsq = sin(r2);
       const Q cosrsq = cos(r2);
 #pragma clang diagnostic push
@@ -212,7 +212,7 @@ protected:
         }
       break;
     case 12: // "ex"
-             {
+    {
       const Q p0 = sin(theta + r), p1 = cos(theta - r), p2 = sin(theta - r),
               p3 = cos(theta + r);
       for (unsigned int i : range<unsigned int>(0, depth, depth, false))
@@ -233,7 +233,7 @@ protected:
       rv = rv / r;
     } break;
     case 13: // "julia"
-             {
+    {
       const Q thpo = theta / Q(2) + omega;
       for (unsigned int i : range<unsigned int>(0, depth, depth, false))
         switch (i % 2) {
@@ -321,7 +321,7 @@ template <typename Q, unsigned int d> class randomFlame : public flame<Q, d> {
 public:
   randomFlame(const parameters<Q> &pParameter, const unsigned long long &pSeed)
       : flame<Q, d>(d), seed(pSeed) {
-    std::mt19937 PRNG((typename std::mt19937::result_type) pSeed);
+    std::mt19937 PRNG((typename std::mt19937::result_type)pSeed);
 
     transformationMatrix =
         randomAffine<Q, d>(pParameter, 0).transformationMatrix;
@@ -405,7 +405,7 @@ public:
 
     for (const unsigned int &i :
          range<unsigned int>(0, nfunctions, nfunctions, false)) {
-      (void) i;
+      (void)i;
       functions.push_back(transformation::randomFlame<Q, parent::renderDepth>(
           parameter, PRNG()));
     }

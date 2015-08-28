@@ -36,12 +36,12 @@ using namespace efgy::math;
 using efgy::test::next_integer;
 
 /* \brief Tests matrix construction.
-* 
+*
 * \test Constructs a 3x4 matrix from scratch,
 * then copies it to another matrix object.
 *
 * \param [out] log A stream to copy log messages to.
-* 
+*
 * \return Zero when everything went as expected, nonzero otherwise.
 */
 
@@ -71,13 +71,13 @@ int testConstruction(std::ostream &log) {
 }
 
 /* \brief Test matrix assignment.
-* 
+*
 * \test Constructs a 3x4 matrix and assigns it
 * to another matrix object, then checks if values
 * were copied correctly.
 *
 * \param [out] log A stream to copy log messages to.
-* 
+*
 * \return Zero when everything went as expected, nonzero otherwise.
 */
 int testAssignment(std::ostream &log) {
@@ -106,14 +106,14 @@ int testAssignment(std::ostream &log) {
 }
 
 /* \brief Test matrix addition
-* 
+*
 * \test Constructs a matrix from scratch;
 * checks whether adding the zero matrix from the left and the right
 * yields the expected result,
 * then adds two nontrivial matrices and checks the result.
 *
 * \param [out] log A stream to copy log messages to.
-* 
+*
 * \return Zero when everything went as expected, nonzero otherwise.
 */
 int testAddition(std::ostream &log) {
@@ -218,7 +218,7 @@ int testAddition(std::ostream &log) {
 * \test Constructs a matrix and inserts it into a std::ostringstream
 *
 * \param [out] log A stream to copy log messages to.
-* 
+*
 * \return Zero when everything went as expected, nonzero otherwise.
 */
 int testStream(std::ostream &log) {

@@ -57,19 +57,17 @@ namespace terminal {
  */
 template <typename T = long> class writer {
 public:
-    /**\brief Construct with terminal
-     *
-     * Constructs a new terminal output helper and binds it to the given
-     * terminal
-     * instance. Also sets colours and position to sensible defaults (i.e.
-     * top-left, writing white on black).
-     *
-     * \param[out] pOutput The output terminal to bind to.
-     */
+  /**\brief Construct with terminal
+   *
+   * Constructs a new terminal output helper and binds it to the given
+   * terminal
+   * instance. Also sets colours and position to sensible defaults (i.e.
+   * top-left, writing white on black).
+   *
+   * \param[out] pOutput The output terminal to bind to.
+   */
   writer(terminal<T> &pOutput)
-      : output(pOutput), foreground(7), background(0), position({
-    0, 0
-  }) {}
+      : output(pOutput), foreground(7), background(0), position({0, 0}) {}
 
   /**\brief Current background colour.
    *
@@ -289,7 +287,7 @@ public:
    * \returns A reference to *this.
    */
   writer &to(const ssize_t &column, const ssize_t &line) {
-    position = { column, line };
+    position = {column, line};
 
     return *this;
   }

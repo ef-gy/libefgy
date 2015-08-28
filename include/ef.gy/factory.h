@@ -260,11 +260,11 @@ public:
  *                tesseract
  * \tparam format Vector coordinate format to work in.
  */
-template <
-    typename Q, template <typename, template <class, unsigned int> class,
-                          unsigned int, unsigned int, typename> class func,
-    template <class, unsigned int> class T, unsigned int d, unsigned int e,
-    typename format>
+template <typename Q,
+          template <typename, template <class, unsigned int> class,
+                    unsigned int, unsigned int, typename> class func,
+          template <class, unsigned int> class T, unsigned int d,
+          unsigned int e, typename format>
 class model {
 public:
   /**\brief Call func with parameters
@@ -288,42 +288,54 @@ public:
     return d < T<Q, d>::dimensions::modelDimensionMinimum
                ? func<Q, T, d, e, format>::pass(arg)
                : (T<Q, d>::dimensions::modelDimensionMaximum > 0) &&
-                     (d > T<Q, d>::dimensions::modelDimensionMaximum)
-               ? model<Q, func, T, d - 1, e, format>::with(arg, dims, rdims,
-                                                           tag)
-               : e < T<Q, d>::renderDepth
-               ? model<Q, func, T, d - 1, e, format>::with(arg, dims, rdims,
-                                                           tag)
-               : 0 == rdims
-               ? (0 == dims ? func<Q, T, d, e, format>::apply(arg, tag),
-                  model<Q, func, T, d, e - 1, format>::with(arg, dims, rdims,
-                                                            tag),
-                  model<Q, func, T, d - 1, e, format>::with(arg, dims, rdims,
-                                                            tag)
-: d == dims
-                      ? func<Q, T, d, e, format>::apply(arg, tag),
-                  model<Q, func, T, d, e - 1, format>::with(arg, dims, rdims,
-                                                            tag)
-: d < dims
-                      ? func<Q, T, d, e, format>::pass(arg)
-                      : model<Q, func, T, d - 1, e, format>::with(arg, dims,
-                                                                  rdims, tag))
-               : e == rdims
-               ? (0 == dims ? func<Q, T, d, e, format>::apply(arg, tag),
-                  model<Q, func, T, d - 1, e, format>::with(arg, dims, rdims,
-                                                            tag)
-: d == dims
-                      ? func<Q, T, d, e, format>::apply(arg, tag),
-                  model<Q, func, T, d, e - 1, format>::with(arg, dims, rdims,
-                                                            tag)
-: d < dims
-                      ? func<Q, T, d, e, format>::pass(arg)
-                      : model<Q, func, T, d - 1, e, format>::with(arg, dims,
-                                                                  rdims, tag))
-               : e < rdims
-               ? func<Q, T, d, e, format>::pass(arg)
-               : model<Q, func, T, d, e - 1, format>::with(arg, dims, rdims,
-                                                           tag);
+                         (d > T<Q, d>::dimensions::modelDimensionMaximum)
+                     ? model<Q, func, T, d - 1, e, format>::with(arg, dims,
+                                                                 rdims, tag)
+                     : e < T<Q, d>::renderDepth
+                           ? model<Q, func, T, d - 1, e, format>::with(
+                                 arg, dims, rdims, tag)
+                           : 0 == rdims
+                                 ? (0 == dims
+                                    ? func<Q, T, d, e, format>::apply(arg, tag),
+                                    model<Q, func, T, d, e - 1, format>::with(
+                                        arg, dims, rdims, tag),
+                                    model<Q, func, T, d - 1, e, format>::with(
+                                        arg, dims, rdims, tag)
+                                    : d == dims
+                                    ? func<Q, T, d, e, format>::apply(arg, tag),
+                                    model<Q, func, T, d, e - 1, format>::with(
+                                        arg, dims, rdims, tag)
+                                    : d < dims
+                                          ? func<Q, T, d, e, format>::pass(arg)
+                                          : model<Q, func, T, d - 1, e,
+                                                  format>::with(arg, dims,
+                                                                rdims, tag))
+                                 : e == rdims
+                                       ? (0 == dims
+                                          ? func<Q, T, d, e, format>::apply(
+                                                arg, tag),
+                                          model<Q, func, T, d - 1, e,
+                                                format>::with(arg, dims, rdims,
+                                                              tag)
+                                          : d == dims
+                                          ? func<Q, T, d, e, format>::apply(
+                                                arg, tag),
+                                          model<Q, func, T, d, e - 1,
+                                                format>::with(arg, dims, rdims,
+                                                              tag)
+                                          : d < dims
+                                                ? func<Q, T, d, e,
+                                                       format>::pass(arg)
+                                                : model<Q, func, T, d - 1, e,
+                                                        format>::with(arg, dims,
+                                                                      rdims,
+                                                                      tag))
+                                       : e < rdims
+                                             ? func<Q, T, d, e, format>::pass(
+                                                   arg)
+                                             : model<Q, func, T, d, e - 1,
+                                                     format>::with(arg, dims,
+                                                                   rdims, tag);
   }
 };
 
@@ -358,8 +370,8 @@ public:
    * \returns func::pass(arg).
    */
   constexpr static typename func<Q, T, d, 1, format>::output
-  with(typename func<Q, T, d, 1, format>::argument arg, const unsigned int &,
-       const unsigned int &, const format &) {
+      with(typename func<Q, T, d, 1, format>::argument arg,
+           const unsigned int &, const unsigned int &, const format &) {
     return func<Q, T, d, 1, format>::pass(arg);
   }
 };
@@ -396,8 +408,8 @@ public:
    * \returns func::pass(arg).
    */
   constexpr static typename func<Q, T, 0, e, format>::output
-  with(typename func<Q, T, 0, e, format>::argument arg, const unsigned int &,
-       const unsigned int &, const format &) {
+      with(typename func<Q, T, 0, e, format>::argument arg,
+           const unsigned int &, const unsigned int &, const format &) {
     return func<Q, T, 0, e, format>::pass(arg);
   }
 };

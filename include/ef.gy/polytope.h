@@ -384,10 +384,10 @@ protected:
 };
 
 template <typename Q, unsigned int d, class model, class format>
-using autoAdapt = typename std::conditional <
-                      std::is_same<format, typename model::format>::value &&
-                  (d == model::renderDepth),
-      model, efgy::geometry::adapt<Q, d, model, format>> ::type;
+using autoAdapt = typename std::conditional<
+    std::is_same<format, typename model::format>::value &&(d ==
+                                                           model::renderDepth),
+    model, efgy::geometry::adapt<Q, d, model, format>>::type;
 
 template <typename Q, unsigned int od>
 class simplex : public polytope<Q, od, od, 3, math::format::cartesian> {
@@ -411,7 +411,7 @@ public:
   void
   recurse(const int r,
           math::vector<Q, parent::renderDepth, math::format::polar> v,
-          std::vector<math::vector<Q, parent::renderDepth, format> > &points) {
+          std::vector<math::vector<Q, parent::renderDepth, format>> &points) {
     if (r == 0) {
       math::vector<Q, parent::renderDepth, format> A = v;
       points.push_back(A);
@@ -430,7 +430,7 @@ public:
 
     faces.clear();
 
-    std::vector<math::vector<Q, parent::renderDepth, format> > points;
+    std::vector<math::vector<Q, parent::renderDepth, format>> points;
 
     math::vector<Q, parent::renderDepth, math::format::polar> v;
     v[0] = radius;
@@ -445,7 +445,7 @@ public:
     v[r] = Q(M_PI) / Q(1.5);
     recurse(q, v, points);
 
-    std::vector<math::vector<Q, parent::renderDepth, format> > points2;
+    std::vector<math::vector<Q, parent::renderDepth, format>> points2;
 
     for (const math::vector<Q, parent::renderDepth, format> &point : points) {
       if (std::find(points2.begin(), points2.end(), point) == points2.end()) {
@@ -455,17 +455,15 @@ public:
 
     points = points2;
 
-    std::vector<math::vector<Q, parent::renderDepth, format> > usedPoints;
+    std::vector<math::vector<Q, parent::renderDepth, format>> usedPoints;
 
     for (const math::vector<Q, parent::renderDepth, format> &A : points) {
-      std::vector<math::vector<Q, parent::renderDepth, format> > usedPoints2;
+      std::vector<math::vector<Q, parent::renderDepth, format>> usedPoints2;
 
       for (const math::vector<Q, parent::renderDepth, format> &B : usedPoints) {
         for (const math::vector<Q, parent::renderDepth, format> &C :
              usedPoints2) {
-          faces.push_back({
-            { A, B, C }
-          });
+          faces.push_back({{A, B, C}});
         }
 
         usedPoints2.push_back(B);
@@ -536,8 +534,8 @@ public:
    *       2^n
    */
   static const long long vertices =
-      math::exponentiate::integral<long long, (long long) od>::raise(
-          (long long) 2);
+      math::exponentiate::integral<long long, (long long)od>::raise(
+          (long long)2);
 
   /**\brief Number of surfaces
    *
@@ -550,8 +548,9 @@ public:
    *       (2^(n-4))*(n-2)*(n-1)
    */
   static const long long surfaces =
-      math::exponentiate::integral<long long, ((long long) od - 4)>::raise(
-          (long long) 2) * ((long long) od - 2) * ((long long) od - 1);
+      math::exponentiate::integral<long long, ((long long)od - 4)>::raise(
+          (long long)2) *
+      ((long long)od - 2) * ((long long)od - 1);
 
   typedef dimensions<2, 0> dimensions;
 
@@ -561,19 +560,19 @@ public:
   void calculateObject(void) {
     Q diameter = parameter.radius * Q(0.5);
 
-    std::vector<std::array<math::vector<Q, parent::renderDepth, format>, 2> >
+    std::vector<std::array<math::vector<Q, parent::renderDepth, format>, 2>>
         lines;
     faces.clear();
 
-    std::vector<math::vector<Q, parent::renderDepth, format> > points;
+    std::vector<math::vector<Q, parent::renderDepth, format>> points;
 
     points.push_back(math::vector<Q, parent::renderDepth, format>());
 
     for (unsigned int i : range<int>(0, od, false)) {
-      std::vector<math::vector<Q, parent::renderDepth, format> > newPoints;
-      std::vector<std::array<math::vector<Q, parent::renderDepth, format>, 2> >
+      std::vector<math::vector<Q, parent::renderDepth, format>> newPoints;
+      std::vector<std::array<math::vector<Q, parent::renderDepth, format>, 2>>
           newLines;
-      std::vector<std::array<math::vector<Q, parent::renderDepth, format>, 4> >
+      std::vector<std::array<math::vector<Q, parent::renderDepth, format>, 4>>
           newFaces;
 
       for (std::array<math::vector<Q, parent::renderDepth, format>, 2> &line :
@@ -588,9 +587,7 @@ public:
         newLine[1][i] = diameter;
 
         newLines.push_back(newLine);
-        newFaces.push_back({
-          { newLine[0], newLine[1], line[1], line[0] }
-        });
+        newFaces.push_back({{newLine[0], newLine[1], line[1], line[0]}});
       }
 
       for (typename parent::face &face : faces) {
@@ -610,10 +607,8 @@ public:
       for (math::vector<Q, parent::renderDepth, format> &v : points) {
         v[i] = -diameter;
 
-        std::array<math::vector<Q, parent::renderDepth, format>, 2> newLine {
-          { v, v }
-        }
-        ;
+        std::array<math::vector<Q, parent::renderDepth, format>, 2> newLine{
+            {v, v}};
 
         newLine[1][i] = diameter;
 

@@ -182,10 +182,8 @@ public:
          it != transitions.end(); it = transitions.find(m)) {
       counter c = std::accumulate(
           it->second.begin(), it->second.end(), 0,
-          [](const counter & v, const std::pair<maybe<T>, counter> & t)
-              ->counter {
-        return v + t.second;
-      });
+          [](const counter &v, const std::pair<maybe<T>, counter> &t)
+              -> counter { return v + t.second; });
 
       c = RNG() % c;
 
@@ -196,9 +194,7 @@ public:
           rv.push_back(T(t.first));
 
           std::transform(m.begin() + 1, m.end(), m.begin(),
-                         [](maybe<T> & i)->maybe<T> {
-            return i;
-          });
+                         [](maybe<T> &i) -> maybe<T> { return i; });
 
           *(m.end() - 1) = t.first;
           break;
@@ -256,7 +252,8 @@ public:
                  * increasing counters as appropriate for the transitions that
                  * occur in the input.
                  *
-				 * \param[in] input An input vector for the model.
+                                 * \param[in] input An input vector for the
+    *model.
                  * \param[in] c     How often the vector occurs.
                  *
                  * \returns A reference to this instance, much like a stream
@@ -264,13 +261,11 @@ public:
                  */
   chain &train(const input &input, const counter &c) {
     memory m = std::accumulate(input.begin(), input.end(), memory(),
-                               [this, c](memory s, const T & v)->memory {
+                               [this, c](memory s, const T &v) -> memory {
       transitions[s][v] += c;
 
       std::transform(s.begin() + 1, s.end(), s.begin(),
-                     [](maybe<T> & i)->maybe<T> {
-        return i;
-      });
+                     [](maybe<T> &i) -> maybe<T> { return i; });
 
       *(s.end() - 1) = v;
 

@@ -47,8 +47,7 @@ namespace optimise {
         */
 template <int N> class terminateGenerations {
 public:
-  terminateGenerations() : current(0) {}
-  ;
+  terminateGenerations() : current(0){};
   bool operator()(void) { return (++current > N); }
 
 private:
@@ -61,8 +60,7 @@ private:
         */
 class initialiseFloatsRandomly {
 public:
-  initialiseFloatsRandomly() {}
-  ;
+  initialiseFloatsRandomly(){};
 
   void operator()(float *array, int length) {
     std::random_device rd;
@@ -72,14 +70,12 @@ public:
       array[i] = r;
     }
   }
-
 };
 
 /** \brief Functor that initialises an array of booleans randomly..*/
 class initialiseBooleansRandomly {
 public:
-  initialiseBooleansRandomly() {}
-  ;
+  initialiseBooleansRandomly(){};
 
   void operator()(bool *array, int length) {
     std::random_device rd;
@@ -89,7 +85,6 @@ public:
       bool r = (dis(rng) % 2) == 0;
       array[i] = r;
     }
-
   }
 };
 }

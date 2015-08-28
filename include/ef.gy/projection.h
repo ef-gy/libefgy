@@ -43,7 +43,7 @@ public:
 #pragma clang diagnostic ignored "-Wtautological-compare"
     for (unsigned int i = 0; i < (d - 2); i++)
 #pragma clang diagnostic pop
-        {
+    {
       for (unsigned int j = 0; j < d; j++) {
         orthogonalVector[i][j] = (((i + 1) == j) ? 1 : 0);
       }

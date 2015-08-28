@@ -74,8 +74,8 @@ public:
  + \returns The parameter 'stream' after writing to it.
  */
 template <typename C>
-    constexpr inline std::basic_ostream<
-        C> &operator<<(std::basic_ostream<C> &stream, const cartesian &) {
+constexpr inline std::basic_ostream<C> &
+operator<<(std::basic_ostream<C> &stream, const cartesian &) {
   return stream << "[cartesian]";
 }
 };
@@ -94,20 +94,17 @@ template <typename C>
 template <typename F, unsigned int n, typename format = format::cartesian>
 class vector : public std::array<F, n> {
 public:
-    /**\brief Construct with array
-     *
-     * Construct an instance of the vector with the elements
-     * specified as a C++-style array.
-     *
-     * \param[in] t The array to copy.
-     * \param[in] s An instance of the format tag; typically not
-     *              used, but might be used to specify additional
-     *              parameters.
-     */
-  constexpr vector(const std::array<F, n> &t = {
-    {}
-  },
-                   const format &s = format())
+  /**\brief Construct with array
+   *
+   * Construct an instance of the vector with the elements
+   * specified as a C++-style array.
+   *
+   * \param[in] t The array to copy.
+   * \param[in] s An instance of the format tag; typically not
+   *              used, but might be used to specify additional
+   *              parameters.
+   */
+  constexpr vector(const std::array<F, n> &t = {{}}, const format &s = format())
       : std::array<F, n>(t) {}
 
   /**\brief Query format tag
@@ -235,8 +232,8 @@ F operator/(const vector<F, n, format> &a, const vector<F, n, format> &b) {
  * \returns The sum of the two provided vectors.
  */
 template <typename F, unsigned int n, typename format>
-    vector<F, n, format> operator+(vector<F, n, format> a,
-                                   const vector<F, n, format> &b) {
+vector<F, n, format> operator+(vector<F, n, format> a,
+                               const vector<F, n, format> &b) {
   for (unsigned int i = 0; i < n; i++) {
     a[i] += b[i];
   }
@@ -284,8 +281,8 @@ vector<F, n, format> &operator+=(vector<F, n, format> &a,
  * \returns The difference of the two provided vectors.
  */
 template <typename F, unsigned int n, typename format>
-    vector<F, n, format> operator-(vector<F, n, format> a,
-                                   const vector<F, n, format> &b) {
+vector<F, n, format> operator-(vector<F, n, format> a,
+                               const vector<F, n, format> &b) {
   for (unsigned int i = 0; i < n; i++) {
     a[i] -= b[i];
   }
@@ -333,8 +330,8 @@ vector<F, n, format> &operator-=(vector<F, n, format> &a,
  * \returns The provided stream after writing to it.
  */
 template <typename C, typename F, unsigned int n, typename format>
-    std::basic_ostream<C> &operator<<(std::basic_ostream<C> &stream,
-                                      const vector<F, n, format> &v) {
+std::basic_ostream<C> &operator<<(std::basic_ostream<C> &stream,
+                                  const vector<F, n, format> &v) {
   stream << "(" << v.tag();
   for (unsigned int i = 0; i < n; i++) {
     stream << (i > 0 ? ", " : " ") << v[i];

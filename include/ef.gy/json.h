@@ -112,11 +112,10 @@ public:
 
   const std::size_t size(void) const {
     if (isObject()) {
-      const auto &a =
-          *((const std::map<std::string, value<numeric> > *)payload);
+      const auto &a = *((const std::map<std::string, value<numeric>> *)payload);
       return a.size();
     } else if (isArray()) {
-      const auto &a = *((const std::vector<value<numeric> > *)payload);
+      const auto &a = *((const std::vector<value<numeric>> *)payload);
       return a.size();
     }
     return 0;
@@ -124,7 +123,7 @@ public:
 
   const value<numeric> operator()(const std::string &i) const {
     if (isObject()) {
-      return (*((const std::map<std::string, value<numeric> > *)payload))[i];
+      return (*((const std::map<std::string, value<numeric>> *)payload))[i];
     }
     return value<numeric>();
   }
@@ -133,20 +132,20 @@ public:
 
   constexpr const bool isObject(void) const { return type == object; }
 
-  const std::map<std::string, value<numeric> > asObject(void) const {
+  const std::map<std::string, value<numeric>> asObject(void) const {
     if (!isObject()) {
-      return std::map<std::string, value<numeric> >();
+      return std::map<std::string, value<numeric>>();
     }
-    return *((const std::map<std::string, value<numeric> > *)payload);
+    return *((const std::map<std::string, value<numeric>> *)payload);
   }
 
-  std::map<std::string, value<numeric> > &toObject(void) {
+  std::map<std::string, value<numeric>> &toObject(void) {
     if (!isObject()) {
       clear();
       type = object;
-      payload = new std::map<std::string, value<numeric> >();
+      payload = new std::map<std::string, value<numeric>>();
     }
-    return *((std::map<std::string, value<numeric> > *)payload);
+    return *((std::map<std::string, value<numeric>> *)payload);
   }
 
   value<numeric> &push(const value<numeric> &v) {
@@ -156,7 +155,7 @@ public:
 
   const value<numeric> operator[](const std::size_t &i) const {
     if (isArray()) {
-      const auto &a = *((const std::vector<value<numeric> > *)payload);
+      const auto &a = *((const std::vector<value<numeric>> *)payload);
       if (i < a.size()) {
         return a[i];
       }
@@ -166,26 +165,26 @@ public:
 
   value<numeric> &operator[](const std::size_t &i) { return toArray()[i]; }
 
-  operator const maybe<std::vector<value<numeric> > >(void) const {
-    return maybe<std::vector<value<numeric> > >(asArray(), !isArray());
+  operator const maybe<std::vector<value<numeric>>>(void) const {
+    return maybe<std::vector<value<numeric>>>(asArray(), !isArray());
   }
 
   constexpr const bool isArray(void) const { return type == array; }
 
-  const std::vector<value<numeric> > asArray(void) const {
+  const std::vector<value<numeric>> asArray(void) const {
     if (!isArray()) {
-      return std::vector<value<numeric> >();
+      return std::vector<value<numeric>>();
     }
-    return *((const std::vector<value<numeric> > *)payload);
+    return *((const std::vector<value<numeric>> *)payload);
   }
 
-  std::vector<value<numeric> > &toArray(void) {
+  std::vector<value<numeric>> &toArray(void) {
     if (!isArray()) {
       clear();
       type = array;
-      payload = new std::vector<value<numeric> >();
+      payload = new std::vector<value<numeric>>();
     }
-    return *((std::vector<value<numeric> > *)payload);
+    return *((std::vector<value<numeric>> *)payload);
   }
 
   operator const maybe<std::string>(void) const {
@@ -241,10 +240,10 @@ protected:
     if (payload) {
       switch (type) {
       case object:
-        delete ((std::map<std::string, value<numeric> > *)payload);
+        delete ((std::map<std::string, value<numeric>> *)payload);
         break;
       case array:
-        delete ((std::vector<value<numeric> > *)payload);
+        delete ((std::vector<value<numeric>> *)payload);
         break;
       case string:
         delete ((std::string *)payload);
@@ -268,7 +267,6 @@ protected:
   }
 
   void *payload;
-
 };
 };
 };

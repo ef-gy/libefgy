@@ -186,11 +186,7 @@ static inline GLuint roundToPowerOf2(GLuint value) {
  * Contains a list of default vertex attributes passed to vertex
  * shaders.
  */
-enum shaderAttribute {
-  attributePosition,
-  attributeNormal,
-  attributeIndex
-};
+enum shaderAttribute { attributePosition, attributeNormal, attributeIndex };
 
 /**\brief Shader programme
  *
@@ -322,14 +318,13 @@ public:
   bool uniform(const GLint ID, const math::matrix<Q, 4, 4> &matrix,
                const bool asArray) {
     if (use()) {
-      GLfloat mat[16] = { GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
-                          GLfloat(matrix[0][2]), GLfloat(matrix[0][3]),
-                          GLfloat(matrix[1][0]), GLfloat(matrix[1][1]),
-                          GLfloat(matrix[1][2]), GLfloat(matrix[1][3]),
-                          GLfloat(matrix[2][0]), GLfloat(matrix[2][1]),
-                          GLfloat(matrix[2][2]), GLfloat(matrix[2][3]),
-                          GLfloat(matrix[3][0]), GLfloat(matrix[3][1]),
-                          GLfloat(matrix[3][2]), GLfloat(matrix[3][3]) };
+      GLfloat mat[16] = {
+          GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
+          GLfloat(matrix[0][3]), GLfloat(matrix[1][0]), GLfloat(matrix[1][1]),
+          GLfloat(matrix[1][2]), GLfloat(matrix[1][3]), GLfloat(matrix[2][0]),
+          GLfloat(matrix[2][1]), GLfloat(matrix[2][2]), GLfloat(matrix[2][3]),
+          GLfloat(matrix[3][0]), GLfloat(matrix[3][1]), GLfloat(matrix[3][2]),
+          GLfloat(matrix[3][3])};
 
       if (asArray) {
         glUniform1fv(ID, 16, mat);
@@ -361,11 +356,10 @@ public:
   bool uniform(const GLint ID, const math::matrix<Q, 3, 3> &matrix,
                const bool asArray) {
     if (use()) {
-      GLfloat mat[9] = { GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
-                         GLfloat(matrix[0][2]), GLfloat(matrix[1][0]),
-                         GLfloat(matrix[1][1]), GLfloat(matrix[1][2]),
-                         GLfloat(matrix[2][0]), GLfloat(matrix[2][1]),
-                         GLfloat(matrix[2][2]) };
+      GLfloat mat[9] = {
+          GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
+          GLfloat(matrix[1][0]), GLfloat(matrix[1][1]), GLfloat(matrix[1][2]),
+          GLfloat(matrix[2][0]), GLfloat(matrix[2][1]), GLfloat(matrix[2][2])};
 
       if (asArray) {
         glUniform1fv(ID, 9, mat);
@@ -397,8 +391,8 @@ public:
   bool uniform(const GLint ID, const math::matrix<Q, 2, 2> &matrix,
                const bool asArray) {
     if (use()) {
-      GLfloat mat[4] = { GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
-                         GLfloat(matrix[1][0]), GLfloat(matrix[1][1]) };
+      GLfloat mat[4] = {GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
+                        GLfloat(matrix[1][0]), GLfloat(matrix[1][1])};
 
       if (asArray) {
         glUniform1fv(ID, 4, mat);
@@ -508,14 +502,13 @@ public:
   bool uniform(const GLint ID, const math::matrix<Q, 4, 4> &matrix,
                const bool asArray) const {
     if (use()) {
-      GLfloat mat[16] = { GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
-                          GLfloat(matrix[0][2]), GLfloat(matrix[0][3]),
-                          GLfloat(matrix[1][0]), GLfloat(matrix[1][1]),
-                          GLfloat(matrix[1][2]), GLfloat(matrix[1][3]),
-                          GLfloat(matrix[2][0]), GLfloat(matrix[2][1]),
-                          GLfloat(matrix[2][2]), GLfloat(matrix[2][3]),
-                          GLfloat(matrix[3][0]), GLfloat(matrix[3][1]),
-                          GLfloat(matrix[3][2]), GLfloat(matrix[3][3]) };
+      GLfloat mat[16] = {
+          GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
+          GLfloat(matrix[0][3]), GLfloat(matrix[1][0]), GLfloat(matrix[1][1]),
+          GLfloat(matrix[1][2]), GLfloat(matrix[1][3]), GLfloat(matrix[2][0]),
+          GLfloat(matrix[2][1]), GLfloat(matrix[2][2]), GLfloat(matrix[2][3]),
+          GLfloat(matrix[3][0]), GLfloat(matrix[3][1]), GLfloat(matrix[3][2]),
+          GLfloat(matrix[3][3])};
 
       if (asArray) {
         glUniform1fv(ID, 16, mat);
@@ -547,11 +540,10 @@ public:
   bool uniform(const GLint ID, const math::matrix<Q, 3, 3> &matrix,
                const bool asArray) const {
     if (use()) {
-      GLfloat mat[9] = { GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
-                         GLfloat(matrix[0][2]), GLfloat(matrix[1][0]),
-                         GLfloat(matrix[1][1]), GLfloat(matrix[1][2]),
-                         GLfloat(matrix[2][0]), GLfloat(matrix[2][1]),
-                         GLfloat(matrix[2][2]) };
+      GLfloat mat[9] = {
+          GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
+          GLfloat(matrix[1][0]), GLfloat(matrix[1][1]), GLfloat(matrix[1][2]),
+          GLfloat(matrix[2][0]), GLfloat(matrix[2][1]), GLfloat(matrix[2][2])};
 
       if (asArray) {
         glUniform1fv(ID, 9, mat);
@@ -583,8 +575,8 @@ public:
   bool uniform(const GLint ID, const math::matrix<Q, 2, 2> &matrix,
                const bool asArray) const {
     if (use()) {
-      GLfloat mat[4] = { GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
-                         GLfloat(matrix[1][0]), GLfloat(matrix[1][1]) };
+      GLfloat mat[4] = {GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
+                        GLfloat(matrix[1][0]), GLfloat(matrix[1][1])};
 
       if (asArray) {
         glUniform1fv(ID, 4, mat);
@@ -1363,8 +1355,9 @@ public:
    * \return True on success, false otherwise.
    */
   bool use(const GLuint &width, const GLuint &height) {
-    if (framebufferTexture<Q, format, baseFormat, type, target>::load(
-            width, height) && renderbuffer<depthFormat>::load(width, height)) {
+    if (framebufferTexture<Q, format, baseFormat, type, target>::load(width,
+                                                                      height) &&
+        renderbuffer<depthFormat>::load(width, height)) {
       glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                                 GL_RENDERBUFFER,
                                 renderbuffer<depthFormat>::renderbufferID);
@@ -1911,7 +1904,6 @@ public:
    */
   bool setup(void) {
     if (!hasBound || !hadID) {
-
       glEnableVertexAttribArray(attributePosition);
       glVertexAttribPointer(attributePosition, d, GL_FLOAT, GL_FALSE,
                             (2 * d + 1) * sizeof(GLfloat), 0);
@@ -1956,7 +1948,7 @@ public:
 
 protected:
   /**\brief Whether the vertexArrayID existed before calling use()
-   * 
+   *
    * The use() method checks whether an ID existed before calling
    * the vertexArray<Q>::use() method. The setup() method needs to
    * know this in case binding the vertex array object succeeded

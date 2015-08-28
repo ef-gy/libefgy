@@ -134,7 +134,7 @@ static maybe<T> chi_square(_InputIterator begin, _InputIterator end,
   T sum = 0.0;
   for (; begin != end && measurement_begin != measurement_end;
        ++begin, ++measurement_begin) {
-    sum += efgy::math::numeric::pow2((*measurement_begin - *begin) / (T) var);
+    sum += efgy::math::numeric::pow2((*measurement_begin - *begin) / (T)var);
   }
 
   return sum;

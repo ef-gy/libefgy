@@ -46,19 +46,17 @@ int testStatistics(std::ostream &log) {
     return next_integer();
   }
 
-  std::vector<int> v2 { 1, 3, -10 }
-  ;
+  std::vector<int> v2{1, 3, -10};
 
   maybe<int> avg2 = average<int>(v2);
-  if (((int) avg2) != -2) {
+  if (((int)avg2) != -2) {
     log << "average of {1, 3, -10} expected to be -2";
     return next_integer();
   }
 
-  std::vector<int> v3 { -10, 1, 3 }
-  ;
+  std::vector<int> v3{-10, 1, 3};
   maybe<int> avg3 = average<int>(v3);
-  if (((int) avg2) != ((int) avg3)) {
+  if (((int)avg2) != ((int)avg3)) {
     log << "averages of {1, 3, -10} and {-10, 1, 3} expected to be equal";
     return next_integer();
   }
@@ -70,33 +68,32 @@ int testStatistics(std::ostream &log) {
     return next_integer();
   }
 
-  std::vector<double> v5 = { 1, 1, 1, 1 };
+  std::vector<double> v5 = {1, 1, 1, 1};
   auto var1 = variance<double>(v5.begin(), v5.end());
-  if ((double) var1 != 0.0) {
+  if ((double)var1 != 0.0) {
     log << "variance of equal values (1) differs from zero.\n";
     return next_integer();
   }
 
-  std::vector<double> v6 = { 1, 2, 3, 4 };
+  std::vector<double> v6 = {1, 2, 3, 4};
   auto var2 = variance<double>(v6.begin(), v6.end());
 
-  if (fabs((double) var2 - 1.25) >= 1e-14) {
+  if (fabs((double)var2 - 1.25) >= 1e-14) {
     log << "variance of descending values (1...4) differs from expected "
            "value.\n";
     return next_integer();
   }
 
-  std::vector<double> v7 = { 1, 2, 3, 4 };
+  std::vector<double> v7 = {1, 2, 3, 4};
   auto var3 = variance(v7);
 
-  if (fabs((double) var3 - 1.25) >= 1e-14) {
+  if (fabs((double)var3 - 1.25) >= 1e-14) {
     log << "variance of a vector (1...4) without iterators differs from "
            "expected value.\n";
     return next_integer();
   }
 
-  std::vector<double> v1111 { 0.0, 2.0, 4.0 }
-  ;
+  std::vector<double> v1111{0.0, 2.0, 4.0};
 
   std::vector<double> v8_measurement;
   std::vector<double> v8;
@@ -115,12 +112,10 @@ int testStatistics(std::ostream &log) {
   //         return next_integer();
   //     }
 
-  std::vector<double> v10_measurement { 0.0, 2.0, 4.0 }
-  ;
-  std::vector<double> v10 { 0.0, 1.0, 2.0 }
-  ;
+  std::vector<double> v10_measurement{0.0, 2.0, 4.0};
+  std::vector<double> v10{0.0, 1.0, 2.0};
   auto chi2 = chi_square(v10, v10_measurement);
-  if (fabs((double) chi2 - (45.0 / 64.0)) > 1e-14) {
+  if (fabs((double)chi2 - (45.0 / 64.0)) > 1e-14) {
     log << "chi_square of descending values is not the expected value\n";
     return next_integer();
   }

@@ -361,8 +361,8 @@ fractional<N> round(const fractional<N> &pQ,
 }
 
 template <typename C, typename N>
-    std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
-                                      const continuedFractional<N> &f) {
+std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
+                                  const continuedFractional<N> &f) {
   if (f.coefficient.size() == N(0)) {
     return out << "[ 0 ]";
   }

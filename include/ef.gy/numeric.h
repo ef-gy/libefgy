@@ -226,7 +226,8 @@ template <typename T> factorial<T> operator!(const T &a) {
 
 /* generic exponentiation operator */
 
-template <typename T, typename Z> T operator^(const T &a, const Z &b) {
+template <typename T, typename Z>
+T operator^(const T &a, const Z &b) {
   if (b == zero()) {
     return T(1);
   } else {
@@ -240,7 +241,8 @@ template <typename T, typename Z> T operator^(const T &a, const Z &b) {
   }
 }
 
-template <typename T, typename Z> T &operator^=(T &a, const Z &b) {
+template <typename T, typename Z>
+T &operator^=(T &a, const Z &b) {
   T r = a ^ b;
 
   return (a = r);

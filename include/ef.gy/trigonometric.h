@@ -78,9 +78,9 @@ static inline Q sines(const Q &pTheta, Q &oCosine,
  */
 template <typename Q, typename N = unsigned long long>
 constexpr static inline Q sine(const Q &pTheta, const N &iterations = N(10)) {
-  return complex<Q>(
-      e<complex<Q>, N>(complex<Q>(Q(1), Q(0)), complex<Q>(Q(0), pTheta),
-                       complex<Q>(Q(0), Q(0)), iterations)).i;
+  return complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
+                                     complex<Q>(Q(0), pTheta),
+                                     complex<Q>(Q(0), Q(0)), iterations)).i;
 }
 
 /**\brief Calculate sine
@@ -143,9 +143,9 @@ static inline float sine(const float &pTheta, const N & = N(10)) {
  */
 template <typename Q, typename N = unsigned long long>
 constexpr static inline Q cosine(const Q &pTheta, const N &iterations = N(10)) {
-  return complex<Q>(
-      e<complex<Q>, N>(complex<Q>(Q(1), Q(0)), complex<Q>(Q(0), pTheta),
-                       complex<Q>(Q(0), Q(0)), iterations)).one;
+  return complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
+                                     complex<Q>(Q(0), pTheta),
+                                     complex<Q>(Q(0), Q(0)), iterations)).one;
 }
 
 /**\brief Calculate cosine
@@ -235,9 +235,10 @@ static inline Q secants(const Q &pTheta, Q &oCosecant,
  */
 template <typename Q, typename N = unsigned long long>
 constexpr static inline Q secant(const Q &pTheta, const N &iterations = N(10)) {
-  return Q(1) / complex<Q>(e<complex<Q>, N>(
-                    complex<Q>(Q(1), Q(0)), complex<Q>(Q(0), pTheta),
-                    complex<Q>(Q(0), Q(0)), iterations)).i;
+  return Q(1) /
+         complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
+                                     complex<Q>(Q(0), pTheta),
+                                     complex<Q>(Q(0), Q(0)), iterations)).i;
 }
 
 /**\brief Calculate secant
@@ -301,9 +302,10 @@ static inline float secant(const float &pTheta, const N & = N(10)) {
 template <typename Q, typename N = unsigned long long>
 constexpr static inline Q cosecant(const Q &pTheta,
                                    const N &iterations = N(10)) {
-  return Q(1) / complex<Q>(e<complex<Q>, N>(
-                    complex<Q>(Q(1), Q(0)), complex<Q>(Q(0), pTheta),
-                    complex<Q>(Q(0), Q(0)), iterations)).one;
+  return Q(1) /
+         complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
+                                     complex<Q>(Q(0), pTheta),
+                                     complex<Q>(Q(0), Q(0)), iterations)).one;
 }
 
 /**\brief Calculate cosecant
@@ -651,9 +653,8 @@ static inline double arctangent2(const double &pY, const double &pX,
  * \returns The arc tangent of pY/pX.
  */
 template <typename N = unsigned long long>
-static inline long double arctangent2(const long double &pY,
-                                      const long double &pX,
-                                      const N & = N(10)) {
+static inline long double
+arctangent2(const long double &pY, const long double &pX, const N & = N(10)) {
   return std::atan2(pY, pX);
 }
 

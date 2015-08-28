@@ -85,8 +85,7 @@ public:
  * cout << xml::tag();
  * \encode
  */
-class tag {
-};
+class tag {};
 
 /**\brief Convert std::ostream to XML
  *
@@ -98,8 +97,8 @@ class tag {
  * \param[out] stream The stream to write to.
  */
 template <typename C>
-    constexpr inline ostream<C> operator<<(std::basic_ostream<C> &stream,
-                                           const tag &) {
+constexpr inline ostream<C> operator<<(std::basic_ostream<C> &stream,
+                                       const tag &) {
   return ostream<C>(stream);
 }
 
@@ -140,8 +139,7 @@ public:
  * \returns A new copy of the stream.
  */
 template <typename C>
-    constexpr inline ostream<C> operator<<(ostream<C> stream,
-                                           const precision &p) {
+constexpr inline ostream<C> operator<<(ostream<C> stream, const precision &p) {
   return stream.precision = p.value, stream;
 }
 
@@ -182,8 +180,7 @@ public:
  * \returns A new copy of the stream.
  */
 template <typename C>
-    constexpr inline ostream<C> operator<<(ostream<C> stream,
-                                           const resolution &p) {
+constexpr inline ostream<C> operator<<(ostream<C> stream, const resolution &p) {
   return stream.resolution = p.value, stream;
 }
 };

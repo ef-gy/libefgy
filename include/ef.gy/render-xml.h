@@ -54,20 +54,19 @@ namespace render {
  * \returns A new copy of the input stream.
  */
 template <typename C>
-    static inline xml::ostream<
-        C> operator<<(xml::ostream<C> stream,
-                      const math::vector<math::fraction, 3, math::format::HSL> &
-                          pValue) {
+static inline xml::ostream<C>
+operator<<(xml::ostream<C> stream,
+           const math::vector<math::fraction, 3, math::format::HSL> &pValue) {
   math::vector<math::fraction, 3, math::format::HSL> value = pValue;
   value.hue = math::numeric::round(value.hue, stream.precision);
   value.saturation = math::numeric::round(value.saturation, stream.precision);
   value.lightness = math::numeric::round(value.lightness, stream.precision);
 
-  stream.stream
-      << std::string("<colour xmlns='http://colouri.se/2012' space='hsl'")
-      << " hue='" << value.hue.numerator << "'"
-      << " saturation='" << value.saturation.numerator << "'"
-      << " lightness='" << value.lightness.numerator << "'";
+  stream.stream << std::string(
+                       "<colour xmlns='http://colouri.se/2012' space='hsl'")
+                << " hue='" << value.hue.numerator << "'"
+                << " saturation='" << value.saturation.numerator << "'"
+                << " lightness='" << value.lightness.numerator << "'";
 
   if (value.hue.denominator != math::numeric::one()) {
     stream.stream << " hueDenominator='" << value.hue.denominator << "'";
@@ -98,20 +97,19 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C>
-    static inline xml::ostream<
-        C> operator<<(xml::ostream<C> stream,
-                      const math::vector<math::fraction, 3, math::format::RGB> &
-                          pValue) {
+static inline xml::ostream<C>
+operator<<(xml::ostream<C> stream,
+           const math::vector<math::fraction, 3, math::format::RGB> &pValue) {
   math::vector<math::fraction, 3, math::format::RGB> value = pValue;
   value.red = math::numeric::round(value.red, stream.precision);
   value.green = math::numeric::round(value.green, stream.precision);
   value.blue = math::numeric::round(value.blue, stream.precision);
 
-  stream.stream
-      << std::string("<colour xmlns='http://colouri.se/2012' space='rgb'")
-      << " red='" << value.red.numerator << "'"
-      << " green='" << value.green.numerator << "'"
-      << " blue='" << value.blue.numerator << "'";
+  stream.stream << std::string(
+                       "<colour xmlns='http://colouri.se/2012' space='rgb'")
+                << " red='" << value.red.numerator << "'"
+                << " green='" << value.green.numerator << "'"
+                << " blue='" << value.blue.numerator << "'";
 
   if (value.red.denominator != math::numeric::one()) {
     stream.stream << " redDenominator='" << value.red.denominator << "'";
@@ -140,8 +138,8 @@ template <typename C>
  * \returns A new copy of the input stream.
  */
 template <typename C, class Q, typename format>
-static inline xml::ostream<C> operator|=(
-    xml::ostream<C> stream, const math::vector<Q, 3, format> &value) {
+static inline xml::ostream<C>
+operator|=(xml::ostream<C> stream, const math::vector<Q, 3, format> &value) {
   stream.stream << "<picker xmlns='http://colouri.se/2012'>";
   math::vector<Q, 3, format> v = value;
   if (v[0].denominator == math::numeric::zero()) {

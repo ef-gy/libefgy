@@ -42,7 +42,6 @@ namespace efgy {
 */
 class sexp {
 public:
-
 };
 
 /** \brief A cons expression
@@ -52,9 +51,9 @@ public:
     * nontrivial S-expressions, or combine one S-expression
     * with the special S-expression NIL, which is represented
     * through the 'nothing' value of the 'maybe' class here.
-	*
-	* \tparam T1 type of first element
-	* \tparam T2 type of second element
+        *
+        * \tparam T1 type of first element
+        * \tparam T2 type of second element
     *
     * \sa \ref maybe
     */
@@ -64,11 +63,11 @@ public:
   /*\brief Constructor for a cons with two elements
 
             Constructs a cons of the form (x.y) where x and y
-	        are both s-expressions not equal to NIL*/
+                are both s-expressions not equal to NIL*/
   cons(T1 car_, T2 cdr_) : car(car_), cdr(efgy::maybe<T2>(cdr_)) {}
 
   /*\brief Constructor for a cons with one element
-     
+
          Constructs a cons of the form (x.nil)*/
   cons(T1 car_) : car(car_), cdr(efgy::maybe<T2>()) {}
 
@@ -90,12 +89,12 @@ public:
 };
 
 /* \brief Stream insertion operator
-	 *
-	 * Displays the cons expression in a std::ostream.
-	 * The expression is displayed as (car . cdr).
-	 */
+         *
+         * Displays the cons expression in a std::ostream.
+         * The expression is displayed as (car . cdr).
+         */
 template <typename T1, typename T2>
-    std::ostream &operator<<(std::ostream &str, cons<T1, T2> &s) {
+std::ostream &operator<<(std::ostream &str, cons<T1, T2> &s) {
   str << "(" << s.car << " . " << s.cdr << ")";
   return str;
 }
@@ -110,7 +109,6 @@ template <typename T1, typename T2>
 */
 template <typename T> class atom : public sexp {
 public:
-
   /* \brief Constructs an atomic S-expression.
   *
   * Constructs an atomic S-expression.
@@ -118,16 +116,16 @@ public:
   atom(T data_) : data(data_) {}
 
   /* \brief The atomic value
-  * 
+  *
   * The atomic value of the S-expression.
   */
   const T data;
 };
 
 /* \brief Stream insertion operator
-	 *
-	 * Displays the atomic value, as defined in the
-	 * stream insertion operator of type T.*/
+         *
+         * Displays the atomic value, as defined in the
+         * stream insertion operator of type T.*/
 template <typename T> std::ostream &operator<<(std::ostream &str, atom<T> a) {
   str << a.data;
   return str;
@@ -141,10 +139,8 @@ public:
   }
 
 private:
-
   int openParenCount;
   int closeParenCount;
-
 };
 }
 #endif

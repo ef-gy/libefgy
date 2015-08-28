@@ -57,20 +57,20 @@ int testE(std::ostream &log) {
   e<longDouble> eD3(1, 1, 0, 8);
   e<longDouble> eD4(1, 1, 0, 12);
 
-  log << "e<longDouble,1> = " << (long double) longDouble(eD1) << "\n";
-  log << "e<longDouble,4> = " << (long double) longDouble(eD2) << "\n";
-  log << "e<longDouble,8> = " << (long double) longDouble(eD3) << "\n";
-  log << "e<longDouble,12> = " << (long double) longDouble(eD4) << "\n";
+  log << "e<longDouble,1> = " << (long double)longDouble(eD1) << "\n";
+  log << "e<longDouble,4> = " << (long double)longDouble(eD2) << "\n";
+  log << "e<longDouble,8> = " << (long double)longDouble(eD3) << "\n";
+  log << "e<longDouble,12> = " << (long double)longDouble(eD4) << "\n";
 
   e<long double> eDL1(1, 1, 0, 1);
   e<long double> eDL2(1, 1, 0, 4);
   e<long double> eDL3(1, 1, 0, 8);
   e<long double> eDL4(1, 1, 0, 12);
 
-  log << "e<long double,1> = " << (long double) eDL1 << "\n";
-  log << "e<long double,4> = " << (long double) eDL2 << "\n";
-  log << "e<long double,8> = " << (long double) eDL3 << "\n";
-  log << "e<long double,12> = " << (long double) eDL4 << "\n";
+  log << "e<long double,1> = " << (long double)eDL1 << "\n";
+  log << "e<long double,4> = " << (long double)eDL2 << "\n";
+  log << "e<long double,8> = " << (long double)eDL3 << "\n";
+  log << "e<long double,12> = " << (long double)eDL4 << "\n";
 
   e<fraction> eQ1(fraction(1), fraction(1), fraction(0), 1);
   e<fraction> eQ2(fraction(1), fraction(1), fraction(0), 4);

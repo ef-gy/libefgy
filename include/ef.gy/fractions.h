@@ -194,7 +194,7 @@ public:
       return true;
     }
 #if defined(normalise)
-        else {
+    else {
       return false;
     }
 #endif
@@ -261,8 +261,8 @@ protected:
 };
 
 template <typename C, typename N>
-    std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
-                                      const fractional<N> &f) {
+std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
+                                  const fractional<N> &f) {
   return out << f.numerator << "/" << f.denominator;
 }
 
@@ -274,7 +274,7 @@ template <typename N> fractional<N> reciprocal(const fractional<N> &f) {
   return fractional<N>(f.denominator, f.numerator);
 }
 
-template <typename N> class traits<fractional<N> > {
+template <typename N> class traits<fractional<N>> {
 public:
   typedef typename fractional<N>::integer integral;
   typedef fractional<N> rational;

@@ -143,12 +143,9 @@ public:
    * \param[in] pUniform   List of input uniforms.
    */
   shader(const std::string &pMain = "",
-         const std::vector<variable<gv_attribute> > &pAttribute = {
-  },
-         const std::vector<variable<gv_varying> > &pVarying = {
-  },
-         const std::vector<variable<gv_uniform> > &pUniform = {
-  })
+         const std::vector<variable<gv_attribute>> &pAttribute = {},
+         const std::vector<variable<gv_varying>> &pVarying = {},
+         const std::vector<variable<gv_uniform>> &pUniform = {})
       : main(pMain), attribute(pAttribute), varying(pVarying),
         uniform(pUniform) {}
 
@@ -164,9 +161,8 @@ public:
    * \param[in] pUniform   List of input uniforms.
    */
   shader(const std::string &pMain,
-         const std::vector<variable<gv_varying> > &pVarying,
-         const std::vector<variable<gv_uniform> > &pUniform = {
-  })
+         const std::vector<variable<gv_varying>> &pVarying,
+         const std::vector<variable<gv_uniform>> &pUniform = {})
       : main(pMain), attribute(), varying(pVarying), uniform(pUniform) {}
 
   /**\brief Template copy constructor
@@ -187,19 +183,19 @@ public:
    *
    * Contains all the vertex attributes that the shader uses.
    */
-  std::vector<variable<gv_attribute> > attribute;
+  std::vector<variable<gv_attribute>> attribute;
 
   /**\brief Shader varying variables
    *
    * Contains all the shader's varying input/output variables.
    */
-  std::vector<variable<gv_varying> > varying;
+  std::vector<variable<gv_varying>> varying;
 
   /**\brief Shader uniforms
    *
    * Contains all the shader's uniform input variables.
    */
-  std::vector<variable<gv_uniform> > uniform;
+  std::vector<variable<gv_uniform>> uniform;
 
   /**\brief Main GLSL shader sources
    *
@@ -222,8 +218,8 @@ public:
  * \returns The 'out' stream after writing to it.
  */
 template <typename C>
-    std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
-                                      const shader<ver_auto> &s) {
+std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
+                                  const shader<ver_auto> &s) {
 #if defined(GL_NUM_SHADING_LANGUAGE_VERSIONS) && 0
   GLint versions;
   glGetIntegerv(GL_NUM_SHADING_LANGUAGE_VERSIONS, &versions);
@@ -261,8 +257,8 @@ template <typename C>
  * \returns The 'out' stream after writing to it.
  */
 template <typename C>
-    std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
-                                      const shader<ver_100> &s) {
+std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
+                                  const shader<ver_100> &s) {
   out << "#version 100\n";
 
   for (const variable<gv_attribute> &v : s.attribute) {

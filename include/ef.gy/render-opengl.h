@@ -60,7 +60,7 @@ static inline void name(const std::string &name,
   for (unsigned int i = 0; i < d; i++) {
     std::stringstream s("");
     s << i;
-    pVector[i] = std::shared_ptr<math::tracer::tracer<void, void, 0> >(
+    pVector[i] = std::shared_ptr<math::tracer::tracer<void, void, 0>>(
         new math::tracer::tracer<void, void, 0>(name + "[" + s.str() + "]"));
   }
 }
@@ -74,7 +74,7 @@ static inline void name(const std::string &name,
       std::stringstream s("");
       s << "[" << k << "]";
       k++;
-      pMatrix[i][j] = std::shared_ptr<math::tracer::tracer<void, void, 0> >(
+      pMatrix[i][j] = std::shared_ptr<math::tracer::tracer<void, void, 0>>(
           new math::tracer::tracer<void, void, 0>(name + s.str()));
     }
   }
@@ -82,7 +82,7 @@ static inline void name(const std::string &name,
 
 template <unsigned int d>
 static inline void transform(
-    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
+    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform>> &uniform,
     math::vector<math::tracer::runtime, 4> &gl_Position,
     math::vector<math::tracer::runtime, d + 1> &position) {
   std::stringstream vn("");
@@ -101,7 +101,7 @@ static inline void transform(
 
 template <>
 void transform<3>(
-    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
+    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform>> &uniform,
     math::vector<math::tracer::runtime, 4> &gl_Position,
     math::vector<math::tracer::runtime, 4> &position) {
   uniform.push_back(opengl::glsl::variable<opengl::glsl::gv_uniform>(
@@ -129,15 +129,14 @@ template <unsigned int d = 3,
 class fractalFlame : public opengl::glsl::shader<V> {
 public:
   fractalFlame(void)
-      : opengl::glsl::shader<V>("indexVarying = index;\n", {
-    opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4"),
-        opengl::glsl::variable<opengl::glsl::gv_attribute>("index", "float",
-                                                           "highp")
-  },
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float",
-                                                     "lowp")
-  }) {
+      : opengl::glsl::shader<V>(
+            "indexVarying = index;\n",
+            {opengl::glsl::variable<opengl::glsl::gv_attribute>("position",
+                                                                "vec4"),
+             opengl::glsl::variable<opengl::glsl::gv_attribute>(
+                 "index", "float", "highp")},
+            {opengl::glsl::variable<opengl::glsl::gv_varying>(
+                "indexVarying", "float", "lowp")}) {
     math::vector<math::tracer::runtime, d + 1> P;
     name("position", P);
 
@@ -167,20 +166,17 @@ class fractalFlame<2, V> : public opengl::glsl::shader<V> {
   // mvp3 should be mvp2
 public:
   fractalFlame(void)
-      : opengl::glsl::shader<V>("indexVarying = index;\n"
-                                "gl_Position = vec4(mvp3 * position,1);\n",
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec3"),
-        opengl::glsl::variable<opengl::glsl::gv_attribute>("index", "float",
-                                                           "highp")
-  },
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float",
-                                                     "lowp")
-  },
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3", "mat3")
-  }) {}
+      : opengl::glsl::shader<V>(
+            "indexVarying = index;\n"
+            "gl_Position = vec4(mvp3 * position,1);\n",
+            {opengl::glsl::variable<opengl::glsl::gv_attribute>("position",
+                                                                "vec3"),
+             opengl::glsl::variable<opengl::glsl::gv_attribute>(
+                 "index", "float", "highp")},
+            {opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying",
+                                                              "float", "lowp")},
+            {opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3",
+                                                              "mat3")}) {}
 };
 
 /*
@@ -199,17 +195,16 @@ public:
             "normalize(lightPosition)));\n"
             "colorVarying = colour * nDotVP;\n"
             "colorVarying = vec4(colorVarying.xyz, colour.w);\n",
-            {
-    opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4"),
-        opengl::glsl::variable<opengl::glsl::gv_attribute>("normal", "vec3")
-  },
-            {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4")
-  },
-            {
-    opengl::glsl::variable<opengl::glsl::gv_uniform>("normalMatrix", "mat3"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4")
-  }) {
+            {opengl::glsl::variable<opengl::glsl::gv_attribute>("position",
+                                                                "vec4"),
+             opengl::glsl::variable<opengl::glsl::gv_attribute>("normal",
+                                                                "vec3")},
+            {opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying",
+                                                              "vec4")},
+            {opengl::glsl::variable<opengl::glsl::gv_uniform>("normalMatrix",
+                                                              "mat3"),
+             opengl::glsl::variable<opengl::glsl::gv_uniform>("colour",
+                                                              "vec4")}) {
     math::vector<math::tracer::runtime, d + 1> P;
     name("position", P);
 
@@ -239,18 +234,16 @@ class regular<2, V> : public opengl::glsl::shader<V> {
   // mvp3 should be mvp2
 public:
   regular(void)
-      : opengl::glsl::shader<V>("gl_Position = vec4(mvp3 * position,1);\n"
-                                "colorVarying = colour;\n",
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec3")
-  },
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4")
-  },
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3", "mat3"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4")
-  }) {}
+      : opengl::glsl::shader<V>(
+            "gl_Position = vec4(mvp3 * position,1);\n"
+            "colorVarying = colour;\n",
+            {opengl::glsl::variable<opengl::glsl::gv_attribute>("position",
+                                                                "vec3")},
+            {opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying",
+                                                              "vec4")},
+            {opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3", "mat3"),
+             opengl::glsl::variable<opengl::glsl::gv_uniform>("colour",
+                                                              "vec4")}) {}
 };
 
 /*
@@ -261,14 +254,13 @@ template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class postProcess : public opengl::glsl::shader<V> {
 public:
   postProcess(void)
-      : opengl::glsl::shader<V>("gl_Position = position;\n"
-                                "UV = (position.xy+vec2(1.0,1.0))/2.0;\n",
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4")
-  },
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("UV", "vec2", "lowp")
-  }) {}
+      : opengl::glsl::shader<V>(
+            "gl_Position = position;\n"
+            "UV = (position.xy+vec2(1.0,1.0))/2.0;\n",
+            {opengl::glsl::variable<opengl::glsl::gv_attribute>("position",
+                                                                "vec4")},
+            {opengl::glsl::variable<opengl::glsl::gv_varying>("UV", "vec2",
+                                                              "lowp")}) {}
 };
 };
 
@@ -287,10 +279,9 @@ class fractalFlame : public opengl::glsl::shader<V> {
 public:
   fractalFlame(void)
       : opengl::glsl::shader<V>(
-            "gl_FragColor = vec4(indexVarying,1.0,1.0,0.5);\n", {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float",
-                                                     "lowp")
-  }) {}
+            "gl_FragColor = vec4(indexVarying,1.0,1.0,0.5);\n",
+            {opengl::glsl::variable<opengl::glsl::gv_varying>(
+                "indexVarying", "float", "lowp")}) {}
 };
 
 /*
@@ -313,10 +304,10 @@ template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class regular : public opengl::glsl::shader<V> {
 public:
   regular(void)
-      : opengl::glsl::shader<V>("gl_FragColor = colorVarying;\n", {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4",
-                                                     "lowp")
-  }) {}
+      : opengl::glsl::shader<V>(
+            "gl_FragColor = colorVarying;\n",
+            {opengl::glsl::variable<opengl::glsl::gv_varying>(
+                "colorVarying", "vec4", "lowp")}) {}
 };
 
 /*
@@ -333,17 +324,14 @@ public:
             "highp float index     = fb.x;\n"
             "gl_FragColor = texture2D(colourMap, vec2(index/intensity,0.0)) * "
             "(1.0-(max(0.0,1.0/log2(intensity+2.0))));\n",
-            {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("UV", "vec2", "lowp")
-  },
-            {
-    opengl::glsl::variable<opengl::glsl::gv_uniform>("screenFramebuffer",
-                                                     "sampler2D"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("screenHistogram",
-                                                         "sampler2D"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("colourMap",
-                                                         "sampler2D")
-  }) {}
+            {opengl::glsl::variable<opengl::glsl::gv_varying>("UV", "vec2",
+                                                              "lowp")},
+            {opengl::glsl::variable<opengl::glsl::gv_uniform>(
+                 "screenFramebuffer", "sampler2D"),
+             opengl::glsl::variable<opengl::glsl::gv_uniform>("screenHistogram",
+                                                              "sampler2D"),
+             opengl::glsl::variable<opengl::glsl::gv_uniform>("colourMap",
+                                                              "sampler2D")}) {}
 };
 
 /*
@@ -359,17 +347,14 @@ public:
             "highp float index     = texture2D(screenFramebuffer, UV).x;\n"
             "gl_FragColor = texture2D(colourMap, vec2(index,0.0)) * "
             "intensity;\n",
-            {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("UV", "vec2", "lowp")
-  },
-            {
-    opengl::glsl::variable<opengl::glsl::gv_uniform>("screenFramebuffer",
-                                                     "sampler2D"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("screenHistogram",
-                                                         "sampler2D"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("colourMap",
-                                                         "sampler2D")
-  }) {}
+            {opengl::glsl::variable<opengl::glsl::gv_varying>("UV", "vec2",
+                                                              "lowp")},
+            {opengl::glsl::variable<opengl::glsl::gv_uniform>(
+                 "screenFramebuffer", "sampler2D"),
+             opengl::glsl::variable<opengl::glsl::gv_uniform>("screenHistogram",
+                                                              "sampler2D"),
+             opengl::glsl::variable<opengl::glsl::gv_uniform>("colourMap",
+                                                              "sampler2D")}) {}
 };
 };
 };
@@ -530,10 +515,9 @@ public:
       postProcess.copy();
       postProcessFloat.copy();
 
-      static const GLfloat fullscreenQuadBufferData[] = { -1.0f, -1.0f, 1.0f,
-                                                          -1.0f, -1.0f, 1.0f,
-                                                          -1.0f, 1.0f, 1.0f,
-                                                          -1.0f, 1.0f, 1.0f };
+      static const GLfloat fullscreenQuadBufferData[] = {
+          -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
+          -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f};
 
       vertexArray.use();
       vertices.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
@@ -1184,8 +1168,7 @@ public:
   void frameStart(void) {
     combined = transformation * projection;
     lowerRenderer.frameStart();
-  }
-  ;
+  };
 
   /**\brief End frame
    *
@@ -1193,8 +1176,7 @@ public:
    * and that it can be uploaded to the graphics card. The frame
    * is then rendered with the currently active renderer.
    */
-  void frameEnd(void) const { lowerRenderer.frameEnd(); }
-  ;
+  void frameEnd(void) const { lowerRenderer.frameEnd(); };
 
   /**\brief Clear framebuffer
    *
@@ -1229,9 +1211,8 @@ public:
     std::array<math::vector<Q, d - 1>, q> V;
 
     std::transform(pV.begin(), pV.end(), V.begin(),
-                   [&](const math::vector<Q, d> & s)->math::vector<Q, d - 1> {
-      return combined * s;
-    });
+                   [&](const math::vector<Q, d> &s)
+                       -> math::vector<Q, d - 1> { return combined * s; });
 
     lowerRenderer.draw(V, index);
   }
@@ -1333,15 +1314,13 @@ public:
               math::matrix<Q, 3, 3>(transformation.transformationMatrix))));
       render.matrices(combined, normalMatrix);
     }
-  }
-  ;
+  };
 
   /**\copydoc opengl<Q,2>::frameEnd */
   void frameEnd(void) {
     context.upload(vertexArrayModel);
     context.render(*this);
-  }
-  ;
+  };
 
   /**\copydoc opengl<Q,2>::clear */
   void clear(GLint bits) { render.clear = bits; }
@@ -1462,8 +1441,7 @@ public:
   void frameEnd(void) {
     context.upload(vertexArrayModel);
     context.render(*this);
-  }
-  ;
+  };
 
   /**\brief Clear framebuffer
    *
@@ -1501,14 +1479,8 @@ public:
     if (context.prepared)
       return;
 
-    math::vector<Q, 2> R {
-      { Q(1), Q(0) }
-    }
-    ;
-    math::vector<Q, 2> RN {
-      { Q(-1), Q(0) }
-    }
-    ;
+    math::vector<Q, 2> R{{Q(1), Q(0)}};
+    math::vector<Q, 2> RN{{Q(-1), Q(0)}};
 
     context.add(pV, R, RN, index);
   }
@@ -1548,8 +1520,7 @@ protected:
   friend class opengl<Q, 0>;
 };
 
-template <typename Q> class opengl<Q, 1> {
-};
+template <typename Q> class opengl<Q, 1> {};
 
 /**\brief std::ostream OpenGL tag
  *
@@ -1604,9 +1575,8 @@ public:
  * \returns A new osvgstream with the given parameters.
  */
 template <typename C, typename Q, unsigned int d>
-    constexpr inline oglstream<C, Q,
-                               d> operator<<(std::basic_ostream<C> &stream,
-                                             opengl<Q, d> &render) {
+constexpr inline oglstream<C, Q, d> operator<<(std::basic_ostream<C> &stream,
+                                               opengl<Q, d> &render) {
   return oglstream<C, Q, d>(stream, render);
 }
 
@@ -1630,10 +1600,9 @@ template <typename C, typename Q, unsigned int d>
  */
 template <typename C, typename Q, unsigned int d, unsigned int od,
           unsigned int f, typename format>
-    static inline oglstream<
-        C, Q,
-        d> operator<<(oglstream<C, Q, d> stream,
-                      const geometry::polytope<Q, od, d, f, format> &poly) {
+static inline oglstream<C, Q, d>
+operator<<(oglstream<C, Q, d> stream,
+           const geometry::polytope<Q, od, d, f, format> &poly) {
   if (poly.faces.size() != poly.indices.size()) {
     for (const auto &p : poly.faces) {
       std::array<math::vector<Q, d>,

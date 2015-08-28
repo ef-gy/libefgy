@@ -47,23 +47,19 @@ using namespace efgy;
  * \return Zero when everything went as expected, nonzero otherwise.
  */
 int testRange(std::ostream &log) {
-  if (range<int, 5>::get() != std::array<int, 5>({
-    { 0, 1, 2, 3, 4 }
-  })) {
+  if (range<int, 5>::get() != std::array<int, 5>({{0, 1, 2, 3, 4}})) {
     log << "5-element sequence does not have the expected value.\n";
     return -1;
   }
 
-  if (range<int, 5>::get(1000) != std::array<int, 5>({
-    { 1000, 1001, 1002, 1003, 1004 }
-  })) {
+  if (range<int, 5>::get(1000) !=
+      std::array<int, 5>({{1000, 1001, 1002, 1003, 1004}})) {
     log << "5-element sequence does not have the expected value.\n";
     return -2;
   }
 
-  if (range<int, 8>::get(49, -1) != std::array<int, 8>({
-    { 49, 48, 47, 46, 45, 44, 43, 42 }
-  })) {
+  if (range<int, 8>::get(49, -1) !=
+      std::array<int, 8>({{49, 48, 47, 46, 45, 44, 43, 42}})) {
     log << "8-element sequence does not have the expected value.\n";
     return -3;
   }
@@ -111,23 +107,17 @@ int testRange(std::ostream &log) {
     return -9;
   }
 
-  if (range<int, 0>::get() != std::array<int, 0>({
-    {}
-  })) {
+  if (range<int, 0>::get() != std::array<int, 0>({{}})) {
     log << "empty range was not an empty array.\n";
     return -10;
   }
 
-  if (range<int, 0>::get(1, 1) != std::array<int, 0>({
-    {}
-  })) {
+  if (range<int, 0>::get(1, 1) != std::array<int, 0>({{}})) {
     log << "an empty range with a non-default start was not empty.\n";
     return -11;
   }
 
-  if (range<int, 3>::get(3, -1) != std::array<int, 3>({
-    { 3, 2, 1 }
-  })) {
+  if (range<int, 3>::get(3, -1) != std::array<int, 3>({{3, 2, 1}})) {
     log << "a range with negative stepsize worked as expected.\n";
     return -12;
   }

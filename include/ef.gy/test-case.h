@@ -103,12 +103,10 @@ int run(int, char **, const std::vector<testCase> &testCases) {
       }
       std::cerr << "OK\n";
     }
-  }
-  catch (std::exception & e) {
+  } catch (std::exception &e) {
     std::cerr << "Exception: " << e.what() << "\n";
     return -1;
-  }
-  catch (...) {
+  } catch (...) {
     std::cerr << "Unknown Exception\n";
     return -1;
   }
@@ -174,7 +172,7 @@ int main(int argc, char **argv) {
  *       as described; if not then this macro is simply discarded.
  */
 #define TEST_BATCH(...)                                                        \
-  static const efgy::test::testCase testCasesArray[] = { __VA_ARGS__ };        \
+  static const efgy::test::testCase testCasesArray[] = {__VA_ARGS__};          \
   const std::vector<efgy::test::testCase> testCases(                           \
       testCasesArray,                                                          \
       testCasesArray + sizeof(testCasesArray) / sizeof(efgy::test::testCase));
