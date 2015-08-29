@@ -30,6 +30,7 @@
 
 #include <functional>
 #include <regex>
+#include <iostream>
 #include <set>
 #include <string>
 
@@ -54,11 +55,11 @@ public:
     return *this;
   }
 
-  int apply(int argc, char *argv[]) {
-    int r = 0;
+  std::size_t apply(int argc, char *argv[]) {
+    std::size_t r = 0;
     remainder = std::vector<std::string>();
 
-    for (int i = 0; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
       std::string s = argv[i];
       for (const auto &opt : opts) {
         std::smatch matches;
@@ -68,7 +69,23 @@ public:
       }
     }
 
+    if (r == 0) {
+      return usage(argv[0]);
+    }
+
     return r;
+  }
+
+  std::size_t usage(const std::string &name) {
+    std::cerr << "Usage: " << name << " [options...]\n"
+              << "\n"
+              << "Where [options...] is any of the following:\n";
+
+    for (const auto &opt : opts) {
+      std::cerr << "  " << opt->regex << "\t " << opt->description << "\n";
+    }
+
+    return 0;
   }
 
   std::vector<std::string> remainder;
@@ -79,14 +96,18 @@ protected:
 
 class option {
 public:
-  option(const std::regex &pMatch, std::function<bool(std::smatch &)> pHandler,
+  option(const std::string &pMatch, std::function<bool(std::smatch &)> pHandler,
+         const std::string &pDescription = "Please document me.",
          options<option> &pOpts = options<option>::common())
-      : match(pMatch), handler(pHandler), opts(pOpts) {
+      : regex(pMatch), match(pMatch), handler(pHandler),
+        description(pDescription), opts(pOpts) {
     opts.add(*this);
   }
 
   ~option(void) { opts.remove(*this); }
 
+  const std::string regex;
+  const std::string description;
   const std::regex match;
   const std::function<bool(std::smatch &)> handler;
 
