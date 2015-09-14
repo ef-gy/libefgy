@@ -46,13 +46,20 @@ static std::size_t setup(net::endpoint<sock> lookup,
   });
 }
 
-static cli::option socket("irc:unix:(.+)", [](std::smatch &m) -> bool {
-  return setup(net::endpoint<asio::local::stream_protocol>(m[1])) > 0;
-});
+static cli::option
+    socket("-{0,2}irc:unix:(.+)",
+           [](std::smatch &m) -> bool {
+             return setup(net::endpoint<asio::local::stream_protocol>(m[1])) >
+                    0;
+           },
+           "Listen for IRC connections on the given unix socket[1].");
 
-static cli::option tcp("irc:(.+):([0-9]+)", [](std::smatch &m) -> bool {
-  return setup(net::endpoint<asio::ip::tcp>(m[1], m[2])) > 0;
-});
+static cli::option
+    tcp("-{0,2}irc:(.+):([0-9]+)",
+        [](std::smatch &m) -> bool {
+          return setup(net::endpoint<asio::ip::tcp>(m[1], m[2])) > 0;
+        },
+        "Listen for IRC connections on the given host[1] and port[2].");
 }
 }
 
