@@ -4,4 +4,5 @@ NAME:=libefgy
 BASE:=ef.gy
 VERSION:=8
 
-server src/server.cpp fortuned src/fortuned.cpp: include/asio.hpp
+# the two server examples rely on asio.hpp
+server fortuned: include/asio.hpp

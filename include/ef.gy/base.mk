@@ -132,4 +132,7 @@ $(THIRDPARTY)/.volatile:
 $(THIRDPARTY)/asio/.git: $(THIRDPARTY)/.volatile
 	cd $(THIRDPARTY) && $(GIT) clone https://github.com/chriskohlhoff/asio.git
 
+# server.h pulls in ASIO
+include/ef.gy/server.h: include/asio.hpp
+
 include dependencies.mk
