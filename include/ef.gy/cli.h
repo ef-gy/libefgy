@@ -37,8 +37,9 @@
 namespace efgy {
 namespace cli {
 class option;
+class hint;
 
-template <class option = option> class options {
+template <class option = option, class hint = hint> class options {
 public:
   static options &common(void) {
     static options opt;
@@ -50,8 +51,18 @@ public:
     return *this;
   }
 
+  options &add(hint &h) {
+    hints.insert(&h);
+    return *this;
+  }
+
   options &remove(option &o) {
     opts.erase(&o);
+    return *this;
+  }
+
+  options &remove(hint &h) {
+    hints.erase(&h);
     return *this;
   }
 
@@ -93,6 +104,10 @@ public:
       std::cout << opt->description << "\n";
     }
 
+    for (const auto &hn : hints) {
+      std::cout << "\n" << hn->title << ":\n" << hn->usage();
+    }
+
     return 0;
   }
 
@@ -100,13 +115,14 @@ public:
 
 protected:
   std::set<option *> opts;
+  std::set<hint *> hints;
 };
 
 class option {
 public:
   option(const std::string &pMatch, std::function<bool(std::smatch &)> pHandler,
          const std::string &pDescription = "Please document me.",
-         options<option> &pOpts = options<option>::common())
+         options<option> &pOpts = options<option, hint>::common())
       : regex(pMatch), match(pMatch), handler(pHandler),
         description(pDescription), opts(pOpts) {
     opts.add(*this);
@@ -120,7 +136,24 @@ public:
   const std::function<bool(std::smatch &)> handler;
 
 protected:
-  options<option> &opts;
+  options<option, hint> &opts;
+};
+
+class hint {
+public:
+  hint(const std::string &pTitle, std::function<std::string(void)> pUsage,
+       options<option> &pOpts = options<option, hint>::common())
+      : title(pTitle), usage(pUsage), opts(pOpts) {
+    opts.add(*this);
+  }
+
+  ~hint(void) { opts.remove(*this); }
+
+  const std::string title;
+  std::function<std::string(void)> usage;
+
+protected:
+  options<option, hint> &opts;
 };
 
 static option help("-{0,2}help", [](std::smatch &m) -> bool {
