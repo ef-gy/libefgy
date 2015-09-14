@@ -121,7 +121,7 @@ dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS) $(THIRDPARTYHEADER
 	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ -MM $(BINARIES_SRC) | sed -E 's/(.*).o: /\1: /' > $@
 
 # common third party libraries
-include/asio.hpp: $(THIRDPARTY)/asio/.git
+include/asio.hpp: $(THIRDPARTY)/asio/.git/refs/heads/master
 	ln -sf ../.third-party/asio/asio/include/asio.hpp $@
 	ln -sfn ../.third-party/asio/asio/include/asio include/asio
 
@@ -129,7 +129,7 @@ $(THIRDPARTY)/.volatile:
 	mkdir -p $(THIRDPARTY) || true
 	touch $@
 
-$(THIRDPARTY)/asio/.git: $(THIRDPARTY)/.volatile
+$(THIRDPARTY)/asio/.git/refs/heads/master: $(THIRDPARTY)/.volatile
 	cd $(THIRDPARTY) && $(GIT) clone https://github.com/chriskohlhoff/asio.git
 
 # server.h pulls in ASIO

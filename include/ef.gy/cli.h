@@ -76,13 +76,21 @@ public:
     return r;
   }
 
-  std::size_t usage(const std::string &name) {
-    std::cerr << "Usage: " << name << " [options...]\n"
+  std::size_t usage(const std::string &name = "<command>") {
+    std::cout << "Usage: " << name << " [options...]\n"
               << "\n"
               << "Where [options...] is any of the following:\n";
 
     for (const auto &opt : opts) {
-      std::cerr << "  " << opt->regex << "\t " << opt->description << "\n";
+      std::cout << "  " << opt->regex;
+      if (opt->regex.size() < 25) {
+        for (std::size_t i = opt->regex.size() + 1; i < 26; i++) {
+          std::cout << " ";
+        }
+      } else {
+        std::cout << "\n                           ";
+      }
+      std::cout << opt->description << "\n";
     }
 
     return 0;
@@ -114,6 +122,11 @@ public:
 protected:
   options<option> &opts;
 };
+
+static option help("-{0,2}help", [](std::smatch &m) -> bool {
+                                   return options<>::common().usage() == 0;
+                                 },
+                   "Print this help screen.");
 }
 }
 
