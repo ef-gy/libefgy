@@ -135,4 +135,11 @@ $(THIRDPARTY)/.volatile:
 $(THIRDPARTY)/asio/.git/refs/heads/master: $(THIRDPARTY)/.volatile
 	cd $(THIRDPARTY) && $(GIT) clone https://github.com/chriskohlhoff/asio.git
 
+update: $(THIRDPARTY)/.volatile
+	cd $(THIRDPARTY) && for r in */; do \
+		cd $${r}; \
+		git pull; \
+		cd ..; \
+	done
+
 include dependencies.mk
