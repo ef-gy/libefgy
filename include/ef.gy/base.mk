@@ -138,7 +138,7 @@ $(THIRDPARTY)/asio/.git/refs/heads/master: $(THIRDPARTY)/.volatile
 update: $(THIRDPARTY)/.volatile
 	cd $(THIRDPARTY) && for r in */; do \
 		cd $${r}; \
-		git pull; \
+		$(GIT) pull; \
 		cd ..; \
 	done
 
