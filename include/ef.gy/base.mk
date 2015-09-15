@@ -60,6 +60,7 @@ all: $(DATABASES) $(BINARIES)
 clean:
 	rm -f $(DATABASES) $(BINARIES); true
 scrub: clean
+	rm -rf $(THIRDPARTY) $(wildcard include/asio*) dependencies.mk
 
 install: $(IBINARIES) $(IINCLUDES) $(IMANPAGES)
 uninstall:
@@ -118,12 +119,14 @@ test-case-%: src/test-case/%.cpp
 
 # dependency calculations
 dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS) $(THIRDPARTYHEADERS)
-	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ -MM $(BINARIES_SRC) | sed -E 's/(.*).o: /\1: /' > $@
+	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ -MM -MG $(BINARIES_SRC) | sed -E 's/(.*).o: /\1: /' > $@
 
 # common third party libraries
 include/asio.hpp: $(THIRDPARTY)/asio/.git/refs/heads/master
 	ln -sf ../.third-party/asio/asio/include/asio.hpp $@
 	ln -sfn ../.third-party/asio/asio/include/asio include/asio
+
+asio.hpp: include/asio.hpp
 
 $(THIRDPARTY)/.volatile:
 	mkdir -p $(THIRDPARTY) || true
@@ -131,8 +134,5 @@ $(THIRDPARTY)/.volatile:
 
 $(THIRDPARTY)/asio/.git/refs/heads/master: $(THIRDPARTY)/.volatile
 	cd $(THIRDPARTY) && $(GIT) clone https://github.com/chriskohlhoff/asio.git
-
-# server.h pulls in ASIO
-include/ef.gy/server.h: include/asio.hpp
 
 include dependencies.mk
