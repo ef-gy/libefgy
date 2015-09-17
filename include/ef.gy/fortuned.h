@@ -79,10 +79,8 @@ static cli::option
 static cli::option print("-{0,2}print(:([0-9]+))?",
                          [](std::smatch &m) -> bool {
                            if (m[2] != "") {
-                             std::stringstream s(m[2]);
-                             std::size_t n;
-                             s >> n;
-                             std::cout << std::string(fortune::common().get(n));
+                             std::cout << std::string(
+                                 fortune::common().get(std::stoll(m[2])));
                            } else {
                              std::cout << std::string(fortune::common().get());
                            }
