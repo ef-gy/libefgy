@@ -6,6 +6,7 @@ BINDIR:=$(DESTDIR)$(PREFIX)/bin
 INCLUDEDIR:=$(DESTDIR)$(PREFIX)/include
 MANDIR:=$(DESTDIR)$(PREFIX)/share/man
 THIRDPARTY:=./.third-party
+DOWNLOADS:=./.downloads
 
 # define these in your project!
 NAME:=
@@ -19,29 +20,32 @@ EMXX:=$(shell which em++ false | head -n 1)
 PKGCONFIG:=$(shell which pkg-config false | head -n 1)
 INSTALL:=$(shell which install false | head -n 1)
 XSLTPROC:=$(shell which xsltproc false | head -n 1)
-CURL:=$(shell which curl false | head -n 1)
+CURL:=$(shell which curl false | head -n 1) -s
 CLANG_FORMAT:=$(shell which clang-format clang-format-3.4 clang-format-3.5 false | head -n 1) -style=llvm
+CSSMIN:=$(shell which cssmin false | head -n 1)
 GIT:=$(shell which git false | head -n 1)
 
+UNAME:=$(shell uname)
 LIBRARIES:=
 THIRDPARTYHEADERS:=
+JSFUNCTIONS:=
 
 DEBUG:=false
 
-PCCFLAGS:=$(shell $(PKGCONFIG) --cflags $(LIBRARIES) 2>/dev/null)
-PCLDFLAGS:=$(shell $(PKGCONFIG) --libs $(LIBRARIES) 2>/dev/null)
-CFLAGS:=-O2 $(shell if $(DEBUG); then echo '-g'; fi)
-CXXFLAGS:=$(CFLAGS)
-EMCFLAGS:=-O2 --llvm-lto 3
-EMXXFLAGS:=$(EMCFLAGS)
-LDFLAGS:=
+PCCFLAGS=$(shell $(PKGCONFIG) --cflags $(LIBRARIES) 2>/dev/null)
+PCLDFLAGS=$(shell $(PKGCONFIG) --libs $(LIBRARIES) 2>/dev/null)
+CFLAGS=-O2 $(shell if $(DEBUG); then echo '-g'; fi)
+CXXFLAGS=$(CFLAGS)
+EMCFLAGS=-O2 --llvm-lto 3
+EMXXFLAGS=$(EMCFLAGS)
+LDFLAGS=
 CXX_STANDARD:=c++11
 
 DATABASE:=
 BINARIES_SRC:=$(wildcard src/*.cpp) $(wildcard src/test-case/*.cpp)
 BINARIES:=$(basename $(notdir $(wildcard src/*.cpp)) $(addprefix test-case-,$(notdir $(wildcard src/test-case/*.cpp))))
-JSBINARIES:=$(addsuffix .js,$(BINARIES))
-TESTBINARIES:=$(filter test-case-%,$(BINARIES))
+JSBINARIES=$(addsuffix .js,$(BINARIES))
+TESTBINARIES=$(filter test-case-%,$(BINARIES))
 
 IGNOREBINARIES:=
 IBINARIES:=$(addprefix $(BINDIR)/,$(filter-out $(IGNOREBINARIES) test-case-%,$(BINARIES)))
@@ -115,11 +119,11 @@ test-case-%: src/test-case/%.cpp
 	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ -DRUN_TEST_CASES $(CXXFLAGS) $(PCCFLAGS) $< $(LDFLAGS) $(PCLDFLAGS) -o $@
 
 %.js: src/%.cpp include/*/*.h
-	$(EMXX) -std=$(CXX_STANDARD) -Iinclude/ -D NOLIBRARIES $(EMXXFLAGS) $< $(LDFLAGS) -o $@
+	$(EMXX) -std=$(CXX_STANDARD) -Iinclude/ -D NOLIBRARIES $(EMXXFLAGS) -s EXPORTED_FUNCTIONS="$(JSFUNCTIONS)" $< $(LDFLAGS) -o $@
 
 # dependency calculations
 dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS) $(THIRDPARTYHEADERS)
-	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ -MM -MG $(BINARIES_SRC) | sed -E 's/(.*).o: /\1: /' > $@
+	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ $(PCCFLAGS) -MM -MG $(BINARIES_SRC) | sed -E 's/(.*).o: /\1: /' > $@
 
 # common third party libraries
 include/asio.hpp: $(THIRDPARTY)/asio/.git/refs/heads/master
@@ -134,6 +138,11 @@ $(THIRDPARTY)/.volatile:
 
 $(THIRDPARTY)/asio/.git/refs/heads/master: $(THIRDPARTY)/.volatile
 	cd $(THIRDPARTY) && $(GIT) clone https://github.com/chriskohlhoff/asio.git
+
+# downloads
+$(DOWNLOADS)/.volatile:
+	mkdir -p $(DOWNLOADS) || true
+	touch $@
 
 update: $(THIRDPARTY)/.volatile
 	cd $(THIRDPARTY) && for r in */; do \
@@ -171,5 +180,9 @@ doxyfile: makefile
 
 doxygen:: doxyfile
 	doxygen $<
+
+# just in case we want to compress something
+%.gz: %
+	gzip -kf9n $<
 
 include dependencies.mk
