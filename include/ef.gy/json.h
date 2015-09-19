@@ -268,7 +268,7 @@ protected:
 
   void *payload;
 };
-};
-};
+}
+}
 
 #endif

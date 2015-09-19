@@ -18,3 +18,5 @@ include/asio*
 server
 *.db
 fortuned
+doxyfile
+*.tag

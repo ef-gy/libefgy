@@ -142,4 +142,34 @@ update: $(THIRDPARTY)/.volatile
 		cd ..; \
 	done
 
+doxyfile: makefile
+	echo 'DOXYFILE_ENCODING = UTF-8' > $@
+	echo 'PROJECT_NAME = "$(NAME)"' >> $@
+	echo 'PROJECT_NUMBER = "$(VERSION)"' >> $@
+	echo 'OUTPUT_DIRECTORY = documentation' >> $@
+	echo 'ALLOW_UNICODE_NAMES = YES' >> $@
+	echo 'INLINE_INHERITED_MEMB = YES' >> $@
+	echo 'STRIP_FROM_PATH = .' >> $@
+	echo 'STRIP_FROM_INC_PATH = include/' >> $@
+	echo 'TAB_SIZE = 2' >> $@
+	echo 'BUILTIN_STL_SUPPORT = YES' >> $@
+	echo 'EXTRACT_STATIC = YES' >> $@
+	echo 'QUIET = YES' >> $@
+	echo 'INPUT = README.md include/$(BASE) src src/test-case' >> $@
+	echo 'IMAGE_PATH = documentation/' >> $@
+	echo 'SOURCE_BROWSER = YES' >> $@
+	echo 'COLS_IN_ALPHA_INDEX = 3' >> $@
+	echo 'HTML_FILE_EXTENSION = .xhtml' >> $@
+	echo 'SEARCHENGINE = NO' >> $@
+	echo 'GENERATE_LATEX = NO' >> $@
+	echo 'GENERATE_TAGFILE = $(NAME).tag' >> $@
+	echo 'DOT_IMAGE_FORMAT = svg' >> $@
+	echo 'INTERACTIVE_SVG = YES' >> $@
+	[ -e "documentation/doxygen-layout.xml" ] && echo 'LAYOUT_FILE = documentation/doxygen-layout.xml' >> $@ || true
+	[ -e "documentation/extra.css" ] && echo 'HTML_EXTRA_STYLESHEET  = documentation/extra.css' >> $@ || true
+	[ -e "doxyfile-extra" ] && echo '@INCLUDE = doxyfile-extra' >> $@ || true
+
+doxygen:: doxyfile
+	doxygen $<
+
 include dependencies.mk
