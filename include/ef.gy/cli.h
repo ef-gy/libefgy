@@ -66,25 +66,33 @@ public:
     return *this;
   }
 
-  std::size_t apply(int argc, char *argv[]) {
+  std::size_t apply(std::vector<std::string> &args) {
     std::size_t r = 0;
     remainder = std::vector<std::string>();
 
-    for (int i = 1; i < argc; i++) {
-      std::string s = argv[i];
+    for (const auto &arg : args) {
       for (const auto &opt : opts) {
         std::smatch matches;
-        if (std::regex_match(s, matches, opt->match) && opt->handler(matches)) {
+        if (std::regex_match(arg, matches, opt->match) &&
+            opt->handler(matches)) {
           r++;
         }
       }
     }
 
-    if (r == 0) {
-      return usage(argv[0]);
+    if ((r == 0) && (args.size() > 0)) {
+      return usage(args[0]);
     }
 
     return r;
+  }
+
+  std::size_t apply(int argc, char *argv[]) {
+    std::vector<std::string> args;
+    for (int i = 0; i < argc; i++) {
+      args.push_back(argv[i]);
+    }
+    return apply(args);
   }
 
   std::size_t usage(const std::string &name = "<command>") {
