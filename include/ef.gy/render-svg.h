@@ -34,7 +34,7 @@
 
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
-#include <ef.gy/render-xml.h>
+#include <ef.gy/stream-svg.h>
 #include <ef.gy/polytope.h>
 #include <sstream>
 

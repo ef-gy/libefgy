@@ -183,7 +183,7 @@ template <typename C>
 constexpr inline ostream<C> operator<<(ostream<C> stream, const resolution &p) {
   return stream.resolution = p.value, stream;
 }
-};
-};
+}
+}
 
 #endif
