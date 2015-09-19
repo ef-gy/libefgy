@@ -47,7 +47,7 @@ BINARIES:=$(basename $(notdir $(wildcard src/*.cpp)) $(addprefix test-case-,$(no
 JSBINARIES=$(addsuffix .js,$(BINARIES))
 TESTBINARIES=$(filter test-case-%,$(BINARIES))
 
-IGNOREBINARIES:=
+IGNOREBINARIES:=server
 IBINARIES:=$(addprefix $(BINDIR)/,$(filter-out $(IGNOREBINARIES) test-case-%,$(BINARIES)))
 IINCLUDES:=$(addprefix $(INCLUDEDIR)/$(BASE)/,$(notdir $(wildcard include/$(BASE)/*.h)))
 IMANPAGES:=$(addprefix $(MANDIR)/man1/,$(notdir $(wildcard src/*.1)))

@@ -225,9 +225,10 @@ public:
 
   constexpr static range<Q> getRange(const parameters<Q> &parameter,
                                      std::size_t i) {
-    return range<Q>(
-        0, M_PI * Q(4) * (abs(parameter.constant) + 1.0),
-        parameter.precision * Q(8) * (abs(parameter.constant) + 1.0), false);
+    return range<Q>(0, M_PI * Q(4) * (std::abs(parameter.constant) + 1.0),
+                    parameter.precision * Q(8) *
+                        (std::abs(parameter.constant) + 1.0),
+                    false);
   }
 
   constexpr static math::vector<Q, renderDepth>
