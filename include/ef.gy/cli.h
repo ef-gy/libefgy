@@ -69,15 +69,33 @@ public:
   std::size_t apply(std::vector<std::string> &args) {
     std::size_t r = 0;
     remainder = std::vector<std::string>();
+    bool doneWithArgs = false;
+    bool firstArg = true;
 
     for (const auto &arg : args) {
-      for (const auto &opt : opts) {
-        std::smatch matches;
-        if (std::regex_match(arg, matches, opt->match) &&
-            opt->handler(matches)) {
-          r++;
+      if (arg == "--") {
+        doneWithArgs = true;
+        continue;
+      }
+
+      bool haveMatch = false;
+
+      if (!doneWithArgs) {
+        for (const auto &opt : opts) {
+          std::smatch matches;
+          if (std::regex_match(arg, matches, opt->match) &&
+              opt->handler(matches)) {
+            r++;
+            haveMatch = true;
+          }
         }
       }
+
+      if (!haveMatch && !firstArg) {
+        remainder.push_back(arg);
+      }
+
+      firstArg = false;
     }
 
     if ((r == 0) && (args.size() > 0)) {
@@ -96,7 +114,7 @@ public:
   }
 
   std::size_t usage(const std::string &name = "<command>") {
-    std::cout << "Usage: " << name << " [options...]\n"
+    std::cout << "Usage: " << name << " [options...] [--] [input...]\n"
               << "\n"
               << "Where [options...] is any of the following:\n";
 
