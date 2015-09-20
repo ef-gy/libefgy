@@ -66,7 +66,7 @@ public:
     return *this;
   }
 
-  std::size_t apply(std::vector<std::string> &args) {
+  std::size_t apply(const std::vector<std::string> &args) {
     std::size_t r = 0;
     remainder = std::vector<std::string>();
     bool doneWithArgs = false;
