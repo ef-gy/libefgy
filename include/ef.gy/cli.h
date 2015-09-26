@@ -98,7 +98,7 @@ public:
       firstArg = false;
     }
 
-    if ((r == 0) && (args.size() > 0)) {
+    if ((r == 0) && (args.size() > 0) && (remainder.size() == 0)) {
       return usage(args[0]);
     }
 
