@@ -40,7 +40,7 @@ class option;
 class hint;
 
 template <class option = option, class hint = hint> class options {
- public:
+public:
   static options &common(void) {
     static options opt;
     return opt;
@@ -139,21 +139,18 @@ template <class option = option, class hint = hint> class options {
 
   std::vector<std::string> remainder;
 
- protected:
+protected:
   std::set<option *> opts;
   std::set<hint *> hints;
 };
 
 class option {
- public:
+public:
   option(const std::string &pMatch, std::function<bool(std::smatch &)> pHandler,
          const std::string &pDescription = "Please document me.",
          options<option> &pOpts = options<option, hint>::common())
-      : regex(pMatch),
-        match(pMatch),
-        handler(pHandler),
-        description(pDescription),
-        opts(pOpts) {
+      : regex(pMatch), match(pMatch), handler(pHandler),
+        description(pDescription), opts(pOpts) {
     opts.add(*this);
   }
 
@@ -164,12 +161,12 @@ class option {
   const std::regex match;
   const std::function<bool(std::smatch &)> handler;
 
- protected:
+protected:
   options<option, hint> &opts;
 };
 
 class boolean : public option {
- public:
+public:
   boolean(const std::string &pName,
           const std::string &pDescription = "Please document me.",
           options<option> &pOpts = options<option, hint>::common())
@@ -177,13 +174,35 @@ class boolean : public option {
     value = m[1] != "no";
     return true;
   },
-               pDescription, pOpts) {}
+               pDescription, pOpts),
+        value(false) {}
 
+  operator const bool(void) const { return value; }
+
+protected:
   bool value;
 };
 
+class string : public option {
+public:
+  string(const std::string &pName,
+         const std::string &pDescription = "Please document me.",
+         options<option> &pOpts = options<option, hint>::common())
+      : option("-{0,2}" + pName + ":(.*)", [this](std::smatch & m)->bool {
+    value = m[1];
+    return true;
+  },
+               pDescription, pOpts),
+        value("") {}
+
+  operator const std::string(void) const { return value; }
+
+protected:
+  std::string value;
+};
+
 class hint {
- public:
+public:
   hint(const std::string &pTitle, std::function<std::string(void)> pUsage,
        options<option> &pOpts = options<option, hint>::common())
       : title(pTitle), usage(pUsage), opts(pOpts) {
@@ -195,7 +214,7 @@ class hint {
   const std::string title;
   std::function<std::string(void)> usage;
 
- protected:
+protected:
   options<option, hint> &opts;
 };
 
