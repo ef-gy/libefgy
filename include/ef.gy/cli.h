@@ -165,16 +165,16 @@ protected:
   options<option, hint> &opts;
 };
 
-class boolean : public option {
+template <typename type = bool> class flag : public option {
 public:
-  boolean(const std::string &pName,
-          const std::string &pDescription = "Please document me.",
-          options<option> &pOpts = options<option, hint>::common())
+  flag(const std::string &pName,
+       const std::string &pDescription = "Please document me.",
+       options<option> &pOpts = options<option, hint>::common())
       : option("-{0,2}(no)?" + pName, [this](std::smatch & m)->bool {
     value = m[1] != "no";
     return true;
   },
-               pDescription, pOpts),
+               "[Boolean] " + pDescription, pOpts),
         value(false) {}
 
   operator const bool(void) const { return value; }
@@ -183,16 +183,16 @@ protected:
   bool value;
 };
 
-class string : public option {
+template <> class flag<std::string> : public option {
 public:
-  string(const std::string &pName,
-         const std::string &pDescription = "Please document me.",
-         options<option> &pOpts = options<option, hint>::common())
+  flag(const std::string &pName,
+       const std::string &pDescription = "Please document me.",
+       options<option> &pOpts = options<option, hint>::common())
       : option("-{0,2}" + pName + ":(.*)", [this](std::smatch & m)->bool {
     value = m[1];
     return true;
   },
-               pDescription, pOpts),
+               "[String] " + pDescription, pOpts),
         value("") {}
 
   operator const std::string(void) const { return value; }
