@@ -15,15 +15,16 @@ VERSION:=1
 
 # standard programmes (may or may not be used)
 CC:=$(shell which clang false | head -n 1)
-CXX:=$(shell which clang++ false | head -n 1)
-EMXX:=$(shell which em++ false | head -n 1)
-PKGCONFIG:=$(shell which pkg-config false | head -n 1)
-INSTALL:=$(shell which install false | head -n 1)
-XSLTPROC:=$(shell which xsltproc false | head -n 1)
-CURL:=$(shell which curl false | head -n 1) -s
 CLANG_FORMAT:=$(shell which clang-format clang-format-3.4 clang-format-3.5 false | head -n 1) -style=llvm
 CSSMIN:=$(shell which cssmin false | head -n 1)
+CURL:=$(shell which curl false | head -n 1) -s
+CXX:=$(shell which clang++ false | head -n 1)
+EMXX:=$(shell which em++ false | head -n 1)
 GIT:=$(shell which git false | head -n 1)
+INSTALL:=$(shell which install false | head -n 1)
+PKGCONFIG:=$(shell which pkg-config false | head -n 1)
+TIDY:=$(shell which tidy false | head -n 1)
+XSLTPROC:=$(shell which xsltproc false | head -n 1)
 
 UNAME:=$(shell uname)
 LIBRARIES:=
