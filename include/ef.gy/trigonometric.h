@@ -80,7 +80,8 @@ template <typename Q, typename N = unsigned long long>
 constexpr static inline Q sine(const Q &pTheta, const N &iterations = N(10)) {
   return complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
                                      complex<Q>(Q(0), pTheta),
-                                     complex<Q>(Q(0), Q(0)), iterations)).i;
+                                     complex<Q>(Q(0), Q(0)), iterations))
+      .i;
 }
 
 /**\brief Calculate sine
@@ -145,7 +146,8 @@ template <typename Q, typename N = unsigned long long>
 constexpr static inline Q cosine(const Q &pTheta, const N &iterations = N(10)) {
   return complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
                                      complex<Q>(Q(0), pTheta),
-                                     complex<Q>(Q(0), Q(0)), iterations)).one;
+                                     complex<Q>(Q(0), Q(0)), iterations))
+      .one;
 }
 
 /**\brief Calculate cosine
@@ -238,7 +240,8 @@ constexpr static inline Q secant(const Q &pTheta, const N &iterations = N(10)) {
   return Q(1) /
          complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
                                      complex<Q>(Q(0), pTheta),
-                                     complex<Q>(Q(0), Q(0)), iterations)).i;
+                                     complex<Q>(Q(0), Q(0)), iterations))
+             .i;
 }
 
 /**\brief Calculate secant
@@ -305,7 +308,8 @@ constexpr static inline Q cosecant(const Q &pTheta,
   return Q(1) /
          complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
                                      complex<Q>(Q(0), pTheta),
-                                     complex<Q>(Q(0), Q(0)), iterations)).one;
+                                     complex<Q>(Q(0), Q(0)), iterations))
+             .one;
 }
 
 /**\brief Calculate cosecant

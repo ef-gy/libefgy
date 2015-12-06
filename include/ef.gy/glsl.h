@@ -78,21 +78,25 @@ enum version {
  * Contains all the data related to a GLSL variable so that it can
  * be written to a stream and used in a shader programme.
  */
-template <enum type T> class variable {
-public:
-  /**\brief Construct with data
-   *
-   * Initialises a new variable specification with the name,
-   * type and precision to use.
-   *
-   * \param[in] pName      Name of the variable.
-   * \param[in] pType      The GLSL type of the variable.
-   * \param[in] pPrecision The precision to use.
-   * \param[in] pElements  Number of array elements.
-   */
-  constexpr variable(const std::string &pName, const char *pType = "float",
-                     const char *pPrecision = "", unsigned int pElements = 1)
-      : name(pName), type(pType), precision(pPrecision), elements(pElements) {}
+template <enum type T>
+class variable {
+  public :
+      /**\brief Construct with data
+       *
+       * Initialises a new variable specification with the name,
+       * type and precision to use.
+       *
+       * \param[in] pName      Name of the variable.
+       * \param[in] pType      The GLSL type of the variable.
+       * \param[in] pPrecision The precision to use.
+       * \param[in] pElements  Number of array elements.
+       */
+      constexpr variable(const std::string &pName, const char *pType = "float",
+                         const char *pPrecision = "",
+                         unsigned int pElements = 1) : name(pName),
+  type(pType),
+  precision(pPrecision),
+  elements(pElements){}
 
   /**\brief Variable name
    *
@@ -104,13 +108,13 @@ public:
    *
    * GLSL type string for the variable.
    */
-  const char *type;
+  const char * type;
 
   /**\brief Variable precision
    *
    * The floating-point precision for the variable.
    */
-  const char *precision;
+  const char * precision;
 
   /**\brief Number of array elements
    *

@@ -170,12 +170,10 @@ public:
   flag(const std::string &pName,
        const std::string &pDescription = "Please document me.",
        options<option> &pOpts = options<option, hint>::common())
-      : option("-{0,2}(no)?" + pName, [this](std::smatch & m)->bool {
-    value = m[1] != "no";
-    return true;
-  },
-               "[Boolean] " + pDescription, pOpts),
-        value(false) {}
+      : option("-{0,2}(no)?" + pName, [this](std::smatch &m) -> bool {
+          value = m[1] != "no";
+          return true;
+        }, "[Boolean] " + pDescription, pOpts), value(false) {}
 
   operator const bool(void) const { return value; }
 
@@ -188,12 +186,10 @@ public:
   flag(const std::string &pName,
        const std::string &pDescription = "Please document me.",
        options<option> &pOpts = options<option, hint>::common())
-      : option("-{0,2}" + pName + ":(.*)", [this](std::smatch & m)->bool {
-    value = m[1];
-    return true;
-  },
-               "[String] " + pDescription, pOpts),
-        value("") {}
+      : option("-{0,2}" + pName + ":(.*)", [this](std::smatch &m) -> bool {
+          value = m[1];
+          return true;
+        }, "[String] " + pDescription, pOpts), value("") {}
 
   operator const std::string(void) const { return value; }
 
@@ -218,10 +214,9 @@ protected:
   options<option, hint> &opts;
 };
 
-static option help("-{0,2}help", [](std::smatch &m)->bool {
+static option help("-{0,2}help", [](std::smatch &m) -> bool {
   return options<>::common().usage() == 0;
-},
-                   "Print this help screen.");
+}, "Print this help screen.");
 }
 }
 

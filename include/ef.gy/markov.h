@@ -180,10 +180,12 @@ public:
     for (typename std::map<memory, transition>::iterator it =
              transitions.find(m);
          it != transitions.end(); it = transitions.find(m)) {
-      counter c = std::accumulate(
-          it->second.begin(), it->second.end(), 0,
-          [](const counter &v, const std::pair<maybe<T>, counter> &t)
-              -> counter { return v + t.second; });
+      counter c =
+          std::accumulate(it->second.begin(), it->second.end(), 0,
+                          [](const counter &v,
+                             const std::pair<maybe<T>, counter> &t) -> counter {
+                            return v + t.second;
+                          });
 
       c = RNG() % c;
 
@@ -262,15 +264,16 @@ public:
   chain &train(const input &input, const counter &c) {
     memory m = std::accumulate(input.begin(), input.end(), memory(),
                                [this, c](memory s, const T &v) -> memory {
-      transitions[s][v] += c;
+                                 transitions[s][v] += c;
 
-      std::transform(s.begin() + 1, s.end(), s.begin(),
-                     [](maybe<T> &i) -> maybe<T> { return i; });
+                                 std::transform(
+                                     s.begin() + 1, s.end(), s.begin(),
+                                     [](maybe<T> &i) -> maybe<T> { return i; });
 
-      *(s.end() - 1) = v;
+                                 *(s.end() - 1) = v;
 
-      return s;
-    });
+                                 return s;
+                               });
 
     transitions[m][maybe<T>()]++;
 

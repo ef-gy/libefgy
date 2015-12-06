@@ -204,727 +204,723 @@ template <typename Q, enum glsl::version V,
           template <enum glsl::version> class vertexShader,
           template <enum glsl::version> class fragmentShader>
 class programme {
-public:
-  /**\brief Default constructor
-   *
-   * Initialises an instance of this class; The shaders are not
-   * passed in explicitly, they need to be of types than can
-   * produce valid shaders when written to a stream.
-   */
-  programme(void) : programmeID(0) {}
+  public :
+      /**\brief Default constructor
+       *
+       * Initialises an instance of this class; The shaders are not
+       * passed in explicitly, they need to be of types than can
+       * produce valid shaders when written to a stream.
+       */
+      programme(void) : programmeID(0){}
 
   /**\brief Destructor
    *
    * Erases the programme if it has been compiled and linked; does
    * nothing otherwise.
    */
-  ~programme(void) {
-    if (programmeID) {
-      glDeleteProgram(programmeID);
-    }
+  ~programme(void){if (programmeID){glDeleteProgram(programmeID);}
+}
+
+/**\brief Use programme
+ *
+ * This is a wrapper for OpenGL's useProgram() that activates
+ * the programme; compiles the programme before doing so if it's
+ * not yet compiled and linked properly.
+ *
+ * \return True if the programme was bound correctly, false
+ *         otherwise.
+ */
+bool use(void) {
+  if (programmeID) {
+    glUseProgram(programmeID);
+    return true;
+  } else if (compile() && programmeID) {
+    glUseProgram(programmeID);
+    return true;
   }
 
-  /**\brief Use programme
-   *
-   * This is a wrapper for OpenGL's useProgram() that activates
-   * the programme; compiles the programme before doing so if it's
-   * not yet compiled and linked properly.
-   *
-   * \return True if the programme was bound correctly, false
-   *         otherwise.
-   */
-  bool use(void) {
-    if (programmeID) {
-      glUseProgram(programmeID);
-      return true;
-    } else if (compile() && programmeID) {
-      glUseProgram(programmeID);
-      return true;
-    }
+  return false;
+}
 
-    return false;
+/**\brief Use but do not compile programme
+ *
+ * This is a wrapper for OpenGL's useProgram() that activates
+ * the programme; if the programme has not been compiled yet
+ * then this method simply fails.
+ *
+ * \return True if the programme was bound correctly, false
+ *         otherwise.
+ */
+bool use(void) const {
+  if (programmeID) {
+    glUseProgram(programmeID);
+    return true;
   }
 
-  /**\brief Use but do not compile programme
-   *
-   * This is a wrapper for OpenGL's useProgram() that activates
-   * the programme; if the programme has not been compiled yet
-   * then this method simply fails.
-   *
-   * \return True if the programme was bound correctly, false
-   *         otherwise.
-   */
-  bool use(void) const {
-    if (programmeID) {
-      glUseProgram(programmeID);
-      return true;
-    }
+  return false;
+}
 
-    return false;
-  }
-
-  /**\brief Load arbitrary NxN matrix
-   *
-   * Activate the programme and upload an NxN uniform variable to
-   * the specified uniform index.
-   *
-   * \param[in] ID     The uniform ID to use.
-   * \param[in] matrix The 4x4 matrix to load. The contents of
-   *                   this matrix are turned into a GLfloat array
-   *                   before handing the data to OpenGL.
-   * \param[in] asArray Upload as a flat array instead of using
-   *                   the proper matrix function.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  template <unsigned int n>
-  bool uniform(const GLint ID, const math::matrix<Q, n, n> &matrix,
-               const bool asArray) {
-    if (use()) {
-      GLfloat mat[(n * n)];
-      unsigned int k = 0;
-      for (unsigned int i = 0; i < n; i++) {
-        for (unsigned int j = 0; j < n; j++) {
-          mat[k] = GLfloat(matrix[i][j]);
-          k++;
-        }
+/**\brief Load arbitrary NxN matrix
+ *
+ * Activate the programme and upload an NxN uniform variable to
+ * the specified uniform index.
+ *
+ * \param[in] ID     The uniform ID to use.
+ * \param[in] matrix The 4x4 matrix to load. The contents of
+ *                   this matrix are turned into a GLfloat array
+ *                   before handing the data to OpenGL.
+ * \param[in] asArray Upload as a flat array instead of using
+ *                   the proper matrix function.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+template <unsigned int n>
+bool uniform(const GLint ID, const math::matrix<Q, n, n> &matrix,
+             const bool asArray) {
+  if (use()) {
+    GLfloat mat[(n * n)];
+    unsigned int k = 0;
+    for (unsigned int i = 0; i < n; i++) {
+      for (unsigned int j = 0; j < n; j++) {
+        mat[k] = GLfloat(matrix[i][j]);
+        k++;
       }
-
-      glUniform1fv(ID, (n * n), mat);
-      return true;
     }
 
-    return false;
+    glUniform1fv(ID, (n * n), mat);
+    return true;
   }
 
-  /**\brief Load uniform 4x4 matrix
-   *
-   * Activate the programme and upload a 4x4 uniform variable to
-   * the specified uniform index.
-   *
-   * \param[in] ID     The uniform ID to use.
-   * \param[in] matrix The 4x4 matrix to load. The contents of
-   *                   this matrix are turned into a GLfloat array
-   *                   before handing the data to OpenGL.
-   * \param[in] asArray Upload as a flat array instead of using
-   *                   the proper matrix function.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  bool uniform(const GLint ID, const math::matrix<Q, 4, 4> &matrix,
-               const bool asArray) {
-    if (use()) {
-      GLfloat mat[16] = {
-          GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
-          GLfloat(matrix[0][3]), GLfloat(matrix[1][0]), GLfloat(matrix[1][1]),
-          GLfloat(matrix[1][2]), GLfloat(matrix[1][3]), GLfloat(matrix[2][0]),
-          GLfloat(matrix[2][1]), GLfloat(matrix[2][2]), GLfloat(matrix[2][3]),
-          GLfloat(matrix[3][0]), GLfloat(matrix[3][1]), GLfloat(matrix[3][2]),
-          GLfloat(matrix[3][3])};
+  return false;
+}
 
-      if (asArray) {
-        glUniform1fv(ID, 16, mat);
-      } else {
-        glUniformMatrix4fv(ID, 1, GL_FALSE, mat);
+/**\brief Load uniform 4x4 matrix
+ *
+ * Activate the programme and upload a 4x4 uniform variable to
+ * the specified uniform index.
+ *
+ * \param[in] ID     The uniform ID to use.
+ * \param[in] matrix The 4x4 matrix to load. The contents of
+ *                   this matrix are turned into a GLfloat array
+ *                   before handing the data to OpenGL.
+ * \param[in] asArray Upload as a flat array instead of using
+ *                   the proper matrix function.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+bool uniform(const GLint ID, const math::matrix<Q, 4, 4> &matrix,
+             const bool asArray) {
+  if (use()) {
+    GLfloat mat[16] = {
+        GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
+        GLfloat(matrix[0][3]), GLfloat(matrix[1][0]), GLfloat(matrix[1][1]),
+        GLfloat(matrix[1][2]), GLfloat(matrix[1][3]), GLfloat(matrix[2][0]),
+        GLfloat(matrix[2][1]), GLfloat(matrix[2][2]), GLfloat(matrix[2][3]),
+        GLfloat(matrix[3][0]), GLfloat(matrix[3][1]), GLfloat(matrix[3][2]),
+        GLfloat(matrix[3][3])};
+
+    if (asArray) {
+      glUniform1fv(ID, 16, mat);
+    } else {
+      glUniformMatrix4fv(ID, 1, GL_FALSE, mat);
+    }
+    return true;
+  }
+
+  return false;
+}
+
+/**\brief Load uniform 3x3 matrix
+ *
+ * Activate the programme and upload a 3x3 uniform variable to
+ * the specified uniform index.
+ *
+ * \param[in] ID     The uniform ID to use.
+ * \param[in] matrix The 3x3 matrix to load. The contents of
+ *                   this matrix are turned into a GLfloat array
+ *                   before handing the data to OpenGL.
+ * \param[in] asArray Upload as a flat array instead of using
+ *                   the proper matrix function.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+bool uniform(const GLint ID, const math::matrix<Q, 3, 3> &matrix,
+             const bool asArray) {
+  if (use()) {
+    GLfloat mat[9] = {
+        GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
+        GLfloat(matrix[1][0]), GLfloat(matrix[1][1]), GLfloat(matrix[1][2]),
+        GLfloat(matrix[2][0]), GLfloat(matrix[2][1]), GLfloat(matrix[2][2])};
+
+    if (asArray) {
+      glUniform1fv(ID, 9, mat);
+    } else {
+      glUniformMatrix3fv(ID, 1, GL_FALSE, mat);
+    }
+    return true;
+  }
+
+  return false;
+}
+
+/**\brief Load uniform 2x2 matrix
+ *
+ * Activate the programme and upload a 2x2 uniform variable to
+ * the specified uniform index.
+ *
+ * \param[in] ID     The uniform ID to use.
+ * \param[in] matrix The 2x2 matrix to load. The contents of
+ *                   this matrix are turned into a GLfloat array
+ *                   before handing the data to OpenGL.
+ * \param[in] asArray Upload as a flat array instead of using
+ *                   the proper matrix function.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+bool uniform(const GLint ID, const math::matrix<Q, 2, 2> &matrix,
+             const bool asArray) {
+  if (use()) {
+    GLfloat mat[4] = {GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
+                      GLfloat(matrix[1][0]), GLfloat(matrix[1][1])};
+
+    if (asArray) {
+      glUniform1fv(ID, 4, mat);
+    } else {
+      glUniformMatrix2fv(ID, 1, GL_FALSE, mat);
+    }
+    return true;
+  }
+
+  return false;
+}
+
+/**\brief Load integer uniform
+ *
+ * Activate the programme and upload an integer uniform variable
+ * to the specified uniform index.
+ *
+ * \param[in] ID    The uniform ID to use.
+ * \param[in] value The integer value to load.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+bool uniform(const GLint ID, const GLint &value) {
+  if (use()) {
+    glUniform1i(ID, value);
+    return true;
+  }
+
+  return false;
+}
+
+/**\brief Load uniform floating point vector
+ *
+ * Activate the programme and upload a uniform float vector
+ * to the specified uniform index.
+ *
+ * \param[in] ID    The uniform ID to use.
+ * \param[in] value The floating point vector to load.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+bool uniform(const GLint ID, const GLfloat value[4]) {
+  if (use()) {
+    glUniform4f(ID, value[0], value[1], value[2], value[3]);
+    return true;
+  }
+
+  return false;
+}
+
+/**\brief Load arbitrary NxN matrix
+ *
+ * Activate the programme and upload an NxN uniform variable to
+ * the specified uniform index.
+ *
+ * \param[in] ID     The uniform ID to use.
+ * \param[in] matrix The 4x4 matrix to load. The contents of
+ *                   this matrix are turned into a GLfloat array
+ *                   before handing the data to OpenGL.
+ * \param[in] asArray Upload as a flat array instead of using
+ *                   the proper matrix function.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+template <unsigned int n>
+bool uniform(const GLint ID, const math::matrix<Q, n, n> &matrix,
+             const bool asArray) const {
+  if (use()) {
+    GLfloat mat[(n * n)];
+    unsigned int k = 0;
+    for (unsigned int i = 0; i < n; i++) {
+      for (unsigned int j = 0; j < n; j++) {
+        mat[k] = GLfloat(matrix[i][j]);
+        k++;
       }
-      return true;
     }
 
-    return false;
+    glUniform1fv(ID, (n * n), mat);
+    return true;
   }
 
-  /**\brief Load uniform 3x3 matrix
-   *
-   * Activate the programme and upload a 3x3 uniform variable to
-   * the specified uniform index.
-   *
-   * \param[in] ID     The uniform ID to use.
-   * \param[in] matrix The 3x3 matrix to load. The contents of
-   *                   this matrix are turned into a GLfloat array
-   *                   before handing the data to OpenGL.
-   * \param[in] asArray Upload as a flat array instead of using
-   *                   the proper matrix function.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  bool uniform(const GLint ID, const math::matrix<Q, 3, 3> &matrix,
-               const bool asArray) {
-    if (use()) {
-      GLfloat mat[9] = {
-          GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
-          GLfloat(matrix[1][0]), GLfloat(matrix[1][1]), GLfloat(matrix[1][2]),
-          GLfloat(matrix[2][0]), GLfloat(matrix[2][1]), GLfloat(matrix[2][2])};
+  return false;
+}
 
-      if (asArray) {
-        glUniform1fv(ID, 9, mat);
-      } else {
-        glUniformMatrix3fv(ID, 1, GL_FALSE, mat);
-      }
-      return true;
+/**\brief Load uniform 4x4 matrix
+ *
+ * Activate the programme and upload a 4x4 uniform variable to
+ * the specified uniform index.
+ *
+ * \param[in] ID     The uniform ID to use.
+ * \param[in] matrix The 4x4 matrix to load. The contents of
+ *                   this matrix are turned into a GLfloat array
+ *                   before handing the data to OpenGL.
+ * \param[in] asArray Upload as a flat array instead of using
+ *                   the proper matrix function.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+bool uniform(const GLint ID, const math::matrix<Q, 4, 4> &matrix,
+             const bool asArray) const {
+  if (use()) {
+    GLfloat mat[16] = {
+        GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
+        GLfloat(matrix[0][3]), GLfloat(matrix[1][0]), GLfloat(matrix[1][1]),
+        GLfloat(matrix[1][2]), GLfloat(matrix[1][3]), GLfloat(matrix[2][0]),
+        GLfloat(matrix[2][1]), GLfloat(matrix[2][2]), GLfloat(matrix[2][3]),
+        GLfloat(matrix[3][0]), GLfloat(matrix[3][1]), GLfloat(matrix[3][2]),
+        GLfloat(matrix[3][3])};
+
+    if (asArray) {
+      glUniform1fv(ID, 16, mat);
+    } else {
+      glUniformMatrix4fv(ID, 1, GL_FALSE, mat);
     }
-
-    return false;
+    return true;
   }
 
-  /**\brief Load uniform 2x2 matrix
-   *
-   * Activate the programme and upload a 2x2 uniform variable to
-   * the specified uniform index.
-   *
-   * \param[in] ID     The uniform ID to use.
-   * \param[in] matrix The 2x2 matrix to load. The contents of
-   *                   this matrix are turned into a GLfloat array
-   *                   before handing the data to OpenGL.
-   * \param[in] asArray Upload as a flat array instead of using
-   *                   the proper matrix function.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  bool uniform(const GLint ID, const math::matrix<Q, 2, 2> &matrix,
-               const bool asArray) {
-    if (use()) {
-      GLfloat mat[4] = {GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
-                        GLfloat(matrix[1][0]), GLfloat(matrix[1][1])};
+  return false;
+}
 
-      if (asArray) {
-        glUniform1fv(ID, 4, mat);
-      } else {
-        glUniformMatrix2fv(ID, 1, GL_FALSE, mat);
-      }
-      return true;
+/**\brief Load uniform 3x3 matrix
+ *
+ * Activate the programme and upload a 3x3 uniform variable to
+ * the specified uniform index.
+ *
+ * \param[in] ID     The uniform ID to use.
+ * \param[in] matrix The 3x3 matrix to load. The contents of
+ *                   this matrix are turned into a GLfloat array
+ *                   before handing the data to OpenGL.
+ * \param[in] asArray Upload as a flat array instead of using
+ *                   the proper matrix function.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+bool uniform(const GLint ID, const math::matrix<Q, 3, 3> &matrix,
+             const bool asArray) const {
+  if (use()) {
+    GLfloat mat[9] = {
+        GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
+        GLfloat(matrix[1][0]), GLfloat(matrix[1][1]), GLfloat(matrix[1][2]),
+        GLfloat(matrix[2][0]), GLfloat(matrix[2][1]), GLfloat(matrix[2][2])};
+
+    if (asArray) {
+      glUniform1fv(ID, 9, mat);
+    } else {
+      glUniformMatrix3fv(ID, 1, GL_FALSE, mat);
     }
-
-    return false;
+    return true;
   }
 
-  /**\brief Load integer uniform
-   *
-   * Activate the programme and upload an integer uniform variable
-   * to the specified uniform index.
-   *
-   * \param[in] ID    The uniform ID to use.
-   * \param[in] value The integer value to load.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  bool uniform(const GLint ID, const GLint &value) {
-    if (use()) {
-      glUniform1i(ID, value);
-      return true;
+  return false;
+}
+
+/**\brief Load uniform 2x2 matrix
+ *
+ * Activate the programme and upload a 2x2 uniform variable to
+ * the specified uniform index.
+ *
+ * \param[in] ID     The uniform ID to use.
+ * \param[in] matrix The 2x2 matrix to load. The contents of
+ *                   this matrix are turned into a GLfloat array
+ *                   before handing the data to OpenGL.
+ * \param[in] asArray Upload as a flat array instead of using
+ *                   the proper matrix function.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+bool uniform(const GLint ID, const math::matrix<Q, 2, 2> &matrix,
+             const bool asArray) const {
+  if (use()) {
+    GLfloat mat[4] = {GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
+                      GLfloat(matrix[1][0]), GLfloat(matrix[1][1])};
+
+    if (asArray) {
+      glUniform1fv(ID, 4, mat);
+    } else {
+      glUniformMatrix2fv(ID, 1, GL_FALSE, mat);
     }
-
-    return false;
+    return true;
   }
 
-  /**\brief Load uniform floating point vector
-   *
-   * Activate the programme and upload a uniform float vector
-   * to the specified uniform index.
-   *
-   * \param[in] ID    The uniform ID to use.
-   * \param[in] value The floating point vector to load.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  bool uniform(const GLint ID, const GLfloat value[4]) {
-    if (use()) {
-      glUniform4f(ID, value[0], value[1], value[2], value[3]);
-      return true;
-    }
+  return false;
+}
 
-    return false;
+/**\brief Load integer uniform
+ *
+ * Activate the programme and upload an integer uniform variable
+ * to the specified uniform index.
+ *
+ * \param[in] ID    The uniform ID to use.
+ * \param[in] value The integer value to load.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+bool uniform(const GLint ID, const GLint &value) const {
+  if (use()) {
+    glUniform1i(ID, value);
+    return true;
   }
 
-  /**\brief Load arbitrary NxN matrix
-   *
-   * Activate the programme and upload an NxN uniform variable to
-   * the specified uniform index.
-   *
-   * \param[in] ID     The uniform ID to use.
-   * \param[in] matrix The 4x4 matrix to load. The contents of
-   *                   this matrix are turned into a GLfloat array
-   *                   before handing the data to OpenGL.
-   * \param[in] asArray Upload as a flat array instead of using
-   *                   the proper matrix function.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  template <unsigned int n>
-  bool uniform(const GLint ID, const math::matrix<Q, n, n> &matrix,
-               const bool asArray) const {
-    if (use()) {
-      GLfloat mat[(n * n)];
-      unsigned int k = 0;
-      for (unsigned int i = 0; i < n; i++) {
-        for (unsigned int j = 0; j < n; j++) {
-          mat[k] = GLfloat(matrix[i][j]);
-          k++;
-        }
-      }
+  return false;
+}
 
-      glUniform1fv(ID, (n * n), mat);
-      return true;
-    }
-
-    return false;
+/**\brief Load uniform floating point vector
+ *
+ * Activate the programme and upload a uniform float vector
+ * to the specified uniform index.
+ *
+ * \param[in] ID    The uniform ID to use.
+ * \param[in] value The floating point vector to load.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+bool uniform(const GLint ID, const GLfloat value[4]) const {
+  if (use()) {
+    glUniform4f(ID, value[0], value[1], value[2], value[3]);
+    return true;
   }
 
-  /**\brief Load uniform 4x4 matrix
-   *
-   * Activate the programme and upload a 4x4 uniform variable to
-   * the specified uniform index.
-   *
-   * \param[in] ID     The uniform ID to use.
-   * \param[in] matrix The 4x4 matrix to load. The contents of
-   *                   this matrix are turned into a GLfloat array
-   *                   before handing the data to OpenGL.
-   * \param[in] asArray Upload as a flat array instead of using
-   *                   the proper matrix function.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  bool uniform(const GLint ID, const math::matrix<Q, 4, 4> &matrix,
-               const bool asArray) const {
-    if (use()) {
-      GLfloat mat[16] = {
-          GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
-          GLfloat(matrix[0][3]), GLfloat(matrix[1][0]), GLfloat(matrix[1][1]),
-          GLfloat(matrix[1][2]), GLfloat(matrix[1][3]), GLfloat(matrix[2][0]),
-          GLfloat(matrix[2][1]), GLfloat(matrix[2][2]), GLfloat(matrix[2][3]),
-          GLfloat(matrix[3][0]), GLfloat(matrix[3][1]), GLfloat(matrix[3][2]),
-          GLfloat(matrix[3][3])};
+  return false;
+}
 
-      if (asArray) {
-        glUniform1fv(ID, 16, mat);
-      } else {
-        glUniformMatrix4fv(ID, 1, GL_FALSE, mat);
-      }
-      return true;
-    }
-
-    return false;
+/**\brief Load uniform floating point vector
+ *
+ * Activate the programme and upload a uniform float vector
+ * to the specified uniform index.
+ *
+ * \param[in] ID    The uniform ID to use.
+ * \param[in] value The floating point vector to load.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+bool uniform(const GLint ID, const std::array<GLfloat, 4> &value) const {
+  if (use()) {
+    glUniform4f(ID, value[0], value[1], value[2], value[3]);
+    return true;
   }
 
-  /**\brief Load uniform 3x3 matrix
-   *
-   * Activate the programme and upload a 3x3 uniform variable to
-   * the specified uniform index.
-   *
-   * \param[in] ID     The uniform ID to use.
-   * \param[in] matrix The 3x3 matrix to load. The contents of
-   *                   this matrix are turned into a GLfloat array
-   *                   before handing the data to OpenGL.
-   * \param[in] asArray Upload as a flat array instead of using
-   *                   the proper matrix function.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  bool uniform(const GLint ID, const math::matrix<Q, 3, 3> &matrix,
-               const bool asArray) const {
-    if (use()) {
-      GLfloat mat[9] = {
-          GLfloat(matrix[0][0]), GLfloat(matrix[0][1]), GLfloat(matrix[0][2]),
-          GLfloat(matrix[1][0]), GLfloat(matrix[1][1]), GLfloat(matrix[1][2]),
-          GLfloat(matrix[2][0]), GLfloat(matrix[2][1]), GLfloat(matrix[2][2])};
+  return false;
+}
 
-      if (asArray) {
-        glUniform1fv(ID, 9, mat);
-      } else {
-        glUniformMatrix3fv(ID, 1, GL_FALSE, mat);
-      }
-      return true;
-    }
+/**\brief Load arbitrary NxN matrix by name
+ *
+ * Wrapper function to be able to specify a name instead of a
+ * uniform ID.
+ *
+ * \param[in] name   The name of the uniform to use.
+ * \param[in] matrix The 4x4 matrix to load. The contents of
+ *                   this matrix are turned into a GLfloat array
+ *                   before handing the data to OpenGL.
+ * \param[in] asArray Upload as a flat array instead of using
+ *                   the proper matrix function.
+ *
+ * \tparam n Depth of the matrix to upload.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+template <unsigned int n>
+bool uniform(const char *name, const math::matrix<Q, n, n> &matrix,
+             const bool asArray) {
+  return uniform(uniform(name), matrix, asArray);
+}
 
-    return false;
-  }
+/**\brief Load uniform by name
+ *
+ * Wrapper function to be able to specify a name instead of a
+ * uniform ID.
+ *
+ * \param[in] name  The name of the uniform to use.
+ * \param[in] value The value to load.
+ *
+ * \tparam T The type of the value to load.
+ *
+ * \return True if the programme was bound correctly and the
+ *         data has been handed off to OpenGL, false
+ *         otherwise.
+ */
+template <typename T> bool uniform(const char *name, const T &value) {
+  return uniform(uniform(name), value);
+}
 
-  /**\brief Load uniform 2x2 matrix
-   *
-   * Activate the programme and upload a 2x2 uniform variable to
-   * the specified uniform index.
-   *
-   * \param[in] ID     The uniform ID to use.
-   * \param[in] matrix The 2x2 matrix to load. The contents of
-   *                   this matrix are turned into a GLfloat array
-   *                   before handing the data to OpenGL.
-   * \param[in] asArray Upload as a flat array instead of using
-   *                   the proper matrix function.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  bool uniform(const GLint ID, const math::matrix<Q, 2, 2> &matrix,
-               const bool asArray) const {
-    if (use()) {
-      GLfloat mat[4] = {GLfloat(matrix[0][0]), GLfloat(matrix[0][1]),
-                        GLfloat(matrix[1][0]), GLfloat(matrix[1][1])};
+/**\brief Load arbitrary NxN matrix by name
+ *
+ * Wrapper function to be able to specify a name instead of a
+ * uniform ID. This is the const version of the wrapper.
+ *
+ * \param[in] name   The name of the uniform to use.
+ * \param[in] matrix The nxn matrix to load. The contents of
+ *                   this matrix are turned into a GLfloat array
+ *                   before handing the data to OpenGL.
+ * \param[in] asArray Upload as a flat array instead of using
+ *                   the proper matrix function.
+ *
+ * \tparam n Depth of the matrix to upload.
+ *
+ * \return True if the programme was bound correctly and the
+ *         matrix has been handed off to OpenGL, false
+ *         otherwise.
+ */
+template <unsigned int n>
+bool uniform(const char *name, const math::matrix<Q, n, n> &matrix,
+             const bool asArray) const {
+  return uniform(uniform(name), matrix, asArray);
+}
 
-      if (asArray) {
-        glUniform1fv(ID, 4, mat);
-      } else {
-        glUniformMatrix2fv(ID, 1, GL_FALSE, mat);
-      }
-      return true;
-    }
+/**\brief Load uniform by name
+ *
+ * Wrapper function to be able to specify a name instead of a
+ * uniform ID. This is the const version of the wrapper.
+ *
+ * \param[in] name  The name of the uniform to use.
+ * \param[in] value The value to load.
+ *
+ * \tparam T The type of the value to load.
+ *
+ * \return True if the programme was bound correctly and the
+ *         data has been handed off to OpenGL, false
+ *         otherwise.
+ */
+template <typename T> bool uniform(const char *name, const T &value) const {
+  return uniform(uniform(name), value);
+}
 
-    return false;
-  }
+/**\brief Look up uniform by name
+ *
+ * Queries OpenGL to get the named uniform's location. This is
+ * a wrapper around glGetUniformLocation() that automatically
+ * inserts the local programme ID.
+ *
+ * \note This method may be modified to actively cache its
+ *       results in a future version.
+ *
+ * \param[in] uniform The name of the uniform to look up.
+ *
+ * \returns The namd uniform's location.
+ *
+ * \see
+ * https://www.opengl.org/sdk/docs/man/docbook4/xhtml/glGetUniformLocation.xml
+ */
+GLint uniform(const char *uniform) {
+  return use() ? glGetUniformLocation(programmeID, uniform) : -1;
+}
 
-  /**\brief Load integer uniform
-   *
-   * Activate the programme and upload an integer uniform variable
-   * to the specified uniform index.
-   *
-   * \param[in] ID    The uniform ID to use.
-   * \param[in] value The integer value to load.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  bool uniform(const GLint ID, const GLint &value) const {
-    if (use()) {
-      glUniform1i(ID, value);
-      return true;
-    }
-
-    return false;
-  }
-
-  /**\brief Load uniform floating point vector
-   *
-   * Activate the programme and upload a uniform float vector
-   * to the specified uniform index.
-   *
-   * \param[in] ID    The uniform ID to use.
-   * \param[in] value The floating point vector to load.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  bool uniform(const GLint ID, const GLfloat value[4]) const {
-    if (use()) {
-      glUniform4f(ID, value[0], value[1], value[2], value[3]);
-      return true;
-    }
-
-    return false;
-  }
-
-  /**\brief Load uniform floating point vector
-   *
-   * Activate the programme and upload a uniform float vector
-   * to the specified uniform index.
-   *
-   * \param[in] ID    The uniform ID to use.
-   * \param[in] value The floating point vector to load.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  bool uniform(const GLint ID, const std::array<GLfloat, 4> &value) const {
-    if (use()) {
-      glUniform4f(ID, value[0], value[1], value[2], value[3]);
-      return true;
-    }
-
-    return false;
-  }
-
-  /**\brief Load arbitrary NxN matrix by name
-   *
-   * Wrapper function to be able to specify a name instead of a
-   * uniform ID.
-   *
-   * \param[in] name   The name of the uniform to use.
-   * \param[in] matrix The 4x4 matrix to load. The contents of
-   *                   this matrix are turned into a GLfloat array
-   *                   before handing the data to OpenGL.
-   * \param[in] asArray Upload as a flat array instead of using
-   *                   the proper matrix function.
-   *
-   * \tparam n Depth of the matrix to upload.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  template <unsigned int n>
-  bool uniform(const char *name, const math::matrix<Q, n, n> &matrix,
-               const bool asArray) {
-    return uniform(uniform(name), matrix, asArray);
-  }
-
-  /**\brief Load uniform by name
-   *
-   * Wrapper function to be able to specify a name instead of a
-   * uniform ID.
-   *
-   * \param[in] name  The name of the uniform to use.
-   * \param[in] value The value to load.
-   *
-   * \tparam T The type of the value to load.
-   *
-   * \return True if the programme was bound correctly and the
-   *         data has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  template <typename T> bool uniform(const char *name, const T &value) {
-    return uniform(uniform(name), value);
-  }
-
-  /**\brief Load arbitrary NxN matrix by name
-   *
-   * Wrapper function to be able to specify a name instead of a
-   * uniform ID. This is the const version of the wrapper.
-   *
-   * \param[in] name   The name of the uniform to use.
-   * \param[in] matrix The nxn matrix to load. The contents of
-   *                   this matrix are turned into a GLfloat array
-   *                   before handing the data to OpenGL.
-   * \param[in] asArray Upload as a flat array instead of using
-   *                   the proper matrix function.
-   *
-   * \tparam n Depth of the matrix to upload.
-   *
-   * \return True if the programme was bound correctly and the
-   *         matrix has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  template <unsigned int n>
-  bool uniform(const char *name, const math::matrix<Q, n, n> &matrix,
-               const bool asArray) const {
-    return uniform(uniform(name), matrix, asArray);
-  }
-
-  /**\brief Load uniform by name
-   *
-   * Wrapper function to be able to specify a name instead of a
-   * uniform ID. This is the const version of the wrapper.
-   *
-   * \param[in] name  The name of the uniform to use.
-   * \param[in] value The value to load.
-   *
-   * \tparam T The type of the value to load.
-   *
-   * \return True if the programme was bound correctly and the
-   *         data has been handed off to OpenGL, false
-   *         otherwise.
-   */
-  template <typename T> bool uniform(const char *name, const T &value) const {
-    return uniform(uniform(name), value);
-  }
-
-  /**\brief Look up uniform by name
-   *
-   * Queries OpenGL to get the named uniform's location. This is
-   * a wrapper around glGetUniformLocation() that automatically
-   * inserts the local programme ID.
-   *
-   * \note This method may be modified to actively cache its
-   *       results in a future version.
-   *
-   * \param[in] uniform The name of the uniform to look up.
-   *
-   * \returns The namd uniform's location.
-   *
-   * \see
-   * https://www.opengl.org/sdk/docs/man/docbook4/xhtml/glGetUniformLocation.xml
-   */
-  GLint uniform(const char *uniform) {
-    return use() ? glGetUniformLocation(programmeID, uniform) : -1;
-  }
-
-  /**\brief Look up uniform by name
-   *
-   * Queries OpenGL to get the named uniform's location. This is
-   * a wrapper around glGetUniformLocation() that automatically
-   * inserts the local programme ID.
-   *
-   * This is the const-overloaded version of the function.
-   *
-   * \note This method may be modified to actively cache its
-   *       results in a future version.
-   *
-   * \param[in] uniform The name of the uniform to look up.
-   *
-   * \returns The namd uniform's location.
-   *
-   * \see
-   * https://www.opengl.org/sdk/docs/man/docbook4/xhtml/glGetUniformLocation.xml
-   */
-  GLint uniform(const char *uniform) const {
-    return glGetUniformLocation(programmeID, uniform);
-  }
+/**\brief Look up uniform by name
+ *
+ * Queries OpenGL to get the named uniform's location. This is
+ * a wrapper around glGetUniformLocation() that automatically
+ * inserts the local programme ID.
+ *
+ * This is the const-overloaded version of the function.
+ *
+ * \note This method may be modified to actively cache its
+ *       results in a future version.
+ *
+ * \param[in] uniform The name of the uniform to look up.
+ *
+ * \returns The namd uniform's location.
+ *
+ * \see
+ * https://www.opengl.org/sdk/docs/man/docbook4/xhtml/glGetUniformLocation.xml
+ */
+GLint uniform(const char *uniform) const {
+  return glGetUniformLocation(programmeID, uniform);
+}
 
 protected:
-  /**\brief Programme ID
-   *
-   * The programme ID as returned by OpenGL; set to zero as long
-   * as the programme has not been compiled, nonzero afterwards.
-   */
-  GLuint programmeID;
+/**\brief Programme ID
+ *
+ * The programme ID as returned by OpenGL; set to zero as long
+ * as the programme has not been compiled, nonzero afterwards.
+ */
+GLuint programmeID;
 
-  /**\brief Compile shader programme
-   *
-   * Compiles and links the shader programmes together and sets
-   * the programmeID and loads the default uniform indices.
-   *
-   * \return True if the programme linked and compiled correctly,
-   *         false otherwise.
-   */
-  bool compile(void) {
-    GLuint vertShader, fragShader;
+/**\brief Compile shader programme
+ *
+ * Compiles and links the shader programmes together and sets
+ * the programmeID and loads the default uniform indices.
+ *
+ * \return True if the programme linked and compiled correctly,
+ *         false otherwise.
+ */
+bool compile(void) {
+  GLuint vertShader, fragShader;
 
-    programmeID = glCreateProgram();
-    std::ostringstream shader("");
+  programmeID = glCreateProgram();
+  std::ostringstream shader("");
 
-    shader << vertexShader<V>();
+  shader << vertexShader<V>();
 
-    if (!compile(vertShader, GL_VERTEX_SHADER, shader.str().c_str())) {
-      std::cerr << "Failed to compile vertex shader:\n" << shader.str() << "\n";
-      return false;
-    }
+  if (!compile(vertShader, GL_VERTEX_SHADER, shader.str().c_str())) {
+    std::cerr << "Failed to compile vertex shader:\n" << shader.str() << "\n";
+    return false;
+  }
 
-    shader.str("");
-    shader << fragmentShader<V>();
+  shader.str("");
+  shader << fragmentShader<V>();
 
-    if (!compile(fragShader, GL_FRAGMENT_SHADER, shader.str().c_str())) {
-      std::cerr << "Failed to compile fragment shader:\n" << shader.str()
-                << "\n";
-      return false;
-    }
+  if (!compile(fragShader, GL_FRAGMENT_SHADER, shader.str().c_str())) {
+    std::cerr << "Failed to compile fragment shader:\n" << shader.str() << "\n";
+    return false;
+  }
 
-    glAttachShader(programmeID, vertShader);
-    glAttachShader(programmeID, fragShader);
+  glAttachShader(programmeID, vertShader);
+  glAttachShader(programmeID, fragShader);
 
-    glBindAttribLocation(programmeID, attributePosition, "position");
-    glBindAttribLocation(programmeID, attributeNormal, "normal");
-    glBindAttribLocation(programmeID, attributeIndex, "index");
+  glBindAttribLocation(programmeID, attributePosition, "position");
+  glBindAttribLocation(programmeID, attributeNormal, "normal");
+  glBindAttribLocation(programmeID, attributeIndex, "index");
 
-    if (!link()) {
-      std::cerr << "Failed to link program: " << programmeID << "\n";
+  if (!link()) {
+    std::cerr << "Failed to link program: " << programmeID << "\n";
 
-      if (vertShader) {
-        glDeleteShader(vertShader);
-        vertShader = 0;
-      }
-      if (fragShader) {
-        glDeleteShader(fragShader);
-        fragShader = 0;
-      }
-      if (programmeID) {
-        glDeleteProgram(programmeID);
-        programmeID = 0;
-      }
-
-      return false;
-    }
-
-    // Release vertex and fragment shaders.
     if (vertShader) {
-      glDetachShader(programmeID, vertShader);
       glDeleteShader(vertShader);
+      vertShader = 0;
     }
     if (fragShader) {
-      glDetachShader(programmeID, fragShader);
       glDeleteShader(fragShader);
+      fragShader = 0;
+    }
+    if (programmeID) {
+      glDeleteProgram(programmeID);
+      programmeID = 0;
     }
 
-    return true;
+    return false;
   }
 
-  /**\brief Compile a shader
-   *
-   * Compiles a shader so it can be linked into a proper OpenGL
-   * programme.
-   *
-   * \param[out] shader The shader ID produced by the compiler.
-   * \param[in]  type   The type of shader you want to compile.
-   * \param[in]  data   Source code of the shader to compile.
-   *
-   * \return True if the shader compiled correctly, false
-   *         otherwise.
-   */
-  bool compile(GLuint &shader, GLenum type, const char *data) const {
-    GLint status;
-    const GLchar *source = (const GLchar *)data;
+  // Release vertex and fragment shaders.
+  if (vertShader) {
+    glDetachShader(programmeID, vertShader);
+    glDeleteShader(vertShader);
+  }
+  if (fragShader) {
+    glDetachShader(programmeID, fragShader);
+    glDeleteShader(fragShader);
+  }
 
-    shader = glCreateShader(type);
-    glShaderSource(shader, 1, &source, NULL);
-    glCompileShader(shader);
+  return true;
+}
+
+/**\brief Compile a shader
+ *
+ * Compiles a shader so it can be linked into a proper OpenGL
+ * programme.
+ *
+ * \param[out] shader The shader ID produced by the compiler.
+ * \param[in]  type   The type of shader you want to compile.
+ * \param[in]  data   Source code of the shader to compile.
+ *
+ * \return True if the shader compiled correctly, false
+ *         otherwise.
+ */
+bool compile(GLuint &shader, GLenum type, const char *data) const {
+  GLint status;
+  const GLchar *source = (const GLchar *)data;
+
+  shader = glCreateShader(type);
+  glShaderSource(shader, 1, &source, NULL);
+  glCompileShader(shader);
 
 #if defined(DEBUG)
-    GLint logLength;
-    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0) {
-      GLchar *log = new GLchar[logLength];
-      glGetShaderInfoLog(shader, logLength, &logLength, log);
-      std::cerr << "Shader compile log:\n" << log << "\n";
-      delete[] log;
-    }
+  GLint logLength;
+  glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+  if (logLength > 0) {
+    GLchar *log = new GLchar[logLength];
+    glGetShaderInfoLog(shader, logLength, &logLength, log);
+    std::cerr << "Shader compile log:\n" << log << "\n";
+    delete[] log;
+  }
 #endif
 
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    if (status == 0) {
-      glDeleteShader(shader);
-      return false;
-    }
-
-    return true;
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+  if (status == 0) {
+    glDeleteShader(shader);
+    return false;
   }
 
-  /**\brief Link shader programmes
-   *
-   * Links a programme with the currently attached shaders so that
-   * it can be used by OpenGL.
-   *
-   * \return True if the programme was linked successfully, false
-   *         otherwise.
-   */
-  bool link() const {
-    GLint status;
-    glLinkProgram(programmeID);
+  return true;
+}
+
+/**\brief Link shader programmes
+ *
+ * Links a programme with the currently attached shaders so that
+ * it can be used by OpenGL.
+ *
+ * \return True if the programme was linked successfully, false
+ *         otherwise.
+ */
+bool link() const {
+  GLint status;
+  glLinkProgram(programmeID);
 
 #if defined(DEBUG)
-    GLint logLength;
-    glGetProgramiv(programmeID, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0) {
-      GLchar *log = new GLchar[logLength];
-      glGetProgramInfoLog(programmeID, logLength, &logLength, log);
-      std::cerr << "Program link log:\n" << log << "\n";
-      delete[] log;
-    }
+  GLint logLength;
+  glGetProgramiv(programmeID, GL_INFO_LOG_LENGTH, &logLength);
+  if (logLength > 0) {
+    GLchar *log = new GLchar[logLength];
+    glGetProgramInfoLog(programmeID, logLength, &logLength, log);
+    std::cerr << "Program link log:\n" << log << "\n";
+    delete[] log;
+  }
 #endif
 
-    glGetProgramiv(programmeID, GL_LINK_STATUS, &status);
-    if (status == 0) {
-      return false;
-    }
-
-    return true;
+  glGetProgramiv(programmeID, GL_LINK_STATUS, &status);
+  if (status == 0) {
+    return false;
   }
+
+  return true;
+}
 };
 
 /**\brief Framebuffer object
@@ -1553,45 +1549,45 @@ template <typename Q, enum glsl::version V,
 class renderToFramebufferProgramme
     : public programme<Q, V, vertexShader, fragmentShader>,
       public framebuffer<Q> {
-public:
-  /**\brief Default constructor
-   *
-   * Initialises an instance of this class by using the default
-   * constructors of the programme and framebuffer. Nothing is
-   * bound or created using OpenGL until it is first used.
-   */
-  renderToFramebufferProgramme()
-      : programme<Q, V, vertexShader, fragmentShader>(), framebuffer<Q>() {}
+        public :
+            /**\brief Default constructor
+             *
+             * Initialises an instance of this class by using the default
+             * constructors of the programme and framebuffer. Nothing is
+             * bound or created using OpenGL until it is first used.
+             */
+            renderToFramebufferProgramme() :
+                programme<Q, V, vertexShader, fragmentShader>(),
+        framebuffer<Q>(){}
 
-  /**\brief Use programme and render to associated framebuffer
-   *
-   * Enables or compiles the programme described in the shaders
-   * passed to the constructor, then binds or creates a
-   * framebuffer as needed.
-   *
-   * If compiling the programme and binding the framebuffer
-   * succeed then the viewport is set to write to the size passed
-   * as parameters.
-   *
-   * \param[in] width  Width of the viewport to set.
-   * \param[in] height Height of the viewport to set.
-   *
-   * \return True on success, false otherwise.
-   */
-  bool use(const GLuint &width, const GLuint &height) {
-    if (programme<Q, V, vertexShader, fragmentShader>::use() &&
-        framebuffer<Q>::use()) {
-      glViewport(0, 0, width, height);
+        /**\brief Use programme and render to associated framebuffer
+         *
+         * Enables or compiles the programme described in the shaders
+         * passed to the constructor, then binds or creates a
+         * framebuffer as needed.
+         *
+         * If compiling the programme and binding the framebuffer
+         * succeed then the viewport is set to write to the size passed
+         * as parameters.
+         *
+         * \param[in] width  Width of the viewport to set.
+         * \param[in] height Height of the viewport to set.
+         *
+         * \return True on success, false otherwise.
+         */
+        bool use(const GLuint &width, const GLuint &height){
+            if (programme<Q, V, vertexShader, fragmentShader>::use() &&
+                framebuffer<Q>::use()){glViewport(0, 0, width, height);
 
-      return true;
-    }
+                                       return true;}
 
-    return false;
-  }
+return false;
+}
 
-  using programme<Q, V, vertexShader, fragmentShader>::use;
-  using framebuffer<Q>::copy;
-};
+using programme<Q, V, vertexShader, fragmentShader>::use;
+using framebuffer<Q>::copy;
+}
+;
 
 /**\brief Buffer object
  *
@@ -1967,7 +1963,9 @@ protected:
    */
   bool hasBound;
 };
-};
-};
+}
+;
+}
+;
 
 #endif

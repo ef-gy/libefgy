@@ -162,21 +162,17 @@ public:
  * \tparam V GLSL shader version to produce.
  */
 template <enum opengl::glsl::version V>
-class fractalFlame<2, V> : public opengl::glsl::shader<V> {
+class fractalFlame<2, V> : public opengl::glsl::shader<V>{
   // mvp3 should be mvp2
-public:
-  fractalFlame(void)
-      : opengl::glsl::shader<V>(
-            "indexVarying = index;\n"
-            "gl_Position = vec4(mvp3 * position,1);\n",
-            {opengl::glsl::variable<opengl::glsl::gv_attribute>("position",
-                                                                "vec3"),
-             opengl::glsl::variable<opengl::glsl::gv_attribute>(
-                 "index", "float", "highp")},
-            {opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying",
-                                                              "float", "lowp")},
-            {opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3",
-                                                              "mat3")}) {}
+  public : fractalFlame(void) : opengl::glsl::shader<V>(
+      "indexVarying = index;\n"
+      "gl_Position = vec4(mvp3 * position,1);\n",
+      {opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec3"),
+       opengl::glsl::variable<opengl::glsl::gv_attribute>("index", "float",
+                                                          "highp")},
+      {opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float",
+                                                        "lowp")},
+      {opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3", "mat3")}){}
 };
 
 /*
@@ -230,20 +226,16 @@ public:
  * \tparam V GLSL shader version to produce.
  */
 template <enum opengl::glsl::version V>
-class regular<2, V> : public opengl::glsl::shader<V> {
+class regular<2, V> : public opengl::glsl::shader<V>{
   // mvp3 should be mvp2
-public:
-  regular(void)
-      : opengl::glsl::shader<V>(
-            "gl_Position = vec4(mvp3 * position,1);\n"
-            "colorVarying = colour;\n",
-            {opengl::glsl::variable<opengl::glsl::gv_attribute>("position",
-                                                                "vec3")},
-            {opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying",
-                                                              "vec4")},
-            {opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3", "mat3"),
-             opengl::glsl::variable<opengl::glsl::gv_uniform>("colour",
-                                                              "vec4")}) {}
+  public : regular(void) : opengl::glsl::shader<V>(
+      "gl_Position = vec4(mvp3 * position,1);\n"
+      "colorVarying = colour;\n",
+      {opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec3")},
+      {opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying",
+                                                        "vec4")},
+      {opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3", "mat3"),
+       opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4")}){}
 };
 
 /*
@@ -1211,8 +1203,9 @@ public:
     std::array<math::vector<Q, d - 1>, q> V;
 
     std::transform(pV.begin(), pV.end(), V.begin(),
-                   [&](const math::vector<Q, d> &s)
-                       -> math::vector<Q, d - 1> { return combined * s; });
+                   [&](const math::vector<Q, d> &s) -> math::vector<Q, d - 1> {
+                     return combined * s;
+                   });
 
     lowerRenderer.draw(V, index);
   }

@@ -296,7 +296,7 @@ public:
       session.send(RPL_TOPIC, {channel, topic});
     } else {
       session.send(RPL_NOTOPIC, {
-                                 channel,
+                                    channel,
                                 });
     }
 
@@ -307,7 +307,7 @@ public:
              const std::string &newtopic) {
     if (session.subscriptions.find(channel) == session.subscriptions.end()) {
       session.send(ERR_NOTONCHANNEL, {
-                                      channel,
+                                         channel,
                                      });
       return false;
     } else {

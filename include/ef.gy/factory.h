@@ -569,11 +569,11 @@ template <typename Q,
           template <typename, template <class, unsigned int> class,
                     unsigned int, unsigned int, typename> class func,
           unsigned int d>
-constexpr static inline typename func<Q, cube, d, d,
-                                      math::format::cartesian>::output
-with(typename func<Q, cube, d, d, math::format::cartesian>::argument arg,
-     const std::string &format, const std::string &type,
-     const unsigned int &dims, const unsigned int &rdims) {
+constexpr static inline
+    typename func<Q, cube, d, d, math::format::cartesian>::output
+    with(typename func<Q, cube, d, d, math::format::cartesian>::argument arg,
+         const std::string &format, const std::string &type,
+         const unsigned int &dims, const unsigned int &rdims) {
   return (format == "*" || format == "cartesian")
              ? with<Q, func, d, math::format::cartesian>(
                    arg, type, dims, rdims, math::format::cartesian())

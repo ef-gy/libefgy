@@ -434,27 +434,28 @@ public:
       base::read();
     } while (input.rdbuf()->in_avail() > 0);
 
-    auto q = decode(queue, [emitCommand, this](const command &c) -> bool {
-                             bool keep = true;
-                             if (c.code == 'R') {
-                               switch (c.parameter.size()) {
-                               case 0:
-                                 cursor[1] = 0;
-                                 cursor[0] = 0;
-                                 break;
-                               case 1:
-                                 cursor[1] = c.parameter[0] - 1;
-                                 cursor[0] = 0;
-                                 break;
-                               default:
-                                 cursor[1] = c.parameter[0] - 1;
-                                 cursor[0] = c.parameter[1] - 1;
-                                 break;
-                               }
-                               keep = false;
-                             }
-                             return (bool)emitCommand ? emitCommand(c) : keep;
-                           },
+    auto q = decode(queue,
+                    [emitCommand, this](const command &c) -> bool {
+                      bool keep = true;
+                      if (c.code == 'R') {
+                        switch (c.parameter.size()) {
+                        case 0:
+                          cursor[1] = 0;
+                          cursor[0] = 0;
+                          break;
+                        case 1:
+                          cursor[1] = c.parameter[0] - 1;
+                          cursor[0] = 0;
+                          break;
+                        default:
+                          cursor[1] = c.parameter[0] - 1;
+                          cursor[0] = c.parameter[1] - 1;
+                          break;
+                        }
+                        keep = false;
+                      }
+                      return (bool)emitCommand ? emitCommand(c) : keep;
+                    },
                     [emitLiteral](const T &l) -> bool {
                       return (bool)emitLiteral ? emitLiteral(l) : true;
                     });

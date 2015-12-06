@@ -162,7 +162,8 @@ public:
 
     this->transformationMatrix =
         (translationTransformation * lookAtTransformation *
-         perspectiveTransformation).transformationMatrix;
+         perspectiveTransformation)
+            .transformationMatrix;
   }
 
   math::vector<Q, d> from;

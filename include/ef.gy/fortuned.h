@@ -67,14 +67,11 @@ static bool fortune(typename net::http::server<transport>::session &session,
   return true;
 }
 
-static cli::option
-    count("-{0,2}count", [](std::smatch &m) -> bool {
-                           std::cout << fortune::common().size()
-                                     << " cookie(s) loaded\n";
+static cli::option count("-{0,2}count", [](std::smatch &m) -> bool {
+  std::cout << fortune::common().size() << " cookie(s) loaded\n";
 
-                           return true;
-                         },
-          "Prints the number of fortune cookies in the database.");
+  return true;
+}, "Prints the number of fortune cookies in the database.");
 
 static cli::option print("-{0,2}print(:([0-9]+))?",
                          [](std::smatch &m) -> bool {

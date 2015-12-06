@@ -36,8 +36,8 @@ namespace ircd {
 template <class sock>
 static std::size_t setup(net::endpoint<sock> lookup,
                          io::service &service = io::service::common()) {
-  return lookup.with([&service, &lookup](typename sock::endpoint &endpoint)
-                         -> bool {
+  return lookup.with([&service, &lookup](
+                         typename sock::endpoint &endpoint) -> bool {
     net::irc::server<sock> *s = new net::irc::server<sock>(endpoint, service);
 
     s->name = lookup.name();
@@ -46,20 +46,13 @@ static std::size_t setup(net::endpoint<sock> lookup,
   });
 }
 
-static cli::option
-    socket("-{0,2}irc:unix:(.+)",
-           [](std::smatch &m) -> bool {
-             return setup(net::endpoint<asio::local::stream_protocol>(m[1])) >
-                    0;
-           },
-           "Listen for IRC connections on the given unix socket[1].");
+static cli::option socket("-{0,2}irc:unix:(.+)", [](std::smatch &m) -> bool {
+  return setup(net::endpoint<asio::local::stream_protocol>(m[1])) > 0;
+}, "Listen for IRC connections on the given unix socket[1].");
 
-static cli::option
-    tcp("-{0,2}irc:(.+):([0-9]+)",
-        [](std::smatch &m) -> bool {
-          return setup(net::endpoint<asio::ip::tcp>(m[1], m[2])) > 0;
-        },
-        "Listen for IRC connections on the given host[1] and port[2].");
+static cli::option tcp("-{0,2}irc:(.+):([0-9]+)", [](std::smatch &m) -> bool {
+  return setup(net::endpoint<asio::ip::tcp>(m[1], m[2])) > 0;
+}, "Listen for IRC connections on the given host[1] and port[2].");
 }
 }
 
