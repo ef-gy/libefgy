@@ -170,8 +170,8 @@ public:
   flag(const std::string &pName,
        const std::string &pDescription = "Please document me.",
        options<option> &pOpts = options<option, hint>::common())
-      : option("-{0,2}(no)?" + pName, [this](std::smatch &m) -> bool {
-          value = m[1] != "no";
+      : option("-{0,2}((no)-?)?" + pName, [this](std::smatch &m) -> bool {
+          value = m[2] != "no";
           return true;
         }, "[Boolean] " + pDescription, pOpts), value(false) {}
 
@@ -186,7 +186,7 @@ public:
   flag(const std::string &pName,
        const std::string &pDescription = "Please document me.",
        options<option> &pOpts = options<option, hint>::common())
-      : option("-{0,2}" + pName + ":(.*)", [this](std::smatch &m) -> bool {
+      : option("-{0,2}" + pName + "[:=](.*)", [this](std::smatch &m) -> bool {
           value = m[1];
           return true;
         }, "[String] " + pDescription, pOpts), value("") {}

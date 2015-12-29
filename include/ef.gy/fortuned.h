@@ -33,6 +33,7 @@
 
 namespace efgy {
 namespace fortuned {
+static const std::string regex = "/fortune(/([0-9]+))?";
 
 template <class transport>
 static bool fortune(typename net::http::server<transport>::session &session,
