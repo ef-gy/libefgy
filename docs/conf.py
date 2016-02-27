@@ -12,6 +12,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import subprocess
 import sys
 import os
 
@@ -298,3 +299,8 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 breathe_projects = {'libefgy': '../documentation/xml/'}
 
 breathe_default_project = 'libefgy'
+
+read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+if read_the_docs_build:
+    subprocess.call('cd ../; make documentation', shell=True)
