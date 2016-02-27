@@ -171,6 +171,7 @@ doxyfile: makefile
 	echo 'COLS_IN_ALPHA_INDEX = 3' >> $@
 	echo 'HTML_FILE_EXTENSION = .xhtml' >> $@
 	echo 'SEARCHENGINE = NO' >> $@
+	echo 'GENERATE_XML = YES' >> $@
 	echo 'GENERATE_LATEX = NO' >> $@
 	echo 'GENERATE_TAGFILE = $(NAME).tag' >> $@
 	echo 'DOT_IMAGE_FORMAT = svg' >> $@
