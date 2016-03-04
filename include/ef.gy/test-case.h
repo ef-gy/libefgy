@@ -113,16 +113,14 @@ static inline int next_integer(void) {
     return counter;
   }
 }
-};
-};
 
 #if defined(RUN_TEST_CASES)
 /**\brief List of test cases in this file
  *
- * The list of test cases defined in this file; this is st by the TEST_BATCH()
+ * The list of test cases defined in this file; this is set by the TEST_BATCH()
  * macro to the actual list of test cases that you want to run.
  */
-extern const std::vector<efgy::test::testCase> testCases;
+extern const std::vector<testCase> cases;
 
 /**\brief Test case runner main stub
  *
@@ -130,8 +128,10 @@ extern const std::vector<efgy::test::testCase> testCases;
  * defined in the programme including this header. Needless to say you should
  * not define your own main function in test case files.
  */
-int main(int argc, char **argv) {
-  return efgy::test::run(argc, argv, testCases);
+extern "C" int main(int argc, char **argv) {
+  return efgy::test::run(argc, argv, cases);
+}
+}
 }
 
 /**\brief Define test batch
@@ -156,11 +156,14 @@ int main(int argc, char **argv) {
  *       as described; if not then this macro is simply discarded.
  */
 #define TEST_BATCH(...)                                                        \
-  static const efgy::test::testCase testCasesArray[] = {__VA_ARGS__};          \
-  const std::vector<efgy::test::testCase> testCases(                           \
-      testCasesArray,                                                          \
-      testCasesArray + sizeof(testCasesArray) / sizeof(efgy::test::testCase));
-
+  namespace efgy {                                                             \
+  namespace test {                                                             \
+  static const testCase testCasesArray[] = {__VA_ARGS__};                      \
+  const std::vector<testCase>                                                  \
+      cases(testCasesArray,                                                    \
+            testCasesArray + sizeof(testCasesArray) / sizeof(testCase));       \
+  }                                                                            \
+  }
 #else
 /**\brief Define test batch
  *
