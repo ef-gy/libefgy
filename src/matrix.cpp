@@ -259,9 +259,6 @@ terminal::cell<long> postProcessPolar(const terminal::terminal<long> &t,
   rv.backgroundColour = 0;
   return rv;
 }
-};
-
-using namespace thematrix;
 
 /**\brief Matrix demo main function
  *
@@ -277,7 +274,7 @@ using namespace thematrix;
  *          handler calls exit(), which is the only way to break out of the main
  *          loop.
  */
-int main(int, char **) {
+extern "C" int main(int, char **) {
   output.resize(output.getOSDimensions());
   std::array<std::size_t, 2> s = output.size();
 
@@ -316,4 +313,5 @@ int main(int, char **) {
     ;
 
   return 0;
+}
 }
