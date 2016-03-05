@@ -27,7 +27,7 @@
  * optimised. Also, since everything is done in templates, the compiler might
  * even be able to remove a lot of code it would otherwise have to leave in.
  *
- * \note Some of the headers may require C++0x compiler features. Also, it is
+ * \note Most of the headers require C++11 compiler features. Also, it is
  *       recommended to use 'clang++' with these headers, if possible, as that
  *       is the compiler the headers were designed for. 'clang++' also happens
  *       to provide much more useful error messages when things don't work out
@@ -46,10 +46,9 @@
  *
  * The primary location for the library's documentation is:
  * https://ef.gy/documentation/libefgy
- * ; please note that the online version has Disqus comments enabled, and that
- * some pages in all HTML versions of the documentation may include YouTube
- * videos - if you're uneasy about this for privacy reasons, then feel free to
- * browse the headers directly in the git repository.
+ * ; please note that the some pages in all HTML versions of the documentation
+ * may include YouTube videos - if you're uneasy about this for privacy reasons,
+ * then feel free to browse the headers directly in the git repository.
  *
  * Also feel free to browse the blog at https://ef.gy/ if you happen to be in
  * the area :).
