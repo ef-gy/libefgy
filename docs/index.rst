@@ -1,8 +1,3 @@
-.. libefgy documentation master file, created by
-   sphinx-quickstart on Sat Feb 27 10:25:49 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to libefgy's documentation!
 ===================================
 
@@ -17,11 +12,6 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-
-
-Doxygen Documentation:
-
-.. doxygenindex::
 
 Indices and tables
 ==================
