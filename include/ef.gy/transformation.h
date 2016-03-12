@@ -76,8 +76,8 @@ public:
    * in Q^d.
    */
   template <typename format>
-  math::vector<Q, d, format>
-  operator*(const math::vector<Q, d, format> &pV) const {
+  math::vector<Q, d, format> operator*(
+      const math::vector<Q, d, format> &pV) const {
     math::vector<Q, d, format> rv;
 
     math::matrix<Q, 1, d> vectorMatrix;
@@ -172,10 +172,12 @@ public:
   affine() {
     for (unsigned int i = 0; i <= d; i++) {
       for (unsigned int j = 0; j <= d; j++) {
-        transformationMatrix[i][j] = (i == j) ? 1 : 0;
+        transformationMatrix[i][j] = (i == j) ? Q(1) : Q(0);
       }
     }
   }
+
+  affine(math::matrix<Q, d + 1, d + 1> &m) : transformationMatrix(m) {}
 
   /* \brief Constructs an affine transformation from a linear map
    *
@@ -208,8 +210,8 @@ public:
    * \returns The transformed vector.
    */
   template <typename format>
-  math::vector<Q, d, format>
-  operator*(const math::vector<Q, d, format> &pV) const {
+  math::vector<Q, d, format> operator*(
+      const math::vector<Q, d, format> &pV) const {
     math::vector<Q, d, format> rv;
 
     math::matrix<Q, 1, d + 1> vectorMatrix;
@@ -218,7 +220,27 @@ public:
       vectorMatrix[0][i] = pV[i];
     }
 
-    vectorMatrix[0][d] = 1;
+    vectorMatrix[0][d] = Q(1);
+
+    vectorMatrix = vectorMatrix * transformationMatrix;
+
+    for (unsigned int i = 0; i < d; i++) {
+      rv[i] = vectorMatrix[0][i] / vectorMatrix[0][d];
+    }
+
+    return rv;
+  }
+
+  template <typename format>
+  math::vector<Q, d, format> operator*(
+      const math::vector<Q, d + 1, format> &pV) const {
+    math::vector<Q, d, format> rv;
+
+    math::matrix<Q, 1, d + 1> vectorMatrix;
+
+    for (unsigned int i = 0; i <= d; i++) {
+      vectorMatrix[0][i] = pV[i];
+    }
 
     vectorMatrix = vectorMatrix * transformationMatrix;
 
@@ -268,11 +290,25 @@ public:
 
 template <typename Q, unsigned int d> class projective : public affine<Q, d> {
 public:
-  projective() : affine<Q, d>() {}
+  using affine<Q, d>::affine;
 
   template <typename format>
-  math::vector<Q, d - 1, format>
-  operator*(const math::vector<Q, d, format> &pP) const {
+  math::vector<Q, d - 1, format> operator*(
+      const math::vector<Q, d, format> &pP) const {
+    math::vector<Q, d - 1, format> result;
+
+    math::vector<Q, d> R = affine<Q, d>(*this) * pP;
+
+    for (unsigned int i = 0; i < (d - 1); i++) {
+      result[i] = R[i] / R[(d - 1)];
+    }
+
+    return result;
+  }
+
+  template <typename format>
+  math::vector<Q, d - 1, format> operator*(
+      const math::vector<Q, d + 1, format> &pP) const {
     math::vector<Q, d - 1, format> result;
 
     math::vector<Q, d> R = affine<Q, d>(*this) * pP;

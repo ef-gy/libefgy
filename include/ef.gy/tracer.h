@@ -110,7 +110,7 @@ public:
  *
  * \tparam format  The formatter for the tracer.
  */
-template <typename format = formatter<std::string>> class base {
+template <typename format = formatter<std::string> > class base {
 public:
   /**\brief Virtual base destructor
    *
@@ -134,7 +134,7 @@ public:
  * Convenient typedef for a runtime tracer with the standard output
  * formatter.
  */
-typedef std::shared_ptr<base<>> runtime;
+typedef std::shared_ptr<base<> > runtime;
 
 /**\brief Numeric tracer two-parameter operation
  *
@@ -146,7 +146,7 @@ typedef std::shared_ptr<base<>> runtime;
  * \tparam format  The formatter for the tracer.
  */
 template <typename T, typename S = void, char op = 0,
-          typename format = formatter<std::string>>
+          typename format = formatter<std::string> >
 class tracer : public base<format> {
 public:
   /**\brief Construct with values
@@ -295,8 +295,8 @@ public:
  *          written to.
  */
 template <typename T, typename S, char op>
-static inline std::ostream &operator<<(std::ostream &s,
-                                       const tracer<T, S, op> &t) {
+    static inline std::ostream &operator<<(std::ostream &s,
+                                           const tracer<T, S, op> &t) {
   return (s << std::string(t));
 }
 
@@ -320,8 +320,9 @@ static inline std::ostream &operator<<(std::ostream &s,
  *          written to.
  */
 template <typename T, typename S, char op>
-static inline std::ostream &
-operator<<(std::ostream &s, const std::shared_ptr<tracer<T, S, op>> &t) {
+    static inline std::ostream &operator<<(std::ostream &s,
+                                           const std::shared_ptr<
+                                               tracer<T, S, op> > &t) {
   return t ? (s << *t) : (s << "0");
 }
 
@@ -362,9 +363,9 @@ static inline std::ostream &operator<<(std::ostream &s, const runtime &t) {
  *          together.
  */
 template <typename R>
-static inline std::shared_ptr<tracer<runtime, R, '+'>>
-operator+(const runtime &p1, const R &p2) {
-  return std::shared_ptr<tracer<runtime, R, '+'>>(
+    static inline std::shared_ptr<
+        tracer<runtime, R, '+'> > operator+(const runtime &p1, const R &p2) {
+  return std::shared_ptr<tracer<runtime, R, '+'> >(
       new tracer<runtime, R, '+'>(p1, p2));
 }
 
@@ -387,9 +388,9 @@ operator+(const runtime &p1, const R &p2) {
  *          together.
  */
 template <typename R>
-static inline std::shared_ptr<tracer<R, runtime, '+'>>
-operator+(const R &p1, const runtime &p2) {
-  return std::shared_ptr<tracer<R, runtime, '+'>>(
+    static inline std::shared_ptr<
+        tracer<R, runtime, '+'> > operator+(const R &p1, const runtime &p2) {
+  return std::shared_ptr<tracer<R, runtime, '+'> >(
       new tracer<R, runtime, '+'>(p1, p2));
 }
 
@@ -408,9 +409,10 @@ operator+(const R &p1, const runtime &p2) {
  * \returns A new two-operator tracer with both operands added
  *          together.
  */
-static inline std::shared_ptr<tracer<runtime, runtime, '+'>>
-operator+(const runtime &p1, const runtime &p2) {
-  return std::shared_ptr<tracer<runtime, runtime, '+'>>(
+static inline std::shared_ptr<
+    tracer<runtime, runtime, '+'> > operator+(const runtime &p1,
+                                              const runtime &p2) {
+  return std::shared_ptr<tracer<runtime, runtime, '+'> >(
       new tracer<runtime, runtime, '+'>(p1, p2));
 }
 
@@ -434,9 +436,9 @@ operator+(const runtime &p1, const runtime &p2) {
  *          subtracted from the left-hand side.
  */
 template <typename R>
-static inline std::shared_ptr<tracer<runtime, R, '-'>>
-operator-(const runtime &p1, const R &p2) {
-  return std::shared_ptr<tracer<runtime, R, '-'>>(
+    static inline std::shared_ptr<
+        tracer<runtime, R, '-'> > operator-(const runtime &p1, const R &p2) {
+  return std::shared_ptr<tracer<runtime, R, '-'> >(
       new tracer<runtime, R, '-'>(p1, p2));
 }
 
@@ -460,9 +462,9 @@ operator-(const runtime &p1, const R &p2) {
  *          subtracted from the left-hand side.
  */
 template <typename R>
-static inline std::shared_ptr<tracer<R, runtime, '-'>>
-operator-(const R &p1, const runtime &p2) {
-  return std::shared_ptr<tracer<R, runtime, '-'>>(
+    static inline std::shared_ptr<
+        tracer<R, runtime, '-'> > operator-(const R &p1, const runtime &p2) {
+  return std::shared_ptr<tracer<R, runtime, '-'> >(
       new tracer<R, runtime, '-'>(p1, p2));
 }
 
@@ -481,9 +483,10 @@ operator-(const R &p1, const runtime &p2) {
  * \returns A new two-operator tracer with the right-hand side
  *          subtracted from the left-hand side.
  */
-static inline std::shared_ptr<tracer<runtime, runtime, '-'>>
-operator-(const runtime &p1, const runtime &p2) {
-  return std::shared_ptr<tracer<runtime, runtime, '-'>>(
+static inline std::shared_ptr<
+    tracer<runtime, runtime, '-'> > operator-(const runtime &p1,
+                                              const runtime &p2) {
+  return std::shared_ptr<tracer<runtime, runtime, '-'> >(
       new tracer<runtime, runtime, '-'>(p1, p2));
 }
 
@@ -506,9 +509,9 @@ operator-(const runtime &p1, const runtime &p2) {
  *          two parameters.
  */
 template <typename R>
-static inline std::shared_ptr<tracer<runtime, R, '*'>>
-operator*(const runtime &p1, const R &p2) {
-  return std::shared_ptr<tracer<runtime, R, '*'>>(
+static inline std::shared_ptr<tracer<runtime, R, '*'> > operator*(
+    const runtime &p1, const R &p2) {
+  return std::shared_ptr<tracer<runtime, R, '*'> >(
       new tracer<runtime, R, '*'>(p1, p2));
 }
 
@@ -531,9 +534,9 @@ operator*(const runtime &p1, const R &p2) {
  *          two parameters.
  */
 template <typename R>
-static inline std::shared_ptr<tracer<R, runtime, '*'>>
-operator*(const R &p1, const runtime &p2) {
-  return std::shared_ptr<tracer<R, runtime, '*'>>(
+static inline std::shared_ptr<tracer<R, runtime, '*'> > operator*(
+    const R &p1, const runtime &p2) {
+  return std::shared_ptr<tracer<R, runtime, '*'> >(
       new tracer<R, runtime, '*'>(p1, p2));
 }
 
@@ -552,9 +555,9 @@ operator*(const R &p1, const runtime &p2) {
  * \returns A new two-operator tracer containing the product of the
  *          two former tracers.
  */
-static inline std::shared_ptr<tracer<runtime, runtime, '*'>>
-operator*(const runtime &p1, const runtime &p2) {
-  return std::shared_ptr<tracer<runtime, runtime, '*'>>(
+static inline std::shared_ptr<tracer<runtime, runtime, '*'> > operator*(
+    const runtime &p1, const runtime &p2) {
+  return std::shared_ptr<tracer<runtime, runtime, '*'> >(
       new tracer<runtime, runtime, '*'>(p1, p2));
 }
 
@@ -577,9 +580,9 @@ operator*(const runtime &p1, const runtime &p2) {
  *          two parameters.
  */
 template <typename R>
-static inline std::shared_ptr<tracer<runtime, R, '/'>>
-operator/(const runtime &p1, const R &p2) {
-  return std::shared_ptr<tracer<runtime, R, '/'>>(
+static inline std::shared_ptr<
+    tracer<runtime, R, '/'> > operator/(const runtime &p1, const R &p2) {
+  return std::shared_ptr<tracer<runtime, R, '/'> >(
       new tracer<runtime, R, '/'>(p1, p2));
 }
 
@@ -602,9 +605,9 @@ operator/(const runtime &p1, const R &p2) {
  *          two parameters.
  */
 template <typename R>
-static inline std::shared_ptr<tracer<R, runtime, '/'>>
-operator/(const R &p1, const runtime &p2) {
-  return std::shared_ptr<tracer<R, runtime, '/'>>(
+static inline std::shared_ptr<
+    tracer<R, runtime, '/'> > operator/(const R &p1, const runtime &p2) {
+  return std::shared_ptr<tracer<R, runtime, '/'> >(
       new tracer<R, runtime, '/'>(p1, p2));
 }
 
@@ -623,9 +626,10 @@ operator/(const R &p1, const runtime &p2) {
  * \returns A new two-operator tracer containing the quotient of the
  *          two original tracers.
  */
-static inline std::shared_ptr<tracer<runtime, runtime, '/'>>
-operator/(const runtime &p1, const runtime &p2) {
-  return std::shared_ptr<tracer<runtime, runtime, '/'>>(
+static inline std::shared_ptr<
+    tracer<runtime, runtime, '/'> > operator/(const runtime &p1,
+                                              const runtime &p2) {
+  return std::shared_ptr<tracer<runtime, runtime, '/'> >(
       new tracer<runtime, runtime, '/'>(p1, p2));
 }
 
@@ -685,8 +689,8 @@ static inline runtime operator*=(runtime &p1, const runtime &p2) {
 static inline runtime operator/=(runtime &p1, const runtime &p2) {
   return p1 = (p1 / p2);
 }
-};
-};
-};
+}
+}
+}
 
 #endif
