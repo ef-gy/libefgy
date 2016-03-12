@@ -10,25 +10,27 @@
  * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
 #include <ef.gy/test-case.h>
 #include <ef.gy/matrix.h>
+#include <ef.gy/range.h>
 
 using namespace efgy::math;
 using efgy::test::next_integer;
+using efgy::range;
 
-/* \brief Tests matrix construction.
-*
-* \test Constructs a 3x4 matrix from scratch,
-* then copies it to another matrix object.
-*
-* \param [out] log A stream to copy log messages to.
-*
-* \return Zero when everything went as expected, nonzero otherwise.
-*/
-
+/**\brief Tests matrix construction.
+ *
+ * \test Constructs a 3x4 matrix from scratch, then copies it to another matrix
+ *     object.
+ *
+ * \param [out] log A stream to copy log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
 int testConstruction(std::ostream &log) {
   matrix<int, 3, 4> m;
   for (int i = 0; i < 3; i++) {
@@ -54,16 +56,15 @@ int testConstruction(std::ostream &log) {
   return 0;
 }
 
-/* \brief Test matrix assignment.
-*
-* \test Constructs a 3x4 matrix and assigns it
-* to another matrix object, then checks if values
-* were copied correctly.
-*
-* \param [out] log A stream to copy log messages to.
-*
-* \return Zero when everything went as expected, nonzero otherwise.
-*/
+/**\brief Test matrix assignment.
+ *
+ * \test Constructs a 3x4 matrix and assigns it to another matrix object, then
+ *     checks if values were copied correctly.
+ *
+ * \param [out] log A stream to copy log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
 int testAssignment(std::ostream &log) {
   matrix<int, 3, 4> m;
   for (int i = 0; i < 3; i++) {
@@ -89,17 +90,16 @@ int testAssignment(std::ostream &log) {
   return 0;
 }
 
-/* \brief Test matrix addition
-*
-* \test Constructs a matrix from scratch;
-* checks whether adding the zero matrix from the left and the right
-* yields the expected result,
-* then adds two nontrivial matrices and checks the result.
-*
-* \param [out] log A stream to copy log messages to.
-*
-* \return Zero when everything went as expected, nonzero otherwise.
-*/
+/**\brief Test matrix addition.
+ *
+ * \test Constructs a matrix from scratch; checks whether adding the zero matrix
+ *     from the left and the right yields the expected result, then adds two
+ *     nontrivial matrices and checks the result.
+ *
+ * \param [out] log A stream to copy log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
 int testAddition(std::ostream &log) {
   matrix<int, 3, 4> m;
   for (int i = 0; i < 3; i++) {
@@ -197,14 +197,14 @@ int testAddition(std::ostream &log) {
   return 0;
 }
 
-/* \brief Tests stream output.
-*
-* \test Constructs a matrix and inserts it into a std::ostringstream
-*
-* \param [out] log A stream to copy log messages to.
-*
-* \return Zero when everything went as expected, nonzero otherwise.
-*/
+/**\brief Tests stream output.
+ *
+ * \test Constructs a matrix and inserts it into a std::ostringstream.
+ *
+ * \param[out] log A stream to copy log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
 int testStream(std::ostream &log) {
   std::ostringstream stream;
 
@@ -234,4 +234,43 @@ int testStream(std::ostream &log) {
   }
   return 0;
 }
-TEST_BATCH(testConstruction, testAssignment, testAddition, testStream)
+
+/**\brief Test matrix iterator.
+ *
+ * \test Constructs a matrix and then uses the matrix::iterator to compare the
+ *     contents with a range that should be the same.
+ *
+ * \param[out] log A stream to copy log messages to.
+ *
+ * \return Zero when everything went as expected, nonzero otherwise.
+ */
+int testIterator(std::ostream &log) {
+  matrix<int, 3, 4> m;
+  int j = 0;
+  for (int i = 0; i < 3; i++) {
+    for (int k = 0; k < 4; k++) {
+      m[i][k] = j++;
+    }
+  }
+
+  auto r = range<int>(0, 3 * 4, false);
+
+  if (!std::equal(m.begin(), m.end(), r.begin())) {
+    log << "matrix iterator and range iterator did not produce the same "
+           "sequence:\n";
+    for (auto i : m) {
+      log << "\t" << i;
+    }
+    log << "\nvs. expected:\n";
+    for (auto i : r) {
+      log << "\t" << i;
+    }
+    log << "\n";
+    return next_integer();
+  }
+
+  return 0;
+}
+
+TEST_BATCH(testConstruction, testAssignment, testAddition, testStream,
+           testIterator)

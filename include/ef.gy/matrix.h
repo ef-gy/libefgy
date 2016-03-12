@@ -19,6 +19,7 @@
 
 #include <array>
 #include <iostream>
+#include <iterator>
 
 namespace efgy {
 namespace math {
@@ -171,14 +172,96 @@ public:
 
     return r;
   }
+
+  class iterator : public std::iterator<std::random_access_iterator_tag, Q> {
+  public:
+    iterator(const matrix &pSource, unsigned long pPosition)
+        : source(&pSource), position(pPosition) {}
+
+    constexpr bool operator==(const iterator &b) const {
+      return (position == b.position) && (source == b.source);
+    }
+
+    constexpr bool operator!=(const iterator &b) const {
+      return (position != b.position) || (source != b.source);
+    }
+
+    Q operator*(void) const {
+      unsigned long j = position % m;
+      unsigned long i = (position - j) / m;
+      return (*source)[i][j];
+    }
+
+    iterator &operator++(void) {
+      ++position;
+      return *this;
+    }
+
+    iterator &operator--(void) {
+      --position;
+      return *this;
+    }
+
+    iterator &operator+=(const std::ptrdiff_t &b) {
+      position += b;
+      return *this;
+    }
+
+    constexpr iterator operator+(const std::ptrdiff_t &b) const {
+      return iterator(*source, position + b);
+    }
+
+    iterator &operator-=(const std::ptrdiff_t &b) {
+      position -= b;
+      return *this;
+    }
+
+    constexpr iterator operator-(const std::ptrdiff_t &b) const {
+      return iterator(*source, position - b);
+    }
+
+    constexpr std::ptrdiff_t operator-(const iterator &b) const {
+      return std::ptrdiff_t(position) - std::ptrdiff_t(b.position);
+    }
+
+    constexpr Q &operator[](const std::ptrdiff_t &b) const {
+      return *((*this) + b);
+    }
+
+    constexpr bool operator<(const iterator &b) const {
+      return position < b.position;
+    }
+
+    constexpr bool operator<=(const iterator &b) const {
+      return position <= b.position;
+    }
+
+    constexpr bool operator>(const iterator &b) const {
+      return position > b.position;
+    }
+
+    constexpr bool operator>=(const iterator &b) const {
+      return position >= b.position;
+    }
+
+  protected:
+    unsigned long position;
+    const matrix *source;
+  };
+
+  iterator begin(void) const { return iterator(*this, 0); }
+
+  iterator end(void) const { return iterator(*this, n * m); }
 };
 
-/* \brief Displays each matrix row in a separate line. Values within rows
-       are separated by tabs.
+/**\brief Write matrix contents to stream.
+ *
+ * Displays each matrix row in a separate line. Values within rows are separated
+ * by tabs.
  */
 template <typename Q, unsigned int n, unsigned int m, typename C>
-std::ostream &operator<<(std::basic_ostream<C> &stream,
-                         const matrix<Q, n, m> &matrix) {
+    std::ostream &operator<<(std::basic_ostream<C> &stream,
+                             const matrix<Q, n, m> &matrix) {
   for (int i = 0; i < n; i++) {
     for (int k = 0; k < m; k++) {
       stream << matrix[i][k] << "\t";
@@ -189,7 +272,7 @@ std::ostream &operator<<(std::basic_ostream<C> &stream,
 }
 
 template <typename Q, unsigned int d> Q determinant(const matrix<Q, d, d> &pM) {
-  Q rv = Q(0);
+  Q rv;
 
   for (unsigned int i = 0; i < d; i++) {
     matrix<Q, d - 1, d - 1> pS;
@@ -206,7 +289,9 @@ template <typename Q, unsigned int d> Q determinant(const matrix<Q, d, d> &pM) {
       }
     }
 
-    if ((i % 2) == 0) {
+    if (i == 0) {
+      rv = pM[0][i] * determinant(pS);
+    } else if ((i % 2) == 0) {
       rv += pM[0][i] * determinant(pS);
     } else {
       rv -= pM[0][i] * determinant(pS);
@@ -275,7 +360,7 @@ template <typename Q> matrix<Q, 3, 3> invert(const matrix<Q, 3, 3> &pM) {
 
   return rv / determinant(pM);
 }
-};
-};
+}
+}
 
 #endif

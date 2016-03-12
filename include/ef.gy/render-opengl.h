@@ -64,6 +64,20 @@ static inline void name(const std::string &name,
   }
 }
 
+template <unsigned int d, unsigned int e>
+void extendAssign(math::vector<math::tracer::runtime, d> in,
+                  math::vector<math::tracer::runtime, e> &out) {
+  for (unsigned int i = 0; i < e; i++) {
+    if (i < d) {
+      out[i] = in[i];
+    } else {
+      out[i] = std::shared_ptr<math::tracer::tracer<void, void, 0> >(
+          new math::tracer::tracer<void, void, 0>((i == (e - 1)) ? "1.0"
+                                                                 : "0.0"));
+    }
+  }
+}
+
 template <unsigned int d>
 static inline void transform(
     std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
@@ -81,15 +95,31 @@ static inline void transform(
   geometry::transformation::projective<math::tracer::runtime, d> combined(m1);
 
   math::vector<math::tracer::runtime, d + 1> p;
-  for (unsigned int i = 0; i < d; i++) {
-    p[i] = position[i];
-  }
-  p[d] = std::shared_ptr<math::tracer::tracer<void, void, 0> >(
-      new math::tracer::tracer<void, void, 0>("1.0"));
+  extendAssign(position, p);
 
   math::vector<math::tracer::runtime, d - 1> r(combined * p);
 
   transform<d - 1>(uniform, gl_Position, r);
+}
+
+template <unsigned int d, unsigned int e, unsigned int s = 0>
+void linearUpscaledUniformTransformFragment(
+    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
+    math::vector<math::tracer::runtime, e> &out,
+    math::vector<math::tracer::runtime, d> &in, const std::string uniformName) {
+  uniform.push_back(opengl::glsl::variable<opengl::glsl::gv_uniform>(
+      uniformName, "float", "", (d + s) * (d + s)));
+
+  math::matrix<math::tracer::runtime, d + s, d + s> uniformMatrix;
+  name(uniformName, uniformMatrix);
+
+  geometry::transformation::linear<math::tracer::runtime, d + s>
+      linearTransform(uniformMatrix);
+
+  math::vector<math::tracer::runtime, d + s> vertex;
+
+  extendAssign(in, vertex);
+  extendAssign(linearTransform * vertex, out);
 }
 
 template <>
@@ -97,21 +127,8 @@ void transform<3>(
     std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
     math::vector<math::tracer::runtime, 4> &gl_Position,
     math::vector<math::tracer::runtime, 3> &position) {
-  uniform.push_back(opengl::glsl::variable<opengl::glsl::gv_uniform>(
-      "mvp3", "float", "", 16));
-
-  math::matrix<math::tracer::runtime, 4, 4> m1;
-  name("mvp3", m1);
-
-  geometry::transformation::linear<math::tracer::runtime, 4> l1(m1);
-
-  math::vector<math::tracer::runtime, 4> p({
-    position[0], position[1], position[2],
-        std::shared_ptr<math::tracer::tracer<void, void, 0> >(
-            new math::tracer::tracer<void, void, 0>("1.0"))
-  });
-
-  gl_Position = l1 * p;
+  linearUpscaledUniformTransformFragment<3, 4, 1>(uniform, gl_Position,
+                                                  position, "mvp3");
 }
 
 template <>
@@ -119,27 +136,60 @@ void transform<2>(
     std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
     math::vector<math::tracer::runtime, 4> &gl_Position,
     math::vector<math::tracer::runtime, 2> &position) {
-  uniform.push_back(
-      opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp2", "float", "", 9));
+  linearUpscaledUniformTransformFragment<2, 4, 1>(uniform, gl_Position,
+                                                  position, "mvp2");
+}
 
-  math::matrix<math::tracer::runtime, 3, 3> m1;
-  name("mvp2", m1);
+template <unsigned int d>
+std::string resultFragment(math::vector<math::tracer::runtime, d> &var,
+                           const std::string &name) {
+  std::stringstream m("");
 
-  geometry::transformation::linear<math::tracer::runtime, 3> l1(m1);
+  for (unsigned int i = 0; i < d; i++) {
+    m << name << "[" << i << "] = " << var[i] << ";\n";
+  }
 
-  math::vector<math::tracer::runtime, 3> p({
-    position[0], position[1],
-        std::shared_ptr<math::tracer::tracer<void, void, 0> >(
-            new math::tracer::tracer<void, void, 0>("1.0"))
-  });
+  return m.str();
+}
 
-  math::vector<math::tracer::runtime, 3> r = l1 * p;
+template <unsigned int d>
+std::string
+inlineVectorDefinitionFragment(math::vector<math::tracer::runtime, d> &var,
+                               const std::string &name) {
+  std::stringstream m("");
+  std::string vec = "vec" + std::to_string(d);
 
-  gl_Position[0] = r[0];
-  gl_Position[1] = r[1];
-  gl_Position[2] = r[2];
-  gl_Position[3] = std::shared_ptr<math::tracer::tracer<void, void, 0> >(
-      new math::tracer::tracer<void, void, 0>("1.0"));
+  m << vec;
+
+  for (unsigned int i = 0; i < d; i++) {
+    m << ((i == 0) ? "(" : ",") << var[i];
+  }
+
+  m << ")";
+
+  return m.str();
+}
+
+template <unsigned int d>
+std::string
+vectorDefinitionFragment(math::vector<math::tracer::runtime, d> &var,
+                         const std::string &name) {
+  std::string vec = "vec" + std::to_string(d);
+
+  return vec + " " + name + " = " + inlineVectorDefinitionFragment(var, name) +
+         ";\n";
+}
+
+template <unsigned int d>
+std::string mvpTransformFragment(
+    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
+    const std::string &inputName) {
+  math::vector<math::tracer::runtime, 4> gl_Position;
+  math::vector<math::tracer::runtime, d> vertex;
+  name(inputName, vertex);
+
+  transform<d>(uniform, gl_Position, vertex);
+  return resultFragment(gl_Position, "gl_Position");
 }
 
 /**\brief GLSL vertex shaders
@@ -155,6 +205,8 @@ template <unsigned int d = 3,
           enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class fractalFlame : public opengl::glsl::shader<V> {
 public:
+  using opengl::glsl::shader<V>::main;
+
   fractalFlame(void)
       : opengl::glsl::shader<V>("indexVarying = index;\n", {
     opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4"),
@@ -165,24 +217,9 @@ public:
     opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float",
                                                      "lowp")
   }) {
-    math::vector<math::tracer::runtime, d> P;
-    name("position", P);
-
-    transform<d>(opengl::glsl::shader<V>::uniform, gl_Position, P);
-    opengl::glsl::shader<V>::main += position();
+    main +=
+        mvpTransformFragment<d>(opengl::glsl::shader<V>::uniform, "position");
   }
-
-  std::string position(void) {
-    std::stringstream m("");
-
-    for (unsigned int i = 0; i < 4; i++) {
-      m << "gl_Position[" << i << "] = " << gl_Position[i] << ";\n";
-    }
-
-    return m.str();
-  }
-
-  math::vector<math::tracer::runtime, 4> gl_Position;
 };
 
 /*
@@ -193,9 +230,11 @@ template <unsigned int d = 3,
           enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class regular : public opengl::glsl::shader<V> {
 public:
+  using opengl::glsl::shader<V>::main;
+  using opengl::glsl::shader<V>::uniform;
+
   regular(void)
       : opengl::glsl::shader<V>(
-            "vec3 eyeNormal = normalize(normalMatrix * normal);\n"
             "vec3 lightPosition = vec3(0.0, 1.0, 1.0);\n"
             "float nDotVP = max(0.0, dot(eyeNormal, "
             "normalize(lightPosition)));\n"
@@ -209,27 +248,18 @@ public:
     opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4")
   },
             {
-    opengl::glsl::variable<opengl::glsl::gv_uniform>("normalMatrix", "mat3"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4")
+    opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4")
   }) {
-    math::vector<math::tracer::runtime, d> P;
-    name("position", P);
+    math::vector<math::tracer::runtime, 3> eyeNormal;
+    math::vector<math::tracer::runtime, 3> normal;
+    name("normal", normal);
 
-    transform<d>(opengl::glsl::shader<V>::uniform, gl_Position, P);
-    opengl::glsl::shader<V>::main += position();
+    linearUpscaledUniformTransformFragment(uniform, eyeNormal, normal,
+                                           "normalMatrix");
+    main = "vec3 eyeNormal = normalize(" +
+           inlineVectorDefinitionFragment(eyeNormal, "eyeNormal") + ");\n" +
+           main + mvpTransformFragment<d>(uniform, "position");
   }
-
-  std::string position(void) {
-    std::stringstream m("");
-
-    for (unsigned int i = 0; i < 4; i++) {
-      m << "gl_Position[" << i << "] = " << gl_Position[i] << ";\n";
-    }
-
-    return m.str();
-  }
-
-  math::vector<math::tracer::runtime, 4> gl_Position;
 };
 
 /*
@@ -388,22 +418,18 @@ public:
    * \return True if the uniforms were uploaded successfully,
    *         false otherwise.
    */
-  bool matrices(const geometry::transformation::affine<Q, 2> &combined,
-                const math::matrix<Q, 2, 2> &normalMatrix) {
-    return programme.uniform("mvp2", combined.transformationMatrix, true) &&
-           programme.uniform("normalMatrix", normalMatrix, false);
-  }
-
-  bool matrices(const geometry::transformation::affine<Q, 3> &combined,
-                const math::matrix<Q, 3, 3> &normalMatrix) {
-    return programme.uniform("mvp3", combined.transformationMatrix, true) &&
-           programme.uniform("normalMatrix", normalMatrix, false);
+  template <unsigned int e>
+  bool matrices(const geometry::transformation::affine<Q, e> &combined,
+                const math::matrix<Q, e, e> &normalMatrix) {
+    const std::string mvp = "mvp" + std::to_string(e);
+    return programme.uniform(mvp.c_str(), combined.transformationMatrix) &&
+           programme.uniform("normalMatrix", normalMatrix);
   }
 
   template <unsigned int e>
   bool matrices(const geometry::transformation::affine<Q, e> &combined) {
     const std::string mvp = "mvp" + std::to_string(e);
-    return programme.uniform(mvp.c_str(), combined.transformationMatrix, true);
+    return programme.uniform(mvp.c_str(), combined.transformationMatrix);
   }
 
   /**\brief Render to current OpenGL context
@@ -560,13 +586,10 @@ public:
     initialise();
 
     if (floatTextures) {
-      return colouringFloat.uniform(mvp.c_str(), combined.transformationMatrix,
-                                    true);
+      return colouringFloat.uniform(mvp.c_str(), combined.transformationMatrix);
     } else {
-      return histogram.uniform(mvp.c_str(), combined.transformationMatrix,
-                               true) &&
-             colouring.uniform(mvp.c_str(), combined.transformationMatrix,
-                               true);
+      return histogram.uniform(mvp.c_str(), combined.transformationMatrix) &&
+             colouring.uniform(mvp.c_str(), combined.transformationMatrix);
     }
   }
 
@@ -1525,7 +1548,6 @@ public:
     context.upload(vertexArrayModel);
     context.render(*this);
   }
-  ;
 
   /**\brief Clear framebuffer
    *

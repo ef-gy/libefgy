@@ -13,9 +13,11 @@ NAME:=
 BASE=$(NAME)
 VERSION:=1
 
+STYLE:=llvm
+
 # standard programmes (may or may not be used)
 CC:=$(shell which clang false | head -n 1)
-CLANG_FORMAT:=$(shell which clang-format clang-format-3.4 clang-format-3.5 false | head -n 1) -style=llvm
+CLANG_FORMAT:=$(shell which clang-format clang-format-3.4 clang-format-3.5 false | head -n 1) -style=$(STYLE)
 CSSMIN:=$(shell which cssmin false | head -n 1)
 CURL:=$(shell which curl false | head -n 1) -s
 CXX:=$(shell which clang++ false | head -n 1)
