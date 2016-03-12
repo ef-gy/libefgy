@@ -38,111 +38,113 @@ namespace render {
  * somewhat tidy.
  */
 namespace glsl {
+namespace shader {
+using number = math::tracer::runtime;
+using atom = math::tracer::tracer<void, void, 0>;
+using sharedAtom = std::shared_ptr<shader::atom>;
+using uniform = opengl::glsl::variable<opengl::glsl::gv_uniform>;
+using attribute = opengl::glsl::variable<opengl::glsl::gv_attribute>;
+using varying = opengl::glsl::variable<opengl::glsl::gv_varying>;
+
+template <unsigned int d> using vector = math::vector<shader::number, d>;
+template <unsigned int d, unsigned int e>
+using matrix = math::matrix<shader::number, d, e>;
+
+static inline shader::sharedAtom verbatim(const std::string v) {
+  return shader::sharedAtom(new shader::atom(v));
+}
+}
+
 template <unsigned int d>
-static inline void name(const std::string &name,
-                        math::vector<math::tracer::runtime, d> &pVector) {
+static inline void name(const std::string &name, shader::vector<d> &pVector) {
   for (unsigned int i = 0; i < d; i++) {
     std::stringstream s("");
     s << i;
-    pVector[i] = std::shared_ptr<math::tracer::tracer<void, void, 0> >(
-        new math::tracer::tracer<void, void, 0>(name + "[" + s.str() + "]"));
+    pVector[i] = shader::verbatim(name + "[" + s.str() + "]");
   }
 }
 
 template <unsigned int d>
 static inline void name(const std::string &name,
-                        math::matrix<math::tracer::runtime, d, d> &pMatrix) {
+                        shader::matrix<d, d> &pMatrix) {
   unsigned int k = 0;
   for (unsigned int i = 0; i < d; i++) {
     for (unsigned int j = 0; j < d; j++) {
       std::stringstream s("");
       s << "[" << k << "]";
       k++;
-      pMatrix[i][j] = std::shared_ptr<math::tracer::tracer<void, void, 0> >(
-          new math::tracer::tracer<void, void, 0>(name + s.str()));
+      pMatrix[i][j] = shader::verbatim(name + s.str());
     }
   }
 }
 
 template <unsigned int d, unsigned int e>
-void extendAssign(math::vector<math::tracer::runtime, d> in,
-                  math::vector<math::tracer::runtime, e> &out) {
+void extendAssign(shader::vector<d> in, shader::vector<e> &out) {
   for (unsigned int i = 0; i < e; i++) {
     if (i < d) {
       out[i] = in[i];
     } else {
-      out[i] = std::shared_ptr<math::tracer::tracer<void, void, 0> >(
-          new math::tracer::tracer<void, void, 0>((i == (e - 1)) ? "1.0"
-                                                                 : "0.0"));
+      out[i] = shader::verbatim((i == (e - 1)) ? "1.0" : "0.0");
     }
   }
 }
 
 template <unsigned int d>
-static inline void transform(
-    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
-    math::vector<math::tracer::runtime, 4> &gl_Position,
-    math::vector<math::tracer::runtime, d> &position) {
-
+static inline void transform(std::vector<shader::uniform> &uniform,
+                             shader::vector<4> &gl_Position,
+                             shader::vector<d> &position) {
   std::string mvp = "mvp" + std::to_string(d);
 
-  uniform.push_back(opengl::glsl::variable<opengl::glsl::gv_uniform>(
-      mvp, "float", "", (d + 1) * (d + 1)));
+  uniform.push_back(shader::uniform(mvp, "float", "", (d + 1) * (d + 1)));
 
-  math::matrix<math::tracer::runtime, (d + 1), (d + 1)> m1;
+  shader::matrix<(d + 1), (d + 1)> m1;
   name(mvp, m1);
 
-  geometry::transformation::projective<math::tracer::runtime, d> combined(m1);
+  geometry::transformation::projective<shader::number, d> combined(m1);
 
-  math::vector<math::tracer::runtime, d + 1> p;
+  shader::vector<d + 1> p;
   extendAssign(position, p);
 
-  math::vector<math::tracer::runtime, d - 1> r(combined * p);
+  shader::vector<d - 1> r(combined * p);
 
   transform<d - 1>(uniform, gl_Position, r);
 }
 
 template <unsigned int d, unsigned int e, unsigned int s = 0>
 void linearUpscaledUniformTransformFragment(
-    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
-    math::vector<math::tracer::runtime, e> &out,
-    math::vector<math::tracer::runtime, d> &in, const std::string uniformName) {
-  uniform.push_back(opengl::glsl::variable<opengl::glsl::gv_uniform>(
-      uniformName, "float", "", (d + s) * (d + s)));
+    std::vector<shader::uniform> &uniform, shader::vector<e> &out,
+    shader::vector<d> &in, const std::string uniformName) {
+  uniform.push_back(
+      shader::uniform(uniformName, "float", "", (d + s) * (d + s)));
 
-  math::matrix<math::tracer::runtime, d + s, d + s> uniformMatrix;
+  shader::matrix<d + s, d + s> uniformMatrix;
   name(uniformName, uniformMatrix);
 
-  geometry::transformation::linear<math::tracer::runtime, d + s>
-      linearTransform(uniformMatrix);
+  geometry::transformation::linear<shader::number, d + s> linearTransform(
+      uniformMatrix);
 
-  math::vector<math::tracer::runtime, d + s> vertex;
+  shader::vector<d + s> vertex;
 
   extendAssign(in, vertex);
   extendAssign(linearTransform * vertex, out);
 }
 
 template <>
-void transform<3>(
-    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
-    math::vector<math::tracer::runtime, 4> &gl_Position,
-    math::vector<math::tracer::runtime, 3> &position) {
+void transform<3>(std::vector<shader::uniform> &uniform,
+                  shader::vector<4> &gl_Position, shader::vector<3> &position) {
   linearUpscaledUniformTransformFragment<3, 4, 1>(uniform, gl_Position,
                                                   position, "mvp3");
 }
 
 template <>
-void transform<2>(
-    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
-    math::vector<math::tracer::runtime, 4> &gl_Position,
-    math::vector<math::tracer::runtime, 2> &position) {
+void transform<2>(std::vector<shader::uniform> &uniform,
+                  shader::vector<4> &gl_Position, shader::vector<2> &position) {
   linearUpscaledUniformTransformFragment<2, 4, 1>(uniform, gl_Position,
                                                   position, "mvp2");
 }
 
 template <unsigned int d>
-std::string resultFragment(math::vector<math::tracer::runtime, d> &var,
-                           const std::string &name) {
+std::string resultFragment(shader::vector<d> &var, const std::string &name) {
   std::stringstream m("");
 
   for (unsigned int i = 0; i < d; i++) {
@@ -153,9 +155,8 @@ std::string resultFragment(math::vector<math::tracer::runtime, d> &var,
 }
 
 template <unsigned int d>
-std::string
-inlineVectorDefinitionFragment(math::vector<math::tracer::runtime, d> &var,
-                               const std::string &name) {
+std::string inlineVectorDefinitionFragment(shader::vector<d> &var,
+                                           const std::string &name) {
   std::stringstream m("");
   std::string vec = "vec" + std::to_string(d);
 
@@ -171,9 +172,8 @@ inlineVectorDefinitionFragment(math::vector<math::tracer::runtime, d> &var,
 }
 
 template <unsigned int d>
-std::string
-vectorDefinitionFragment(math::vector<math::tracer::runtime, d> &var,
-                         const std::string &name) {
+std::string vectorDefinitionFragment(shader::vector<d> &var,
+                                     const std::string &name) {
   std::string vec = "vec" + std::to_string(d);
 
   return vec + " " + name + " = " + inlineVectorDefinitionFragment(var, name) +
@@ -181,11 +181,10 @@ vectorDefinitionFragment(math::vector<math::tracer::runtime, d> &var,
 }
 
 template <unsigned int d>
-std::string mvpTransformFragment(
-    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
-    const std::string &inputName) {
-  math::vector<math::tracer::runtime, 4> gl_Position;
-  math::vector<math::tracer::runtime, d> vertex;
+std::string mvpTransformFragment(std::vector<shader::uniform> &uniform,
+                                 const std::string &inputName) {
+  shader::vector<4> gl_Position;
+  shader::vector<d> vertex;
   name(inputName, vertex);
 
   transform(uniform, gl_Position, vertex);
@@ -206,19 +205,17 @@ template <unsigned int d = 3,
 class fractalFlame : public opengl::glsl::shader<V> {
 public:
   using opengl::glsl::shader<V>::main;
+  using opengl::glsl::shader<V>::uniform;
 
   fractalFlame(void)
       : opengl::glsl::shader<V>("indexVarying = index;\n", {
-    opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4"),
-        opengl::glsl::variable<opengl::glsl::gv_attribute>("index", "float",
-                                                           "highp")
+    shader::attribute("position", "vec4"),
+        shader::attribute("index", "float", "highp")
   },
                                 {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float",
-                                                     "lowp")
+    shader::varying("indexVarying", "float", "lowp")
   }) {
-    main +=
-        mvpTransformFragment<d>(opengl::glsl::shader<V>::uniform, "position");
+    main += mvpTransformFragment<d>(uniform, "position");
   }
 };
 
@@ -241,17 +238,16 @@ public:
             "colorVarying = colour * nDotVP;\n"
             "colorVarying = vec4(colorVarying.xyz, colour.w);\n",
             {
-    opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4"),
-        opengl::glsl::variable<opengl::glsl::gv_attribute>("normal", "vec3")
+    shader::attribute("position", "vec4"), shader::attribute("normal", "vec3")
   },
             {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4")
+    shader::varying("colorVarying", "vec4")
   },
             {
-    opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4")
+    shader::uniform("colour", "vec4")
   }) {
-    math::vector<math::tracer::runtime, 3> eyeNormal;
-    math::vector<math::tracer::runtime, 3> normal;
+    shader::vector<3> eyeNormal;
+    shader::vector<3> normal;
     name("normal", normal);
 
     linearUpscaledUniformTransformFragment(uniform, eyeNormal, normal,
@@ -273,10 +269,10 @@ public:
       : opengl::glsl::shader<V>("gl_Position = position;\n"
                                 "UV = (position.xy+vec2(1.0,1.0))/2.0;\n",
                                 {
-    opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec4")
+    shader::attribute("position", "vec4")
   },
                                 {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("UV", "vec2", "lowp")
+    shader::varying("UV", "vec2", "lowp")
   }) {}
 };
 }
@@ -297,8 +293,7 @@ public:
   fractalFlame(void)
       : opengl::glsl::shader<V>(
             "gl_FragColor = vec4(indexVarying,1.0,1.0,0.5);\n", {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float",
-                                                     "lowp")
+    shader::varying("indexVarying", "float", "lowp")
   }) {}
 };
 
@@ -323,8 +318,7 @@ class regular : public opengl::glsl::shader<V> {
 public:
   regular(void)
       : opengl::glsl::shader<V>("gl_FragColor = colorVarying;\n", {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4",
-                                                     "lowp")
+    shader::varying("colorVarying", "vec4", "lowp")
   }) {}
 };
 
@@ -343,15 +337,12 @@ public:
             "gl_FragColor = texture2D(colourMap, vec2(index/intensity,0.0)) * "
             "(1.0-(max(0.0,1.0/log2(intensity+2.0))));\n",
             {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("UV", "vec2", "lowp")
+    shader::varying("UV", "vec2", "lowp")
   },
             {
-    opengl::glsl::variable<opengl::glsl::gv_uniform>("screenFramebuffer",
-                                                     "sampler2D"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("screenHistogram",
-                                                         "sampler2D"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("colourMap",
-                                                         "sampler2D")
+    shader::uniform("screenFramebuffer", "sampler2D"),
+        shader::uniform("screenHistogram", "sampler2D"),
+        shader::uniform("colourMap", "sampler2D")
   }) {}
 };
 
@@ -369,15 +360,12 @@ public:
             "gl_FragColor = texture2D(colourMap, vec2(index,0.0)) * "
             "intensity;\n",
             {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("UV", "vec2", "lowp")
+    shader::varying("UV", "vec2", "lowp")
   },
             {
-    opengl::glsl::variable<opengl::glsl::gv_uniform>("screenFramebuffer",
-                                                     "sampler2D"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("screenHistogram",
-                                                         "sampler2D"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("colourMap",
-                                                         "sampler2D")
+    shader::uniform("screenFramebuffer", "sampler2D"),
+        shader::uniform("screenHistogram", "sampler2D"),
+        shader::uniform("colourMap", "sampler2D")
   }) {}
 };
 }
@@ -1009,8 +997,7 @@ public:
    */
   template <unsigned int e, std::size_t q>
   void add(const std::array<math::vector<Q, e>, q> &pV,
-           const math::vector<Q, e> &R,
-           const Q &index) {
+           const math::vector<Q, e> &R, const Q &index) {
     if (prepared)
       return;
 
