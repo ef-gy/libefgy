@@ -188,7 +188,7 @@ std::string mvpTransformFragment(
   math::vector<math::tracer::runtime, d> vertex;
   name(inputName, vertex);
 
-  transform<d>(uniform, gl_Position, vertex);
+  transform(uniform, gl_Position, vertex);
   return resultFragment(gl_Position, "gl_Position");
 }
 
@@ -1006,11 +1006,10 @@ public:
    *                  IFSs to simulate fractal flame colouring,
    *                  but currently ignored by the SVG renderer.
    * \param[in] R     Normal of the polygon.
-   * \param[in] RN    Reverse normal of the polygon.
    */
   template <unsigned int e, std::size_t q>
   void add(const std::array<math::vector<Q, e>, q> &pV,
-           const math::vector<Q, e> &R, const math::vector<Q, e> &RN,
+           const math::vector<Q, e> &R,
            const Q &index) {
     if (prepared)
       return;
@@ -1024,6 +1023,8 @@ public:
     triindices.push_back(add(pV[2], R, index));
     unsigned int nendf = triindices.back();
     lineindices.push_back(nendf);
+
+    const math::vector<Q, e> RN = R * Q(-1);
 
     triindices.push_back(add(pV[2], RN, index));
     unsigned int nendb = triindices.back();
@@ -1343,12 +1344,7 @@ public:
       pV[1] - pV[0], pV[2] - pV[0], pV[3] - pV[0]
     })));
 
-    math::vector<Q, 4> RN =
-        math::normalise(math::normal(std::array<math::vector<Q, 4>, 3>({
-      pV[3] - pV[0], pV[2] - pV[0], pV[1] - pV[0]
-    })));
-
-    context.add(pV, R, RN, index);
+    context.add(pV, R, index);
   }
 
   void setColourMap(void) { fractalFlame.setColourMap(); }
@@ -1440,10 +1436,7 @@ public:
     math::vector<Q, 3> R =
         math::normalise(crossProduct(pV[1] - pV[0], pV[2] - pV[0]));
 
-    math::vector<Q, 3> RN =
-        math::normalise(crossProduct(pV[2] - pV[0], pV[1] - pV[0]));
-
-    context.add(pV, R, RN, index);
+    context.add(pV, R, index);
   }
 
   /**\brief Create random colour map
@@ -1589,12 +1582,8 @@ public:
       { Q(1), Q(0) }
     }
     ;
-    math::vector<Q, 2> RN {
-      { Q(-1), Q(0) }
-    }
-    ;
 
-    context.add(pV, R, RN, index);
+    context.add(pV, R, index);
   }
 
   /**\brief Vertex array
