@@ -114,6 +114,34 @@ void transform<3>(
   gl_Position = l1 * p;
 }
 
+template <>
+void transform<2>(
+    std::vector<opengl::glsl::variable<opengl::glsl::gv_uniform> > &uniform,
+    math::vector<math::tracer::runtime, 4> &gl_Position,
+    math::vector<math::tracer::runtime, 2> &position) {
+  uniform.push_back(
+      opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp2", "float", "", 9));
+
+  math::matrix<math::tracer::runtime, 3, 3> m1;
+  name("mvp2", m1);
+
+  geometry::transformation::linear<math::tracer::runtime, 3> l1(m1);
+
+  math::vector<math::tracer::runtime, 3> p({
+    position[0], position[1],
+        std::shared_ptr<math::tracer::tracer<void, void, 0> >(
+            new math::tracer::tracer<void, void, 0>("1.0"))
+  });
+
+  math::vector<math::tracer::runtime, 3> r = l1 * p;
+
+  gl_Position[0] = r[0];
+  gl_Position[1] = r[1];
+  gl_Position[2] = r[2];
+  gl_Position[3] = std::shared_ptr<math::tracer::tracer<void, void, 0> >(
+      new math::tracer::tracer<void, void, 0>("1.0"));
+}
+
 /**\brief GLSL vertex shaders
  *
  * Contains the vertex shaders used by the default OpenGL renderer.
@@ -161,31 +189,6 @@ public:
  *
  * \tparam V GLSL shader version to produce.
  */
-template <enum opengl::glsl::version V>
-class fractalFlame<2, V> : public opengl::glsl::shader<V> {
-  // mvp3 should be mvp2
-public:
-  fractalFlame(void)
-      : opengl::glsl::shader<V>("indexVarying = index;\n"
-                                "gl_Position = vec4(mvp3 * position,1);\n",
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec3"),
-        opengl::glsl::variable<opengl::glsl::gv_attribute>("index", "float",
-                                                           "highp")
-  },
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("indexVarying", "float",
-                                                     "lowp")
-  },
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3", "mat3")
-  }) {}
-};
-
-/*
- *
- * \tparam V GLSL shader version to produce.
- */
 template <unsigned int d = 3,
           enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class regular : public opengl::glsl::shader<V> {
@@ -227,29 +230,6 @@ public:
   }
 
   math::vector<math::tracer::runtime, 4> gl_Position;
-};
-
-/*
- *
- * \tparam V GLSL shader version to produce.
- */
-template <enum opengl::glsl::version V>
-class regular<2, V> : public opengl::glsl::shader<V> {
-  // mvp3 should be mvp2
-public:
-  regular(void)
-      : opengl::glsl::shader<V>("gl_Position = vec4(mvp3 * position,1);\n"
-                                "colorVarying = colour;\n",
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_attribute>("position", "vec3")
-  },
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_varying>("colorVarying", "vec4")
-  },
-                                {
-    opengl::glsl::variable<opengl::glsl::gv_uniform>("mvp3", "mat3"),
-        opengl::glsl::variable<opengl::glsl::gv_uniform>("colour", "vec4")
-  }) {}
 };
 
 /*
@@ -410,7 +390,7 @@ public:
    */
   bool matrices(const geometry::transformation::affine<Q, 2> &combined,
                 const math::matrix<Q, 2, 2> &normalMatrix) {
-    return programme.uniform("mvp3", combined.transformationMatrix, false) &&
+    return programme.uniform("mvp2", combined.transformationMatrix, true) &&
            programme.uniform("normalMatrix", normalMatrix, false);
   }
 
@@ -423,7 +403,7 @@ public:
   template <unsigned int e>
   bool matrices(const geometry::transformation::affine<Q, e> &combined) {
     const std::string mvp = "mvp" + std::to_string(e);
-    return programme.uniform(mvp.c_str(), combined.transformationMatrix, e > 2);
+    return programme.uniform(mvp.c_str(), combined.transformationMatrix, true);
   }
 
   /**\brief Render to current OpenGL context
@@ -574,30 +554,19 @@ public:
    * \return True if the uniforms were uploaded successfully,
    *         false otherwise.
    */
-  bool matrices(const geometry::transformation::affine<Q, d> &combined) {
-    initialise();
-
-    if (floatTextures) {
-      return colouringFloat.uniform("mvp3", combined.transformationMatrix,
-                                    d > 2);
-    } else {
-      return histogram.uniform("mvp3", combined.transformationMatrix, d > 2) &&
-             colouring.uniform("mvp3", combined.transformationMatrix, d > 2);
-    }
-  }
-
   template <unsigned int e>
   bool matrices(const geometry::transformation::affine<Q, e> &combined) {
+    std::string mvp = "mvp" + std::to_string(e);
     initialise();
 
     if (floatTextures) {
-      return colouringFloat.uniform("mvp" + std::to_string(e),
-                                    combined.transformationMatrix, e > 2);
+      return colouringFloat.uniform(mvp.c_str(), combined.transformationMatrix,
+                                    true);
     } else {
-      return histogram.uniform("mvp" + std::to_string(e),
-                               combined.transformationMatrix, e > 2) &&
-             colouring.uniform("mvp" + std::to_string(e),
-                               combined.transformationMatrix, e > 2);
+      return histogram.uniform(mvp.c_str(), combined.transformationMatrix,
+                               true) &&
+             colouring.uniform(mvp.c_str(), combined.transformationMatrix,
+                               true);
     }
   }
 
@@ -1333,13 +1302,11 @@ public:
 
     lowerRenderer.frameStart();
   }
-  ;
 
   void frameEnd(void) {
     context.upload(vertexArrayModel);
     context.render(*this);
   }
-  ;
 
   void clear(GLint bits) { render.clear = bits; }
 
@@ -1431,14 +1398,12 @@ public:
       render.matrices(combined, normalMatrix);
     }
   }
-  ;
 
   /**\copydoc opengl<Q,2>::frameEnd */
   void frameEnd(void) {
     context.upload(vertexArrayModel);
     context.render(*this);
   }
-  ;
 
   /**\copydoc opengl<Q,2>::clear */
   void clear(GLint bits) { render.clear = bits; }
@@ -1759,7 +1724,7 @@ template <typename C, typename Q, unsigned int d, unsigned int od,
 
   return stream;
 }
-};
-};
+}
+}
 
 #endif
