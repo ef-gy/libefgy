@@ -21,7 +21,6 @@
 
 #if defined(TRANSFORM_4D_IN_PIXEL_SHADER)
 #define DUMP_SHADERS
-#define DEBUG
 #endif
 
 #include <ef.gy/euclidian.h>
@@ -1070,9 +1069,6 @@ public:
    */
   template <typename T> void upload(T &vertexArrayModel) {
     if (!prepared) {
-#if defined(DEBUG)
-      std::cerr << "uploading new model data.\n";
-#endif
       prepared = true;
 
       vertexArrayModel.use();
