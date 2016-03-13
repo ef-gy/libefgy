@@ -1424,6 +1424,8 @@ public:
             math::matrix<Q, 3, 3>(transformation.transformationMatrix))));
 
     programme.matrices(combined, normalMatrix);
+
+    //lowerRenderer.uploadMatrices(programme);
   }
 
   /**\copydoc opengl<Q,2>::frameEnd */
@@ -1524,19 +1526,22 @@ public:
    * new frame.
    */
   void frameStart(void) {
+    if (context.fractalFlameColouring) {
+      uploadMatrices(fractalFlame);
+    } else {
+      uploadMatrices(render);
+    }
+  }
+
+  template <typename P> void uploadMatrices(P &programme) {
     geometry::transformation::affine<Q, 2> scale =
         geometry::transformation::identity<Q, 2>();
-
     scale.transformationMatrix[1][1] = Q(context.width) / Q(context.height);
 
     const geometry::transformation::affine<Q, 2> combined =
         transformation * scale;
 
-    if (context.fractalFlameColouring) {
-      fractalFlame.matrices(combined);
-    } else {
-      render.matrices(combined, math::matrix<Q, 2, 2>());
-    }
+    programme.matrices(combined);
   }
 
   /**\brief End frame
