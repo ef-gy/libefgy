@@ -39,6 +39,34 @@ namespace geometry {
  * only used for functors that are passed to geometry::with().
  */
 namespace functor {
+
+template <typename T> class symmetric {
+public:
+  /**\brief Argument type
+   *
+   * Mirrors the T template argument.
+   */
+  using argument = T & ;
+
+  /**\brief Return type
+   *
+   * This functor returns a reference to the stream that was
+   * provided as an argument to the function.
+   */
+  using output = argument;
+
+  /**\brief Pass argument
+   *
+   * Simply returns the provided argument verbatim; no further
+   * processing is performed.
+   *
+   * \param[out] out Not used in this function; returned verbatim.
+   *
+   * \returns out, without modifications.
+   */
+  static output pass(argument out) { return out; }
+};
+
 /**\brief Geometry factory functor: echo qualified model names
  *
  * This is a sample functor that echoes all the matching types to a
@@ -53,21 +81,10 @@ namespace functor {
  */
 template <typename Q, template <class, unsigned int> class T, unsigned int d,
           unsigned int e, typename format>
-class echo {
+class echo : public symmetric<std::ostream> {
 public:
-  /**\brief Argument type
-   *
-   * This functor takes the stream to output to as its
-   * argument.
-   */
-  typedef std::ostream &argument;
-
-  /**\brief Return type
-   *
-   * This functor returns a reference to the stream that was
-   * provided as an argument to the function.
-   */
-  typedef std::ostream &output;
+  using symmetric<std::ostream>::argument;
+  using symmetric<std::ostream>::output;
 
   /**\brief Echo model parameters to stream
    *
@@ -81,17 +98,6 @@ public:
   static output apply(argument out, const format &) {
     return out << d << "-" << T<Q, d>::id() << "@" << e << "\n";
   }
-
-  /**\brief Pass argument
-   *
-   * Simply returns the provided argument verbatim; no further
-   * processing is performed.
-   *
-   * \param[out] out Not used in this function.
-   *
-   * \returns out, without modifications.
-   */
-  static output pass(argument out) { return out; }
 };
 
 /**\brief Geometry factory functor: add model names to set
@@ -108,19 +114,10 @@ public:
  */
 template <typename Q, template <class, unsigned int> class T, unsigned int d,
           unsigned int e, typename format>
-class models {
+class models : public symmetric<std::set<const char *> > {
 public:
-  /**\brief Argument type
-   *
-   * This functor takes a reference to a set of strings.
-   */
-  typedef std::set<const char *> &argument;
-
-  /**\brief Return type
-   *
-   * This functor returns a reference to the given set.
-   */
-  typedef std::set<const char *> &output;
+  using symmetric<std::set<const char *> >::argument;
+  using symmetric<std::set<const char *> >::output;
 
   /**\brief Add model ID to set
    *
@@ -134,12 +131,8 @@ public:
    * \returns out, after adding the new model ID.
    */
   static output apply(argument out, const format &) {
-    out.insert(T<Q, d>::id());
-    return out;
+    return out.insert(T<Q, d>::id()), out;
   }
-
-  /**\copydoc echo::pass */
-  static output pass(argument out) { return out; }
 };
 
 /**\brief Geometry factory functor: add model names w/ depth to set
@@ -150,13 +143,10 @@ public:
  */
 template <typename Q, template <class, unsigned int> class T, unsigned int d,
           unsigned int e, typename format>
-class modelsWithDepth {
+class modelsWithDepth : public symmetric<std::set<std::string> > {
 public:
-  /**\copydoc models::argument */
-  typedef std::set<std::string> &argument;
-
-  /**\copydoc models::output */
-  typedef std::set<std::string> &output;
+  using symmetric<std::set<std::string> >::argument;
+  using symmetric<std::set<std::string> >::output;
 
   /**\brief Add model ID to set
    *
@@ -171,14 +161,8 @@ public:
    * \returns out, after adding the new string.
    */
   static output apply(argument out, const format &) {
-    std::ostringstream os;
-    os << T<Q, d>::depth << "-" << T<Q, d>::id();
-    out.insert(os.str());
-    return out;
+    return out.insert(std::to_string(d) + "-" + T<Q, d>::id()), out;
   }
-
-  /**\copydoc models::pass */
-  static output pass(argument out) { return out; }
 };
 
 /**\brief Geometry factory functor: add coordinate format to set
@@ -197,19 +181,10 @@ public:
  */
 template <typename Q, template <class, unsigned int> class T, unsigned int d,
           unsigned int e, typename format>
-class formats {
+class formats : public symmetric<std::set<const char *> > {
 public:
-  /**\brief Argument type
-   *
-   * This functor takes a reference to a set of strings.
-   */
-  typedef std::set<const char *> &argument;
-
-  /**\brief Return type
-   *
-   * This functor returns a reference to the given set.
-   */
-  typedef std::set<const char *> &output;
+  using symmetric<std::set<const char *> >::argument;
+  using symmetric<std::set<const char *> >::output;
 
   /**\brief Add coordinate format to set
    *
@@ -222,14 +197,72 @@ public:
    * \returns out, after adding the new coordinate format.
    */
   static output apply(argument out, const format &tag) {
-    out.insert(tag.id());
-    return out;
+    return out.insert(tag.id()), out;
   }
+};
 
-  /**\copydoc echo::pass */
-  static output pass(argument out) { return out; }
+/**\brief Query all matching model dimensions.
+ *
+ * Uses all the available model metadata to create a list of model dimensions.
+ *
+ * \tparam Q      Base data type for calculations
+ * \tparam T      Model template, e.g. efgy::geometry::cube
+ * \tparam d      Model depth, e.g. 4 for a tesseract
+ * \tparam e      Model render depth, e.g. >= 4 when rendering a
+ *                tesseract
+ * \tparam format Vector coordinate format to work in.
+ */
+template <typename Q, template <class, unsigned int> class T, unsigned int d,
+          unsigned int e, typename format>
+class modelDimensions : public symmetric<std::set<unsigned int> > {
+public:
+  using symmetric<std::set<unsigned int> >::argument;
+  using symmetric<std::set<unsigned int> >::output;
+
+  /**\brief Add model depth to set.
+   *
+   * Adds the instance's depth to the set.
+   *
+   * \param[out] out The set to modify.
+   *
+   * \returns out, after adding the new member.
+   */
+  static output apply(argument out, const format &) {
+    return out.insert(d), out;
+  }
 };
+
+/**\brief Query all matching render dimensions.
+ *
+ * Uses all the available model metadata to create a list of render dimensions.
+ *
+ * \tparam Q      Base data type for calculations
+ * \tparam T      Model template, e.g. efgy::geometry::cube
+ * \tparam d      Model depth, e.g. 4 for a tesseract
+ * \tparam e      Model render depth, e.g. >= 4 when rendering a
+ *                tesseract
+ * \tparam format Vector coordinate format to work in.
+ */
+template <typename Q, template <class, unsigned int> class T, unsigned int d,
+          unsigned int e, typename format>
+class renderDimensions : public symmetric<std::set<unsigned int> > {
+public:
+  using symmetric<std::set<unsigned int> >::argument;
+  using symmetric<std::set<unsigned int> >::output;
+
+  /**\brief Add render depth to set.
+   *
+   * Adds the instance's render depth to the set.
+   *
+   * \param[out] out The set to modify.
+   *
+   * \returns out, after adding the new member.
+   */
+  static output apply(argument out, const format &) {
+    return out.insert(e), out;
+  }
 };
+}
 
 /**\brief Model factory helper
  *
@@ -244,11 +277,11 @@ public:
  *                tesseract
  * \tparam format Vector coordinate format to work in.
  */
-template <typename Q,
-          template <typename, template <class, unsigned int> class,
-                    unsigned int, unsigned int, typename> class func,
-          template <class, unsigned int> class T, unsigned int d,
-          unsigned int e, typename format>
+template <
+    typename Q, template <typename, template <class, unsigned int> class,
+                          unsigned int, unsigned int, typename> class func,
+    template <class, unsigned int> class T, unsigned int d, unsigned int e,
+    typename format>
 class model {
 public:
   /**\brief Call func with parameters
@@ -272,54 +305,42 @@ public:
     return d < T<Q, d>::dimensions::modelDimensionMinimum
                ? func<Q, T, d, e, format>::pass(arg)
                : (T<Q, d>::dimensions::modelDimensionMaximum > 0) &&
-                         (d > T<Q, d>::dimensions::modelDimensionMaximum)
-                     ? model<Q, func, T, d - 1, e, format>::with(arg, dims,
-                                                                 rdims, tag)
-                     : e < T<Q, d>::renderDepth
-                           ? model<Q, func, T, d - 1, e, format>::with(
-                                 arg, dims, rdims, tag)
-                           : 0 == rdims
-                                 ? (0 == dims
-                                    ? func<Q, T, d, e, format>::apply(arg, tag),
-                                    model<Q, func, T, d, e - 1, format>::with(
-                                        arg, dims, rdims, tag),
-                                    model<Q, func, T, d - 1, e, format>::with(
-                                        arg, dims, rdims, tag)
-                                    : d == dims
-                                    ? func<Q, T, d, e, format>::apply(arg, tag),
-                                    model<Q, func, T, d, e - 1, format>::with(
-                                        arg, dims, rdims, tag)
-                                    : d < dims
-                                          ? func<Q, T, d, e, format>::pass(arg)
-                                          : model<Q, func, T, d - 1, e,
-                                                  format>::with(arg, dims,
-                                                                rdims, tag))
-                                 : e == rdims
-                                       ? (0 == dims
-                                          ? func<Q, T, d, e, format>::apply(
-                                                arg, tag),
-                                          model<Q, func, T, d - 1, e,
-                                                format>::with(arg, dims, rdims,
-                                                              tag)
-                                          : d == dims
-                                          ? func<Q, T, d, e, format>::apply(
-                                                arg, tag),
-                                          model<Q, func, T, d, e - 1,
-                                                format>::with(arg, dims, rdims,
-                                                              tag)
-                                          : d < dims
-                                                ? func<Q, T, d, e,
-                                                       format>::pass(arg)
-                                                : model<Q, func, T, d - 1, e,
-                                                        format>::with(arg, dims,
-                                                                      rdims,
-                                                                      tag))
-                                       : e < rdims
-                                             ? func<Q, T, d, e, format>::pass(
-                                                   arg)
-                                             : model<Q, func, T, d, e - 1,
-                                                     format>::with(arg, dims,
-                                                                   rdims, tag);
+                     (d > T<Q, d>::dimensions::modelDimensionMaximum)
+               ? model<Q, func, T, d - 1, e, format>::with(arg, dims, rdims,
+                                                           tag)
+               : e < T<Q, d>::renderDepth
+               ? model<Q, func, T, d - 1, e, format>::with(arg, dims, rdims,
+                                                           tag)
+               : 0 == rdims
+               ? (0 == dims ? func<Q, T, d, e, format>::apply(arg, tag),
+                  model<Q, func, T, d, e - 1, format>::with(arg, dims, rdims,
+                                                            tag),
+                  model<Q, func, T, d - 1, e, format>::with(arg, dims, rdims,
+                                                            tag)
+: d == dims
+                      ? func<Q, T, d, e, format>::apply(arg, tag),
+                  model<Q, func, T, d, e - 1, format>::with(arg, dims, rdims,
+                                                            tag)
+: d < dims
+                      ? func<Q, T, d, e, format>::pass(arg)
+                      : model<Q, func, T, d - 1, e, format>::with(arg, dims,
+                                                                  rdims, tag))
+               : e == rdims
+               ? (0 == dims ? func<Q, T, d, e, format>::apply(arg, tag),
+                  model<Q, func, T, d - 1, e, format>::with(arg, dims, rdims,
+                                                            tag)
+: d == dims
+                      ? func<Q, T, d, e, format>::apply(arg, tag),
+                  model<Q, func, T, d, e - 1, format>::with(arg, dims, rdims,
+                                                            tag)
+: d < dims
+                      ? func<Q, T, d, e, format>::pass(arg)
+                      : model<Q, func, T, d - 1, e, format>::with(arg, dims,
+                                                                  rdims, tag))
+               : e < rdims
+               ? func<Q, T, d, e, format>::pass(arg)
+               : model<Q, func, T, d, e - 1, format>::with(arg, dims, rdims,
+                                                           tag);
   }
 };
 
@@ -354,8 +375,8 @@ public:
    * \returns func::pass(arg).
    */
   constexpr static typename func<Q, T, d, 1, format>::output
-      with(typename func<Q, T, d, 1, format>::argument arg,
-           const unsigned int &, const unsigned int &, const format &) {
+  with(typename func<Q, T, d, 1, format>::argument arg, const unsigned int &,
+       const unsigned int &, const format &) {
     return func<Q, T, d, 1, format>::pass(arg);
   }
 };
@@ -392,8 +413,8 @@ public:
    * \returns func::pass(arg).
    */
   constexpr static typename func<Q, T, 0, e, format>::output
-      with(typename func<Q, T, 0, e, format>::argument arg,
-           const unsigned int &, const unsigned int &, const format &) {
+  with(typename func<Q, T, 0, e, format>::argument arg, const unsigned int &,
+       const unsigned int &, const format &) {
     return func<Q, T, 0, e, format>::pass(arg);
   }
 };
@@ -553,11 +574,11 @@ template <typename Q,
           template <typename, template <class, unsigned int> class,
                     unsigned int, unsigned int, typename> class func,
           unsigned int d>
-constexpr static inline
-    typename func<Q, cube, d, d, math::format::cartesian>::output
-    with(typename func<Q, cube, d, d, math::format::cartesian>::argument arg,
-         const std::string &format, const std::string &type,
-         const unsigned int &dims, const unsigned int &rdims) {
+constexpr static inline typename func<Q, cube, d, d,
+                                      math::format::cartesian>::output
+with(typename func<Q, cube, d, d, math::format::cartesian>::argument arg,
+     const std::string &format, const std::string &type,
+     const unsigned int &dims, const unsigned int &rdims) {
   return (format == "*" || format == "cartesian")
              ? with<Q, func, d, math::format::cartesian>(
                    arg, type, dims, rdims, math::format::cartesian())
@@ -567,7 +588,7 @@ constexpr static inline
                                                      math::format::polar())
              : func<Q, cube, d, d, math::format::polar>::pass(arg);
 }
-};
-};
+}
+}
 
 #endif
