@@ -62,25 +62,21 @@ enum version {
  * Contains all the data related to a GLSL variable so that it can
  * be written to a stream and used in a shader programme.
  */
-template <enum type T>
-class variable {
-  public :
-      /**\brief Construct with data
-       *
-       * Initialises a new variable specification with the name,
-       * type and precision to use.
-       *
-       * \param[in] pName      Name of the variable.
-       * \param[in] pType      The GLSL type of the variable.
-       * \param[in] pPrecision The precision to use.
-       * \param[in] pElements  Number of array elements.
-       */
-      constexpr variable(const std::string &pName, const char *pType = "float",
-                         const char *pPrecision = "",
-                         unsigned int pElements = 1) : name(pName),
-  type(pType),
-  precision(pPrecision),
-  elements(pElements){}
+template <enum type T> class variable {
+public:
+  /**\brief Construct with data
+   *
+   * Initialises a new variable specification with the name,
+   * type and precision to use.
+   *
+   * \param[in] pName      Name of the variable.
+   * \param[in] pType      The GLSL type of the variable.
+   * \param[in] pPrecision The precision to use.
+   * \param[in] pElements  Number of array elements.
+   */
+  constexpr variable(const std::string &pName, const char *pType = "float",
+                     const char *pPrecision = "", unsigned int pElements = 1)
+      : name(pName), type(pType), precision(pPrecision), elements(pElements) {}
 
   /**\brief Variable name
    *
@@ -92,13 +88,13 @@ class variable {
    *
    * GLSL type string for the variable.
    */
-  const char * type;
+  const char *type;
 
   /**\brief Variable precision
    *
    * The floating-point precision for the variable.
    */
-  const char * precision;
+  const char *precision;
 
   /**\brief Number of array elements
    *
@@ -131,9 +127,12 @@ public:
    * \param[in] pUniform   List of input uniforms.
    */
   shader(const std::string &pMain = "",
-         const std::vector<variable<gv_attribute>> &pAttribute = {},
-         const std::vector<variable<gv_varying>> &pVarying = {},
-         const std::vector<variable<gv_uniform>> &pUniform = {})
+         const std::vector<variable<gv_attribute> > &pAttribute = {
+  },
+         const std::vector<variable<gv_varying> > &pVarying = {
+  },
+         const std::vector<variable<gv_uniform> > &pUniform = {
+  })
       : main(pMain), attribute(pAttribute), varying(pVarying),
         uniform(pUniform) {}
 
@@ -149,8 +148,9 @@ public:
    * \param[in] pUniform   List of input uniforms.
    */
   shader(const std::string &pMain,
-         const std::vector<variable<gv_varying>> &pVarying,
-         const std::vector<variable<gv_uniform>> &pUniform = {})
+         const std::vector<variable<gv_varying> > &pVarying,
+         const std::vector<variable<gv_uniform> > &pUniform = {
+  })
       : main(pMain), attribute(), varying(pVarying), uniform(pUniform) {}
 
   /**\brief Template copy constructor
@@ -171,19 +171,19 @@ public:
    *
    * Contains all the vertex attributes that the shader uses.
    */
-  std::vector<variable<gv_attribute>> attribute;
+  std::vector<variable<gv_attribute> > attribute;
 
   /**\brief Shader varying variables
    *
    * Contains all the shader's varying input/output variables.
    */
-  std::vector<variable<gv_varying>> varying;
+  std::vector<variable<gv_varying> > varying;
 
   /**\brief Shader uniforms
    *
    * Contains all the shader's uniform input variables.
    */
-  std::vector<variable<gv_uniform>> uniform;
+  std::vector<variable<gv_uniform> > uniform;
 
   /**\brief Main GLSL shader sources
    *
@@ -206,8 +206,8 @@ public:
  * \returns The 'out' stream after writing to it.
  */
 template <typename C>
-std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
-                                  const shader<ver_auto> &s) {
+    std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
+                                      const shader<ver_auto> &s) {
 #if defined(GL_NUM_SHADING_LANGUAGE_VERSIONS) && 0
   GLint versions;
   glGetIntegerv(GL_NUM_SHADING_LANGUAGE_VERSIONS, &versions);
@@ -245,8 +245,8 @@ std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
  * \returns The 'out' stream after writing to it.
  */
 template <typename C>
-std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
-                                  const shader<ver_100> &s) {
+    std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
+                                      const shader<ver_100> &s) {
   out << "#version 100\n";
 
   for (const variable<gv_attribute> &v : s.attribute) {
@@ -271,10 +271,10 @@ std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
     out << ";\n";
   }
 
-  return out << "void main() {" << s.main << "}\n";
+  return out << "void main() {\n" << s.main << "}\n";
 }
-};
-};
-};
+}
+}
+}
 
 #endif

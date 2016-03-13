@@ -17,6 +17,13 @@
 #if !defined(EF_GY_RENDER_OPENGL_H)
 #define EF_GY_RENDER_OPENGL_H
 
+#define TRANSFORM_4D_IN_PIXEL_SHADER
+
+#if defined(TRANSFORM_4D_IN_PIXEL_SHADER)
+#define DUMP_SHADERS
+#define DEBUG
+#endif
+
 #include <ef.gy/euclidian.h>
 #include <ef.gy/projection.h>
 #include <ef.gy/opengl.h>
@@ -581,6 +588,12 @@ public:
     }
   }
 
+  template <unsigned int e>
+  bool matrices(const geometry::transformation::affine<Q, e> &combined,
+                const math::matrix<Q, e, e> &) {
+    return matrices(combined);
+  }
+
   /**\brief Render to current OpenGL context
    *
    * This function will perform a two-pass render of anything you
@@ -1047,17 +1060,19 @@ public:
 
   /**\brief Upload vertex data
    *
-   * Uploads the vertex data that has been prepared so far to the
-   * graphics card. This will also flush the vertices, triindices
-   * and lineindeces members, and reset the indices counter.
+   * Uploads the vertex data that has been prepared so far to the graphics card.
+   * This will also flush the vertices, triindices and lineindeces members, and
+   * reset the indices counter.
    *
    * \tparam T Type of the vertex array model.
    *
-   * \param[in] vertexArrayModel Vertex array model to use for the
-   *                             upload.
+   * \param[in] vertexArrayModel Vertex array model to use for the upload.
    */
   template <typename T> void upload(T &vertexArrayModel) {
     if (!prepared) {
+#if defined(DEBUG)
+      std::cerr << "uploading new model data.\n";
+#endif
       prepared = true;
 
       vertexArrayModel.use();
@@ -1191,7 +1206,6 @@ public:
     combined = transformation * projection;
     lowerRenderer.frameStart();
   }
-  ;
 
   /**\brief End frame
    *
@@ -1200,7 +1214,6 @@ public:
    * is then rendered with the currently active renderer.
    */
   void frameEnd(void) const { lowerRenderer.frameEnd(); }
-  ;
 
   /**\brief Clear framebuffer
    *
@@ -1291,7 +1304,7 @@ protected:
   opengl<Q, d - 1> &lowerRenderer;
 };
 
-#if TRANSFORM_4D_IN_PIXEL_SHADER
+#if defined(TRANSFORM_4D_IN_PIXEL_SHADER)
 template <typename Q> class opengl<Q, 4> {
 public:
   constexpr opengl(
@@ -1302,16 +1315,20 @@ public:
         context(pLowerRenderer.context), lowerRenderer(pLowerRenderer) {}
 
   void frameStart(void) {
+    if (context.fractalFlameColouring) {
+      uploadMatrices(fractalFlame);
+    } else {
+      uploadMatrices(render);
+    }
+  }
+
+  template <typename P> void uploadMatrices(P &programme) {
     const geometry::transformation::projective<Q, 4> combined =
         transformation * projection;
 
-    if (context.fractalFlameColouring) {
-      fractalFlame.matrices(combined);
-    } else {
-      render.matrices(combined);
-    }
+    programme.matrices(combined);
 
-    lowerRenderer.frameStart();
+    lowerRenderer.uploadMatrices(programme);
   }
 
   void frameEnd(void) {
@@ -1392,17 +1409,21 @@ public:
 
   /**\copydoc opengl<Q,2>::frameStart */
   void frameStart(void) {
+    if (context.fractalFlameColouring) {
+      uploadMatrices(fractalFlame);
+    } else {
+      uploadMatrices(render);
+    }
+  }
+
+  template <typename P> void uploadMatrices(P &programme) {
     const geometry::transformation::projective<Q, 3> combined =
         transformation * projection;
+    const math::matrix<Q, 3, 3> normalMatrix =
+        math::transpose(math::invert(math::transpose(
+            math::matrix<Q, 3, 3>(transformation.transformationMatrix))));
 
-    if (context.fractalFlameColouring) {
-      fractalFlame.matrices(combined);
-    } else {
-      const math::matrix<Q, 3, 3> normalMatrix =
-          math::transpose(math::invert(math::transpose(
-              math::matrix<Q, 3, 3>(transformation.transformationMatrix))));
-      render.matrices(combined, normalMatrix);
-    }
+    programme.matrices(combined, normalMatrix);
   }
 
   /**\copydoc opengl<Q,2>::frameEnd */

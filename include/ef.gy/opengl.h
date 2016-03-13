@@ -570,6 +570,11 @@ protected:
       std::cerr << "Failed to compile vertex shader:\n" << shader.str() << "\n";
       return false;
     }
+#if defined(DUMP_SHADERS)
+        else {
+      std::cerr << "Compiled vertex shader:\n" << shader.str() << "\n";
+    }
+#endif
 
     shader.str("");
     shader << fragmentShader<V>();
@@ -579,6 +584,11 @@ protected:
                 << "\n";
       return false;
     }
+#if defined(DUMP_SHADERS)
+        else {
+      std::cerr << "Compiled fragment shader:\n" << shader.str() << "\n";
+    }
+#endif
 
     glAttachShader(programmeID, vertShader);
     glAttachShader(programmeID, fragShader);
@@ -1667,16 +1677,15 @@ public:
    */
   bool setup(void) {
     if (!hasBound || !hadID) {
+      const auto stride = (2 * d + 1) * sizeof(GLfloat);
       glEnableVertexAttribArray(attributePosition);
-      glVertexAttribPointer(attributePosition, d, GL_FLOAT, GL_FALSE,
-                            (2 * d + 1) * sizeof(GLfloat), 0);
+      glVertexAttribPointer(attributePosition, d, GL_FLOAT, GL_FALSE, stride,
+                            0);
       glEnableVertexAttribArray(attributeNormal);
-      glVertexAttribPointer(attributeNormal, d, GL_FLOAT, GL_FALSE,
-                            (2 * d + 1) * sizeof(GLfloat),
+      glVertexAttribPointer(attributeNormal, d, GL_FLOAT, GL_FALSE, stride,
                             (void *)(d * sizeof(GLfloat)));
       glEnableVertexAttribArray(attributeIndex);
-      glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE,
-                            (2 * d + 1) * sizeof(GLfloat),
+      glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, stride,
                             (void *)(d * 2 * sizeof(GLfloat)));
 
       hasBound = true;
