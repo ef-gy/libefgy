@@ -559,55 +559,39 @@ protected:
    *         false otherwise.
    */
   bool compile(void) {
-    GLuint vertShader, fragShader;
+    std::vector<GLuint> shaders;
+    std::set<std::string> attributes;
 
     programmeID = glCreateProgram();
-    std::ostringstream shader("");
 
-    shader << vertexShader<V>();
-
-    if (!compile(vertShader, GL_VERTEX_SHADER, shader.str().c_str())) {
-      std::cerr << "Failed to compile vertex shader:\n" << shader.str() << "\n";
+    if (!compile<vertexShader>(shaders, attributes)) {
       return false;
     }
-#if defined(DUMP_SHADERS)
-        else {
-      std::cerr << "Compiled vertex shader:\n" << shader.str() << "\n";
-    }
-#endif
-
-    shader.str("");
-    shader << fragmentShader<V>();
-
-    if (!compile(fragShader, GL_FRAGMENT_SHADER, shader.str().c_str())) {
-      std::cerr << "Failed to compile fragment shader:\n" << shader.str()
-                << "\n";
+    if (!compile<fragmentShader>(shaders, attributes)) {
       return false;
     }
-#if defined(DUMP_SHADERS)
-        else {
-      std::cerr << "Compiled fragment shader:\n" << shader.str() << "\n";
+
+    for (GLuint shader : shaders) {
+      glAttachShader(programmeID, shader);
     }
-#endif
 
-    glAttachShader(programmeID, vertShader);
-    glAttachShader(programmeID, fragShader);
-
-    glBindAttribLocation(programmeID, attributePosition, "position");
-    glBindAttribLocation(programmeID, attributeNormal, "normal");
-    glBindAttribLocation(programmeID, attributeIndex, "index");
+    for (auto &attribute : attributes) {
+      if (attribute == "position") {
+        glBindAttribLocation(programmeID, attributePosition, "position");
+      } else if (attribute == "normal") {
+        glBindAttribLocation(programmeID, attributeNormal, "normal");
+      } else if (attribute == "index") {
+        glBindAttribLocation(programmeID, attributeIndex, "index");
+      }
+    }
 
     if (!link()) {
-      std::cerr << "Failed to link program: " << programmeID << "\n";
+      std::cerr << "Failed to link programme: " << programmeID << "\n";
 
-      if (vertShader) {
-        glDeleteShader(vertShader);
-        vertShader = 0;
+      for (GLuint shader : shaders) {
+        glDeleteShader(shader);
       }
-      if (fragShader) {
-        glDeleteShader(fragShader);
-        fragShader = 0;
-      }
+
       if (programmeID) {
         glDeleteProgram(programmeID);
         programmeID = 0;
@@ -616,14 +600,10 @@ protected:
       return false;
     }
 
-    // Release vertex and fragment shaders.
-    if (vertShader) {
-      glDetachShader(programmeID, vertShader);
-      glDeleteShader(vertShader);
-    }
-    if (fragShader) {
-      glDetachShader(programmeID, fragShader);
-      glDeleteShader(fragShader);
+    // Release shaders
+    for (GLuint shader : shaders) {
+      glDetachShader(programmeID, shader);
+      glDeleteShader(shader);
     }
 
     return true;
@@ -631,8 +611,7 @@ protected:
 
   /**\brief Compile a shader
    *
-   * Compiles a shader so it can be linked into a proper OpenGL
-   * programme.
+   * Compiles a shader so it can be linked into a proper OpenGL programme.
    *
    * \param[out] shader The shader ID produced by the compiler.
    * \param[in]  type   The type of shader you want to compile.
@@ -669,6 +648,30 @@ protected:
     return true;
   }
 
+  template<template <enum glsl::version> class shader>
+  bool compile(std::vector<GLuint> &shaders, std::set<std::string> &attributes) const {
+    GLuint compiled;
+    std::ostringstream text("");
+    auto s = shader<V>();
+    text << s;
+
+    if (!compile(compiled, s.type, text.str().c_str())) {
+      std::cerr << "Failed to compile shader:\n" << text.str() << "\n";
+      return false;
+    }
+#if defined(DUMP_SHADERS)
+    std::cerr << "Compiled shader:\n" << text.str() << "\n";
+#endif
+
+    shaders.push_back(compiled);
+
+    for (const auto &attribute : s.attribute) {
+      attributes.insert(attribute.name);
+    }
+
+    return true;
+  }
+
   /**\brief Link shader programmes
    *
    * Links a programme with the currently attached shaders so that
@@ -687,7 +690,7 @@ protected:
     if (logLength > 0) {
       GLchar *log = new GLchar[logLength];
       glGetProgramInfoLog(programmeID, logLength, &logLength, log);
-      std::cerr << "Program link log:\n" << log << "\n";
+      std::cerr << "Programme link log:\n" << log << "\n";
       delete[] log;
     }
 #endif

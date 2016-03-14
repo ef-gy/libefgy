@@ -150,19 +150,7 @@ void transform<2>(std::vector<shader::uniform> &uniform,
 }
 
 template <unsigned int d>
-std::string resultFragment(shader::vector<d> &var, const std::string &name) {
-  std::stringstream m("");
-
-  for (unsigned int i = 0; i < d; i++) {
-    m << name << "[" << i << "] = " << var[i] << ";\n";
-  }
-
-  return m.str();
-}
-
-template <unsigned int d>
-std::string inlineVectorDefinitionFragment(shader::vector<d> &var,
-                                           const std::string &name) {
+std::string inlineVectorDefinitionFragment(shader::vector<d> &var) {
   std::stringstream m("");
   std::string vec = "vec" + std::to_string(d);
 
@@ -178,12 +166,26 @@ std::string inlineVectorDefinitionFragment(shader::vector<d> &var,
 }
 
 template <unsigned int d>
+std::string resultFragment(shader::vector<d> &var, const std::string &name) {
+  if (d <= 4) {
+    return name + " = " + inlineVectorDefinitionFragment(var) + ";\n";
+  } else {
+    std::stringstream m("");
+
+    for (unsigned int i = 0; i < d; i++) {
+      m << name << "[" << i << "] = " << var[i] << ";\n";
+    }
+
+    return m.str();
+  }
+}
+
+template <unsigned int d>
 std::string vectorDefinitionFragment(shader::vector<d> &var,
                                      const std::string &name) {
   std::string vec = "vec" + std::to_string(d);
 
-  return vec + " " + name + " = " + inlineVectorDefinitionFragment(var, name) +
-         ";\n";
+  return vec + " " + name + " = " + inlineVectorDefinitionFragment(var) + ";\n";
 }
 
 template <unsigned int d>
@@ -202,23 +204,25 @@ std::string mvpTransformFragment(std::vector<shader::uniform> &uniform,
  * Contains the vertex shaders used by the default OpenGL renderer.
  */
 namespace vertex {
+template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
+using glsl = opengl::glsl::shader<GL_VERTEX_SHADER, V>;
+
 /*
  *
  * \tparam V GLSL shader version to produce.
  */
-template <unsigned int d = 3,
-          enum opengl::glsl::version V = opengl::glsl::ver_auto>
-class fractalFlame : public opengl::glsl::shader<V> {
+template <unsigned int d, enum opengl::glsl::version V = opengl::glsl::ver_auto>
+class fractalFlame : public glsl<V> {
 public:
-  using opengl::glsl::shader<V>::main;
-  using opengl::glsl::shader<V>::uniform;
+  using glsl<V>::main;
+  using glsl<V>::uniform;
 
   fractalFlame(void)
-      : opengl::glsl::shader<V>("indexVarying = index;\n", {
+      : glsl<V>("indexVarying = index;\n", {
     shader::attribute("position", "vec4"),
         shader::attribute("index", "float", "highp")
   },
-                                {
+                {
     shader::varying("indexVarying", "float", "lowp")
   }) {
     main += mvpTransformFragment<d>(uniform, "position");
@@ -229,27 +233,26 @@ public:
  *
  * \tparam V GLSL shader version to produce.
  */
-template <unsigned int d = 3,
-          enum opengl::glsl::version V = opengl::glsl::ver_auto>
-class regular : public opengl::glsl::shader<V> {
+template <unsigned int d, enum opengl::glsl::version V = opengl::glsl::ver_auto>
+class regular : public glsl<V> {
 public:
-  using opengl::glsl::shader<V>::main;
-  using opengl::glsl::shader<V>::uniform;
+  using glsl<V>::main;
+  using glsl<V>::uniform;
 
   regular(void)
-      : opengl::glsl::shader<V>(
-            "vec3 lightPosition = vec3(0.0, 1.0, 1.0);\n"
-            "float aDotVP = dot(eyeNormal, normalize(lightPosition));\n"
-            "aDotVP = sign(aDotVP) * min(1.0, abs(aDotVP));\n"
-            "colorVarying = vec4((colour * aDotVP).xyz, colour.w);\n"
-//            "colorVarying = colour;\n"
-            , {
+      : glsl<V>("vec3 lightPosition = vec3(0.0, 1.0, 1.0);\n"
+                "float aDotVP = dot(eyeNormal, normalize(lightPosition));\n"
+                "aDotVP = sign(aDotVP) * min(1.0, abs(aDotVP));\n"
+                "colorVarying = vec4((colour * aDotVP).xyz, colour.w);\n"
+                //"colorVarying = colour;\n"
+                ,
+                {
     shader::attribute("position", "vec4"), shader::attribute("normal", "vec3")
   },
-            {
+                {
     shader::varying("colorVarying", "vec4")
   },
-            {
+                {
     shader::uniform("colour", "vec4")
   }) {
     shader::vector<3> eyeNormal;
@@ -259,8 +262,8 @@ public:
     linearUpscaledUniformTransformFragment(uniform, eyeNormal, normal,
                                            "normalMatrix");
     main = "vec3 eyeNormal = normalize(" +
-           inlineVectorDefinitionFragment(eyeNormal, "eyeNormal") + ");\n" +
-           main + mvpTransformFragment<d>(uniform, "position");
+           inlineVectorDefinitionFragment(eyeNormal) + ");\n" + main +
+           mvpTransformFragment<d>(uniform, "position");
   }
 };
 
@@ -269,15 +272,15 @@ public:
  * \tparam V GLSL shader version to produce.
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
-class postProcess : public opengl::glsl::shader<V> {
+class postProcess : public glsl<V> {
 public:
   postProcess(void)
-      : opengl::glsl::shader<V>("gl_Position = position;\n"
-                                "UV = (position.xy+vec2(1.0,1.0))/2.0;\n",
-                                {
+      : glsl<V>("gl_Position = position;\n"
+                "UV = (position.xy+vec2(1.0,1.0))/2.0;\n",
+                {
     shader::attribute("position", "vec4")
   },
-                                {
+                {
     shader::varying("UV", "vec2", "lowp")
   }) {}
 };
@@ -289,16 +292,17 @@ public:
  * renderer.
  */
 namespace fragment {
+template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
+using glsl = opengl::glsl::shader<GL_FRAGMENT_SHADER, V>;
 /*
  *
  * \tparam V GLSL shader version to produce.
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
-class fractalFlame : public opengl::glsl::shader<V> {
+class fractalFlame : public glsl<V> {
 public:
   fractalFlame(void)
-      : opengl::glsl::shader<V>(
-            "gl_FragColor = vec4(indexVarying,1.0,1.0,0.5);\n", {
+      : glsl<V>("gl_FragColor = vec4(indexVarying,1.0,1.0,0.5);\n", {
     shader::varying("indexVarying", "float", "lowp")
   }) {}
 };
@@ -308,11 +312,9 @@ public:
  * \tparam V GLSL shader version to produce.
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
-class histogram : public opengl::glsl::shader<V> {
+class histogram : public glsl<V> {
 public:
-  histogram(void)
-      : opengl::glsl::shader<V>(
-            "gl_FragColor = vec4(0.995,0.995,1.0,0.995);\n") {}
+  histogram(void) : glsl<V>("gl_FragColor = vec4(0.995,0.995,1.0,0.995);\n") {}
 };
 
 /*
@@ -320,10 +322,10 @@ public:
  * \tparam V GLSL shader version to produce.
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
-class regular : public opengl::glsl::shader<V> {
+class regular : public glsl<V> {
 public:
   regular(void)
-      : opengl::glsl::shader<V>("gl_FragColor = colorVarying;\n", {
+      : glsl<V>("gl_FragColor = colorVarying;\n", {
     shader::varying("colorVarying", "vec4", "lowp")
   }) {}
 };
@@ -333,10 +335,10 @@ public:
  * \tparam V GLSL shader version to produce.
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
-class postProcessFloat : public opengl::glsl::shader<V> {
+class postProcessFloat : public glsl<V> {
 public:
   postProcessFloat(void)
-      : opengl::glsl::shader<V>(
+      : glsl<V>(
             "highp vec2 fb = texture2D(screenFramebuffer, UV).xy;\n"
             "highp float intensity = fb.y;\n"
             "highp float index     = fb.x;\n"
@@ -357,10 +359,10 @@ public:
  * \tparam V GLSL shader version to produce.
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
-class postProcess : public opengl::glsl::shader<V> {
+class postProcess : public glsl<V> {
 public:
   postProcess(void)
-      : opengl::glsl::shader<V>(
+      : glsl<V>(
             "highp float intensity = 1.0 - texture2D(screenHistogram, UV).x;\n"
             "highp float index     = texture2D(screenFramebuffer, UV).x;\n"
             "gl_FragColor = texture2D(colourMap, vec2(index,0.0)) * "
@@ -1061,8 +1063,7 @@ public:
       tindices = GLsizei(triindices.size());
       lindices = GLsizei(lineindices.size());
 
-      std::cerr << "vertex buffer size: "
-                << vertices.size() << " "
+      std::cerr << "vertex buffer size: " << vertices.size() << " "
                 << triindices.size() << " " << lineindices.size() << "\n";
 
       vertices.clear();

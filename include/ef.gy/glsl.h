@@ -78,6 +78,12 @@ public:
                      const char *pPrecision = "", unsigned int pElements = 1)
       : name(pName), type(pType), precision(pPrecision), elements(pElements) {}
 
+  constexpr variable(const GLuint pLocation, const std::string &pName,
+                     const char *pType = "float", const char *pPrecision = "",
+                     unsigned int pElements = 1)
+      : location(pLocation), name(pName), type(pType), precision(pPrecision),
+        elements(pElements) {}
+
   /**\brief Variable name
    *
    * Name of the variable, as used in the source code.
@@ -102,6 +108,8 @@ public:
    * of elements in that array.
    */
   unsigned int elements;
+
+  GLuint location;
 };
 
 /**\brief GLSL shader
@@ -114,7 +122,7 @@ public:
  *
  * \tparam V GLSL shader version to produce.
  */
-template <enum version V = ver_auto> class shader {
+template <GLenum shaderType, enum version V = ver_auto> class shader {
 public:
   /**\brief Construct with shader data
    *
@@ -163,7 +171,7 @@ public:
    * \param[in] s The shader to copy.
    */
   template <enum version R>
-  shader(const shader<R> &s)
+  shader(const shader<shaderType, R> &s)
       : attribute(s.attribute), varying(s.varying), uniform(s.uniform),
         main(s.main) {}
 
@@ -190,6 +198,8 @@ public:
    * Contains the sources of the shader's main() function.
    */
   std::string main;
+
+  static constexpr GLenum type = shaderType;
 };
 
 /**\brief Write shader to stream and automatically detect version
@@ -205,9 +215,9 @@ public:
  *
  * \returns The 'out' stream after writing to it.
  */
-template <typename C>
+template <typename C, GLenum type>
     std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
-                                      const shader<ver_auto> &s) {
+                                      const shader<type, ver_auto> &s) {
 #if defined(GL_NUM_SHADING_LANGUAGE_VERSIONS) && 0
   GLint versions;
   glGetIntegerv(GL_NUM_SHADING_LANGUAGE_VERSIONS, &versions);
@@ -225,11 +235,11 @@ template <typename C>
     std::regex v100("1\\.0.*");
 
     if (std::regex_match(sver, v100)) {
-      return out << shader<ver_100>(s);
+      return out << shader<type, ver_100>(s);
     }
   }
 #endif
-  return out << shader<ver_100>(s);
+  return out << shader<type, ver_100>(s);
 }
 
 /**\brief Write version 100 shader to stream
@@ -244,9 +254,9 @@ template <typename C>
  *
  * \returns The 'out' stream after writing to it.
  */
-template <typename C>
+template <typename C, GLenum type>
     std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
-                                      const shader<ver_100> &s) {
+                                      const shader<type, ver_100> &s) {
   out << "#version 100\n";
 
   for (const variable<gv_attribute> &v : s.attribute) {
