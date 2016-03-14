@@ -239,9 +239,10 @@ public:
   regular(void)
       : opengl::glsl::shader<V>(
             "vec3 lightPosition = vec3(0.0, 1.0, 1.0);\n"
-            "float nDotVP = max(0.0, dot(eyeNormal, "
-            "normalize(lightPosition)));\n"
-            "colorVarying = colour * nDotVP;\n"
+            "float nDotVP = dot(eyeNormal, "
+            "normalize(lightPosition));\n"
+            "float aDotVP = nDotVP * sign(nDotVP);\n"
+            "colorVarying = colour * aDotVP;\n"
             "colorVarying = vec4(colorVarying.xyz, colour.w);\n",
             {
     shader::attribute("position", "vec4"), shader::attribute("normal", "vec3")
@@ -1023,18 +1024,6 @@ public:
     unsigned int nendf = triindices.back();
     lineindices.push_back(nendf);
 
-    const math::vector<Q, e> RN = R * Q(-1);
-
-    triindices.push_back(add(pV[2], RN, index));
-    unsigned int nendb = triindices.back();
-    lineindices.push_back(nendb);
-    triindices.push_back(add(pV[1], RN, index));
-    lineindices.push_back(triindices.back());
-    lineindices.push_back(triindices.back());
-    triindices.push_back(add(pV[0], RN, index));
-    unsigned int nstartb = triindices.back();
-    lineindices.push_back(nstartb);
-
     for (unsigned int j = 3; j < q; j++) {
       triindices.push_back(add(pV[0], R, index));
       triindices.push_back(add(pV[(j - 1)], R, index));
@@ -1042,19 +1031,10 @@ public:
       triindices.push_back(add(pV[j], R, index));
       lineindices.push_back(triindices.back());
       nendf = triindices.back();
-
-      triindices.push_back(add(pV[j], RN, index));
-      nendb = triindices.back();
-      lineindices.push_back(triindices.back());
-      triindices.push_back(add(pV[(j - 1)], RN, index));
-      lineindices.push_back(triindices.back());
-      triindices.push_back(add(pV[0], RN, index));
     }
 
     lineindices.push_back(nendf);
     lineindices.push_back(nstartf);
-    lineindices.push_back(nstartb);
-    lineindices.push_back(nendb);
   }
 
   /**\brief Upload vertex data
@@ -1081,6 +1061,10 @@ public:
 
       tindices = GLsizei(triindices.size());
       lindices = GLsizei(lineindices.size());
+
+      std::cerr << "vertex buffer size: "
+                << vertices.size() << " "
+                << triindices.size() << " " << lineindices.size() << "\n";
 
       vertices.clear();
       triindices.clear();
