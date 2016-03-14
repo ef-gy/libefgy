@@ -239,12 +239,11 @@ public:
   regular(void)
       : opengl::glsl::shader<V>(
             "vec3 lightPosition = vec3(0.0, 1.0, 1.0);\n"
-            "float nDotVP = dot(eyeNormal, "
-            "normalize(lightPosition));\n"
-            "float aDotVP = nDotVP * sign(nDotVP);\n"
-            "colorVarying = colour * aDotVP;\n"
-            "colorVarying = vec4(colorVarying.xyz, colour.w);\n",
-            {
+            "float aDotVP = dot(eyeNormal, normalize(lightPosition));\n"
+            "aDotVP = sign(aDotVP) * min(1.0, abs(aDotVP));\n"
+            "colorVarying = vec4((colour * aDotVP).xyz, colour.w);\n"
+//            "colorVarying = colour;\n"
+            , {
     shader::attribute("position", "vec4"), shader::attribute("normal", "vec3")
   },
             {
