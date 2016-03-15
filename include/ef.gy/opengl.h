@@ -1232,112 +1232,20 @@ public:
   using programme<Q, V, vertexShader, fragmentShader>::use;
 };
 
-/**\brief OpenGL programme to render to a texture with depth buffer
- *
- * Associates an OpenGL programme with a framebuffer, a texture and a
- * renderbuffer for the depth component to easily render grab the output
- * of a render pass.
- *
- * \tparam Q              Base data type for calculations.
- * \tparam V              GLSL shader target version.
- * \tparam vertexShader   The vertex shader to compile and link to the
- *                        programme.
- * \tparam fragmentShader The fragment shader to compile and link to the
- *                        programme.
- * \tparam format         Format of the texture to load or create.
- * \tparam baseFormat     External texture format.
- * \tparam type           Type of the texture to load.
- * \tparam target         The texture target to bind to.
- * \tparam depthFormat    Internal texture format of the depth buffer.
- *
- * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindTexture.xml and
- *      http://www.opengl.org/sdk/docs/man/xhtml/glTexImage2D.xml for
- *      the possible values of the target, format and type parameters.
- * \see
- * http://www.khronos.org/opengles/sdk/docs/man/xhtml/glRenderbufferStorage.xml
- *      for possible values of the depthFormat parameter.
- */
-template <typename Q, enum glsl::version V,
-          template <enum glsl::version> class vertexShader,
-          template <enum glsl::version> class fragmentShader,
-          GLenum format = GL_RGB, GLenum baseFormat = format,
-          GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D,
-          GLenum depthFormat = GL_DEPTH_COMPONENT16>
-class renderToTextureDepthProgramme
-    : public programme<Q, V, vertexShader, fragmentShader>,
-      public framebufferTextureDepth<Q, format, baseFormat, type, target,
-                                     depthFormat> {
-public:
-  /**\brief Default constructor
-   *
-   * Initialises an instance of this class by using the default
-   * constructors of the programme and framebuffer. Nothing is
-   * bound or created using OpenGL until it is first used.
-   */
-  renderToTextureDepthProgramme(void)
-      : programme<Q, V, vertexShader, fragmentShader>(),
-        framebufferTextureDepth<Q, format, baseFormat, type, target,
-                                depthFormat>() {}
-
-  /**\brief Use programme and render to associated texture
-   *
-   * Enables or compiles the programme described in the shaders
-   * passed to the constructor, then binds or creates a
-   * framebuffer, texture and depth buffer as needed.
-   *
-   * If compiling the programme and binding the framebuffer,
-   * texture and depth buffer succeed then the viewport is set to
-   * write to the whole texture.
-   *
-   * \param[in] width       Width of the texture to load or
-   *                        create.
-   * \param[in] height      Height of the texture to load or
-   *                        create.
-   * \param[in] textureUnit The texture unit to bind to.
-   *
-   * \return True on success, false otherwise.
-   */
-  bool use(const GLuint &width, const GLuint &height,
-           const int &textureUnit = -1) {
-    const GLuint swidth = roundToPowerOf2(width);
-    const GLuint sheight = roundToPowerOf2(height);
-
-    if (textureUnit >= 0) {
-      glActiveTexture(GL_TEXTURE0 + textureUnit);
-    }
-
-    if (programme<Q, V, vertexShader, fragmentShader>::use() &&
-        framebufferTextureDepth<Q, format, baseFormat, type, target>::use(
-            swidth, sheight)) {
-      glViewport(0, 0, swidth, sheight);
-
-      return true;
-    }
-
-    return false;
-  }
-
-  using programme<Q, V, vertexShader, fragmentShader>::use;
-};
-
 /**\brief OpenGL programme to render to a generic framebuffer
  *
  * Associates an OpenGL programme with a framebuffer but not with a
  * texture; this makes it easy to render things and have the correct
  * framebuffer and viewport selected.
  *
- * \tparam Q              Base data type for calculations.
- * \tparam V              GLSL shader target version.
- * \tparam vertexShader   The vertex shader to compile and link to the
- *                        programme.
- * \tparam fragmentShader The fragment shader to compile and link to the
- *                        programme.
+ * \tparam Q       Base data type for calculations.
+ * \tparam V       GLSL shader target version.
+ * \tparam shaders A list of GLSL shader sources to link into the programme.
  */
 template <typename Q, enum glsl::version V,
-          template <enum glsl::version> class vertexShader,
-          template <enum glsl::version> class fragmentShader>
+          template <enum glsl::version> class... shaders>
 class renderToFramebufferProgramme
-    : public programme<Q, V, vertexShader, fragmentShader>,
+    : public programme<Q, V, shaders...>,
       public framebuffer<Q> {
 public:
   /**\brief Default constructor
@@ -1347,7 +1255,7 @@ public:
    * bound or created using OpenGL until it is first used.
    */
   renderToFramebufferProgramme()
-      : programme<Q, V, vertexShader, fragmentShader>(), framebuffer<Q>() {}
+      : programme<Q, V, shaders...>(), framebuffer<Q>() {}
 
   /**\brief Use programme and render to associated framebuffer
    *
@@ -1365,7 +1273,7 @@ public:
    * \return True on success, false otherwise.
    */
   bool use(const GLuint &width, const GLuint &height) {
-    if (programme<Q, V, vertexShader, fragmentShader>::use() &&
+    if (programme<Q, V, shaders...>::use() &&
         framebuffer<Q>::use()) {
       glViewport(0, 0, width, height);
 
@@ -1375,7 +1283,7 @@ public:
     return false;
   }
 
-  using programme<Q, V, vertexShader, fragmentShader>::use;
+  using programme<Q, V, shaders...>::use;
   using framebuffer<Q>::copy;
 };
 
@@ -1752,7 +1660,7 @@ protected:
    */
   bool hasBound;
 };
-};
-};
+}
+}
 
 #endif
