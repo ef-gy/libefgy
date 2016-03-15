@@ -178,19 +178,14 @@ enum shaderAttribute {
 
 /**\brief Shader programme
  *
- * Encapsulates an OpenGL shader programme and the state associated with
- * it.
+ * Encapsulates an OpenGL shader programme and the state associated with it.
  *
- * \tparam Q              Base data type for calculations.
- * \tparam V              GLSL shader target version.
- * \tparam vertexShader   The vertex shader to compile and link to the
- *                        programme.
- * \tparam fragmentShader The fragment shader to compile and link to the
- *                        programme.
+ * \tparam Q       Base data type for calculations.
+ * \tparam V       GLSL shader target version.
+ * \tparam shaders A list of GLSL shader sources to link into the programme.
  */
 template <typename Q, enum glsl::version V,
-          template <enum glsl::version> class vertexShader,
-          template <enum glsl::version> class fragmentShader>
+          template <enum glsl::version> class... shaders>
 class programme {
 public:
   /**\brief Default constructor
@@ -550,6 +545,23 @@ protected:
    */
   GLuint programmeID;
 
+  bool compileShaders(std::vector<GLuint> &shaderList,
+                      std::set<std::string> &attributes) {
+    return true;
+  }
+
+  template<class shader, class... otherShaders>
+  bool compileShaders(std::vector<GLuint> &shaderList,
+                      std::set<std::string> &attributes,
+                      const shader &pShader,
+                      const otherShaders & ...pOtherShaders) {
+    if (!compile(shaderList, attributes, pShader)) {
+      return false;
+    }
+
+    return compileShaders(shaderList, attributes, pOtherShaders...);
+  }
+
   /**\brief Compile shader programme
    *
    * Compiles and links the shader programmes together and sets
@@ -559,19 +571,16 @@ protected:
    *         false otherwise.
    */
   bool compile(void) {
-    std::vector<GLuint> shaders;
+    std::vector<GLuint> shaderList;
     std::set<std::string> attributes;
 
     programmeID = glCreateProgram();
 
-    if (!compile<vertexShader>(shaders, attributes)) {
-      return false;
-    }
-    if (!compile<fragmentShader>(shaders, attributes)) {
+    if (!compileShaders(shaderList, attributes, shaders<V>()...)) {
       return false;
     }
 
-    for (GLuint shader : shaders) {
+    for (GLuint shader : shaderList) {
       glAttachShader(programmeID, shader);
     }
 
@@ -588,7 +597,7 @@ protected:
     if (!link()) {
       std::cerr << "Failed to link programme: " << programmeID << "\n";
 
-      for (GLuint shader : shaders) {
+      for (GLuint shader : shaderList) {
         glDeleteShader(shader);
       }
 
@@ -601,7 +610,7 @@ protected:
     }
 
     // Release shaders
-    for (GLuint shader : shaders) {
+    for (GLuint shader : shaderList) {
       glDetachShader(programmeID, shader);
       glDeleteShader(shader);
     }
@@ -648,14 +657,15 @@ protected:
     return true;
   }
 
-  template<template <enum glsl::version> class shader>
-  bool compile(std::vector<GLuint> &shaders, std::set<std::string> &attributes) const {
+  template<class shader>
+  bool compile(std::vector<GLuint> &shaderList,
+               std::set<std::string> &attributes,
+               const shader &pShader) {
     GLuint compiled;
     std::ostringstream text("");
-    auto s = shader<V>();
-    text << s;
+    text << pShader;
 
-    if (!compile(compiled, s.type, text.str().c_str())) {
+    if (!compile(compiled, pShader.type, text.str().c_str())) {
       std::cerr << "Failed to compile shader:\n" << text.str() << "\n";
       return false;
     }
@@ -663,9 +673,9 @@ protected:
     std::cerr << "Compiled shader:\n" << text.str() << "\n";
 #endif
 
-    shaders.push_back(compiled);
+    shaderList.push_back(compiled);
 
-    for (const auto &attribute : s.attribute) {
+    for (const auto &attribute : pShader.attribute) {
       attributes.insert(attribute.name);
     }
 
