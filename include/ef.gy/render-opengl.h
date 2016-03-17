@@ -850,7 +850,9 @@ public:
    *
    * Initialise an object with sane defaults.
    */
-  opengl(void) : prepared(false), fractalFlameColouring(false) {}
+  opengl(void) : prepared(false), fractalFlameColouring(false) {
+    vertexLookupCache.clear();
+  }
 
   /**\brief Has the scene been prepared?
    *
@@ -967,6 +969,8 @@ public:
    */
   bool fractalFlameColouring;
 
+  std::map<std::vector<GLfloat>, unsigned int> vertexLookupCache;
+
   /**\brief Add vertex to vertex buffer
    *
    * Appends the given vertex data to the vertex buffer. The
@@ -983,16 +987,23 @@ public:
   template <unsigned int e>
   unsigned int add(math::vector<GLfloat, e> c, math::vector<GLfloat, e> n,
                    const GLfloat &index) {
-    vertices.insert(vertices.end(), c.begin(), c.end());
-    vertices.insert(vertices.end(), n.begin(), n.end());
+    std::vector<GLfloat> newVertex;
 
-    vertices.push_back(index);
+    newVertex.insert(newVertex.end(), c.begin(), c.end());
+    newVertex.insert(newVertex.end(), n.begin(), n.end());
 
-    unsigned int rv = indices;
+    newVertex.push_back(index);
 
-    indices++;
+    auto &insertedIndex = vertexLookupCache[newVertex];
 
-    return rv;
+    if (indices == 0 || insertedIndex == 0) {
+      vertices.insert(vertices.end(), newVertex.begin(), newVertex.end());
+      
+      insertedIndex = indices;
+      indices++;
+    }
+
+    return insertedIndex;
   }
 
   /**\brief Add polygon to buffers
@@ -1063,9 +1074,11 @@ public:
       tindices = GLsizei(triindices.size());
       lindices = GLsizei(lineindices.size());
 
-      std::cerr << "vertex buffer size: " << vertices.size() << " "
-                << triindices.size() << " " << lineindices.size() << "\n";
+      std::cerr << "vertex buffer size: " << indices << " ("
+                << vertices.size() << ","
+                << triindices.size() << "," << lineindices.size() << ")\n";
 
+      vertexLookupCache.clear();
       vertices.clear();
       triindices.clear();
       lineindices.clear();
