@@ -831,7 +831,7 @@ protected:
    */
   bool floatTextures;
 };
-};
+}
 
 namespace render {
 template <typename Q, unsigned int d> class opengl;
