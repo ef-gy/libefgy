@@ -42,7 +42,7 @@ CXXFLAGS=$(CFLAGS)
 EMCFLAGS=-O2 --llvm-lto 3
 EMXXFLAGS=$(EMCFLAGS)
 LDFLAGS=
-CXX_STANDARD:=c++1z
+CXX_STANDARD:=c++14
 
 DATABASE:=
 BINARIES_SRC:=$(wildcard src/*.cpp) $(wildcard src/test-case/*.cpp)
