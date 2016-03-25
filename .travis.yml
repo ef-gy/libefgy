@@ -20,4 +20,4 @@ matrix:
             - ubuntu-toolchain-r-test
 
 install:
-script: make test
+script: make test CXX=${CXX} CC=${CC}
