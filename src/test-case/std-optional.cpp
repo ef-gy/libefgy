@@ -21,10 +21,9 @@
 #include <iostream>
 #include <sstream>
 #include <ef.gy/test-case.h>
-#include <experimental/optional>
+#include <optional>
 
 using namespace std;
-using std::experimental::optional;
 using efgy::test::next_integer;
 
 /**\brief 'Optional' assignment and initialisation tests

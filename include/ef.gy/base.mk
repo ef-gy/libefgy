@@ -35,17 +35,20 @@ JSFUNCTIONS:=
 
 DEBUG:=false
 
+CXX_STANDARD:=c++1z
+CXX_STDLIB:=-stdlib=libc++
 PCCFLAGS=$(shell $(PKGCONFIG) --cflags $(LIBRARIES) 2>/dev/null)
 PCLDFLAGS=$(shell $(PKGCONFIG) --libs $(LIBRARIES) 2>/dev/null)
 CFLAGS=-O2 $(shell if $(DEBUG); then echo '-g'; fi)
-CXXFLAGS=$(CFLAGS)
-EMCFLAGS=-O2 --llvm-lto 3
+CXXFLAGS:=$(CXX_STDLIB) $(CFLAGS)
+EMCFLAGS:=-O2 --llvm-lto 3
 EMXXFLAGS=$(EMCFLAGS)
 LDFLAGS=
-CXX_STANDARD:=c++14
 
 DATABASE:=
-BINARIES_SRC:=$(wildcard src/*.cpp) $(wildcard src/test-case/*.cpp)
+BINARIES_SRC_TEST:=$(wildcard src/test-case/*.cpp)
+BINARIES_SRC_PROPER:=$(wildcard src/*.cpp)
+BINARIES_SRC:=$(BINARIES_SRC_PROPER) $(BINARIES_SRC_TEST)
 BINARIES:=$(basename $(notdir $(wildcard src/*.cpp)) $(addprefix test-case-,$(notdir $(wildcard src/test-case/*.cpp))))
 JSBINARIES=$(addsuffix .js,$(BINARIES))
 TESTBINARIES=$(filter test-case-%,$(BINARIES))
@@ -125,8 +128,9 @@ test-case-%: src/test-case/%.cpp
 	$(EMXX) -std=$(CXX_STANDARD) -Iinclude/ -D NOLIBRARIES $(EMXXFLAGS) -s EXPORTED_FUNCTIONS="$(JSFUNCTIONS)" $< $(LDFLAGS) -o $@
 
 # dependency calculations
-dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS) $(THIRDPARTYHEADERS)
-	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ $(PCCFLAGS) -MM -MG $(BINARIES_SRC) | sed -E 's/(.*).o: /\1: /' > $@
+dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS) $(THIRDPARTYHEADERS) include/ef.gy/base.mk makefile
+	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ $(PCCFLAGS) -MM -MG $(BINARIES_SRC_PROPER) | sed -E 's/(.*).o: /\1: /' > $@
+	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ $(PCCFLAGS) -MM -MG $(BINARIES_SRC_TEST) | sed -E 's/(.*).o: /test-case-\1: /' >> $@
 
 # common third party libraries
 include/asio.hpp: $(THIRDPARTY)/asio/.git/refs/heads/master
@@ -188,5 +192,12 @@ doxygen:: doxyfile
 # just in case we want to compress something
 %.gz: %
 	gzip -kf9n $<
+
+# provide a wrapper for experimental/optional to plain optional
+optional: include/optional
+
+include/optional:
+	echo '#include <experimental/optional>' > $@
+	echo 'namespace std { using experimental::optional; }' >> $@
 
 include dependencies.mk
