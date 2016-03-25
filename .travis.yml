@@ -16,7 +16,6 @@ matrix:
             - clang-3.8
             - libc++1
             - libc++-dev
-            - libc++-helpers
           sources: &sources
             - llvm-toolchain-precise
             - ubuntu-toolchain-r-test
