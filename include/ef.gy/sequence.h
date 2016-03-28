@@ -50,7 +50,7 @@ protected:
    */
   typedef algorithm<Q, N> sequenceAlgorithm;
 };
-};
-};
+}
+}
 
 #endif

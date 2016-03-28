@@ -316,7 +316,7 @@ template <typename C, typename Q, unsigned int d, unsigned int od,
 static inline osvgstream<C, Q, d>
 operator<<(osvgstream<C, Q, d> stream,
            const geometry::object<Q, od, d, f, format> &poly) {
-  for (const auto &p : poly.faces) {
+  for (const auto &p : poly) {
     std::array<math::vector<Q, d>,
                geometry::object<Q, od, d, f, format>::faceVertices> q;
 
@@ -329,7 +329,7 @@ operator<<(osvgstream<C, Q, d> stream,
 
   return stream;
 }
-};
-};
+}
+}
 
 #endif

@@ -36,7 +36,6 @@ public:
   using typename parent::face;
   using parent::faceVertices;
   using parent::parameter;
-  using parent::faces;
   using parent::tag;
   using parent::indices;
 
@@ -45,8 +44,10 @@ public:
   void calculateObject(void) {
     primitive<Q, pd> source(parameter, tag);
 
-    faces = source.faces;
-    while (faces.size() > indices.size()) {
+    faces.clear();
+    indices.clear();
+    for (const auto &f : source) {
+      faces.push_back(f);
       indices.push_back(Q(0.5));
     }
 
@@ -93,6 +94,9 @@ public:
 
     return r;
   }
+
+protected:
+  using parent::faces;
 };
 
 namespace sierpinski {

@@ -1696,27 +1696,19 @@ template <typename C, typename Q, unsigned int d>
  *
  * \tparam C      Character type for the basic_ostream reference.
  * \tparam Q      Base type for calculations; should be a rational type
- * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
  * \tparam d      Number of dimensions of the vector space to use
- * \tparam f      Number of vertices for mesh faces
- * \tparam format Vector coordinate format to work in, e.g.
- *                math::format::cartesian.
  *
  * \param[out] stream The stream to write to.
  * \param[in]  poly   The polytope to render with OpenGL.
  *
  * \returns A new copy of the stream that was passed in.
  */
-template <typename C, typename Q, unsigned int d, unsigned int od,
-          unsigned int f, typename format>
-    static inline oglstream<
-        C, Q,
-        d> operator<<(oglstream<C, Q, d> stream,
-                      const geometry::polytope<Q, od, d, f, format> &poly) {
-  if (poly.faces.size() != poly.indices.size()) {
-    for (const auto &p : poly.faces) {
-      std::array<math::vector<Q, d>,
-                 geometry::polytope<Q, od, d, f, format>::faceVertices> q;
+template <typename C, typename Q, unsigned int d, typename model>
+    static inline oglstream<C, Q, d> operator<<(oglstream<C, Q, d> stream,
+                                                const model &poly) {
+  if (poly.indices.size() == 0) {
+    for (const auto &p : poly) {
+      std::array<math::vector<Q, d>, model::faceVertices> q;
 
       for (std::size_t i = 0; i < poly.faceVertices; i++) {
         q[i] = p[i];
@@ -1726,9 +1718,8 @@ template <typename C, typename Q, unsigned int d, unsigned int od,
     }
   } else {
     auto itIndex = poly.indices.begin();
-    for (const auto &p : poly.faces) {
-      std::array<math::vector<Q, d>,
-                 geometry::polytope<Q, od, d, f, format>::faceVertices> q;
+    for (const auto &p : poly) {
+      std::array<math::vector<Q, d>, model::faceVertices> q;
 
       for (std::size_t i = 0; i < poly.faceVertices; i++) {
         q[i] = p[i];
@@ -1740,8 +1731,7 @@ template <typename C, typename Q, unsigned int d, unsigned int od,
   }
 
   return stream;
-}
-}
+}}
 }
 
 #endif

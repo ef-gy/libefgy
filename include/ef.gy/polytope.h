@@ -29,6 +29,7 @@
 #include <ef.gy/range.h>
 #include <ef.gy/exponential.h>
 #include <type_traits>
+#include <iterator>
 
 namespace efgy {
 namespace geometry {
@@ -291,13 +292,6 @@ public:
    */
   typedef std::array<math::vector<Q, d, format>, f> face;
 
-  /**\brief The actual mesh data
-   *
-   * Contains all the faces that this polytope's mesh is composed
-   * of. Set by deriving classes.
-   */
-  std::vector<face> faces;
-
   /**\brief Parameter reference
    *
    * A reference to the parameters used to generate the model; Set
@@ -312,6 +306,26 @@ public:
   const format tag;
 
   std::vector<Q> indices;
+
+  constexpr typename std::vector<face>::const_iterator begin(void) const {
+    return faces.begin();
+  }
+
+  constexpr typename std::vector<face>::const_iterator end(void) const {
+    return faces.end();
+  }
+
+  constexpr const std::size_t size(void) const {
+    return faces.size();
+  }
+
+protected:
+  /**\brief The actual mesh data
+   *
+   * Contains all the faces that this polytope's mesh is composed
+   * of. Set by deriving classes.
+   */
+  std::vector<face> faces;
 };
 
 /**\brief Polytope base template
@@ -339,29 +353,66 @@ public:
 
   adapt(const parameters<Q> &pParameter, const format &pFormat)
       : parent(pParameter, pFormat),
-        object(pParameter, typename model::format()) {
+        object(pParameter, typename model::format()),
+        indices(object.indices) {
     calculateObject();
   }
 
-  using parent::faces;
-  using parent::indices;
-
   void calculateObject(void) {
     object.calculateObject();
-    faces.clear();
-    for (const auto &f : object.faces) {
+  }
+
+  std::vector<Q> &indices;
+
+  static constexpr const char *id(void) { return model::id(); }
+
+  class iterator : public std::iterator<std::forward_iterator_tag, face>{
+  public:
+    iterator(const adapt *pSource, std::size_t pPosition) :
+      source(pSource), position(pPosition) {}
+
+    iterator &operator ++(void) {
+      position++;
+      return *this;
+    }
+
+    iterator operator ++(int) {
+      iterator c = *this;
+      position++;
+      return c;
+    }
+
+    const face operator *(void) const {
+      const auto &f = *(source->object.begin() + position);
       face cf;
       for (unsigned int i = 0; i < model::faceVertices; i++) {
         for (unsigned int j = 0; (j < d) && (j < model::renderDepth); j++) {
           cf[i][j] = f[i][j];
         }
       }
-      faces.push_back(cf);
+      return cf;
     }
-    indices = object.indices;
+
+    constexpr bool operator != (const iterator &b) const {
+      return (source == b.source) && (position != b.position);
+    }
+
+  protected:
+    const adapt *source;
+    std::size_t position;
+  };
+
+  constexpr iterator begin(void) const {
+    return iterator(this, 0);
+  }
+  
+  constexpr iterator end(void) const {
+    return iterator(this, object.size());
   }
 
-  static constexpr const char *id(void) { return model::id(); }
+  constexpr const std::size_t size(void) const {
+    return object.size();
+  }
 
 protected:
   model object;
@@ -504,7 +555,6 @@ public:
   }
 
   using parent::parameter;
-  using parent::faces;
 
   /**\brief Number of vertices
    *
@@ -606,8 +656,11 @@ public:
       faces.insert(faces.end(), newFaces.begin(), newFaces.end());
     }
   }
+
+protected:
+  using parent::faces;
 };
-};
-};
+}
+}
 
 #endif

@@ -26,37 +26,27 @@ namespace efgy {
  * shader programmes.
  */
 namespace opengl {
-/**\brief OpenGL error wrapper
+/**\brief Process OpenGL errors
  *
- * A functor to handle OpenGL errors in a generic way; should be used
- * every now and then to make sure the graphics library is still in the
- * intended state.
+ * Queries OpenGL for any recent errors and return any actual errors as a
+ * vector.
  *
+ * \return A vector with any error flags that may have occurred
+ *         since the last time glGetError was used. If no errors
+ *         have occurred, then the vector will be empty.
  * \see http://www.opengl.org/sdk/docs/man/xhtml/glGetError.xml for a
- *      description of the flags that this functor might return.
+ *      description of the flags that this function might return.
  */
-class error {
-public:
-  /**\brief Process OpenGL errors
-   *
-   * Queries OpenGL for any recent errors and return any actual
-   * errors as a vector.
-   *
-   * \return A vector with any error flags that may have occurred
-   *         since the last time glGetError was used. If no errors
-   *         have occurred, then the vector will be empty.
-   */
-  std::vector<GLenum> operator()(void) {
-    std::vector<GLenum> errors;
+static inline std::vector<GLenum> error(void) {
+  std::vector<GLenum> errors;
 
-    for (GLenum flag = glGetError(); flag != GL_NO_ERROR; flag = glGetError()) {
-      std::cerr << "glGetError() = 0x" << std::hex << flag << "\n";
+  for (GLenum flag = glGetError(); flag != GL_NO_ERROR; flag = glGetError()) {
+    std::cerr << "glGetError() = 0x" << std::hex << flag << "\n";
 
-      errors.push_back(flag);
-    }
-
-    return errors;
+    errors.push_back(flag);
   }
+
+  return errors;
 };
 
 /**\brief OpenGL extension test

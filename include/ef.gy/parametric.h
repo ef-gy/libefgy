@@ -261,7 +261,6 @@ public:
   }
 
   using parent::parameter;
-  using parent::faces;
   using parent::tag;
 
   typedef typename source::dimensions dimensions;
@@ -270,7 +269,7 @@ public:
 
   void recurse(const cube<Q, od> &cube, math::vector<Q, od> v,
                math::vector<Q, od> a) {
-    for (std::array<math::vector<Q, od>, 4> f : cube.faces) {
+    for (std::array<math::vector<Q, od>, 4> f : cube) {
       std::array<math::vector<Q, parent::renderDepth, format>, 4> g;
 
       for (std::size_t i = 0; i < 4; i++) {
@@ -309,7 +308,7 @@ public:
 
     const Q r2 = cubeParameter.radius / Q(2);
 
-    for (std::array<math::vector<Q, od>, 4> &f : cube.faces) {
+    for (std::array<math::vector<Q, od>, 4> f : cube) {
       for (std::size_t i = 0; i < 4; i++) {
         for (std::size_t q = 0; q < od; q++) {
           f[i][q] += r2;
@@ -319,6 +318,9 @@ public:
 
     recurse(cube, 0, {{}}, {{}});
   }
+
+protected:
+  using parent::faces;
 };
 
 /**\brief The 2D plane
