@@ -307,11 +307,13 @@ public:
 
   std::vector<Q> indices;
 
-  constexpr typename std::vector<face>::const_iterator begin(void) const {
+  using iterator = typename std::vector<face>::const_iterator;
+
+  constexpr iterator begin(void) const {
     return faces.begin();
   }
 
-  constexpr typename std::vector<face>::const_iterator end(void) const {
+  constexpr iterator end(void) const {
     return faces.end();
   }
 
@@ -344,75 +346,69 @@ template <typename Q, unsigned int od, unsigned int d, unsigned int f,
           typename format>
 using polytope = object<Q, od, d, f, format>;
 
+template <typename Q, unsigned int d, unsigned int faceVertices,
+          unsigned int renderDepth, class format, class face,
+          class baseIterator>
+class adaptiveIterator : public std::iterator<std::forward_iterator_tag, face> {
+public:
+  adaptiveIterator(baseIterator pIT) : it(pIT) {}
+
+  adaptiveIterator &operator++(void) {
+    it++;
+    return *this;
+  }
+
+  adaptiveIterator operator++(int) {
+    adaptiveIterator c = *this;
+    it++;
+    return c;
+  }
+
+  const face operator*(void) const {
+    const auto &f = *it;
+    face cf;
+    for (unsigned int i = 0; i < faceVertices; i++) {
+      for (unsigned int j = 0; (j < d) && (j < renderDepth); j++) {
+        cf[i][j] = f[i][j];
+      }
+    }
+    return cf;
+  }
+
+  constexpr bool operator!=(const adaptiveIterator &b) const {
+    return it != b.it;
+  }
+
+protected:
+  baseIterator it;
+};
+
 template <typename Q, unsigned int d, class model, class format>
 class adapt : public object<Q, model::depth, d, model::faceVertices, format> {
 public:
   typedef object<Q, model::depth, d, model::faceVertices, format> parent;
 
-  using typename parent::face;
-
   adapt(const parameters<Q> &pParameter, const format &pFormat)
       : parent(pParameter, pFormat),
-        object(pParameter, typename model::format()),
-        indices(object.indices) {
+        object(pParameter, typename model::format()), indices(object.indices) {
     calculateObject();
   }
 
-  void calculateObject(void) {
-    object.calculateObject();
-  }
+  void calculateObject(void) { object.calculateObject(); }
 
   std::vector<Q> &indices;
 
   static constexpr const char *id(void) { return model::id(); }
 
-  class iterator : public std::iterator<std::forward_iterator_tag, face>{
-  public:
-    iterator(const adapt *pSource, std::size_t pPosition) :
-      source(pSource), position(pPosition) {}
+  using iterator =
+      adaptiveIterator<Q, d, model::faceVertices, model::renderDepth, format,
+                       typename parent::face, typename model::iterator>;
 
-    iterator &operator ++(void) {
-      position++;
-      return *this;
-    }
+  constexpr iterator begin(void) const { return iterator(object.begin()); }
 
-    iterator operator ++(int) {
-      iterator c = *this;
-      position++;
-      return c;
-    }
+  constexpr iterator end(void) const { return iterator(object.end()); }
 
-    const face operator *(void) const {
-      const auto &f = *(source->object.begin() + position);
-      face cf;
-      for (unsigned int i = 0; i < model::faceVertices; i++) {
-        for (unsigned int j = 0; (j < d) && (j < model::renderDepth); j++) {
-          cf[i][j] = f[i][j];
-        }
-      }
-      return cf;
-    }
-
-    constexpr bool operator != (const iterator &b) const {
-      return (source == b.source) && (position != b.position);
-    }
-
-  protected:
-    const adapt *source;
-    std::size_t position;
-  };
-
-  constexpr iterator begin(void) const {
-    return iterator(this, 0);
-  }
-  
-  constexpr iterator end(void) const {
-    return iterator(this, object.size());
-  }
-
-  constexpr const std::size_t size(void) const {
-    return object.size();
-  }
+  constexpr const std::size_t size(void) const { return object.size(); }
 
 protected:
   model object;

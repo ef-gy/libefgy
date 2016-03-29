@@ -134,10 +134,10 @@ public:
 
 template <typename Q, unsigned int od> class plane {
 public:
-  typedef dimensions<2, 2> dimensions;
+  typedef dimensions<2, 0> dimensions;
   typedef math::format::cartesian format;
 
-  static constexpr const unsigned int renderDepth = 2;
+  static constexpr const unsigned int renderDepth = od;
   static constexpr const char *id(void) { return "plane"; }
 
   constexpr static range<Q> getRange(const parameters<Q> &parameter,
@@ -146,10 +146,14 @@ public:
                     parameter.precision, false);
   }
 
-  constexpr static math::vector<Q, renderDepth>
+  static math::vector<Q, renderDepth>
   getCoordinates(const parameters<Q> &parameter,
                  const math::vector<Q, od> &ve) {
-    return {{ve[0], ve[1]}};
+    math::vector<Q, renderDepth> vp{{ve[0]}};
+    for (std::size_t i = 0; i < od; i++) {
+      vp[i] = ve[i];
+    }
+    return vp;
   }
 };
 
@@ -224,7 +228,7 @@ public:
                parameter.radius2 * ve[0])}};
   }
 };
-};
+}
 
 /**\brief Parametric formula wrapper
  *
@@ -337,7 +341,7 @@ protected:
  */
 template <typename Q, unsigned int od>
 using plane = parametric<Q, od, formula::plane>;
-};
-};
+}
+}
 
 #endif
