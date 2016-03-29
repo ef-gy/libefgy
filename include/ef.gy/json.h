@@ -20,8 +20,6 @@
 #include <string>
 #include <memory>
 
-#include <ef.gy/maybe.h>
-
 namespace efgy {
 /**\brief JSON helpers
  *
@@ -149,10 +147,6 @@ public:
 
   value<numeric> &operator[](const std::size_t &i) { return toArray()[i]; }
 
-  operator const maybe<std::vector<value<numeric>>>(void) const {
-    return maybe<std::vector<value<numeric>>>(asArray(), !isArray());
-  }
-
   constexpr const bool isArray(void) const { return type == array; }
 
   const std::vector<value<numeric>> asArray(void) const {
@@ -169,10 +163,6 @@ public:
       payload = new std::vector<value<numeric>>();
     }
     return *((std::vector<value<numeric>> *)payload);
-  }
-
-  operator const maybe<std::string>(void) const {
-    return maybe<std::string>(asString(), !isString());
   }
 
   constexpr const bool isString(void) const { return type == string; }
@@ -194,10 +184,6 @@ public:
   }
 
   constexpr operator const numeric(void) const { return asNumber(); }
-
-  constexpr operator const maybe<numeric>(void) const {
-    return maybe<numeric>(asNumber(), !isNumber());
-  }
 
   constexpr explicit operator bool(void) const { return type == yes; }
 
