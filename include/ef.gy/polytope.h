@@ -346,12 +346,10 @@ template <typename Q, unsigned int od, unsigned int d, unsigned int f,
           typename format>
 using polytope = object<Q, od, d, f, format>;
 
-template <typename Q, unsigned int d, unsigned int faceVertices,
-          unsigned int renderDepth, class format, class face,
-          class baseIterator>
+template <class face, class iterator>
 class adaptiveIterator : public std::iterator<std::forward_iterator_tag, face> {
 public:
-  adaptiveIterator(baseIterator pIT) : it(pIT) {}
+  adaptiveIterator(iterator pIT) : it(pIT) {}
 
   adaptiveIterator &operator++(void) {
     it++;
@@ -367,8 +365,8 @@ public:
   const face operator*(void) const {
     const auto &f = *it;
     face cf;
-    for (unsigned int i = 0; i < faceVertices; i++) {
-      for (unsigned int j = 0; (j < d) && (j < renderDepth); j++) {
+    for (unsigned int i = 0; i < cf.size(); i++) {
+      for (unsigned int j = 0; (j < f[i].size()) && (j < cf[i].size()); j++) {
         cf[i][j] = f[i][j];
       }
     }
@@ -379,8 +377,12 @@ public:
     return it != b.it;
   }
 
+  constexpr bool operator==(const adaptiveIterator &b) const {
+    return it == b.it;
+  }
+
 protected:
-  baseIterator it;
+  iterator it;
 };
 
 template <typename Q, unsigned int d, class model, class format>
@@ -401,8 +403,7 @@ public:
   static constexpr const char *id(void) { return model::id(); }
 
   using iterator =
-      adaptiveIterator<Q, d, model::faceVertices, model::renderDepth, format,
-                       typename parent::face, typename model::iterator>;
+      adaptiveIterator<typename parent::face, typename model::iterator>;
 
   constexpr iterator begin(void) const { return iterator(object.begin()); }
 
