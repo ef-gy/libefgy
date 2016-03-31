@@ -292,8 +292,6 @@ public:
    */
   using face = std::array<math::vector<Q, d, format>, f>;
 
-  using iterator = typename std::vector<face>::const_iterator;
-
   /**\brief Parameter reference
    *
    * A reference to the parameters used to generate the model; Set
@@ -308,26 +306,6 @@ public:
   const format tag;
 
   std::vector<Q> indices;
-
-  constexpr iterator begin(void) const {
-    return faces.begin();
-  }
-
-  constexpr iterator end(void) const {
-    return faces.end();
-  }
-
-  constexpr const std::size_t size(void) const {
-    return faces.size();
-  }
-
-protected:
-  /**\brief The actual mesh data
-   *
-   * Contains all the faces that this polytope's mesh is composed
-   * of. Set by deriving classes.
-   */
-  std::vector<face> faces;
 };
 
 /**\brief Polytope base template
@@ -344,7 +322,29 @@ protected:
  */
 template <typename Q, unsigned int od, unsigned int d, unsigned int f,
           typename format>
-using polytope = object<Q, od, d, f, format>;
+class polytope : public object<Q, od, d, f, format> {
+public:
+  using object<Q, od, d, f, format>::object;
+  using typename object<Q, od, d, f, format>::face;
+
+  using iterator = typename std::vector<face>::const_iterator;
+
+  constexpr iterator begin(void) const {
+    return faces.begin();
+  }
+
+  constexpr iterator end(void) const {
+    return faces.end();
+  }
+
+protected:
+  /**\brief The actual mesh data
+   *
+   * Contains all the faces that this polytope's mesh is composed
+   * of. Set by deriving classes.
+   */
+  std::vector<face> faces;
+};
 
 template <class face, class iterator>
 class adaptiveIterator : public std::iterator<std::forward_iterator_tag, face> {
@@ -403,10 +403,7 @@ public:
   static constexpr const char *id(void) { return model::id(); }
 
   constexpr iterator begin(void) const { return iterator(object.begin()); }
-
   constexpr iterator end(void) const { return iterator(object.end()); }
-
-  constexpr const std::size_t size(void) const { return object.size(); }
 
 protected:
   model object;

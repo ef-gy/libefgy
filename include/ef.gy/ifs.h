@@ -23,11 +23,11 @@ namespace geometry {
 template <typename Q, unsigned int od, unsigned int d,
           template <class, unsigned int> class primitive, unsigned int pd,
           template <class, unsigned int> class trans>
-class ifs : public object<Q, od, d, primitive<Q, pd>::faceVertices,
-                          typename primitive<Q, pd>::format> {
+class ifs : public polytope<Q, od, d, primitive<Q, pd>::faceVertices,
+                            typename primitive<Q, pd>::format> {
 public:
-  typedef object<Q, od, d, primitive<Q, pd>::faceVertices,
-                 typename primitive<Q, pd>::format> parent;
+  typedef polytope<Q, od, d, primitive<Q, pd>::faceVertices,
+                   typename primitive<Q, pd>::format> parent;
   using typename parent::format;
 
   ifs(const parameters<Q> &pParameter, const format &pFormat)
@@ -51,13 +51,7 @@ public:
       indices.push_back(Q(0.5));
     }
 
-    unsigned long long vertices = faces.size() * faceVertices;
-
     for (unsigned int i = 0; i < parameter.iterations; i++) {
-      if ((vertices * functions.size()) > parameter.vertexLimit) {
-        break;
-      }
-
       std::vector<Q> rindices = indices;
       indices.clear();
       std::vector<std::array<math::vector<Q, d, format>, faceVertices>> rfaces;
@@ -73,7 +67,6 @@ public:
       }
 
       faces = rfaces;
-      vertices *= functions.size();
     }
   }
 
@@ -130,18 +123,13 @@ public:
           transformation::translation<Q, parent::renderDepth>(translations[i]));
     }
 
-    calculateObject();
+    parent::calculateObject();
   }
 
   using parent::parameter;
-  using parent::faces;
-
-  typedef dimensions<2, 0> dimensions;
-
-  using parent::faceVertices;
-
   using parent::functions;
-  using parent::calculateObject;
+
+  using dimensions = dimensions<2, 0>;
 
   static constexpr const char *id(void) { return "sierpinski-gasket"; }
 };
@@ -201,22 +189,17 @@ public:
           transformation::translation<Q, parent::renderDepth>(translations[i]));
     }
 
-    calculateObject();
+    parent::calculateObject();
   }
 
   using parent::parameter;
-  using parent::faces;
-
-  typedef dimensions<2, 3> dimensions;
-
-  using parent::faceVertices;
-
   using parent::functions;
-  using parent::calculateObject;
+
+  using dimensions = dimensions<2, 3>;
 
   static constexpr const char *id(void) { return "sierpinski-carpet"; }
 };
-};
+}
 
 namespace transformation {
 template <typename Q, unsigned int d> class randomAffine : public affine<Q, d> {
@@ -284,7 +267,7 @@ protected:
   const parameters<Q> &parameter;
   const unsigned long long seed;
 };
-};
+}
 
 template <typename Q, unsigned int d>
 using extendedCube = adapt<Q, d, cube<Q, 2>, typename cube<Q, 2>::format>;
@@ -310,26 +293,22 @@ public:
     std::mt19937 PRNG(parameter.seed);
 
     for (unsigned int i = 0; i < parameter.functions; i++) {
-      functions.push_back(transformation::randomAffine<Q, parent::renderDepth>(
-          parameter, PRNG()));
+      functions.push_back(
+          transformation::randomAffine<Q, parent::renderDepth>(
+              parameter, PRNG()));
     }
 
     parent::calculateObject();
   }
 
   using parent::parameter;
-  using parent::faces;
-
-  typedef dimensions<2, 0> dimensions;
-
-  using parent::faceVertices;
-
   using parent::functions;
-  using parent::calculateObject;
+
+  using dimensions = dimensions<2, 0>;
 
   static constexpr const char *id(void) { return "random-affine-ifs"; }
 };
-};
-};
+}
+}
 
 #endif

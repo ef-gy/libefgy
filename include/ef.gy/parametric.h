@@ -230,6 +230,133 @@ public:
 };
 }
 
+template <typename Q, unsigned int od,
+          template <typename, unsigned int> class formula>
+class parametricIterator : public std::iterator<std::forward_iterator_tag,
+  typename object<Q, od, formula<Q, od>::renderDepth, 4,
+    typename formula<Q, od>::format>::face>
+{
+protected:
+  using source = formula<Q, od>;
+  using parent = object<Q, od, source::renderDepth, 4, typename source::format>;
+  using face = typename parent::face;
+  using baseObject = cube<Q, od>;
+  using faces = std::vector<typename baseObject::face>;
+  using vector = math::vector<Q, od>;
+
+public:
+  parametricIterator(const parameters<Q> &pParameter)
+    : parameter(pParameter) {
+    for (unsigned int dim = 0; dim < od; dim++) {
+      range<Q> qs = source::getRange(parameter, dim);
+      positions.push_back(qs.begin());
+      starts.push_back(qs.begin());
+      ends.push_back(qs.end());
+      strides[dim] = qs.stride;
+    }
+
+    base = getBase(strides);
+    basePosition = 0;
+  }
+
+  parametricIterator &end(void) {
+    for (unsigned int dim = 0; dim < od; dim++) {
+      positions[dim] = (dim == 0) ? ends[dim] : starts[dim];
+    }
+    return *this;
+  }
+
+  const face operator*(void) const {
+    auto f = base[basePosition];
+    face g;
+    auto o = g.begin();
+    for (auto &p : f) {
+      *o = std::array<Q, parent::renderDepth>(
+          source::getCoordinates(parameter, getPosition() + p));
+      o++;
+    }
+    return g;
+  }
+
+  parametricIterator &operator++(void) {
+    basePosition++;
+
+    if (basePosition < base.size()) {
+      return *this;
+    } else {
+      basePosition = 0;
+    }
+
+    for (int dim = (od-1); dim >= 0; dim--) {
+      if (positions[dim] < ends[dim]) {
+        positions[dim]++;
+      }
+
+      if (positions[dim] < ends[dim]) {
+        break;
+      } else if (dim > 0) {
+        positions[dim] = starts[dim];
+      }
+    }
+    return *this;
+  }
+
+  parametricIterator operator++(int) {
+    parametricIterator c = *this;
+    ++(*this);
+    return c;
+  }
+
+  constexpr bool operator!=(const parametricIterator &b) const {
+    return !(*this == b);
+  }
+
+  constexpr bool operator==(const parametricIterator &b) const {
+    return (getPosition() == b.getPosition())
+        && (strides == b.strides)
+        && (basePosition == b.basePosition);
+  }
+
+protected:
+  std::vector<typename range<Q>::iterator> positions;
+  std::vector<typename range<Q>::iterator> starts;
+  std::vector<typename range<Q>::iterator> ends;
+  vector strides;
+  faces base;
+  std::size_t basePosition;
+  const parameters<Q> parameter;
+
+  static const faces getBase(const vector &strides) {
+    parameters<Q> cubeParameter;
+    cube<Q, od> cube(cubeParameter);
+    faces base;
+
+    const Q r2 = cubeParameter.radius / Q(2);
+
+    for (auto f : cube) {
+      auto cf = f;
+      for (auto &v : cf) {
+        auto s = strides.begin();
+        for (auto &q : v) {
+          q = (q + r2) * (*s);
+          s++;
+        }
+      }
+      base.push_back(cf);
+    }
+
+    return base;
+  }
+
+  const vector getPosition(void) const {
+    vector r;
+    for (unsigned int dim = 0; dim < od; dim++) {
+      r[dim] = *(positions[dim]);
+    }
+    return r;
+  }
+};
+  
 /**\brief Parametric formula wrapper
  *
  * This class is used to instantiate parametric formulae so they can
@@ -251,213 +378,28 @@ public:
  */
 template <typename Q, unsigned int od,
           template <typename, unsigned int> class formula>
-class parametric : public polytope<Q, od, formula<Q, od>::renderDepth, 4,
-                                   typename formula<Q, od>::format>
+class parametric : public object<Q, od, formula<Q, od>::renderDepth, 4,
+                                 typename formula<Q, od>::format>
 {
 public:
   using source = formula<Q, od>;
   using dimensions = typename source::dimensions;
 
-  using parent = polytope<Q, od, source::renderDepth, 4,
-                          typename source::format>;
+  using parent = object<Q, od, source::renderDepth, 4, typename source::format>;
   using typename parent::format;
   using typename parent::face;
 
-  using base = cube<Q, od>;
-  using baseFaces = std::vector<typename base::face>;
-
-  using vector = math::vector<Q, od>;
-
-  using parent::parameter;
-
   parametric(const parameters<Q> &pParameter, const format &pFormat)
-      : parent(pParameter, pFormat) {
-    calculateObject();
-  }
+    : parent(pParameter, pFormat) {}
 
   static constexpr const char *id(void) { return source::id(); }
 
-  static const baseFaces getBase(const vector &strides) {
-    parameters<Q> cubeParameter;
-    cube<Q, od> cube(cubeParameter);
-    baseFaces base;
-
-    const Q r2 = cubeParameter.radius / Q(2);
-
-    for (auto f : cube) {
-      auto cf = f;
-      for (auto &v : cf) {
-        auto s = strides.begin();
-        for (auto &q : v) {
-          q = (q + r2) * (*s);
-          s++;
-        }
-      }
-      base.push_back(cf);
-    }
-
-    return base;
-  }
-
-  class parametricIterator :
-    public std::iterator<std::forward_iterator_tag, face>
-  {
-  public:
-    parametricIterator(const parameters<Q> &pParameter)
-      : parameter(pParameter) {
-      for (unsigned int dim = 0; dim < od; dim++) {
-        range<Q> qs = source::getRange(parameter, dim);
-        positions.push_back(qs.begin());
-        starts.push_back(qs.begin());
-        ends.push_back(qs.end());
-        strides[dim] = qs.stride;
-      }
-
-      base = getBase(strides);
-      basePosition = 0;
-    }
-
-    parametricIterator &end(void) {
-      for (unsigned int dim = 0; dim < od; dim++) {
-        positions[dim] = (dim == 0) ? ends[dim] : starts[dim];
-      }
-      return *this;
-    }
-
-    const face operator*(void) const {
-      std::cerr << "*";
-      auto f = base[basePosition];
-      face g;
-      auto o = g.begin();
-      for (auto &p : f) {
-        *o = std::array<Q, parent::renderDepth>(
-            source::getCoordinates(parameter, getPosition() + p));
-        o++;
-      }
-      return g;
-    }
-
-    const vector getPosition(void) const {
-      vector r;
-      for (unsigned int dim = 0; dim < od; dim++) {
-        r[dim] = *(positions[dim]);
-      }
-      return r;
-    }
-
-    parametricIterator &operator++(void) {
-      std::cerr << "+";
-
-      basePosition++;
-
-      if (basePosition < base.size()) {
-        std::cerr << "f";
-        return *this;
-      } else {
-        std::cerr << "b";
-        basePosition = 0;
-      }
-
-      for (int dim = (od-1); dim >= 0; dim--) {
-        if (positions[dim] < ends[dim]) {
-          std::cerr << dim;
-          positions[dim]++;
-        }
-
-        if (positions[dim] < ends[dim]) {
-          break;
-        } else if (dim > 0) {
-          std::cerr << "r";
-          positions[dim] = starts[dim];
-        }
-      }
-
-      return *this;
-    }
-
-    parametricIterator operator++(int) {
-      parametricIterator c = *this;
-      ++(*this);
-      return c;
-    }
-
-    constexpr bool operator!=(const parametricIterator &b) const {
-      return !(*this == b);
-    }
-
-    constexpr bool operator==(const parametricIterator &b) const {
-      return (getPosition() == b.getPosition())
-          && (strides == b.strides)
-          && (basePosition == b.basePosition);
-    }
-
-  protected:
-    std::vector<typename range<Q>::iterator> positions;
-    std::vector<typename range<Q>::iterator> starts;
-    std::vector<typename range<Q>::iterator> ends;
-    vector strides;
-    baseFaces base;
-    std::size_t basePosition;
-    const parameters<Q> parameter;
-  };
-
-#if 0
-  void recurse(const baseFaces &cube, const vector &position) {
-    for (auto f : cube) {
-      face g;
-      auto o = g.begin();
-
-      for (auto &p : f) {
-        *o = std::array<Q, parent::renderDepth>(
-            source::getCoordinates(parameter, position + p));
-
-        o++;
-      }
-
-      faces.push_back(g);
-    }
-  }
-
-  void recurse(const baseFaces &cube, std::size_t dim, vector position) {
-    if (dim == od) {
-      recurse(cube, position);
-    } else {
-      const auto qs = source::getRange(parameter, dim);
-
-      for (const Q &q : qs) {
-        position[dim] = q;
-        recurse(cube, dim + 1, position);
-      }
-    }
-  }
-
-  void calculateObject(void) {
-    auto it = begin();
-
-    faces.clear();
-
-    recurse(it.base, 0, {{}});
-  }
-#else
   void calculateObject(void) {}
 
-  using iterator = parametricIterator;
+  using iterator = parametricIterator<Q, od, formula>;
 
-  constexpr iterator begin(void) const {
-    return iterator(parameter);
-  }
-
-  constexpr iterator end(void) const {
-    return iterator(parameter).end();
-  }
-
-  constexpr const std::size_t size(void) const {
-    return cube<Q, od>::surfaces;
-  }
-#endif
-
-protected:
-  using parent::faces;
+  constexpr iterator begin(void) const { return iterator(parent::parameter); }
+  constexpr iterator end(void) const { return begin().end(); }
 };
 
 /**\brief The 2D plane

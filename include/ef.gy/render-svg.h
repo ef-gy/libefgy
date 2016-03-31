@@ -311,14 +311,11 @@ constexpr inline osvgstream<C, Q, d> operator<<(std::basic_ostream<C> &stream,
  *
  * \returns A new copy of the stream that was passed in.
  */
-template <typename C, typename Q, unsigned int d, unsigned int od,
-          unsigned int f, typename format>
+template <typename C, typename Q, unsigned int d, typename model>
 static inline osvgstream<C, Q, d>
-operator<<(osvgstream<C, Q, d> stream,
-           const geometry::object<Q, od, d, f, format> &poly) {
+operator<<(osvgstream<C, Q, d> stream, const model &poly) {
   for (const auto &p : poly) {
-    std::array<math::vector<Q, d>,
-               geometry::object<Q, od, d, f, format>::faceVertices> q;
+    std::array<math::vector<Q, d>, model::faceVertices> q;
 
     for (std::size_t i = 0; i < poly.faceVertices; i++) {
       q[i] = p[i];
