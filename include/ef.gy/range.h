@@ -60,9 +60,21 @@ public:
     return *this;
   }
 
+  rangeIterator operator++(int) {
+    rangeIterator r = *this;
+    ++(*this);
+    return r;
+  }
+
   rangeIterator &operator--(void) {
     --position;
     return *this;
+  }
+
+  rangeIterator operator--(int) {
+    rangeIterator r = *this;
+    --(*this);
+    return r;
   }
 
   rangeIterator &operator+=(const std::ptrdiff_t &b) {
@@ -108,8 +120,8 @@ public:
   }
 
 protected:
-  const T start;
-  const T stride;
+  T start;
+  T stride;
   std::size_t position;
 };
 

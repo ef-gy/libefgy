@@ -314,19 +314,19 @@ public:
       }
 
       base = getBase(strides);
-      basePosition = base.begin();
+      basePosition = 0;
     }
 
-    parametricIterator end(void) {
-      parametricIterator r = *this;
+    parametricIterator &end(void) {
       for (unsigned int dim = 0; dim < od; dim++) {
         positions[dim] = (dim == 0) ? ends[dim] : starts[dim];
       }
-      return r;
+      return *this;
     }
 
     const face operator*(void) const {
-      auto f = *basePosition;
+      std::cerr << "*";
+      auto f = base[basePosition];
       face g;
       auto o = g.begin();
       for (auto &p : f) {
@@ -334,7 +334,6 @@ public:
             source::getCoordinates(parameter, getPosition() + p));
         o++;
       }
-      basePosition++;
       return g;
     }
 
@@ -347,18 +346,28 @@ public:
     }
 
     parametricIterator &operator++(void) {
-      if (positions[0] >= ends[0]) {
+      std::cerr << "+";
+
+      basePosition++;
+
+      if (basePosition < base.size()) {
+        std::cerr << "f";
         return *this;
+      } else {
+        std::cerr << "b";
+        basePosition = 0;
       }
 
       for (int dim = (od-1); dim >= 0; dim--) {
         if (positions[dim] < ends[dim]) {
+          std::cerr << dim;
           positions[dim]++;
         }
 
         if (positions[dim] < ends[dim]) {
           break;
         } else if (dim > 0) {
+          std::cerr << "r";
           positions[dim] = starts[dim];
         }
       }
@@ -378,21 +387,21 @@ public:
 
     constexpr bool operator==(const parametricIterator &b) const {
       return (getPosition() == b.getPosition())
-          && (strides == b.strides);
+          && (strides == b.strides)
+          && (basePosition == b.basePosition);
     }
 
-//  protected:
+  protected:
     std::vector<typename range<Q>::iterator> positions;
     std::vector<typename range<Q>::iterator> starts;
     std::vector<typename range<Q>::iterator> ends;
     vector strides;
     baseFaces base;
-    typename baseFaces::iterator basePosition;
-
-  protected:
+    std::size_t basePosition;
     const parameters<Q> parameter;
   };
 
+#if 0
   void recurse(const baseFaces &cube, const vector &position) {
     for (auto f : cube) {
       face g;
@@ -423,16 +432,15 @@ public:
   }
 
   void calculateObject(void) {
-    vector v;
-
-    parametricIterator it(parameter);
+    auto it = begin();
 
     faces.clear();
 
-    recurse(getBase(it.strides), 0, v);
+    recurse(it.base, 0, {{}});
   }
+#else
+  void calculateObject(void) {}
 
-#if 0
   using iterator = parametricIterator;
 
   constexpr iterator begin(void) const {
@@ -441,6 +449,10 @@ public:
 
   constexpr iterator end(void) const {
     return iterator(parameter).end();
+  }
+
+  constexpr const std::size_t size(void) const {
+    return cube<Q, od>::surfaces;
   }
 #endif
 

@@ -358,7 +358,7 @@ public:
 
   adaptiveIterator operator++(int) {
     adaptiveIterator c = *this;
-    it++;
+    ++(*this);
     return c;
   }
 
