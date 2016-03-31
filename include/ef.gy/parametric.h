@@ -370,7 +370,7 @@ public:
 
     constexpr bool operator==(const parametricIterator &b) const {
       return (getPosition() == b.getPosition())
-          && (strides == b.strides());
+          && (strides == b.strides);
     }
 
 //  protected:
