@@ -317,6 +317,14 @@ public:
       basePosition = base.begin();
     }
 
+    parametricIterator end(void) {
+      parametricIterator r = *this;
+      for (unsigned int dim = 0; dim < od; dim++) {
+        positions[dim] = (dim == 0) ? ends[dim] : starts[dim];
+      }
+      return r;
+    }
+
     const face operator*(void) const {
       auto f = *basePosition;
       face g;
@@ -423,6 +431,18 @@ public:
 
     recurse(getBase(it.strides), 0, v);
   }
+
+#if 0
+  using iterator = parametricIterator;
+
+  constexpr iterator begin(void) const {
+    return iterator(parameter);
+  }
+
+  constexpr iterator end(void) const {
+    return iterator(parameter).end();
+  }
+#endif
 
 protected:
   using parent::faces;
