@@ -215,7 +215,7 @@ public:
    * Holds the vector format type that was passed as an argument
    * to the template.
    */
-  typedef Format format;
+  using format = Format;
 
   /**\brief Construct with renderer and parameters
    *
@@ -228,7 +228,7 @@ public:
    * \param[in]  pParameter Polytope parameters to apply.
    * \param[in]  pFormat    Coordinate format tag instance.
    */
-  object(const parameters<Q> &pParameter, const format &pFormat)
+  object(const parameters<Q> &pParameter, const format &pFormat = format())
       : parameter(pParameter), tag(pFormat) {}
 
   /**\brief Number of face vertices
@@ -290,7 +290,9 @@ public:
    * A convenient typedef for a 2D surface, commonly called a
    * 'face.'
    */
-  typedef std::array<math::vector<Q, d, format>, f> face;
+  using face = std::array<math::vector<Q, d, format>, f>;
+
+  using iterator = typename std::vector<face>::const_iterator;
 
   /**\brief Parameter reference
    *
@@ -306,8 +308,6 @@ public:
   const format tag;
 
   std::vector<Q> indices;
-
-  using iterator = typename std::vector<face>::const_iterator;
 
   constexpr iterator begin(void) const {
     return faces.begin();
@@ -388,22 +388,19 @@ protected:
 template <typename Q, unsigned int d, class model, class format>
 class adapt : public object<Q, model::depth, d, model::faceVertices, format> {
 public:
-  typedef object<Q, model::depth, d, model::faceVertices, format> parent;
+  using parent = object<Q, model::depth, d, model::faceVertices, format>;
+  using iterator =
+      adaptiveIterator<typename parent::face, typename model::iterator>;
 
   adapt(const parameters<Q> &pParameter, const format &pFormat)
       : parent(pParameter, pFormat),
-        object(pParameter, typename model::format()), indices(object.indices) {
-    calculateObject();
-  }
+        object(pParameter, typename model::format()), indices(object.indices) {}
 
   void calculateObject(void) { object.calculateObject(); }
 
   std::vector<Q> &indices;
 
   static constexpr const char *id(void) { return model::id(); }
-
-  using iterator =
-      adaptiveIterator<typename parent::face, typename model::iterator>;
 
   constexpr iterator begin(void) const { return iterator(object.begin()); }
 
@@ -543,10 +540,10 @@ public:
 template <typename Q, unsigned int od>
 class cube : public polytope<Q, od, od, 4, math::format::cartesian> {
 public:
-  typedef polytope<Q, od, od, 4, math::format::cartesian> parent;
+  using parent = polytope<Q, od, od, 4, math::format::cartesian>;
   using typename parent::format;
 
-  cube(const parameters<Q> &pParameter, const format &pFormat)
+  cube(const parameters<Q> &pParameter, const format &pFormat = format())
       : parent(pParameter, pFormat) {
     calculateObject();
   }

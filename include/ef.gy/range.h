@@ -134,7 +134,7 @@ public:
   constexpr range(const T &pStart, const T &pEnd, const bool inclusive = true)
       : start(pStart), stride((pEnd - pStart) / T(n - (inclusive ? 1 : 0))) {}
 
-  typedef rangeIterator<T> iterator;
+  using iterator = rangeIterator<T>;
 
   constexpr iterator begin(void) const { return iterator(start, stride, 0); }
 
