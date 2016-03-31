@@ -348,7 +348,7 @@ public:
 protected:
   const unsigned long long &seed;
 };
-};
+}
 
 namespace flame {
 /**\ingroup libefgy-extended-geometric-primitives
@@ -399,15 +399,14 @@ public:
 
   using parent::parameter;
 
-  typedef dimensions<2, 0> dimensions;
+  using dimensions = dimensions<2, 0>;
 
   using parent::functions;
-  using parent::calculateObject;
 
   static constexpr const char *id(void) { return "random-flame"; }
 };
-};
-};
-};
+}
+}
+}
 
 #endif

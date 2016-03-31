@@ -24,10 +24,11 @@ template <typename Q, unsigned int od, unsigned int d,
           template <class, unsigned int> class primitive, unsigned int pd,
           template <class, unsigned int> class trans>
 class ifs : public polytope<Q, od, d, primitive<Q, pd>::faceVertices,
-                            typename primitive<Q, pd>::format> {
+                            typename primitive<Q, pd>::format>
+{
 public:
-  typedef polytope<Q, od, d, primitive<Q, pd>::faceVertices,
-                   typename primitive<Q, pd>::format> parent;
+  using parent = polytope<Q, od, d, primitive<Q, pd>::faceVertices,
+      typename primitive<Q, pd>::format>;
   using typename parent::format;
 
   ifs(const parameters<Q> &pParameter, const format &pFormat)
@@ -41,6 +42,93 @@ public:
 
   std::vector<trans<Q, d>> functions;
 
+  using basePrimitive = primitive<Q, od>;
+
+  class ifsIterator : public std::iterator<std::forward_iterator_tag, face> {
+  protected:
+    using faces = typename basePrimitive::iterator;
+
+  public:
+    ifsIterator(const parameters<Q> &pParameter,
+                const std::vector<trans<Q, d>> &pFunctions)
+      : parameter(pParameter), functions(pFunctions),
+        base(parameter, typename basePrimitive::format()),
+        basePosition(base.begin())
+    {
+      for (unsigned int rep = 0; rep < parameter.iterations; rep++) {
+        iteration.push_back(0);
+      }
+    }
+
+    ifsIterator &end(void) {
+      for (unsigned int rep = 0; rep < iteration.size(); rep++) {
+        iteration[rep] = (rep == 0) ? functions.size() : 0;
+      }
+      return *this;
+    }
+
+    const face operator*(void) const {
+      auto f = *basePosition;
+      face g;
+      auto o = g.begin();
+      for (auto &p : f) {
+        *o = p;
+        for (auto &i : iteration) {
+          *o = functions[i] * (*o);
+        }
+        o++;
+      }
+      return g;
+    }
+
+    ifsIterator &operator++(void) {
+      basePosition++;
+      
+      if (basePosition != base.end()) {
+        return *this;
+      } else {
+        basePosition = base.begin();
+      }
+
+      for (int rep = (iteration.size() - 1); rep >= 0; rep--) {
+        if (iteration[rep] < functions.size()) {
+          iteration[rep]++;
+        }
+
+        if (iteration[rep] < functions.size()) {
+          break;
+        } else if (rep > 0) {
+          iteration[rep] = 0;
+        }
+      }
+
+      return *this;
+    }
+
+    ifsIterator operator++(int) {
+      ifsIterator c = *this;
+      ++(*this);
+      return c;
+    }
+
+    constexpr bool operator!=(const ifsIterator &b) const {
+      return !(*this == b);
+    }
+    
+    constexpr bool operator==(const ifsIterator &b) const {
+      return (iteration == b.iteration)
+          && (basePosition == b.basePosition);
+    }
+
+  protected:
+    basePrimitive base;
+    faces basePosition;
+    std::vector<unsigned int> iteration;
+    std::vector<trans<Q, d>> functions;
+    const parameters<Q> parameter;
+  };
+
+#if 1
   void calculateObject(void) {
     primitive<Q, pd> source(parameter, tag);
 
@@ -69,6 +157,16 @@ public:
       faces = rfaces;
     }
   }
+#else
+  void calculateObject(void) {}
+  
+  using iterator = ifsIterator;
+
+  constexpr iterator begin(void) const {
+    return iterator(parent::parameter, functions);
+  }
+  constexpr iterator end(void) const { return begin().end(); }
+#endif
 
   math::vector<Q, d, format> apply(const unsigned int &f,
                                    const math::vector<Q, d, format> &v) {
