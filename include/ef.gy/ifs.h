@@ -58,11 +58,12 @@ public:
       for (unsigned int rep = 0; rep < parameter.iterations; rep++) {
         iteration.push_back(0);
       }
+      basePosition = base.begin();
     }
 
     ifsIterator &end(void) {
       for (unsigned int rep = 0; rep < iteration.size(); rep++) {
-        iteration[rep] = (rep == 0) ? functions.size() : 0;
+        iteration[rep] = int((rep == 0) ? functions.size() : 0);
       }
       return *this;
     }
@@ -73,7 +74,7 @@ public:
       auto o = g.begin();
       for (auto &p : f) {
         *o = p;
-        for (auto &i : iteration) {
+        for (const auto &i : iteration) {
           *o = functions[i] * (*o);
         }
         o++;
@@ -82,6 +83,7 @@ public:
     }
 
     ifsIterator &operator++(void) {
+#if 1
       basePosition++;
       
       if (basePosition != base.end()) {
@@ -89,8 +91,11 @@ public:
       } else {
         basePosition = base.begin();
       }
+#else
+      basePosition = base.begin();
+#endif
 
-      for (int rep = (iteration.size() - 1); rep >= 0; rep--) {
+      for (long rep = long(iteration.size() - 1); rep >= 0; rep--) {
         if (iteration[rep] < functions.size()) {
           iteration[rep]++;
         }
@@ -101,6 +106,12 @@ public:
           iteration[rep] = 0;
         }
       }
+
+      std::cerr << "[";
+      for (auto &r : iteration) {
+        std::cerr << " " << r;
+      }
+      std::cerr << " ]\n";
 
       return *this;
     }
@@ -116,8 +127,7 @@ public:
     }
     
     constexpr bool operator==(const ifsIterator &b) const {
-      return (iteration == b.iteration)
-          && (basePosition == b.basePosition);
+      return (iteration == b.iteration);
     }
 
   protected:
@@ -125,7 +135,7 @@ public:
     faces basePosition;
     std::vector<unsigned int> iteration;
     std::vector<trans<Q, d>> functions;
-    const parameters<Q> parameter;
+    parameters<Q> parameter;
   };
 
 #if 1

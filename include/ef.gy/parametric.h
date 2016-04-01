@@ -324,7 +324,7 @@ protected:
   vector strides;
   faces base;
   std::size_t basePosition;
-  const parameters<Q> parameter;
+  parameters<Q> parameter;
 
   static const faces getBase(const vector &strides) {
     parameters<Q> cubeParameter;
