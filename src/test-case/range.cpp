@@ -42,8 +42,8 @@ int testRange(std::ostream &log) {
     return -2;
   }
 
-  if (range<int, 8>::get(49, -1) !=
-      std::array<int, 8>({{49, 48, 47, 46, 45, 44, 43, 42}})) {
+  const auto res3 = std::array<int, 8>({{49, 48, 47, 46, 45, 44, 43, 42}});
+  if (range<int, 8>::get(49, -1) != res3) {
     log << "8-element sequence does not have the expected value.\n";
     return -3;
   }
