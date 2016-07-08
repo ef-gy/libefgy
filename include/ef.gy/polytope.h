@@ -365,7 +365,7 @@ public:
   const face operator*(void) const {
     const auto &f = *it;
     face cf;
-    for (unsigned int i = 0; i < cf.size(); i++) {
+    for (unsigned int i = 0; (i < f.size()) && (i < cf.size()); i++) {
       for (unsigned int j = 0; (j < f[i].size()) && (j < cf[i].size()); j++) {
         cf[i][j] = f[i][j];
       }

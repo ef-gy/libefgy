@@ -45,9 +45,6 @@ public:
   using basePrimitive = primitive<Q, od>;
 
   class ifsIterator : public std::iterator<std::forward_iterator_tag, face> {
-  protected:
-    using faces = typename basePrimitive::iterator;
-
   public:
     ifsIterator(const parameters<Q> &pParameter,
                 const std::vector<trans<Q, d>> &pFunctions)
@@ -58,10 +55,11 @@ public:
       for (unsigned int rep = 0; rep < parameter.iterations; rep++) {
         iteration.push_back(0);
       }
-      basePosition = base.begin();
+      basePosition = base.end();
     }
 
     ifsIterator &end(void) {
+      basePosition = base.begin();
       for (unsigned int rep = 0; rep < iteration.size(); rep++) {
         iteration[rep] = int((rep == 0) ? functions.size() : 0);
       }
@@ -84,16 +82,25 @@ public:
 
     ifsIterator &operator++(void) {
 #if 1
-      basePosition++;
-      
-      if (basePosition != base.end()) {
-        return *this;
-      } else {
+      if (basePosition == base.end()) {
         basePosition = base.begin();
+      } else {
+        basePosition++;
+
+        if (basePosition == base.end()) {
+          basePosition = base.begin();
+        } else {
+          return *this;
+        }
       }
 #else
       basePosition = base.begin();
 #endif
+
+      if (iteration[0] == functions.size()) {
+        basePosition = base.begin();
+        return *this;
+      }
 
       for (long rep = long(iteration.size() - 1); rep >= 0; rep--) {
         if (iteration[rep] < functions.size()) {
@@ -127,12 +134,15 @@ public:
     }
     
     constexpr bool operator==(const ifsIterator &b) const {
-      return (iteration == b.iteration);
+      return (iteration == b.iteration)
+          && (basePosition == b.basePosition);
     }
 
   protected:
+    using baseIterator = typename basePrimitive::iterator;
+
     basePrimitive base;
-    faces basePosition;
+    baseIterator basePosition;
     std::vector<unsigned int> iteration;
     std::vector<trans<Q, d>> functions;
     parameters<Q> parameter;
