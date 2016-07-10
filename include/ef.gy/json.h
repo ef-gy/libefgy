@@ -238,6 +238,8 @@ protected:
 
   void *payload;
 };
+
+using json = value<long double>;
 }
 }
 
