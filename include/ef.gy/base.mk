@@ -5,7 +5,6 @@ PREFIX:=/usr/local
 BINDIR:=$(DESTDIR)$(PREFIX)/bin
 INCLUDEDIR:=$(DESTDIR)$(PREFIX)/include
 MANDIR:=$(DESTDIR)$(PREFIX)/share/man
-THIRDPARTY:=./.third-party
 DOWNLOADS:=./.downloads
 
 # define these in your project!
@@ -30,7 +29,6 @@ XSLTPROC:=$(shell which xsltproc false | head -n 1)
 
 UNAME:=$(shell uname)
 LIBRARIES:=
-THIRDPARTYHEADERS:=
 JSFUNCTIONS:=
 
 DEBUG:=false
@@ -70,7 +68,7 @@ all: $(DATABASES) $(BINARIES)
 clean:
 	rm -f $(DATABASES) $(BINARIES); true
 scrub: clean
-	rm -rf $(THIRDPARTY) $(wildcard include/asio*) dependencies.mk
+	rm -rf $(wildcard include/asio*) dependencies.mk
 
 install: $(IBINARIES) $(IINCLUDES) $(IMANPAGES)
 uninstall:
@@ -128,35 +126,14 @@ test-case-%: src/test-case/%.cpp
 	$(EMXX) -std=$(CXX_STANDARD) -Iinclude/ -D NOLIBRARIES $(EMXXFLAGS) -s EXPORTED_FUNCTIONS="$(JSFUNCTIONS)" $< $(LDFLAGS) -o $@
 
 # dependency calculations
-dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS) $(THIRDPARTYHEADERS) include/ef.gy/base.mk makefile
+dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS) include/ef.gy/base.mk makefile
 	($(CXX) -std=$(CXX_STANDARD) -Iinclude/ $(PCCFLAGS) -MM -MG $(BINARIES_SRC_PROPER) | sed -E 's/(.*).o: /\1: /' || true) > $@
 	($(CXX) -std=$(CXX_STANDARD) -Iinclude/ $(PCCFLAGS) -MM -MG $(BINARIES_SRC_TEST) | sed -E 's/(.*).o: /test-case-\1: /' || true) >> $@
-
-# common third party libraries
-include/asio.hpp: $(THIRDPARTY)/asio/.git/refs/heads/master
-	ln -sf ../.third-party/asio/asio/include/asio.hpp $@
-	ln -sfn ../.third-party/asio/asio/include/asio include/asio
-
-asio.hpp: include/asio.hpp
-
-$(THIRDPARTY)/.volatile:
-	mkdir -p $(THIRDPARTY) || true
-	touch $@
-
-$(THIRDPARTY)/asio/.git/refs/heads/master: $(THIRDPARTY)/.volatile
-	cd $(THIRDPARTY) && $(GIT) clone https://github.com/chriskohlhoff/asio.git
 
 # downloads
 $(DOWNLOADS)/.volatile:
 	mkdir -p $(DOWNLOADS) || true
 	touch $@
-
-update: $(THIRDPARTY)/.volatile
-	cd $(THIRDPARTY) && for r in */; do \
-		cd $${r}; \
-		$(GIT) pull; \
-		cd ..; \
-	done
 
 doxyfile: makefile
 	echo 'DOXYFILE_ENCODING = UTF-8' > $@
