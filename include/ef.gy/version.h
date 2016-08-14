@@ -174,6 +174,6 @@ namespace efgy {
  *       string? ;)
  */
 static const unsigned int version = 8;
-};
+}
 
 #endif
