@@ -68,7 +68,7 @@ all: $(DATABASES) $(BINARIES)
 clean:
 	rm -f $(DATABASES) $(BINARIES); true
 scrub: clean
-	rm -rf $(wildcard include/asio*) dependencies.mk
+	rm -rf dependencies.mk
 
 install: $(IBINARIES) $(IINCLUDES) $(IMANPAGES)
 uninstall:
