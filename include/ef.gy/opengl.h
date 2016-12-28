@@ -17,6 +17,7 @@
 
 #include <ef.gy/glsl.h>
 #include <vector>
+#include <set>
 #include <sstream>
 
 namespace efgy {
