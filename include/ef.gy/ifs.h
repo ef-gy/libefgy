@@ -115,8 +115,6 @@ public:
         }
       }
 
-      dump();
-
       return *this;
     }
 
@@ -140,10 +138,9 @@ public:
         std::cerr << " " << r;
       }
       std::cerr << " ]\n";
-
     }
 
-    bool operator==(const ifsIterator &b) const {
+    constexpr bool operator==(const ifsIterator &b) const {
       return (isEnd() && b.isEnd())
           || ((iteration == b.iteration)
             && (basePosition == b.basePosition));
