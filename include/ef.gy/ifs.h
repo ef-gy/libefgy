@@ -97,8 +97,9 @@ public:
       basePosition = base.begin();
 #endif
 
-      if (iteration[0] == functions.size()) {
+      if (isEnd()) {
         basePosition = base.begin();
+        std::cerr << ".";
         return *this;
       }
 
@@ -114,11 +115,7 @@ public:
         }
       }
 
-      std::cerr << "[";
-      for (auto &r : iteration) {
-        std::cerr << " " << r;
-      }
-      std::cerr << " ]\n";
+      dump();
 
       return *this;
     }
@@ -129,13 +126,27 @@ public:
       return c;
     }
 
+    constexpr bool isEnd(void) const {
+      return iteration[0] == functions.size();
+    }
+
     constexpr bool operator!=(const ifsIterator &b) const {
       return !(*this == b);
     }
     
-    constexpr bool operator==(const ifsIterator &b) const {
-      return (iteration == b.iteration)
-          && (basePosition == b.basePosition);
+    void dump(void) const {
+      std::cerr << "[";
+      for (auto &r : iteration) {
+        std::cerr << " " << r;
+      }
+      std::cerr << " ]\n";
+
+    }
+
+    bool operator==(const ifsIterator &b) const {
+      return (isEnd() && b.isEnd())
+          || ((iteration == b.iteration)
+            && (basePosition == b.basePosition));
     }
 
   protected:
@@ -148,7 +159,7 @@ public:
     parameters<Q> parameter;
   };
 
-#if 1
+#if 0
   void calculateObject(void) {
     primitive<Q, pd> source(parameter, tag);
 
