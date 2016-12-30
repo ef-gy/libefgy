@@ -329,11 +329,11 @@ public:
 
   using iterator = typename std::vector<face>::const_iterator;
 
-  constexpr iterator begin(void) const {
+  iterator begin(void) const {
     return faces.begin();
   }
 
-  constexpr iterator end(void) const {
+  iterator end(void) const {
     return faces.end();
   }
 
@@ -402,8 +402,8 @@ public:
 
   static constexpr const char *id(void) { return model::id(); }
 
-  constexpr iterator begin(void) const { return iterator(object.begin()); }
-  constexpr iterator end(void) const { return iterator(object.end()); }
+  iterator begin(void) const { return iterator(object.begin()); }
+  iterator end(void) const { return iterator(object.end()); }
 
 protected:
   model object;

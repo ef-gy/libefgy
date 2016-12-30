@@ -13,6 +13,7 @@
 #define EF_GY_IFS_H
 
 #include <ef.gy/polytope.h>
+#include <ef.gy/parametric.h>
 #include <ef.gy/projection.h>
 #include <vector>
 #include <cstdlib>
@@ -35,7 +36,6 @@ public:
       : parent(pParameter, pFormat) {}
 
   using typename parent::face;
-  using parent::faceVertices;
   using parent::parameter;
   using parent::tag;
   using parent::indices;
@@ -50,24 +50,25 @@ public:
                 const std::vector<trans<Q, d>> &pFunctions)
       : parameter(pParameter), functions(pFunctions),
         base(parameter, typename basePrimitive::format()),
-        basePosition(base.begin())
+        basePosition(base.end())
     {
       for (unsigned int rep = 0; rep < parameter.iterations; rep++) {
         iteration.push_back(0);
       }
-      basePosition = base.end();
+      basePosition = base.begin();
     }
 
-    ifsIterator &end(void) {
-      basePosition = base.begin();
-      for (unsigned int rep = 0; rep < iteration.size(); rep++) {
-        iteration[rep] = int((rep == 0) ? functions.size() : 0);
-      }
-      return *this;
+    static ifsIterator end(const parameters<Q> &pParameter,
+                           const std::vector<trans<Q, d>> &pFunctions) {
+      ifsIterator it = ifsIterator(pParameter, pFunctions);
+      it.basePosition = it.base.end();
+      it.iteration[0] = it.functions.size();
+      return it;
     }
 
     const face operator*(void) const {
-      auto f = *basePosition;
+//      auto f = *basePosition;
+      auto f = *(base.begin());
       face g;
       auto o = g.begin();
       for (auto &p : f) {
@@ -81,25 +82,18 @@ public:
     }
 
     ifsIterator &operator++(void) {
-#if 1
+      if (basePosition != base.end()) {
+        basePosition++;
+      }
+
       if (basePosition == base.end()) {
         basePosition = base.begin();
       } else {
-        basePosition++;
-
-        if (basePosition == base.end()) {
-          basePosition = base.begin();
-        } else {
-          return *this;
-        }
+        return *this;
       }
-#else
-      basePosition = base.begin();
-#endif
 
       if (isEnd()) {
         basePosition = base.begin();
-        std::cerr << ".";
         return *this;
       }
 
@@ -124,11 +118,11 @@ public:
       return c;
     }
 
-    constexpr bool isEnd(void) const {
-      return iteration[0] == functions.size();
+    bool isEnd(void) const {
+      return iteration[0] >= functions.size();
     }
 
-    constexpr bool operator!=(const ifsIterator &b) const {
+    bool operator!=(const ifsIterator &b) const {
       return !(*this == b);
     }
     
@@ -140,7 +134,7 @@ public:
       std::cerr << " ]\n";
     }
 
-    constexpr bool operator==(const ifsIterator &b) const {
+    bool operator==(const ifsIterator &b) const {
       return (isEnd() && b.isEnd())
           || ((iteration == b.iteration)
             && (basePosition == b.basePosition));
@@ -156,36 +150,6 @@ public:
     parameters<Q> parameter;
   };
 
-#if 0
-  void calculateObject(void) {
-    primitive<Q, pd> source(parameter, tag);
-
-    faces.clear();
-    indices.clear();
-    for (const auto &f : source) {
-      faces.push_back(f);
-      indices.push_back(Q(0.5));
-    }
-
-    for (unsigned int i = 0; i < parameter.iterations; i++) {
-      std::vector<Q> rindices = indices;
-      indices.clear();
-      std::vector<std::array<math::vector<Q, d, format>, faceVertices>> rfaces;
-
-      while (faces.size() > 0) {
-        for (unsigned int j = 0; j < functions.size(); j++) {
-          rfaces.push_back(apply(j, faces.back()));
-          indices.push_back(((Q(j) / Q(functions.size())) + rindices.back()) /
-                            Q(2));
-        }
-        faces.pop_back();
-        rindices.pop_back();
-      }
-
-      faces = rfaces;
-    }
-  }
-#else
   void calculateObject(void) {}
   
   using iterator = ifsIterator;
@@ -193,8 +157,10 @@ public:
   constexpr iterator begin(void) const {
     return iterator(parent::parameter, functions);
   }
-  constexpr iterator end(void) const { return begin().end(); }
-#endif
+
+  constexpr iterator end(void) const {
+    return iterator::end(parent::parameter, functions);
+  }
 
   math::vector<Q, d, format> apply(const unsigned int &f,
                                    const math::vector<Q, d, format> &v) {
