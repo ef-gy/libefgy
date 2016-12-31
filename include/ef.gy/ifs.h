@@ -48,7 +48,8 @@ public:
     ifsIterator(const parameters<Q> &pParameter,
                 const std::vector<trans<Q, d>> &pFunctions)
       : parameter(pParameter), functions(pFunctions),
-        base(parameter, typename basePrimitive::format())
+        base(parameter, typename basePrimitive::format()),
+        basePosition(base.begin())
     {
       for (unsigned int rep = 0; rep < parameter.iterations; rep++) {
         iteration.push_back(0);
@@ -58,7 +59,8 @@ public:
 
     ifsIterator(const ifsIterator &it)
       : parameter(it.parameter), functions(it.functions),
-        base(it.base), iteration(it.iteration)
+        base(it.base), iteration(it.iteration),
+        basePosition(base.begin())
     {
       base.calculateObject();
       basePosition = base.begin();
