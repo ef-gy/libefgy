@@ -36,10 +36,12 @@ using namespace efgy;
  */
 template<class C, long lim = 10000, long min = 1>
 int testPolytopeIteratorNotInfinite(std::ostream &log) {
-  geometry::parameters<float> params;
+  auto params = geometry::parameters<float>();
 
-  auto p = C(params, math::format::cartesian());
+  auto p = C(params, typename C::format());
   long c = 0;
+
+  log << "iterating through '" << p.id() << "'\n";
 
   for(auto &f : p) {
     auto t = f;
@@ -48,6 +50,11 @@ int testPolytopeIteratorNotInfinite(std::ostream &log) {
           << p.id() << "': more than '" << lim << "' iterations.\n";
       return -1;
     }
+    log << "vector: [";
+    for (auto &n : t) {
+      log << " " << n;
+    }
+    log << " ]\n";
     c++;
   }
 
@@ -73,8 +80,8 @@ TEST_BATCH(
     testPolytopeIteratorNotInfinite<
         geometry::sierpinski::gasket<float,2>>,
 
-//    testPolytopeIteratorNotInfinite<
-//        geometry::adapt<float, 3,
-//            geometry::sierpinski::gasket<float,2>,
-//            math::format::cartesian>>,
+    testPolytopeIteratorNotInfinite<
+        geometry::adapt<float, 3,
+            geometry::sierpinski::gasket<float,2>,
+            math::format::cartesian>>,
     )

@@ -394,11 +394,9 @@ public:
 
   adapt(const parameters<Q> &pParameter, const format &pFormat)
       : parent(pParameter, pFormat),
-        object(pParameter, typename model::format()), indices(object.indices) {}
+        object(pParameter, typename model::format()) {}
 
   void calculateObject(void) { object.calculateObject(); }
-
-  std::vector<Q> &indices;
 
   static constexpr const char *id(void) { return model::id(); }
 

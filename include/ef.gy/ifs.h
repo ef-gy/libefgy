@@ -38,7 +38,6 @@ public:
   using typename parent::face;
   using parent::parameter;
   using parent::tag;
-  using parent::indices;
 
   std::vector<trans<Q, d>> functions;
 
@@ -49,13 +48,27 @@ public:
     ifsIterator(const parameters<Q> &pParameter,
                 const std::vector<trans<Q, d>> &pFunctions)
       : parameter(pParameter), functions(pFunctions),
-        base(parameter, typename basePrimitive::format()),
-        basePosition(base.end())
+        base(parameter, typename basePrimitive::format())
     {
       for (unsigned int rep = 0; rep < parameter.iterations; rep++) {
         iteration.push_back(0);
       }
+      base.calculateObject();
+    }
+
+    ifsIterator(const ifsIterator &it)
+      : parameter(it.parameter), functions(it.functions),
+        base(it.base), iteration(it.iteration)
+    {
+      base.calculateObject();
       basePosition = base.begin();
+    }
+
+    static ifsIterator begin(const parameters<Q> &pParameter,
+                             const std::vector<trans<Q, d>> &pFunctions) {
+      ifsIterator it = ifsIterator(pParameter, pFunctions);
+      it.basePosition = it.base.begin();
+      return it;
     }
 
     static ifsIterator end(const parameters<Q> &pParameter,
@@ -67,8 +80,7 @@ public:
     }
 
     const face operator*(void) const {
-//      auto f = *basePosition;
-      auto f = *(base.begin());
+      auto f = *basePosition;
       face g;
       auto o = g.begin();
       for (auto &p : f) {
@@ -154,30 +166,12 @@ public:
   
   using iterator = ifsIterator;
 
-  constexpr iterator begin(void) const {
-    return iterator(parent::parameter, functions);
+  iterator begin(void) const {
+    return iterator::begin(parent::parameter, functions);
   }
 
-  constexpr iterator end(void) const {
+  iterator end(void) const {
     return iterator::end(parent::parameter, functions);
-  }
-
-  math::vector<Q, d, format> apply(const unsigned int &f,
-                                   const math::vector<Q, d, format> &v) {
-    return functions[f] * v;
-  }
-
-  template <std::size_t fdim>
-  std::array<math::vector<Q, d, format>, fdim>
-  apply(const unsigned int &f,
-        const std::array<math::vector<Q, d, format>, fdim> &l) {
-    std::array<math::vector<Q, d, format>, fdim> r;
-
-    for (int i = 0; i < fdim; i++) {
-      r[i] = apply(f, l[i]);
-    }
-
-    return r;
   }
 
 protected:
