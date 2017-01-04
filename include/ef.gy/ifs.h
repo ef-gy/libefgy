@@ -77,7 +77,7 @@ public:
                            const std::vector<trans<Q, d>> &pFunctions) {
       ifsIterator it = ifsIterator(pParameter, pFunctions);
       it.basePosition = it.base.end();
-      it.iteration[0] = it.functions.size();
+      it.iteration[0] = (unsigned int)it.functions.size();
       return it;
     }
 
