@@ -304,8 +304,6 @@ public:
    * A copy of the vector format tag for this model.
    */
   const format tag;
-
-  std::vector<Q> indices;
 };
 
 /**\brief Polytope base template

@@ -1706,28 +1706,14 @@ template <typename C, typename Q, unsigned int d>
 template <typename C, typename Q, unsigned int d, typename model>
     static inline oglstream<C, Q, d> operator<<(oglstream<C, Q, d> stream,
                                                 const model &poly) {
-  if (poly.indices.size() == 0) {
-    for (const auto &p : poly) {
-      std::array<math::vector<Q, d>, model::faceVertices> q;
+  for (const auto &p : poly) {
+    std::array<math::vector<Q, d>, model::faceVertices> q;
 
-      for (std::size_t i = 0; i < poly.faceVertices; i++) {
-        q[i] = p[i];
-      }
-
-      stream.render.draw(q);
+    for (std::size_t i = 0; i < poly.faceVertices; i++) {
+      q[i] = p[i];
     }
-  } else {
-    auto itIndex = poly.indices.begin();
-    for (const auto &p : poly) {
-      std::array<math::vector<Q, d>, model::faceVertices> q;
 
-      for (std::size_t i = 0; i < poly.faceVertices; i++) {
-        q[i] = p[i];
-      }
-
-      stream.render.draw(q, *itIndex);
-      itIndex++;
-    }
+    stream.render.draw(q, Q(1));
   }
 
   return stream;

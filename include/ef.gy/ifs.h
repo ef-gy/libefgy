@@ -77,7 +77,7 @@ public:
                            const std::vector<trans<Q, d>> &pFunctions) {
       ifsIterator it = ifsIterator(pParameter, pFunctions);
       it.basePosition = it.base.end();
-      it.iteration[0] = (unsigned int)it.functions.size();
+      it.iteration[0] = it.functions.size();
       return it;
     }
 
@@ -159,7 +159,7 @@ public:
 
     basePrimitive base;
     baseIterator basePosition;
-    std::vector<unsigned int> iteration;
+    std::vector<std::size_t> iteration;
     std::vector<trans<Q, d>> functions;
     parameters<Q> parameter;
   };
