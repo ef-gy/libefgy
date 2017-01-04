@@ -155,20 +155,28 @@ public:
   unsigned long long vertexLimit;
 };
 
-template<>
-class parameters<bool> {
+/**\brief Flags for geometry parameters.
+ *
+ * Used when specifying which parameters a model uses. The actual flags are
+ * template parameters, to allow for easier type aliasing and so that there does
+ * not need to be any subclassing or instantiating of this class.
+ */
+template<bool tRadius = false, bool tRadius2 = false, bool tConstant = false,
+    bool tPrecision = false, bool tIterations = false, bool tFunctions = false,
+    bool tSeed = false, bool tPreRotate = false, bool tPostRotate = false,
+    bool tFlameCoefficients = false>
+class parameterFlags {
 public:
-  static const bool radius = false;
-  static const bool radius2 = false;
-  static const bool constant = false;
-  static const bool precision = false;
-  static const bool iterations = false;
-  static const bool functions = false;
-  static const bool seed = false;
-  static const bool preRotate = false;
-  static const bool postRotate = false;
-  static const bool flameCoefficients = false;
-  static const bool vertexLimit = false;
+  static const bool radius = tRadius;
+  static const bool radius2 = tRadius2;
+  static const bool constant = tConstant;
+  static const bool precision = tPrecision;
+  static const bool iterations = tIterations;
+  static const bool functions = tFunctions;
+  static const bool seed = tSeed;
+  static const bool preRotate = tPreRotate;
+  static const bool postRotate = tPostRotate;
+  static const bool flameCoefficients = tFlameCoefficients;
 };
 
 /**\brief Dimensional constraints
@@ -321,7 +329,7 @@ public:
    */
   const format tag;
 
-  using usedParameters = parameters<bool>;
+  using usedParameters = parameterFlags<>;
 };
 
 /**\brief Polytope base template
@@ -424,6 +432,8 @@ public:
   iterator end(void) const { return iterator(object.end()); }
   std::size_t size(void) const { return object.size(); }
 
+  using usedParameters = typename parent::usedParameters;
+
 protected:
   model object;
 };
@@ -433,91 +443,6 @@ using autoAdapt = typename std::conditional<
     std::is_same<format, typename model::format>::value &&
         (d == model::renderDepth),
     model, efgy::geometry::adapt<Q, d, model, format>>::type;
-
-template <typename Q, unsigned int od>
-class simplex : public polytope<Q, od, od, 3, math::format::cartesian> {
-public:
-  typedef polytope<Q, od, od, 3, math::format::cartesian> parent;
-  using typename parent::format;
-
-  simplex(const parameters<Q> &pParameter, const format &pFormat)
-      : parent(pParameter, pFormat) {
-    calculateObject();
-  }
-
-  using parent::parameter;
-  using parent::faces;
-
-  typedef dimensions<2, 0> dimensions;
-
-  /**\copydoc polytope::id() */
-  static constexpr const char *id(void) { return "simplex"; }
-
-  void
-  recurse(const int r,
-          math::vector<Q, parent::renderDepth, math::format::polar> v,
-          std::vector<math::vector<Q, parent::renderDepth, format>> &points) {
-    if (r == 0) {
-      math::vector<Q, parent::renderDepth, format> A = v;
-      points.push_back(A);
-    } else {
-      const int q = r - 1;
-
-      v[r] = 0;
-      recurse(q, v, points);
-      v[r] = Q(M_PI) / Q(1.5);
-      recurse(q, v, points);
-    }
-  }
-
-  void calculateObject(void) {
-    Q radius = parameter.radius;
-
-    faces.clear();
-
-    std::vector<math::vector<Q, parent::renderDepth, format>> points;
-
-    math::vector<Q, parent::renderDepth, math::format::polar> v;
-    v[0] = radius;
-
-    const int r = od - 1;
-    const int q = r - 1;
-
-    v[r] = Q(-M_PI) / Q(1.5);
-    recurse(q, v, points);
-    v[r] = 0;
-    recurse(q, v, points);
-    v[r] = Q(M_PI) / Q(1.5);
-    recurse(q, v, points);
-
-    std::vector<math::vector<Q, parent::renderDepth, format>> points2;
-
-    for (const math::vector<Q, parent::renderDepth, format> &point : points) {
-      if (std::find(points2.begin(), points2.end(), point) == points2.end()) {
-        points2.push_back(point);
-      }
-    }
-
-    points = points2;
-
-    std::vector<math::vector<Q, parent::renderDepth, format>> usedPoints;
-
-    for (const math::vector<Q, parent::renderDepth, format> &A : points) {
-      std::vector<math::vector<Q, parent::renderDepth, format>> usedPoints2;
-
-      for (const math::vector<Q, parent::renderDepth, format> &B : usedPoints) {
-        for (const math::vector<Q, parent::renderDepth, format> &C :
-             usedPoints2) {
-          faces.push_back({{A, B, C}});
-        }
-
-        usedPoints2.push_back(B);
-      }
-
-      usedPoints.push_back(A);
-    }
-  }
-};
 
 /**\ingroup libefgy-geometric-primitives
  * \brief The hypercube
@@ -604,6 +529,8 @@ public:
   static constexpr std::size_t size(void) {
     return surfaces;
   }
+
+  using usedParameters = parameterFlags<true>;
 
   void calculateObject(void) {
     Q diameter = parameter.radius * Q(0.5);

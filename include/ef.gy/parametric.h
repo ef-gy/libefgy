@@ -36,6 +36,8 @@ public:
   static constexpr const unsigned int renderDepth = 3;
   static constexpr const char *id(void) { return "moebius-strip"; }
 
+  using usedParameters = parameterFlags<true, false, false, true>;
+
   constexpr static range<Q> getRange(const parameters<Q> &parameter,
                                      std::size_t i) {
     return i == 0 ? range<Q>(0, M_PI * Q(2), parameter.precision * Q(2), false)
@@ -60,6 +62,8 @@ public:
 
   static constexpr const unsigned int renderDepth = 3;
   static constexpr const char *id(void) { return "klein-bagel"; }
+
+  using usedParameters = parameterFlags<true, false, false, true>;
 
   constexpr static range<Q> getRange(const parameters<Q> &parameter,
                                      std::size_t) {
@@ -88,6 +92,8 @@ public:
   static constexpr const unsigned int renderDepth = 4;
   static constexpr const char *id(void) { return "klein-bottle"; }
 
+  using usedParameters = parameterFlags<true, true, true, true>;
+
   constexpr static range<Q> getRange(const parameters<Q> &parameter,
                                      std::size_t) {
     return range<Q>(0, M_PI * Q(2), parameter.precision * Q(2), false);
@@ -115,6 +121,8 @@ public:
   static constexpr const unsigned int renderDepth = od + 1;
   static constexpr const char *id(void) { return "sphere"; }
 
+  using usedParameters = parameterFlags<true, false, false, true>;
+
   constexpr static range<Q> getRange(const parameters<Q> &parameter,
                                      std::size_t i) {
     return i == 0 ? range<Q>(0, M_PI * Q(2), parameter.precision * Q(2), false)
@@ -139,6 +147,8 @@ public:
 
   static constexpr const unsigned int renderDepth = od;
   static constexpr const char *id(void) { return "plane"; }
+
+  using usedParameters = parameterFlags<true, false, false, true>;
 
   constexpr static range<Q> getRange(const parameters<Q> &parameter,
                                      std::size_t i) {
@@ -165,6 +175,8 @@ public:
   static constexpr const unsigned int renderDepth = 3;
   static constexpr const char *id(void) { return "torus"; }
 
+  using usedParameters = parameterFlags<true, true, false, true>;
+
   constexpr static range<Q> getRange(const parameters<Q> &parameter,
                                      std::size_t i) {
     return range<Q>(0, M_PI * Q(2), parameter.precision * Q(2), false);
@@ -188,6 +200,8 @@ public:
   static constexpr const unsigned int renderDepth = 4;
   static constexpr const char *id(void) { return "clifford-torus"; }
 
+  using usedParameters = parameterFlags<false, false, true, true>;
+
   constexpr static range<Q> getRange(const parameters<Q> &parameter,
                                      std::size_t i) {
     return range<Q>(0, M_PI * Q(2), parameter.precision * Q(2), false);
@@ -210,6 +224,8 @@ public:
 
   static constexpr const unsigned int renderDepth = 3;
   static constexpr const char *id(void) { return "dinis-surface"; }
+
+  using usedParameters = parameterFlags<true, true, true, true>;
 
   constexpr static range<Q> getRange(const parameters<Q> &parameter,
                                      std::size_t i) {
@@ -397,6 +413,7 @@ public:
   void calculateObject(void) {}
 
   using iterator = parametricIterator<Q, od, formula>;
+  using usedParameters = typename formula<Q,od>::usedParameters;
 
   constexpr iterator begin(void) const { return iterator(parent::parameter); }
   constexpr iterator end(void) const { return begin().end(); }

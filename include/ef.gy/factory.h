@@ -524,7 +524,6 @@ static inline typename func<Q, cube, d, d, format>::output
 with(typename func<Q, cube, d, d, format>::argument arg,
      const std::string &type, const unsigned int &dims,
      const unsigned int &rdims, const format &tag = format()) {
-  with<Q, func, d, simplex, format>(arg, type, dims, rdims, tag);
   with<Q, func, d, plane, format>(arg, type, dims, rdims, tag);
   with<Q, func, d, cube, format>(arg, type, dims, rdims, tag);
   parametricFactory<formula::sphere>::with<Q, func, d, format>(arg, type, dims,
