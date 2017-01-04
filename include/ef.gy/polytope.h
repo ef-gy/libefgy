@@ -155,6 +155,22 @@ public:
   unsigned long long vertexLimit;
 };
 
+template<>
+class parameters<bool> {
+public:
+  static const bool radius = false;
+  static const bool radius2 = false;
+  static const bool constant = false;
+  static const bool precision = false;
+  static const bool iterations = false;
+  static const bool functions = false;
+  static const bool seed = false;
+  static const bool preRotate = false;
+  static const bool postRotate = false;
+  static const bool flameCoefficients = false;
+  static const bool vertexLimit = false;
+};
+
 /**\brief Dimensional constraints
  *
  * This class is used to hold dimensional constraints, which are in turn
@@ -304,6 +320,8 @@ public:
    * A copy of the vector format tag for this model.
    */
   const format tag;
+
+  using usedParameters = parameters<bool>;
 };
 
 /**\brief Polytope base template
@@ -333,6 +351,10 @@ public:
 
   iterator end(void) const {
     return faces.end();
+  }
+
+  std::size_t size(void) const {
+    return faces.size();
   }
 
 protected:
@@ -400,6 +422,7 @@ public:
 
   iterator begin(void) const { return iterator(object.begin()); }
   iterator end(void) const { return iterator(object.end()); }
+  std::size_t size(void) const { return object.size(); }
 
 protected:
   model object;
@@ -554,7 +577,7 @@ public:
    *       depth of the cube):
    *       2^n
    */
-  static const long long vertices =
+  static const std::size_t vertices =
       math::exponentiate::integral<long long, (long long)od>::raise(
           (long long)2);
 
@@ -568,7 +591,7 @@ public:
    *       depth of the cube):
    *       (2^(n-4))*(n-2)*(n-1)
    */
-  static const long long surfaces =
+  static const std::size_t surfaces =
       math::exponentiate::integral<long long, ((long long)od - 4)>::raise(
           (long long)2) *
       ((long long)od - 2) * ((long long)od - 1);
@@ -577,6 +600,10 @@ public:
 
   /**\copydoc polytope::id() */
   static constexpr const char *id(void) { return "cube"; }
+
+  static constexpr std::size_t size(void) {
+    return surfaces;
+  }
 
   void calculateObject(void) {
     Q diameter = parameter.radius * Q(0.5);

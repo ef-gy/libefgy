@@ -24,11 +24,11 @@ namespace geometry {
 template <typename Q, unsigned int od, unsigned int d,
           template <class, unsigned int> class primitive, unsigned int pd,
           template <class, unsigned int> class trans>
-class ifs : public polytope<Q, od, d, primitive<Q, pd>::faceVertices,
-                            typename primitive<Q, pd>::format>
+class ifs : public object<Q, od, d, primitive<Q, pd>::faceVertices,
+                          typename primitive<Q, pd>::format>
 {
 public:
-  using parent = polytope<Q, od, d, primitive<Q, pd>::faceVertices,
+  using parent = object<Q, od, d, primitive<Q, pd>::faceVertices,
       typename primitive<Q, pd>::format>;
   using typename parent::format;
 
@@ -175,9 +175,6 @@ public:
   iterator end(void) const {
     return iterator::end(parent::parameter, functions);
   }
-
-protected:
-  using parent::faces;
 };
 
 namespace sierpinski {
