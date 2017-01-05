@@ -66,12 +66,10 @@ int testPolytopeIteratorNotInfinite(std::ostream &log) {
   }
 
   if (c != p.size()) {
-    log << "BUG: wrong size() result for object type '"
+    log << "wrong size() result for object type '"
         << p.id() << "'; object said it would have " << p.size()
         << " elements, but iterator gave us " << c << " elements.\n";
-#if 0
     return -3;
-#endif
   }
 
   return 0;
