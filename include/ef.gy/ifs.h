@@ -15,6 +15,7 @@
 #include <ef.gy/polytope.h>
 #include <ef.gy/parametric.h>
 #include <ef.gy/projection.h>
+#include <cmath>
 #include <vector>
 #include <cstdlib>
 #include <random>
@@ -159,6 +160,7 @@ public:
 
     basePrimitive base;
     baseIterator basePosition;
+    // TODO: this ought to be a std::array.
     std::vector<std::size_t> iteration;
     std::vector<trans<Q, d>> functions;
     parameters<Q> parameter;
@@ -174,6 +176,14 @@ public:
 
   iterator end(void) const {
     return iterator::end(parent::parameter, functions);
+  }
+
+  std::size_t size(void) const {
+    basePrimitive base(parent::parameter,
+                       typename basePrimitive::format());
+    base.calculateObject();
+    return base.size() * std::pow<Q>(parent::parameter.functions,
+                                     parent::parameter.iterations);
   }
 };
 

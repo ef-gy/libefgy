@@ -526,9 +526,11 @@ public:
   /**\copydoc polytope::id() */
   static constexpr const char *id(void) { return "cube"; }
 
+#if 0
   static constexpr std::size_t size(void) {
     return surfaces;
   }
+#endif
 
   using usedParameters = parameterFlags<true>;
 

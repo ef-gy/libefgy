@@ -413,10 +413,18 @@ public:
   void calculateObject(void) {}
 
   using iterator = parametricIterator<Q, od, formula>;
-  using usedParameters = typename formula<Q,od>::usedParameters;
+  using usedParameters = typename source::usedParameters;
 
   constexpr iterator begin(void) const { return iterator(parent::parameter); }
   constexpr iterator end(void) const { return begin().end(); }
+
+  std::size_t size(void) {
+    std::size_t s = source::getRange(parent::parameter, 0).size();
+    for (auto i : range<std::size_t, source::renderDepth>(1)) {
+      s *= source::getRange(parent::parameter, i).size();
+    }
+    return s;
+  }
 };
 
 /**\brief The 2D plane

@@ -149,8 +149,8 @@ public:
   using iterator = rangeIterator<T>;
 
   constexpr iterator begin(void) const { return iterator(start, stride, 0); }
-
   constexpr iterator end(void) const { return iterator(start, stride, n); }
+  constexpr std::size_t size(void) const { return n; }
 
   /**\brief Get range array
    *
@@ -167,7 +167,7 @@ public:
    * One example:
    * \code{.cpp}
    * range<int, 5>::get(2, 2)
-   * {2, 4, 6, 8, 10
+   * {2, 4, 6, 8, 10}
    * \endcode
    *
    * \returns A std::array of the range.
@@ -211,8 +211,8 @@ public:
   typedef rangeIterator<T> iterator;
 
   constexpr iterator begin(void) const { return iterator(start, stride, 0); }
-
   constexpr iterator end(void) const { return iterator(start, stride, steps); }
+  constexpr std::size_t size(void) const { return steps; }
 
   /**\copydoc range::get
    *
@@ -229,6 +229,6 @@ public:
   T stride;
   std::size_t steps;
 };
-};
+}
 
 #endif
