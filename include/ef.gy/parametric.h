@@ -17,6 +17,7 @@
 #define EF_GY_PARAMETRIC_H
 
 #include <ef.gy/polytope.h>
+#include <algorithm>
 
 namespace efgy {
 namespace geometry {
@@ -397,11 +398,15 @@ template <typename Q, unsigned int od,
 class parametric : public object<Q, od, formula<Q, od>::renderDepth, 4,
                                  typename formula<Q, od>::format>
 {
-public:
+protected:
   using source = formula<Q, od>;
+
+private:
+  using parent = object<Q, od, source::renderDepth, 4, typename source::format>;
+
+public:
   using dimensions = typename source::dimensions;
 
-  using parent = object<Q, od, source::renderDepth, 4, typename source::format>;
   using typename parent::format;
   using typename parent::face;
 
@@ -424,14 +429,11 @@ public:
     for (std::size_t i = 1; i < od; i++) {
       s *= source::getRange(parent::parameter, i).size();
     }
+    return s;
 #else
     // TODO: this is really bad, but the closed form currently eludes me.
-    std::size_t s = 0;
-    for (auto &t : *this) {
-      s++;
-    }
+    return std::count_if(begin(), end(), [](const face&){return true;});
 #endif
-    return s;
   }
 };
 

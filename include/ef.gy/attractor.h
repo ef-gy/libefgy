@@ -83,7 +83,7 @@ public:
   /**\copydoc polytope::id() */
   static constexpr const char *id(void) { return "random-attractor"; }
 };
-};
-};
+}
+}
 
 #endif

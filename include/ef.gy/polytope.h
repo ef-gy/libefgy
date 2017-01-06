@@ -480,8 +480,10 @@ using autoAdapt = typename std::conditional<
  */
 template <typename Q, unsigned int od>
 class cube : public polytope<Q, od, od, 4, math::format::cartesian> {
-public:
+private:
   using parent = polytope<Q, od, od, 4, math::format::cartesian>;
+
+public:
   using typename parent::format;
 
   cube(const parameters<Q> &pParameter, const format &pFormat = format())
