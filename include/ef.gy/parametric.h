@@ -418,7 +418,7 @@ public:
   constexpr iterator begin(void) const { return iterator(parent::parameter); }
   constexpr iterator end(void) const { return begin().end(); }
 
-  std::size_t size(void) {
+  std::size_t size(void) const {
 #if 0
     std::size_t s = source::getRange(parent::parameter, 0).size();
     for (std::size_t i = 1; i < od; i++) {

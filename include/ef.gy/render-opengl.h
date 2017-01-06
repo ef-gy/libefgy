@@ -1706,6 +1706,8 @@ template <typename C, typename Q, unsigned int d>
 template <typename C, typename Q, unsigned int d, typename model>
     static inline oglstream<C, Q, d> operator<<(oglstream<C, Q, d> stream,
                                                 const model &poly) {
+  auto s = poly.size();
+  decltype(s) c = 0;
   for (const auto &p : poly) {
     std::array<math::vector<Q, d>, model::faceVertices> q;
 
@@ -1713,7 +1715,8 @@ template <typename C, typename Q, unsigned int d, typename model>
       q[i] = p[i];
     }
 
-    stream.render.draw(q, Q(1));
+    c++;
+    stream.render.draw(q, Q(c)/Q(s));
   }
 
   return stream;
