@@ -407,15 +407,9 @@ private:
 public:
   using dimensions = typename source::dimensions;
 
-  using typename parent::format;
-  using typename parent::face;
-
-  parametric(const parameters<Q> &pParameter, const format &pFormat)
-    : parent(pParameter, pFormat) {}
+  using parent::parent;
 
   static constexpr const char *id(void) { return source::id(); }
-
-  void calculateObject(void) {}
 
   using iterator = parametricIterator<Q, od, formula>;
   using usedParameters = typename source::usedParameters;
@@ -432,7 +426,8 @@ public:
     return s;
 #else
     // TODO: this is really bad, but the closed form currently eludes me.
-    return std::count_if(begin(), end(), [](const face&){return true;});
+    return std::count_if(begin(), end(),
+                         [](const typename parent::face&){return true;});
 #endif
   }
 };

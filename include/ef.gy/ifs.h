@@ -266,10 +266,7 @@ public:
         base(pParameter, format()),
         basePosition(base.begin()), iterations(0),
         totalIterations(pParameter.iterations),
-        limit(std::pow<Q>(functions.size(), pParameter.iterations))
-    {
-      base.calculateObject();
-    }
+        limit(std::pow<Q>(functions.size(), pParameter.iterations)) {}
 
     iterator(const iterator &it)
       : functions(it.functions),
@@ -279,22 +276,12 @@ public:
         totalIterations(it.totalIterations),
         limit(it.limit)
     {
-      base.calculateObject();
       basePosition = base.begin();
     }
 
-    static iterator begin(const parameters<Q> &pParameter,
-                          const std::vector<translation> &pFunctions) {
-      iterator it = iterator(pParameter, pFunctions);
-      it.basePosition = it.base.begin();
-      return it;
-    }
-
-    static iterator end(const parameters<Q> &pParameter,
-                        const std::vector<translation> &pFunctions) {
-      iterator it = iterator(pParameter, pFunctions);
-      it.iterations = it.limit;
-      return it;
+    iterator &end(void) {
+      iterations = limit;
+      return *this;
     }
 
     const face operator*(void) const {
@@ -368,20 +355,19 @@ public:
   };
 
   iterator begin(void) const {
-    return iterator::begin(parent::parameter,
-                           generator::functions(parent::parameter));
+    return iterator(parent::parameter,
+                    generator::functions(parent::parameter));
   }
 
   iterator end(void) const {
-    return iterator::end(parent::parameter,
-                         generator::functions(parent::parameter));
+    return begin().end();
   }
 
   std::size_t size(void) const {
     basePrimitive base(parent::parameter, format());
     base.calculateObject();
     return base.size() * std::pow<Q>(
-        generator::functions(parent::parameter).size(),
+        generator::size(parent::parameter),
         parent::parameter.iterations);
   }
 
