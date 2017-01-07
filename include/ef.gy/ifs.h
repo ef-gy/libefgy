@@ -345,16 +345,13 @@ protected:
 }
 
 template <typename Q, unsigned int d>
-using extendedCube = adapt<Q, d, cube<Q, 2>, typename cube<Q, 2>::format>;
-
-template <typename Q, unsigned int d>
 using extendedPlane = adapt<Q, d, plane<Q, 2>, typename plane<Q, 2>::format>;
 
 template <typename Q, unsigned int od>
 class randomAffineIFS
-    : public ifs<Q, od, od, extendedCube, od, transformation::affine> {
+    : public ifs<Q, od, od, cube, od, transformation::affine> {
 public:
-  typedef ifs<Q, od, od, extendedCube, od, transformation::affine> parent;
+  typedef ifs<Q, od, od, cube, od, transformation::affine> parent;
   using typename parent::format;
 
   randomAffineIFS(const parameters<Q> &pParameter, const format &pFormat)
