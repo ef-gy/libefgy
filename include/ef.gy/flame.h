@@ -393,8 +393,6 @@ public:
       functions.push_back(transformation::randomFlame<Q, parent::renderDepth>(
           parameter, PRNG()));
     }
-
-    parent::calculateObject();
   }
 
   using parent::parameter;

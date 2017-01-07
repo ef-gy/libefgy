@@ -19,6 +19,7 @@
 #include <vector>
 #include <cstdlib>
 #include <random>
+#include <algorithm>
 
 namespace efgy {
 namespace geometry {
@@ -29,56 +30,55 @@ class ifs : public object<Q, od, d, primitive<Q, pd>::faceVertices,
                           typename primitive<Q, pd>::format>
 {
 public:
+  using basePrimitive = primitive<Q, od>;
+  using translation = trans<Q, d>;
+
   using parent = object<Q, od, d, primitive<Q, pd>::faceVertices,
       typename primitive<Q, pd>::format>;
-  using typename parent::format;
 
-  ifs(const parameters<Q> &pParameter, const format &pFormat)
-      : parent(pParameter, pFormat) {}
+  using parent::parent;
 
   using typename parent::face;
-  using parent::parameter;
-  using parent::tag;
 
-  std::vector<trans<Q, d>> functions;
-
-  using basePrimitive = primitive<Q, od>;
+  std::vector<translation> functions;
 
   class ifsIterator : public std::iterator<std::forward_iterator_tag, face> {
   public:
     ifsIterator(const parameters<Q> &pParameter,
-                const std::vector<trans<Q, d>> &pFunctions)
-      : parameter(pParameter), functions(pFunctions),
-        base(parameter, typename basePrimitive::format()),
-        basePosition(base.begin())
+                const std::vector<translation> &pFunctions)
+      : functions(pFunctions),
+        base(pParameter, typename basePrimitive::format()),
+        basePosition(base.begin()), iterations(0),
+        totalIterations(pParameter.iterations),
+        limit(std::pow<Q>(pParameter.functions, pParameter.iterations))
     {
-      for (unsigned int rep = 0; rep < parameter.iterations; rep++) {
-        iteration.push_back(0);
-      }
       base.calculateObject();
     }
 
     ifsIterator(const ifsIterator &it)
-      : parameter(it.parameter), functions(it.functions),
-        base(it.base), iteration(it.iteration),
-        basePosition(base.begin())
+      : functions(it.functions),
+        base(it.base),
+        basePosition(base.begin()),
+        iterations(it.iterations),
+        totalIterations(it.totalIterations),
+        limit(it.limit)
     {
       base.calculateObject();
       basePosition = base.begin();
     }
 
     static ifsIterator begin(const parameters<Q> &pParameter,
-                             const std::vector<trans<Q, d>> &pFunctions) {
+                             const std::vector<translation> &pFunctions) {
       ifsIterator it = ifsIterator(pParameter, pFunctions);
       it.basePosition = it.base.begin();
       return it;
     }
 
     static ifsIterator end(const parameters<Q> &pParameter,
-                           const std::vector<trans<Q, d>> &pFunctions) {
+                           const std::vector<translation> &pFunctions) {
       ifsIterator it = ifsIterator(pParameter, pFunctions);
       it.basePosition = it.base.end();
-      it.iteration[0] = it.functions.size();
+      it.iterations = it.limit;
       return it;
     }
 
@@ -88,7 +88,7 @@ public:
       auto o = g.begin();
       for (auto &p : f) {
         *o = p;
-        for (const auto &i : iteration) {
+        for (const auto &i : iteration()) {
           *o = functions[i] * (*o);
         }
         o++;
@@ -103,25 +103,7 @@ public:
 
       if (basePosition == base.end()) {
         basePosition = base.begin();
-      } else {
-        return *this;
-      }
-
-      if (isEnd()) {
-        basePosition = base.begin();
-        return *this;
-      }
-
-      for (long rep = long(iteration.size() - 1); rep >= 0; rep--) {
-        if (iteration[rep] < functions.size()) {
-          iteration[rep]++;
-        }
-
-        if (iteration[rep] < functions.size()) {
-          break;
-        } else if (rep > 0) {
-          iteration[rep] = 0;
-        }
+        iterations++;
       }
 
       return *this;
@@ -134,24 +116,16 @@ public:
     }
 
     bool isEnd(void) const {
-      return iteration[0] >= functions.size();
+      return iterations >= limit;
     }
 
     bool operator!=(const ifsIterator &b) const {
       return !(*this == b);
     }
     
-    void dump(void) const {
-      std::cerr << "[";
-      for (auto &r : iteration) {
-        std::cerr << " " << r;
-      }
-      std::cerr << " ]\n";
-    }
-
     bool operator==(const ifsIterator &b) const {
       return (isEnd() && b.isEnd())
-          || ((iteration == b.iteration)
+          || ((iterations == b.iterations)
             && (basePosition == b.basePosition));
     }
 
@@ -160,14 +134,24 @@ public:
 
     basePrimitive base;
     baseIterator basePosition;
-    // TODO: this ought to be a std::array.
-    std::vector<std::size_t> iteration;
-    std::vector<trans<Q, d>> functions;
-    parameters<Q> parameter;
+    std::vector<translation> functions;
+
+    std::size_t iterations;
+    std::size_t totalIterations;
+    std::size_t limit;
+
+    std::vector<std::size_t> iteration(void) const {
+      std::vector<std::size_t> rv = {};
+      std::size_t n = iterations;
+      for (std::size_t i = 0; i < totalIterations; i++) {
+        rv.push_back(n % functions.size());
+        n /= functions.size();
+      }
+      std::reverse(rv.begin(), rv.end());
+      return rv;
+    }
   };
 
-  void calculateObject(void) {}
-  
   using iterator = ifsIterator;
 
   iterator begin(void) const {
@@ -217,8 +201,6 @@ public:
           transformation::scale<Q, parent::renderDepth>(0.5) *
           transformation::translation<Q, parent::renderDepth>(translations[i]));
     }
-
-    parent::calculateObject();
   }
 
   using parent::parameter;
@@ -283,8 +265,6 @@ public:
           transformation::scale<Q, parent::renderDepth>(Q(1) / Q(3)) *
           transformation::translation<Q, parent::renderDepth>(translations[i]));
     }
-
-    parent::calculateObject();
   }
 
   using parent::parameter;
@@ -392,8 +372,6 @@ public:
           transformation::randomAffine<Q, parent::renderDepth>(
               parameter, PRNG()));
     }
-
-    parent::calculateObject();
   }
 
   using parent::parameter;

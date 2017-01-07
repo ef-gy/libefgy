@@ -330,6 +330,9 @@ public:
   const format tag;
 
   using usedParameters = parameterFlags<>;
+
+  // TODO: remove this
+  void calculateObject(void) const {}
 };
 
 /**\brief Polytope base template

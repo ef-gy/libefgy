@@ -136,6 +136,7 @@ void linearUpscaledUniformTransformFragment(
 }
 
 template <>
+inline
 void transform(std::vector<shader::uniform> &uniform,
                shader::vector<4> &gl_Position, shader::vector<3> &position) {
   linearUpscaledUniformTransformFragment<3, 4, 1>(uniform, gl_Position,
@@ -143,6 +144,7 @@ void transform(std::vector<shader::uniform> &uniform,
 }
 
 template <>
+inline
 void transform(std::vector<shader::uniform> &uniform,
                shader::vector<4> &gl_Position, shader::vector<2> &position) {
   linearUpscaledUniformTransformFragment<2, 4, 1>(uniform, gl_Position,
