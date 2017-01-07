@@ -5,7 +5,7 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  *
  * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
+ * \see Project Source Cdepthe: https://github.com/ef-gy/libefgy
  * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
@@ -235,19 +235,24 @@ using randomAffine =
          randomAffineIFSLabel>;
 }
 
-template <typename Q, unsigned int od, unsigned int d,
-          template <class, unsigned int> class primitive, unsigned int pd,
+template <typename Q, unsigned int depth,
+          template <class, unsigned int> class primitive,
           template <class, unsigned int, unsigned int> class gen>
-class ifs : public object<Q, od, d, primitive<Q, pd>::faceVertices,
-                          typename primitive<Q, pd>::format>
+class ifs : public object<Q, depth, primitive<Q, depth>::renderDepth,
+                          primitive<Q, depth>::faceVertices,
+                          typename primitive<Q, depth>::format>
 {
 public:
-  using basePrimitive = primitive<Q, od>;
-  using generator = gen<Q, od, d>;
-  using translation = typename generator::translation;
+  using basePrimitive = primitive<Q, depth>;
 
-  using parent = object<Q, od, d, primitive<Q, pd>::faceVertices,
-      typename primitive<Q, pd>::format>;
+  using format = typename basePrimitive::format;
+  using parent =
+    object<Q, depth,
+           basePrimitive::renderDepth, basePrimitive::faceVertices, format>;
+  using parent::renderDepth;
+
+  using generator = gen<Q, depth, renderDepth>;
+  using translation = typename generator::translation;
 
   using parent::parent;
 
@@ -258,7 +263,7 @@ public:
     iterator(const parameters<Q> &pParameter,
                 const std::vector<translation> &pFunctions)
       : functions(pFunctions),
-        base(pParameter, typename basePrimitive::format()),
+        base(pParameter, format()),
         basePosition(base.begin()), iterations(0),
         totalIterations(pParameter.iterations),
         limit(std::pow<Q>(functions.size(), pParameter.iterations))
@@ -373,8 +378,7 @@ public:
   }
 
   std::size_t size(void) const {
-    basePrimitive base(parent::parameter,
-                       typename basePrimitive::format());
+    basePrimitive base(parent::parameter, format());
     base.calculateObject();
     return base.size() * std::pow<Q>(
         generator::functions(parent::parameter).size(),
@@ -386,15 +390,15 @@ public:
 };
 
 namespace sierpinski {
-template <typename Q, unsigned int od>
-using gasket = ifs<Q, od, od, cube, od, functions::gasket>;
+template <typename Q, unsigned int depth>
+using gasket = ifs<Q, depth, cube, functions::gasket>;
 
-template <typename Q, unsigned int od>
-using carpet = ifs<Q, od, od, cube, od, functions::carpet>;
+template <typename Q, unsigned int depth>
+using carpet = ifs<Q, depth, cube, functions::carpet>;
 }
 
-template <typename Q, unsigned int od>
-using randomAffineIFS = ifs<Q, od, od, cube, od, functions::randomAffine>;
+template <typename Q, unsigned int depth>
+using randomAffineIFS = ifs<Q, depth, cube, functions::randomAffine>;
 }
 }
 

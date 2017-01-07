@@ -22,9 +22,6 @@
 
 namespace efgy {
 namespace geometry {
-template <typename Q, unsigned int d>
-using extendedPlane = adapt<Q, d, plane<Q, 2>, typename plane<Q, 2>::format>;
-
 namespace transformation {
 /**\brief Fractal flame transformation
  *
@@ -367,6 +364,9 @@ using randomFlame =
          randomFlameIFSLabel>;
 }
 
+template <typename Q, unsigned int d>
+using extendedPlane = adapt<Q, d, plane<Q, 2>, typename plane<Q, 2>::format>;
+
 namespace flame {
 /**\ingroup libefgy-extended-geometric-primitives
  * \brief Random Fractal Flame primitive
@@ -386,7 +386,7 @@ namespace flame {
  * \tparam od The depth of the model.
  */
 template <typename Q, unsigned int od>
-using random = ifs<Q, od, od, extendedPlane, od, functions::randomFlame>;
+using random = ifs<Q, od, extendedPlane, functions::randomFlame>;
 }
 }
 }
