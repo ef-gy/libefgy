@@ -22,11 +22,18 @@
 
 namespace efgy {
 namespace geometry {
+template <typename Q, unsigned int d>
+using extendedPlane = adapt<Q, d, plane<Q, 2>, typename plane<Q, 2>::format>;
+
 namespace transformation {
 /**\brief Fractal flame transformation
  *
- * These transformations are based on the 'Fractal Flame Algorithm'
- * paper by Scott Draves and Eric Reckase.
+ * These transformations are based on the 'Fractal Flame Algorithm' paper by
+ * Scott Draves and Eric Reckase.
+ *
+ * \todo This implementation is still incomplete, and currently only implements
+ *     the first 19 variations (up to "exponential"), so this could do with some
+ *     extra love.
  *
  * \see http://flam3.com/flame_draves.pdf for the original paper.
  */
@@ -350,6 +357,16 @@ protected:
 };
 }
 
+namespace functions {
+static constexpr const char randomFlameIFSLabel[] = "random-flame";
+
+template <typename Q, unsigned int depth, unsigned int renderDepth>
+using randomFlame =
+  random<Q, depth, renderDepth,
+         transformation::flame, transformation::randomFlame,
+         randomFlameIFSLabel>;
+}
+
 namespace flame {
 /**\ingroup libefgy-extended-geometric-primitives
  * \brief Random Fractal Flame primitive
@@ -365,44 +382,11 @@ namespace flame {
  *  frameborder="0" allowfullscreen="true"/>
  * \endhtmlonly
  *
- * \tparam Q      The base data type to use for calculations.
- * \tparam od     The depth of the model.
- * \tparam format Vector coordinate format to work in.
+ * \tparam Q  The base data type to use for calculations.
+ * \tparam od The depth of the model.
  */
 template <typename Q, unsigned int od>
-class random : public ifs<Q, od, od, extendedPlane, od, transformation::flame> {
-public:
-  typedef ifs<Q, od, od, extendedPlane, od, transformation::flame> parent;
-  using typename parent::format;
-
-  random(const parameters<Q> &pParameter, const format &pFormat)
-      : parent(pParameter, pFormat) {
-    calculateObject();
-  }
-
-  void calculateObject(void) {
-    functions.clear();
-
-    std::mt19937 PRNG(parameter.seed);
-
-    const unsigned int nfunctions = parameter.functions;
-
-    for (const unsigned int &i :
-         range<unsigned int>(0, nfunctions, nfunctions, false)) {
-      (void)i;
-      functions.push_back(transformation::randomFlame<Q, parent::renderDepth>(
-          parameter, PRNG()));
-    }
-  }
-
-  using parent::parameter;
-
-  using dimensions = dimensions<2, 0>;
-
-  using parent::functions;
-
-  static constexpr const char *id(void) { return "random-flame"; }
-};
+using random = ifs<Q, od, od, extendedPlane, od, functions::randomFlame>;
 }
 }
 }

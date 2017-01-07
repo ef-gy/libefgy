@@ -23,259 +23,6 @@
 
 namespace efgy {
 namespace geometry {
-template <typename Q, unsigned int od, unsigned int d,
-          template <class, unsigned int> class primitive, unsigned int pd,
-          template <class, unsigned int> class trans>
-class ifs : public object<Q, od, d, primitive<Q, pd>::faceVertices,
-                          typename primitive<Q, pd>::format>
-{
-public:
-  using basePrimitive = primitive<Q, od>;
-  using translation = trans<Q, d>;
-
-  using parent = object<Q, od, d, primitive<Q, pd>::faceVertices,
-      typename primitive<Q, pd>::format>;
-
-  using parent::parent;
-
-  using typename parent::face;
-
-  std::vector<translation> functions;
-
-  class ifsIterator : public std::iterator<std::forward_iterator_tag, face> {
-  public:
-    ifsIterator(const parameters<Q> &pParameter,
-                const std::vector<translation> &pFunctions)
-      : functions(pFunctions),
-        base(pParameter, typename basePrimitive::format()),
-        basePosition(base.begin()), iterations(0),
-        totalIterations(pParameter.iterations),
-        limit(std::pow<Q>(pParameter.functions, pParameter.iterations))
-    {
-      base.calculateObject();
-    }
-
-    ifsIterator(const ifsIterator &it)
-      : functions(it.functions),
-        base(it.base),
-        basePosition(base.begin()),
-        iterations(it.iterations),
-        totalIterations(it.totalIterations),
-        limit(it.limit)
-    {
-      base.calculateObject();
-      basePosition = base.begin();
-    }
-
-    static ifsIterator begin(const parameters<Q> &pParameter,
-                             const std::vector<translation> &pFunctions) {
-      ifsIterator it = ifsIterator(pParameter, pFunctions);
-      it.basePosition = it.base.begin();
-      return it;
-    }
-
-    static ifsIterator end(const parameters<Q> &pParameter,
-                           const std::vector<translation> &pFunctions) {
-      ifsIterator it = ifsIterator(pParameter, pFunctions);
-      it.basePosition = it.base.end();
-      it.iterations = it.limit;
-      return it;
-    }
-
-    const face operator*(void) const {
-      auto f = *basePosition;
-      face g;
-      auto o = g.begin();
-      for (auto &p : f) {
-        *o = p;
-        for (const auto &i : iteration()) {
-          *o = functions[i] * (*o);
-        }
-        o++;
-      }
-      return g;
-    }
-
-    ifsIterator &operator++(void) {
-      if (basePosition != base.end()) {
-        basePosition++;
-      }
-
-      if (basePosition == base.end()) {
-        basePosition = base.begin();
-        iterations++;
-      }
-
-      return *this;
-    }
-
-    ifsIterator operator++(int) {
-      ifsIterator c = *this;
-      ++(*this);
-      return c;
-    }
-
-    bool isEnd(void) const {
-      return iterations >= limit;
-    }
-
-    bool operator!=(const ifsIterator &b) const {
-      return !(*this == b);
-    }
-    
-    bool operator==(const ifsIterator &b) const {
-      return (isEnd() && b.isEnd())
-          || ((iterations == b.iterations)
-            && (basePosition == b.basePosition));
-    }
-
-  protected:
-    using baseIterator = typename basePrimitive::iterator;
-
-    basePrimitive base;
-    baseIterator basePosition;
-    std::vector<translation> functions;
-
-    std::size_t iterations;
-    std::size_t totalIterations;
-    std::size_t limit;
-
-    std::vector<std::size_t> iteration(void) const {
-      std::vector<std::size_t> rv = {};
-      std::size_t n = iterations;
-      for (std::size_t i = 0; i < totalIterations; i++) {
-        rv.push_back(n % functions.size());
-        n /= functions.size();
-      }
-      std::reverse(rv.begin(), rv.end());
-      return rv;
-    }
-  };
-
-  using iterator = ifsIterator;
-
-  iterator begin(void) const {
-    return iterator::begin(parent::parameter, functions);
-  }
-
-  iterator end(void) const {
-    return iterator::end(parent::parameter, functions);
-  }
-
-  std::size_t size(void) const {
-    basePrimitive base(parent::parameter,
-                       typename basePrimitive::format());
-    base.calculateObject();
-    return base.size() * std::pow<Q>(parent::parameter.functions,
-                                     parent::parameter.iterations);
-  }
-};
-
-namespace sierpinski {
-template <typename Q, unsigned int od>
-class gasket : public ifs<Q, od, od, cube, od, transformation::affine> {
-public:
-  typedef ifs<Q, od, od, cube, od, transformation::affine> parent;
-  using typename parent::format;
-
-  gasket(const parameters<Q> &pParameter, const format &pFormat)
-      : parent(pParameter, pFormat) {
-    const unsigned int nfunctions = (1 << (od - 1)) + 1;
-    std::array<math::vector<Q, parent::renderDepth>, nfunctions> translations;
-
-    translations[0][0] = Q(0.25);
-
-    for (unsigned int i = 1; i < nfunctions; i++) {
-      translations[i][0] = Q(-0.25);
-      for (unsigned int j = 1; j < od; j++) {
-        const unsigned int k = i - 1;
-        const unsigned int l = j - 1;
-        const unsigned int b = 1 << l;
-        const bool s = k & b;
-        translations[i][j] = Q(s ? -0.25 : 0.25);
-      }
-    }
-
-    for (unsigned int i = 0; i < nfunctions; i++) {
-      functions.push_back(
-          transformation::scale<Q, parent::renderDepth>(0.5) *
-          transformation::translation<Q, parent::renderDepth>(translations[i]));
-    }
-  }
-
-  using parent::parameter;
-  using parent::functions;
-
-  using dimensions = dimensions<2, 0>;
-
-  static constexpr const char *id(void) { return "sierpinski-gasket"; }
-};
-
-template <typename Q, unsigned int od>
-class carpet : public ifs<Q, od, od, cube, od, transformation::affine> {
-public:
-  typedef ifs<Q, od, od, cube, od, transformation::affine> parent;
-  using typename parent::format;
-
-  carpet(const parameters<Q> &pParameter, const format &pFormat)
-      : parent(pParameter, pFormat) {
-    const unsigned int nfunctions = od == 2 ? 8 : 20;
-    std::array<math::vector<Q, parent::renderDepth>, nfunctions> translations;
-
-    if (od > 1) {
-      translations[0][0] = Q(-1) / Q(3);
-      translations[0][1] = Q(-1) / Q(3);
-      translations[1][0] = Q(-1) / Q(3);
-      translations[1][1] = Q(0);
-      translations[2][0] = Q(-1) / Q(3);
-      translations[2][1] = Q(1) / Q(3);
-      translations[3][0] = Q(1) / Q(3);
-      translations[3][1] = Q(-1) / Q(3);
-      translations[4][0] = Q(1) / Q(3);
-      translations[4][1] = Q(0);
-      translations[5][0] = Q(1) / Q(3);
-      translations[5][1] = Q(1) / Q(3);
-      translations[6][0] = Q(0);
-      translations[6][1] = Q(-1) / Q(3);
-      translations[7][0] = Q(0);
-      translations[7][1] = Q(1) / Q(3);
-    }
-    if (od > 2) {
-      for (int i = 0; i < 8; i++) {
-        translations[(i + 8)] = translations[i];
-        translations[i][2] = Q(-1) / Q(3);
-        translations[(i + 8)][2] = Q(1) / Q(3);
-      }
-
-      translations[16][0] = Q(1) / Q(3);
-      translations[16][1] = Q(1) / Q(3);
-
-      translations[17][0] = Q(-1) / Q(3);
-      translations[17][1] = Q(1) / Q(3);
-
-      translations[18][0] = Q(1) / Q(3);
-      translations[18][1] = Q(-1) / Q(3);
-
-      translations[19][0] = Q(-1) / Q(3);
-      translations[19][1] = Q(-1) / Q(3);
-    }
-
-    for (unsigned int i = 0; i < nfunctions; i++) {
-      functions.push_back(
-          transformation::scale<Q, parent::renderDepth>(Q(1) / Q(3)) *
-          transformation::translation<Q, parent::renderDepth>(translations[i]));
-    }
-  }
-
-  using parent::parameter;
-  using parent::functions;
-
-  using dimensions = dimensions<2, 3>;
-
-  static constexpr const char *id(void) { return "sierpinski-carpet"; }
-};
-}
-
 namespace transformation {
 template <typename Q, unsigned int d> class randomAffine : public affine<Q, d> {
 public:
@@ -344,40 +91,310 @@ protected:
 };
 }
 
-template <typename Q, unsigned int d>
-using extendedPlane = adapt<Q, d, plane<Q, 2>, typename plane<Q, 2>::format>;
-
-template <typename Q, unsigned int od>
-class randomAffineIFS
-    : public ifs<Q, od, od, cube, od, transformation::affine> {
+namespace functions {
+template <typename Q, unsigned int depth, unsigned int renderDepth>
+class gasket {
 public:
-  typedef ifs<Q, od, od, cube, od, transformation::affine> parent;
-  using typename parent::format;
+  using translation = transformation::affine<Q, renderDepth>;
+  using dimensions = dimensions<2, 0>;
+  static constexpr const char *id(void) { return "sierpinski-gasket"; }
 
-  randomAffineIFS(const parameters<Q> &pParameter, const format &pFormat)
-      : parent(pParameter, pFormat) {
-    calculateObject();
+  using scale = transformation::scale<Q, renderDepth>;
+  using translate = transformation::translation<Q, renderDepth>;
+
+  static std::vector<translation> functions(const parameters<Q> &parameter) {
+    std::vector<translation> rv = {};
+
+    const unsigned int nfunctions = (1 << (depth - 1)) + 1;
+    std::array<math::vector<Q, renderDepth>, nfunctions> translations;
+
+    translations[0][0] = Q(0.25);
+
+    for (unsigned int i = 1; i < translations.size(); i++) {
+      translations[i][0] = Q(-0.25);
+      for (unsigned int j = 1; j < depth; j++) {
+        const unsigned int k = i - 1;
+        const unsigned int l = j - 1;
+        const unsigned int b = 1 << l;
+        const bool s = k & b;
+        translations[i][j] = Q(s ? -0.25 : 0.25);
+      }
+    }
+
+    for (const auto &t : translations) {
+      rv.push_back(scale(0.5) * translate(t));
+    }
+
+    return rv;
   }
 
-  void calculateObject(void) {
-    functions.clear();
+  static constexpr std::size_t size(const parameters<Q> &) {
+    return (1 << (depth - 1)) + 1;
+  }
+};
+
+template <typename Q, unsigned int depth, unsigned int renderDepth>
+class carpet {
+public:
+  using translation = transformation::affine<Q, renderDepth>;
+  using dimensions = dimensions<2, 3>;
+  static constexpr const char *id(void) { return "sierpinski-carpet"; }
+
+  using scale = transformation::scale<Q, renderDepth>;
+  using translate = transformation::translation<Q, renderDepth>;
+
+  static std::vector<translation> functions(const parameters<Q> &parameter) {
+    std::vector<translation> rv = {};
+
+    const unsigned int nfunctions = depth == 2 ? 8 : 20;
+    std::array<math::vector<Q, renderDepth>, nfunctions> translations;
+
+    if (depth > 1) {
+      translations[0][0] = Q(-1) / Q(3);
+      translations[0][1] = Q(-1) / Q(3);
+      translations[1][0] = Q(-1) / Q(3);
+      translations[1][1] = Q(0);
+      translations[2][0] = Q(-1) / Q(3);
+      translations[2][1] = Q(1) / Q(3);
+      translations[3][0] = Q(1) / Q(3);
+      translations[3][1] = Q(-1) / Q(3);
+      translations[4][0] = Q(1) / Q(3);
+      translations[4][1] = Q(0);
+      translations[5][0] = Q(1) / Q(3);
+      translations[5][1] = Q(1) / Q(3);
+      translations[6][0] = Q(0);
+      translations[6][1] = Q(-1) / Q(3);
+      translations[7][0] = Q(0);
+      translations[7][1] = Q(1) / Q(3);
+    }
+    if (depth > 2) {
+      for (int i = 0; i < 8; i++) {
+        translations[(i + 8)] = translations[i];
+        translations[i][2] = Q(-1) / Q(3);
+        translations[(i + 8)][2] = Q(1) / Q(3);
+      }
+
+      translations[16][0] = Q(1) / Q(3);
+      translations[16][1] = Q(1) / Q(3);
+
+      translations[17][0] = Q(-1) / Q(3);
+      translations[17][1] = Q(1) / Q(3);
+
+      translations[18][0] = Q(1) / Q(3);
+      translations[18][1] = Q(-1) / Q(3);
+
+      translations[19][0] = Q(-1) / Q(3);
+      translations[19][1] = Q(-1) / Q(3);
+    }
+
+    for (const auto &t : translations) {
+      rv.push_back(scale(Q(1) / Q(3)) * translate(t));
+    }
+
+    return rv;
+  }
+
+  static constexpr std::size_t size(const parameters<Q> &) {
+    return depth == 2 ? 8 : 20;
+  }
+};
+
+template <typename Q, unsigned int depth, unsigned int renderDepth,
+          template <class, unsigned int> class trans,
+          template <class, unsigned int> class gen,
+          const char *name>
+class random {
+public:
+  using translation = trans<Q, renderDepth>;
+  using dimensions = dimensions<2, 0>;
+  static constexpr const char *id(void) { return name; }
+
+  static std::vector<translation> functions(const parameters<Q> &parameter) {
+    std::vector<translation> rv = {};
 
     std::mt19937 PRNG(parameter.seed);
 
     for (unsigned int i = 0; i < parameter.functions; i++) {
-      functions.push_back(
-          transformation::randomAffine<Q, parent::renderDepth>(
-              parameter, PRNG()));
+      rv.push_back(gen<Q, renderDepth>(parameter, PRNG()));
     }
+
+    return rv;
   }
 
-  using parent::parameter;
-  using parent::functions;
-
-  using dimensions = dimensions<2, 0>;
-
-  static constexpr const char *id(void) { return "random-affine-ifs"; }
+  static std::size_t size(const parameters<Q> &parameter) {
+    return parameter.functions;
+  }
 };
+
+static constexpr const char randomAffineIFSLabel[] = "random-affine-ifs";
+
+template <typename Q, unsigned int depth, unsigned int renderDepth>
+using randomAffine =
+  random<Q, depth, renderDepth,
+         transformation::affine, transformation::randomAffine,
+         randomAffineIFSLabel>;
+}
+
+template <typename Q, unsigned int od, unsigned int d,
+          template <class, unsigned int> class primitive, unsigned int pd,
+          template <class, unsigned int, unsigned int> class gen>
+class ifs : public object<Q, od, d, primitive<Q, pd>::faceVertices,
+                          typename primitive<Q, pd>::format>
+{
+public:
+  using basePrimitive = primitive<Q, od>;
+  using generator = gen<Q, od, d>;
+  using translation = typename generator::translation;
+
+  using parent = object<Q, od, d, primitive<Q, pd>::faceVertices,
+      typename primitive<Q, pd>::format>;
+
+  using parent::parent;
+
+  using typename parent::face;
+
+  class iterator : public std::iterator<std::forward_iterator_tag, face> {
+  public:
+    iterator(const parameters<Q> &pParameter,
+                const std::vector<translation> &pFunctions)
+      : functions(pFunctions),
+        base(pParameter, typename basePrimitive::format()),
+        basePosition(base.begin()), iterations(0),
+        totalIterations(pParameter.iterations),
+        limit(std::pow<Q>(functions.size(), pParameter.iterations))
+    {
+      base.calculateObject();
+    }
+
+    iterator(const iterator &it)
+      : functions(it.functions),
+        base(it.base),
+        basePosition(base.begin()),
+        iterations(it.iterations),
+        totalIterations(it.totalIterations),
+        limit(it.limit)
+    {
+      base.calculateObject();
+      basePosition = base.begin();
+    }
+
+    static iterator begin(const parameters<Q> &pParameter,
+                          const std::vector<translation> &pFunctions) {
+      iterator it = iterator(pParameter, pFunctions);
+      it.basePosition = it.base.begin();
+      return it;
+    }
+
+    static iterator end(const parameters<Q> &pParameter,
+                        const std::vector<translation> &pFunctions) {
+      iterator it = iterator(pParameter, pFunctions);
+      it.iterations = it.limit;
+      return it;
+    }
+
+    const face operator*(void) const {
+      auto f = *basePosition;
+      face g;
+      auto o = g.begin();
+      for (auto &p : f) {
+        *o = p;
+        for (const auto &i : iteration()) {
+          *o = functions[i] * (*o);
+        }
+        o++;
+      }
+      return g;
+    }
+
+    iterator &operator++(void) {
+      if (basePosition != base.end()) {
+        basePosition++;
+      }
+
+      if (basePosition == base.end()) {
+        basePosition = base.begin();
+        iterations++;
+      }
+
+      return *this;
+    }
+
+    iterator operator++(int) {
+      iterator c = *this;
+      ++(*this);
+      return c;
+    }
+
+    bool isEnd(void) const {
+      return iterations >= limit;
+    }
+
+    bool operator!=(const iterator &b) const {
+      return !(*this == b);
+    }
+    
+    bool operator==(const iterator &b) const {
+      return (isEnd() && b.isEnd())
+          || ((iterations == b.iterations)
+            && (basePosition == b.basePosition));
+    }
+
+  protected:
+    using baseIterator = typename basePrimitive::iterator;
+
+    basePrimitive base;
+    baseIterator basePosition;
+    std::vector<translation> functions;
+
+    std::size_t iterations;
+    std::size_t totalIterations;
+    std::size_t limit;
+
+    std::vector<std::size_t> iteration(void) const {
+      std::vector<std::size_t> rv = {};
+      std::size_t n = iterations;
+      for (std::size_t i = 0; i < totalIterations; i++) {
+        rv.push_back(n % functions.size());
+        n /= functions.size();
+      }
+      std::reverse(rv.begin(), rv.end());
+      return rv;
+    }
+  };
+
+  iterator begin(void) const {
+    return iterator::begin(parent::parameter,
+                           generator::functions(parent::parameter));
+  }
+
+  iterator end(void) const {
+    return iterator::end(parent::parameter,
+                         generator::functions(parent::parameter));
+  }
+
+  std::size_t size(void) const {
+    basePrimitive base(parent::parameter,
+                       typename basePrimitive::format());
+    base.calculateObject();
+    return base.size() * std::pow<Q>(
+        generator::functions(parent::parameter).size(),
+        parent::parameter.iterations);
+  }
+
+  using dimensions = typename generator::dimensions;
+  static constexpr const char *id(void) { return generator::id(); }
+};
+
+namespace sierpinski {
+template <typename Q, unsigned int od>
+using gasket = ifs<Q, od, od, cube, od, functions::gasket>;
+
+template <typename Q, unsigned int od>
+using carpet = ifs<Q, od, od, cube, od, functions::carpet>;
+}
+
+template <typename Q, unsigned int od>
+using randomAffineIFS = ifs<Q, od, od, cube, od, functions::randomAffine>;
 }
 }
 
