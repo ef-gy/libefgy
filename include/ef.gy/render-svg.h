@@ -313,7 +313,7 @@ constexpr inline osvgstream<C, Q, d> operator<<(std::basic_ostream<C> &stream,
  */
 template <typename C, typename Q, unsigned int d, typename model>
 static inline osvgstream<C, Q, d>
-operator<<(osvgstream<C, Q, d> stream, const model &poly) {
+operator<<(osvgstream<C, Q, d> stream, model &poly) {
   for (const auto &p : poly) {
     std::array<math::vector<Q, d>, model::faceVertices> q;
 

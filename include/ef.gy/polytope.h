@@ -330,33 +330,36 @@ public:
   const format tag;
 
   using usedParameters = parameterFlags<>;
-
-  // TODO: remove this
-  void calculateObject(void) const {}
 };
 
 /**\brief Polytope base template
  *
- * Separate from geometry::object to allow for easier overloads in
- * renderers.
+ * Separate from geometry::object to allow for easier overloads in renderers.
  *
- * \tparam Q      Base type for calculations; should be a rational type
- * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
- * \tparam d      Number of dimensions of the vector space to use
- * \tparam f      Number of vertices for mesh faces
- * \tparam format Vector coordinate format to work in, e.g.
- *                math::format::cartesian.
+ * \tparam Q   Base type for calculations; should be a rational type.
+ * \tparam od  Model depth, e.g. '2' for a square or '3' for a cube.
+ * \tparam gen Generator type.
  */
-template <typename Q, unsigned int od, unsigned int d, unsigned int f,
-          typename format>
-class polytope : public object<Q, od, d, f, format> {
+template <typename Q, unsigned int od,
+          template <typename, unsigned int> class gen>
+class polytope : public object<Q, od, gen<Q, od>::renderDepth,
+                               gen<Q, od>::faceVertices,
+                               typename gen<Q, od>::format> {
+protected:
+  using generator = gen<Q, od>;
+  using parent = object<Q, od, generator::renderDepth,
+                        generator::faceVertices, typename generator::format>;
+
 public:
-  using object<Q, od, d, f, format>::object;
-  using typename object<Q, od, d, f, format>::face;
+  using parent::parent;
+  using typename parent::face;
+  using usedParameters = typename generator::usedParameters;
+  using dimensions = typename generator::dimensions;
 
   using iterator = typename std::vector<face>::const_iterator;
 
-  iterator begin(void) const {
+  iterator begin(void) {
+    faces = generator::faces(parent::parameter);
     return faces.begin();
   }
 
@@ -365,14 +368,16 @@ public:
   }
 
   std::size_t size(void) const {
-    return faces.size();
+    return generator::size(parent::parameter);
   }
+
+  static constexpr const char *id(void) { return generator::id(); }
 
 protected:
   /**\brief The actual mesh data
    *
    * Contains all the faces that this polytope's mesh is composed
-   * of. Set by deriving classes.
+   * of. Set via generator::faces() whenever begin() is called.
    */
   std::vector<face> faces;
 };
@@ -427,11 +432,9 @@ public:
       : parent(pParameter, pFormat),
         object(pParameter, typename model::format()) {}
 
-  void calculateObject(void) { object.calculateObject(); }
-
   static constexpr const char *id(void) { return model::id(); }
 
-  iterator begin(void) const { return iterator(object.begin()); }
+  iterator begin(void) { return iterator(object.begin()); }
   iterator end(void) const { return iterator(object.end()); }
   std::size_t size(void) const { return object.size(); }
 
@@ -446,6 +449,126 @@ using autoAdapt = typename std::conditional<
     std::is_same<format, typename model::format>::value &&
         (d == model::renderDepth),
     model, efgy::geometry::adapt<Q, d, model, format>>::type;
+
+namespace generators {
+template <typename Q, unsigned int depth>
+class cube {
+public:
+  typedef dimensions<2, 0> dimensions;
+  static constexpr const unsigned int renderDepth = depth;
+  static constexpr const unsigned int faceVertices = 4;
+  static constexpr const char *id(void) { return "cube"; }
+  using usedParameters = parameterFlags<true>;
+
+  using format = math::format::cartesian;
+  using face = std::array<math::vector<Q, renderDepth, format>, faceVertices>;
+
+  static std::vector<face> faces(const parameters<Q> &parameter) {
+    std::vector<face> faces = {};
+
+    Q diameter = parameter.radius * Q(0.5);
+
+    std::vector<std::array<math::vector<Q, renderDepth, format>, 2>>
+        lines;
+
+    std::vector<math::vector<Q, renderDepth, format>> points;
+
+    points.push_back(math::vector<Q, renderDepth, format>());
+
+    for (unsigned int i : range<int>(0, depth, false)) {
+      std::vector<math::vector<Q, renderDepth>> newPoints;
+      std::vector<std::array<math::vector<Q, renderDepth, format>, 2>>
+          newLines;
+      std::vector<std::array<math::vector<Q, renderDepth, format>, 4>>
+          newFaces;
+
+      for (std::array<math::vector<Q, renderDepth, format>, 2> &line :
+           lines) {
+        line[0][i] = -diameter;
+        line[1][i] = -diameter;
+
+        std::array<math::vector<Q, renderDepth, format>, 2> newLine =
+            line;
+
+        newLine[0][i] = diameter;
+        newLine[1][i] = diameter;
+
+        newLines.push_back(newLine);
+        newFaces.push_back({{newLine[0], newLine[1], line[1], line[0]}});
+      }
+
+      for (face &f : faces) {
+        f[0][i] = -diameter;
+        f[1][i] = -diameter;
+        f[2][i] = -diameter;
+        f[3][i] = -diameter;
+
+        face newFace = f;
+        newFace[0][i] = diameter;
+        newFace[1][i] = diameter;
+        newFace[2][i] = diameter;
+        newFace[3][i] = diameter;
+        newFaces.push_back(newFace);
+      }
+
+      for (math::vector<Q, renderDepth, format> &v : points) {
+        v[i] = -diameter;
+
+        std::array<math::vector<Q, renderDepth, format>, 2> newLine{
+            {v, v}};
+
+        newLine[1][i] = diameter;
+
+        newPoints.push_back(newLine[1]);
+
+        lines.push_back(newLine);
+      }
+
+      points.insert(points.end(), newPoints.begin(), newPoints.end());
+      lines.insert(lines.end(), newLines.begin(), newLines.end());
+      faces.insert(faces.end(), newFaces.begin(), newFaces.end());
+    }
+
+    return faces;
+  }
+
+  /**\brief Number of vertices
+   *
+   * This is the number of vertices that the hypercube has. This
+   * may not be the same as the number of vertices that, say,
+   * OpenGL would have to send to the graphics card, as this does
+   * not account for vertex normals.
+   *
+   * \note The generel, closed formula for this is (n being the
+   *       depth of the cube):
+   *       2^n
+   */
+  static const std::size_t vertices =
+      math::exponentiate::integral<long long, (long long)depth>::raise(
+          (long long)2);
+
+  /**\brief Number of surfaces
+   *
+   * This is the number of 2D surfaces that the hypercube has. It
+   * helps to know this when trying to impose a limit on the
+   * number of vertices in certain derived classes.
+   *
+   * \note The general, closed formula for this is (n being the
+   *       depth of the cube):
+   *       (2^(n-4))*(n-2)*(n-1)
+   */
+  static const std::size_t surfaces =
+      math::exponentiate::integral<long long, ((long long)depth - 4)>::raise(
+          (long long)2) *
+      ((long long)depth - 2) * ((long long)depth - 1);
+
+  static constexpr std::size_t size(const parameters<Q> &parameter) {
+    // TODO: use a closed form instead of actually creating all the surfaces.
+    //return surfaces;
+    return faces(parameter).size();
+  }
+};
+}
 
 /**\ingroup libefgy-geometric-primitives
  * \brief The hypercube
@@ -482,132 +605,7 @@ using autoAdapt = typename std::conditional<
  *       probably be half the diagonal of the resulting model.
  */
 template <typename Q, unsigned int od>
-class cube : public polytope<Q, od, od, 4, math::format::cartesian> {
-private:
-  using parent = polytope<Q, od, od, 4, math::format::cartesian>;
-
-public:
-  using typename parent::format;
-
-  cube(const parameters<Q> &pParameter, const format &pFormat = format())
-      : parent(pParameter, pFormat) {
-    calculateObject();
-  }
-
-  using parent::parameter;
-
-  /**\brief Number of vertices
-   *
-   * This is the number of vertices that the hypercube has. This
-   * may not be the same as the number of vertices that, say,
-   * OpenGL would have to send to the graphics card, as this does
-   * not account for vertex normals.
-   *
-   * \note The generel, closed formula for this is (n being the
-   *       depth of the cube):
-   *       2^n
-   */
-  static const std::size_t vertices =
-      math::exponentiate::integral<long long, (long long)od>::raise(
-          (long long)2);
-
-  /**\brief Number of surfaces
-   *
-   * This is the number of 2D surfaces that the hypercube has. It
-   * helps to know this when trying to impose a limit on the
-   * number of vertices in certain derived classes.
-   *
-   * \note The general, closed formula for this is (n being the
-   *       depth of the cube):
-   *       (2^(n-4))*(n-2)*(n-1)
-   */
-  static const std::size_t surfaces =
-      math::exponentiate::integral<long long, ((long long)od - 4)>::raise(
-          (long long)2) *
-      ((long long)od - 2) * ((long long)od - 1);
-
-  typedef dimensions<2, 0> dimensions;
-
-  /**\copydoc polytope::id() */
-  static constexpr const char *id(void) { return "cube"; }
-
-#if 0
-  static constexpr std::size_t size(void) {
-    return surfaces;
-  }
-#endif
-
-  using usedParameters = parameterFlags<true>;
-
-  void calculateObject(void) {
-    Q diameter = parameter.radius * Q(0.5);
-
-    std::vector<std::array<math::vector<Q, parent::renderDepth, format>, 2>>
-        lines;
-    faces.clear();
-
-    std::vector<math::vector<Q, parent::renderDepth, format>> points;
-
-    points.push_back(math::vector<Q, parent::renderDepth, format>());
-
-    for (unsigned int i : range<int>(0, od, false)) {
-      std::vector<math::vector<Q, parent::renderDepth, format>> newPoints;
-      std::vector<std::array<math::vector<Q, parent::renderDepth, format>, 2>>
-          newLines;
-      std::vector<std::array<math::vector<Q, parent::renderDepth, format>, 4>>
-          newFaces;
-
-      for (std::array<math::vector<Q, parent::renderDepth, format>, 2> &line :
-           lines) {
-        line[0][i] = -diameter;
-        line[1][i] = -diameter;
-
-        std::array<math::vector<Q, parent::renderDepth, format>, 2> newLine =
-            line;
-
-        newLine[0][i] = diameter;
-        newLine[1][i] = diameter;
-
-        newLines.push_back(newLine);
-        newFaces.push_back({{newLine[0], newLine[1], line[1], line[0]}});
-      }
-
-      for (typename parent::face &face : faces) {
-        face[0][i] = -diameter;
-        face[1][i] = -diameter;
-        face[2][i] = -diameter;
-        face[3][i] = -diameter;
-
-        typename parent::face newFace = face;
-        newFace[0][i] = diameter;
-        newFace[1][i] = diameter;
-        newFace[2][i] = diameter;
-        newFace[3][i] = diameter;
-        newFaces.push_back(newFace);
-      }
-
-      for (math::vector<Q, parent::renderDepth, format> &v : points) {
-        v[i] = -diameter;
-
-        std::array<math::vector<Q, parent::renderDepth, format>, 2> newLine{
-            {v, v}};
-
-        newLine[1][i] = diameter;
-
-        newPoints.push_back(newLine[1]);
-
-        lines.push_back(newLine);
-      }
-
-      points.insert(points.end(), newPoints.begin(), newPoints.end());
-      lines.insert(lines.end(), newLines.begin(), newLines.end());
-      faces.insert(faces.end(), newFaces.begin(), newFaces.end());
-    }
-  }
-
-protected:
-  using parent::faces;
-};
+using cube = polytope<Q, od, generators::cube>;
 }
 }
 

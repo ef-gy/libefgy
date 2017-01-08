@@ -354,7 +354,7 @@ protected:
 };
 }
 
-namespace functions {
+namespace generators {
 static constexpr const char randomFlameIFSLabel[] = "random-flame";
 
 template <typename Q, unsigned int depth, unsigned int renderDepth>
@@ -386,7 +386,7 @@ namespace flame {
  * \tparam od The depth of the model.
  */
 template <typename Q, unsigned int od>
-using random = ifs<Q, od, extendedPlane, functions::randomFlame>;
+using random = ifs<Q, od, extendedPlane, generators::randomFlame>;
 }
 }
 }

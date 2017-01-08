@@ -91,7 +91,7 @@ protected:
 };
 }
 
-namespace functions {
+namespace generators {
 template <typename Q, unsigned int depth, unsigned int renderDepth>
 class gasket {
 public:
@@ -365,7 +365,6 @@ public:
 
   std::size_t size(void) const {
     basePrimitive base(parent::parameter, format());
-    base.calculateObject();
     return base.size() * std::pow<Q>(
         generator::size(parent::parameter),
         parent::parameter.iterations);
@@ -377,14 +376,14 @@ public:
 
 namespace sierpinski {
 template <typename Q, unsigned int depth>
-using gasket = ifs<Q, depth, cube, functions::gasket>;
+using gasket = ifs<Q, depth, cube, generators::gasket>;
 
 template <typename Q, unsigned int depth>
-using carpet = ifs<Q, depth, cube, functions::carpet>;
+using carpet = ifs<Q, depth, cube, generators::carpet>;
 }
 
 template <typename Q, unsigned int depth>
-using randomAffineIFS = ifs<Q, depth, cube, functions::randomAffine>;
+using randomAffineIFS = ifs<Q, depth, cube, generators::randomAffine>;
 }
 }
 

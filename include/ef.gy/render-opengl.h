@@ -1707,7 +1707,7 @@ template <typename C, typename Q, unsigned int d>
  */
 template <typename C, typename Q, unsigned int d, typename model>
     static inline oglstream<C, Q, d> operator<<(oglstream<C, Q, d> stream,
-                                                const model &poly) {
+                                                model &poly) {
   auto s = poly.size();
   decltype(s) c = 0;
   for (const auto &p : poly) {
