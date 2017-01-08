@@ -30,6 +30,7 @@
 #include <ef.gy/exponential.h>
 #include <type_traits>
 #include <iterator>
+#include <cmath>
 
 namespace efgy {
 namespace geometry {
@@ -367,8 +368,8 @@ public:
     return faces.end();
   }
 
-  std::size_t size(void) const {
-    return generator::size(parent::parameter);
+  constexpr std::size_t size(void) const {
+    return generator::size();
   }
 
   static constexpr const char *id(void) { return generator::id(); }
@@ -539,33 +540,25 @@ public:
    * OpenGL would have to send to the graphics card, as this does
    * not account for vertex normals.
    *
-   * \note The generel, closed formula for this is (n being the
-   *       depth of the cube):
-   *       2^n
+   * \note The generel, closed formula for this is (n being the depth of the
+   *     cube): 2^n
    */
-  static const std::size_t vertices =
-      math::exponentiate::integral<long long, (long long)depth>::raise(
-          (long long)2);
+  static constexpr const std::size_t vertices =
+      math::exponentiate::integral<std::size_t, (std::size_t)depth>::raise(
+          (std::size_t)2);
 
   /**\brief Number of surfaces
    *
-   * This is the number of 2D surfaces that the hypercube has. It
-   * helps to know this when trying to impose a limit on the
-   * number of vertices in certain derived classes.
+   * This is the number of 2D surfaces that the hypercube has. It helps to know
+   * this when trying to impose a limit on the number of vertices in certain
+   * derived classes.
    *
-   * \note The general, closed formula for this is (n being the
-   *       depth of the cube):
-   *       (2^(n-4))*(n-2)*(n-1)
+   * \note The general, closed formula for this is (n being the depth of the
+   *     cube): (2^(n-3))*(n-1)*n
    */
-  static const std::size_t surfaces =
-      math::exponentiate::integral<long long, ((long long)depth - 4)>::raise(
-          (long long)2) *
-      ((long long)depth - 2) * ((long long)depth - 1);
-
-  static constexpr std::size_t size(const parameters<Q> &parameter) {
-    // TODO: use a closed form instead of actually creating all the surfaces.
-    //return surfaces;
-    return faces(parameter).size();
+  static std::size_t size(void) {
+    return std::pow<long>(2, (long)depth - 3) *
+           (long)(depth - 1) * (long)depth;
   }
 };
 }

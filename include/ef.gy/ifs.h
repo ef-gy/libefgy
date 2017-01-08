@@ -365,7 +365,7 @@ public:
 
   std::size_t size(void) const {
     basePrimitive base(parent::parameter, format());
-    return base.size() * std::pow<Q>(
+    return base.size() * std::pow<std::size_t>(
         generator::size(parent::parameter),
         parent::parameter.iterations);
   }

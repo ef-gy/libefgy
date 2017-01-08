@@ -21,6 +21,7 @@
 #include <ef.gy/parametric.h>
 #include <ef.gy/ifs.h>
 #include <algorithm>
+#include <sstream>
 
 using namespace efgy;
 
@@ -37,11 +38,12 @@ using namespace efgy;
 template<class C, long lim = 10000, long min = 1>
 int testPolytopeIteratorNotInfinite(std::ostream &log) {
   auto params = geometry::parameters<float>();
+  std::ostringstream os("");
 
   auto p = C(params, typename C::format());
   long c = 0;
 
-  log << "iterating through '" << p.id() << "'\n";
+  log << "iterating through '" << p.id() << "': ";
 
   for(auto &f : p) {
     auto t = f;
@@ -50,11 +52,11 @@ int testPolytopeIteratorNotInfinite(std::ostream &log) {
           << p.id() << "': more than '" << lim << "' iterations.\n";
       return -1;
     }
-    log << "vector: [";
+    os << "vector: [";
     for (auto &n : t) {
-      log << " " << n;
+      os << " " << n;
     }
-    log << " ]\n";
+    os << " ]\n";
     c++;
   }
 
@@ -79,6 +81,11 @@ TEST_BATCH(
     testPolytopeIteratorNotInfinite<geometry::cube<float,2>, 1, 1>,
     testPolytopeIteratorNotInfinite<geometry::cube<float,3>, 6, 6>,
     testPolytopeIteratorNotInfinite<geometry::cube<float,4>, 24, 24>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float,5>, 80, 80>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float,6>, 240, 240>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float,7>, 672, 672>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float,8>, 1792, 1792>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float,9>, 4608, 4608>,
 
     testPolytopeIteratorNotInfinite<geometry::plane<float,2>>,
     testPolytopeIteratorNotInfinite<geometry::plane<float,3>>,
@@ -88,7 +95,18 @@ TEST_BATCH(
         geometry::sierpinski::gasket<float,2>>,
 
     testPolytopeIteratorNotInfinite<
+        geometry::sierpinski::gasket<float,3>>,
+
+    testPolytopeIteratorNotInfinite<
+        geometry::sierpinski::gasket<float,4>, 1000000>,
+
+    testPolytopeIteratorNotInfinite<
         geometry::adapt<float, 3,
             geometry::sierpinski::gasket<float,2>,
+            math::format::cartesian>>,
+
+    testPolytopeIteratorNotInfinite<
+        geometry::adapt<float, 5,
+            geometry::sierpinski::gasket<float,3>,
             math::format::cartesian>>,
     )
