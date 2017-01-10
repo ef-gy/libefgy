@@ -384,42 +384,20 @@ protected:
 };
 
 template <class face, class iterator>
-class adaptiveIterator : public std::iterator<std::forward_iterator_tag, face> {
+class adaptiveIterator : public iterator {
 public:
-  adaptiveIterator(iterator pIT) : it(pIT) {}
-
-  adaptiveIterator &operator++(void) {
-    it++;
-    return *this;
-  }
-
-  adaptiveIterator operator++(int) {
-    adaptiveIterator c = *this;
-    ++(*this);
-    return c;
-  }
+  adaptiveIterator(const iterator &pIT) : iterator(pIT) {}
 
   const face operator*(void) const {
-    const auto &f = *it;
+    const auto &f = iterator::operator*();
     face cf;
-    for (unsigned int i = 0; (i < f.size()) && (i < cf.size()); i++) {
-      for (unsigned int j = 0; (j < f[i].size()) && (j < cf[i].size()); j++) {
+    for (unsigned int i = 0; i < std::min(f.size(), cf.size()); i++) {
+      for (unsigned int j = 0; j < std::min(f[i].size(), cf[i].size()); j++) {
         cf[i][j] = f[i][j];
       }
     }
     return cf;
   }
-
-  constexpr bool operator!=(const adaptiveIterator &b) const {
-    return it != b.it;
-  }
-
-  constexpr bool operator==(const adaptiveIterator &b) const {
-    return it == b.it;
-  }
-
-protected:
-  iterator it;
 };
 
 template <typename Q, unsigned int d, class model, class format>
