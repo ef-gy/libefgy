@@ -440,67 +440,56 @@ public:
   using usedParameters = parameterFlags<true>;
 
   using format = math::format::cartesian;
-  using face = std::array<math::vector<Q, renderDepth, format>, faceVertices>;
+  using vector = math::vector<Q, renderDepth, format>;
+  using line = std::array<vector, 2>;
+  using face = std::array<vector, faceVertices>;
 
   static std::vector<face> faces(const parameters<Q> &parameter) {
     std::vector<face> faces = {};
 
-    Q diameter = parameter.radius * Q(0.5);
+    const Q diameter = parameter.radius * Q(0.5);
 
-    std::vector<std::array<math::vector<Q, renderDepth, format>, 2>>
-        lines;
+    std::vector<line> lines;
+    std::vector<vector> points;
 
-    std::vector<math::vector<Q, renderDepth, format>> points;
+    points.push_back(vector());
 
-    points.push_back(math::vector<Q, renderDepth, format>());
+    for (unsigned int i = 0; i < depth; i++) {
+      std::vector<vector> newPoints;
+      std::vector<line> newLines;
+      std::vector<face> newFaces;
 
-    for (unsigned int i : range<int>(0, depth, false)) {
-      std::vector<math::vector<Q, renderDepth>> newPoints;
-      std::vector<std::array<math::vector<Q, renderDepth, format>, 2>>
-          newLines;
-      std::vector<std::array<math::vector<Q, renderDepth, format>, 4>>
-          newFaces;
+      for (auto &line : lines) {
+        auto newLine = line;
 
-      for (std::array<math::vector<Q, renderDepth, format>, 2> &line :
-           lines) {
-        line[0][i] = -diameter;
-        line[1][i] = -diameter;
-
-        std::array<math::vector<Q, renderDepth, format>, 2> newLine =
-            line;
-
-        newLine[0][i] = diameter;
-        newLine[1][i] = diameter;
+        for (unsigned int j = 0; j < 2; j++) {
+          line[j][i] = -diameter;
+          newLine[j][i] = diameter;
+        }
 
         newLines.push_back(newLine);
-        newFaces.push_back({{newLine[0], newLine[1], line[1], line[0]}});
+        newFaces.push_back({newLine[0], newLine[1], line[1], line[0]});
       }
 
       for (face &f : faces) {
-        f[0][i] = -diameter;
-        f[1][i] = -diameter;
-        f[2][i] = -diameter;
-        f[3][i] = -diameter;
-
         face newFace = f;
-        newFace[0][i] = diameter;
-        newFace[1][i] = diameter;
-        newFace[2][i] = diameter;
-        newFace[3][i] = diameter;
+
+        for (unsigned int j = 0; j < 4; j++) {
+          f[j][i] = -diameter;
+          newFace[j][i] = diameter;
+        }
+
         newFaces.push_back(newFace);
       }
 
-      for (math::vector<Q, renderDepth, format> &v : points) {
+      for (auto &v : points) {
+        vector v2 = v;
+
         v[i] = -diameter;
+        v2[i] = diameter;
 
-        std::array<math::vector<Q, renderDepth, format>, 2> newLine{
-            {v, v}};
-
-        newLine[1][i] = diameter;
-
-        newPoints.push_back(newLine[1]);
-
-        lines.push_back(newLine);
+        newPoints.push_back(v2);
+        newLines.push_back({v, v2});
       }
 
       points.insert(points.end(), newPoints.begin(), newPoints.end());
