@@ -431,64 +431,47 @@ using autoAdapt = typename std::conditional<
     model, efgy::geometry::adapt<Q, d, model, format>>::type;
 
 namespace generators {
-template <typename Q, unsigned int depth>
+namespace mask {
+template<std::size_t depth>
 class cube {
+private:
+using vector = std::array<bool, depth>;
+using face = std::array<vector, 4>;
+
 public:
-  typedef dimensions<2, 0> dimensions;
-  static constexpr const unsigned int renderDepth = depth;
-  static constexpr const unsigned int faceVertices = 4;
-  static constexpr const char *id(void) { return "cube"; }
-  using usedParameters = parameterFlags<true>;
-
-  using format = math::format::cartesian;
-
-  using vector = math::vector<Q, renderDepth, format>;
-  using face = std::array<vector, faceVertices>;
-
-  using vectorB = std::array<bool, renderDepth>;
-  using faceB = std::array<vectorB, faceVertices>;
-
-  static std::vector<face> faces(const parameters<Q> &parameter) {
-    std::set<faceB> faces = {};
-
-    const Q diameter = parameter.radius * Q(0.5);
-
-    vectorB a = {}, b = {}, c = {}, d = {};
-
-    a[1] = true;
-    b[0] = true;
-    b[1] = true;
-    c[0] = true;
-
-    faces.insert({a, b, c, d});
+  static std::set<face> faces(void) {
+    std::set<face> faces{{
+      vector({false, false}),
+      vector({false, true}),
+      vector({true, true}),
+      vector({true, false})
+    }};
 
     for (std::size_t i = 2; i < depth; i++) {
-      std::set<faceB> newFaces;
-      std::set<std::array<vectorB, 2>> extruded;
+      std::set<face> newFaces;
 
       for (auto fa : faces) {
-        a = fa[0];
-        b = fa[1];
-        c = fa[2];
-        d = fa[3];
+        vector a = fa[0];
+        vector b = fa[1];
+        vector c = fa[2];
+        vector d = fa[3];
 
         for (std::size_t j = 0; j < 4; j++) {
           const auto &la = fa[j];
           const auto &lb = fa[((j + 1) % 4)];
 
-          if (extruded.count({la, lb}) == 1) {
-            continue;
-          }
+          const auto &ma = la < lb ? la : lb;
+          const auto &mb = la < lb ? lb : la;
 
-          auto e = la;
-          auto f = lb;
+          auto e = ma;
+          auto f = mb;
 
           e[i] = true;
           f[i] = true;
 
-          extruded.insert({la, lb});
-          extruded.insert({lb, la});
-          newFaces.insert({e, f, lb, la});
+          face n{{e, f, mb, ma}};
+          std::rotate(n.begin(), std::min_element(n.begin(), n.end()), n.end());
+          newFaces.insert(n);
         }
 
         a[i] = true;
@@ -496,58 +479,16 @@ public:
         c[i] = true;
         d[i] = true;
 
-        newFaces.insert({a, b, c, d});
+        face n{{a, b, c, d}};
+        std::rotate(n.begin(), std::min_element(n.begin(), n.end()), n.end());
+        newFaces.insert(n);
       }
 
       faces.insert(newFaces.begin(), newFaces.end());
     }
 
-    std::vector<face> res = {};
-
-#if 0
-    std::cerr << faces.size() << " vs " << size() << "\n";
-#endif
-
-    for (auto fa : faces) {
-#if 0
-      std::cerr << "[\n";
-      for (auto v : fa) {
-        std::cerr << "  (";
-        for (auto w : v) {
-          std::cerr << " " << w;
-        }
-        std::cerr << " )\n";
-      }
-      std::cerr << "]\n";
-#endif
-
-      face r = {};
-
-      for (std::size_t i = 0; i < 4; i++) {
-        for (std::size_t j = 0; j < depth; j++) {
-          r[i][j] = fa[i][j] ? diameter : -diameter;
-        }
-      }
-
-      res.push_back(r);
-    }
-
-    return res;
+    return faces;
   }
-
-  /**\brief Number of vertices
-   *
-   * This is the number of vertices that the hypercube has. This
-   * may not be the same as the number of vertices that, say,
-   * OpenGL would have to send to the graphics card, as this does
-   * not account for vertex normals.
-   *
-   * \note The generel, closed formula for this is (n being the depth of the
-   *     cube): 2^n
-   */
-  static constexpr const std::size_t vertices =
-      math::exponentiate::integral<std::size_t, (std::size_t)depth>::raise(
-          (std::size_t)2);
 
   /**\brief Number of surfaces
    *
@@ -558,9 +499,92 @@ public:
    * \note The general, closed formula for this is (n being the depth of the
    *     cube): (2^(n-3))*(n-1)*n
    */
-  static std::size_t size(void) {
-    return std::pow<long>(2, (long)depth - 3) *
-           (long)(depth - 1) * (long)depth;
+  static constexpr std::size_t size(void) {
+    return std::pow<long>(2, (long)depth - 3) * (long)(depth - 1) * (long)depth;
+  }
+};
+
+template<> class cube<2> {
+private:
+  using vector = std::array<bool, 2>;
+  using face = std::array<vector, 4>;
+
+public:
+  static constexpr std::array<face,1> faces(void) {
+    return {
+      vector({false, false}),
+      vector({false, true}),
+      vector({true, true}),
+      vector({true, false})
+    };
+  }
+
+  static constexpr std::size_t size(void) {
+    return 1;
+  }
+};
+
+template<> class cube<1> {
+private:
+  using vector = std::array<bool, 1>;
+  using face = std::array<vector, 4>;
+
+public:
+  static constexpr std::array<face,0> faces(void) {
+    return {};
+  }
+
+  static constexpr std::size_t size(void) {
+    return 0;
+  }
+};
+}
+
+template <typename Q, unsigned int depth> class cube {
+public:
+  typedef dimensions<2, 0> dimensions;
+  static constexpr const unsigned int renderDepth = depth;
+  static constexpr const unsigned int faceVertices = 4;
+  static constexpr const char *id(void) { return "cube"; }
+  using usedParameters = parameterFlags<true>;
+  using format = math::format::cartesian;
+
+private:
+  using vector = math::vector<Q, renderDepth, format>;
+  using face = std::array<vector, faceVertices>;
+  using source = mask::cube<depth>;
+
+public:
+  static std::vector<face> faces(const parameters<Q> &parameter) {
+    std::vector<face> res(source::size(), face());
+    const auto pd = parameter.radius * Q(.5);
+    const auto nd = parameter.radius * Q(-.5);
+    auto r = res.begin();
+
+    for (auto fa : source::faces()) {
+      for (std::size_t j = 0; j < depth; j++) {
+        (*r)[0][j] = fa[0][j] ? pd : nd;
+        (*r)[1][j] = fa[1][j] ? pd : nd;
+        (*r)[2][j] = fa[2][j] ? pd : nd;
+        (*r)[3][j] = fa[3][j] ? pd : nd;
+      }
+      r++;
+    }
+
+    return res;
+  }
+
+  /**\brief Number of surfaces
+   *
+   * This is the number of 2D surfaces that the hypercube has. It helps to know
+   * this when trying to impose a limit on the number of vertices in certain
+   * derived classes.
+   *
+   * \note The general, closed formula for this is (n being the depth of the
+   *     cube): (2^(n-3))*(n-1)*n
+   */
+  static constexpr std::size_t size(void) {
+    return source::size();
   }
 };
 }
