@@ -74,7 +74,7 @@ constexpr inline std::basic_ostream<C> &
 operator<<(std::basic_ostream<C> &stream, const polar &format) {
   return stream << "[polar:" << format.precision << "]";
 }
-};
+}
 
 /**\brief Polar coordinate vector
  *
@@ -176,7 +176,7 @@ protected:
    */
   format::polar spaceTag;
 };
-};
-};
+}
+}
 
 #endif

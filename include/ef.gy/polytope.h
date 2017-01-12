@@ -31,6 +31,7 @@
 #include <type_traits>
 #include <iterator>
 #include <cmath>
+#include <set>
 
 namespace efgy {
 namespace geometry {
@@ -440,64 +441,98 @@ public:
   using usedParameters = parameterFlags<true>;
 
   using format = math::format::cartesian;
+
   using vector = math::vector<Q, renderDepth, format>;
-  using line = std::array<vector, 2>;
   using face = std::array<vector, faceVertices>;
 
+  using vectorB = std::array<bool, renderDepth>;
+  using faceB = std::array<vectorB, faceVertices>;
+
   static std::vector<face> faces(const parameters<Q> &parameter) {
-    std::vector<face> faces = {};
+    std::set<faceB> faces = {};
 
     const Q diameter = parameter.radius * Q(0.5);
 
-    std::vector<line> lines;
-    std::vector<vector> points;
+    vectorB a = {}, b = {}, c = {}, d = {};
 
-    points.push_back(vector());
+    a[1] = true;
+    b[0] = true;
+    b[1] = true;
+    c[0] = true;
 
-    for (unsigned int i = 0; i < depth; i++) {
-      std::vector<vector> newPoints;
-      std::vector<line> newLines;
-      std::vector<face> newFaces;
+    faces.insert({a, b, c, d});
 
-      for (auto &line : lines) {
-        auto newLine = line;
+    for (std::size_t i = 2; i < depth; i++) {
+      std::set<faceB> newFaces;
+      std::set<std::array<vectorB, 2>> extruded;
 
-        for (unsigned int j = 0; j < 2; j++) {
-          line[j][i] = -diameter;
-          newLine[j][i] = diameter;
+      for (auto fa : faces) {
+        a = fa[0];
+        b = fa[1];
+        c = fa[2];
+        d = fa[3];
+
+        for (std::size_t j = 0; j < 4; j++) {
+          const auto &la = fa[j];
+          const auto &lb = fa[((j + 1) % 4)];
+
+          if (extruded.count({la, lb}) == 1) {
+            continue;
+          }
+
+          auto e = la;
+          auto f = lb;
+
+          e[i] = true;
+          f[i] = true;
+
+          extruded.insert({la, lb});
+          extruded.insert({lb, la});
+          newFaces.insert({e, f, lb, la});
         }
 
-        newLines.push_back(newLine);
-        newFaces.push_back({newLine[0], newLine[1], line[1], line[0]});
+        a[i] = true;
+        b[i] = true;
+        c[i] = true;
+        d[i] = true;
+
+        newFaces.insert({a, b, c, d});
       }
 
-      for (face &f : faces) {
-        face newFace = f;
-
-        for (unsigned int j = 0; j < 4; j++) {
-          f[j][i] = -diameter;
-          newFace[j][i] = diameter;
-        }
-
-        newFaces.push_back(newFace);
-      }
-
-      for (auto &v : points) {
-        vector v2 = v;
-
-        v[i] = -diameter;
-        v2[i] = diameter;
-
-        newPoints.push_back(v2);
-        newLines.push_back({v, v2});
-      }
-
-      points.insert(points.end(), newPoints.begin(), newPoints.end());
-      lines.insert(lines.end(), newLines.begin(), newLines.end());
-      faces.insert(faces.end(), newFaces.begin(), newFaces.end());
+      faces.insert(newFaces.begin(), newFaces.end());
     }
 
-    return faces;
+    std::vector<face> res = {};
+
+#if 0
+    std::cerr << faces.size() << " vs " << size() << "\n";
+#endif
+
+    for (auto fa : faces) {
+#if 0
+      std::cerr << "[\n";
+      for (auto v : fa) {
+        std::cerr << "  (";
+        for (auto w : v) {
+          std::cerr << " " << w;
+        }
+        std::cerr << " )\n";
+      }
+      std::cerr << "]\n";
+#endif
+
+      face r = {};
+
+      for (std::size_t i = 0; i < 4; i++) {
+        for (std::size_t j = 0; j < depth; j++) {
+          r[i][j] = fa[i][j] ? diameter : -diameter;
+        }
+      }
+
+      res.push_back(r);
+    }
+
+    return res;
   }
 
   /**\brief Number of vertices
