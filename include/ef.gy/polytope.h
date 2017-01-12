@@ -451,10 +451,7 @@ public:
       std::set<face> newFaces;
 
       for (auto fa : faces) {
-        vector a = fa[0];
-        vector b = fa[1];
-        vector c = fa[2];
-        vector d = fa[3];
+        auto x = fa;
 
         for (std::size_t j = 0; j < 4; j++) {
           const auto &la = fa[j];
@@ -463,25 +460,31 @@ public:
           const auto &ma = la < lb ? la : lb;
           const auto &mb = la < lb ? lb : la;
 
-          auto e = ma;
-          auto f = mb;
+          face n{{ma, mb, mb, ma}};
 
-          e[i] = true;
-          f[i] = true;
+          n[2][i] = true;
+          n[3][i] = true;
 
-          face n{{e, f, mb, ma}};
-          std::rotate(n.begin(), std::min_element(n.begin(), n.end()), n.end());
+          // this should have the smallest element first, because
+          //  - n[2] must be >= to n[1] because we set an extra bit
+          //  - n[3] must be >= to n[0] because we set an extra bit
+          //  - n[0] is <= n[1]
           newFaces.insert(n);
         }
 
-        a[i] = true;
-        b[i] = true;
-        c[i] = true;
-        d[i] = true;
+        x[0][i] = true;
+        x[1][i] = true;
+        x[2][i] = true;
+        x[3][i] = true;
 
-        face n{{a, b, c, d}};
-        std::rotate(n.begin(), std::min_element(n.begin(), n.end()), n.end());
-        newFaces.insert(n);
+        // since we moved this face in the new direction, we reverse the winding
+        // direction in order to reverse the normal.
+        std::reverse(x.begin(), x.end());
+
+        // this makes sure that the smallest vertex (via min_element) is first.
+        //std::rotate(x.begin(), std::min_element(x.begin(), x.end()), x.end());
+
+        newFaces.insert(x);
       }
 
       faces.insert(newFaces.begin(), newFaces.end());

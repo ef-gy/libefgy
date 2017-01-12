@@ -53,8 +53,7 @@ int analyseCubeMaskProperties(std::ostream &log) {
   }
 
   if (C::size() != faces.size()) {
-    log << "wrong size() result; object said it would have "
-        << faces.size()
+    log << "wrong size() result; object said it would have " << C::size()
         << " elements, but iterator gave us " << c << " elements.\n";
     return -1;
   }
