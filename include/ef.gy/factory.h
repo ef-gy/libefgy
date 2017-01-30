@@ -78,8 +78,8 @@ public:
  *                tesseract
  * \tparam format Vector coordinate format to work in.
  */
-template <typename Q, template <class, unsigned int> class T, unsigned int d,
-          unsigned int e, typename format>
+template <typename Q, template <class, std::size_t> class T, std::size_t d,
+          std::size_t e, typename format>
 class echo : public symmetric<std::ostream> {
 public:
   using symmetric<std::ostream>::argument;
@@ -111,8 +111,8 @@ public:
  *                tesseract
  * \tparam format Vector coordinate format to work in.
  */
-template <typename Q, template <class, unsigned int> class T, unsigned int d,
-          unsigned int e, typename format>
+template <typename Q, template <class, std::size_t> class T, std::size_t d,
+          std::size_t e, typename format>
 class models : public symmetric<std::set<const char *> > {
 public:
   using symmetric<std::set<const char *> >::argument;
@@ -140,8 +140,8 @@ public:
  * This variant of the 'models' functor also adds the valid depths
  * to the strings so that they're of the form 'depth-name'.
  */
-template <typename Q, template <class, unsigned int> class T, unsigned int d,
-          unsigned int e, typename format>
+template <typename Q, template <class, std::size_t> class T, std::size_t d,
+          std::size_t e, typename format>
 class modelsWithDepth : public symmetric<std::set<std::string> > {
 public:
   using symmetric<std::set<std::string> >::argument;
@@ -178,8 +178,8 @@ public:
  *                tesseract
  * \tparam format Vector coordinate format to work in.
  */
-template <typename Q, template <class, unsigned int> class T, unsigned int d,
-          unsigned int e, typename format>
+template <typename Q, template <class, std::size_t> class T, std::size_t d,
+          std::size_t e, typename format>
 class formats : public symmetric<std::set<const char *> > {
 public:
   using symmetric<std::set<const char *> >::argument;
@@ -211,12 +211,12 @@ public:
  *                tesseract
  * \tparam format Vector coordinate format to work in.
  */
-template <typename Q, template <class, unsigned int> class T, unsigned int d,
-          unsigned int e, typename format>
-class modelDimensions : public symmetric<std::set<unsigned int> > {
+template <typename Q, template <class, std::size_t> class T, std::size_t d,
+          std::size_t e, typename format>
+class modelDimensions : public symmetric<std::set<std::size_t> > {
 public:
-  using symmetric<std::set<unsigned int> >::argument;
-  using symmetric<std::set<unsigned int> >::output;
+  using symmetric<std::set<std::size_t> >::argument;
+  using symmetric<std::set<std::size_t> >::output;
 
   /**\brief Add model depth to set.
    *
@@ -242,12 +242,12 @@ public:
  *                tesseract
  * \tparam format Vector coordinate format to work in.
  */
-template <typename Q, template <class, unsigned int> class T, unsigned int d,
-          unsigned int e, typename format>
-class renderDimensions : public symmetric<std::set<unsigned int> > {
+template <typename Q, template <class, std::size_t> class T, std::size_t d,
+          std::size_t e, typename format>
+class renderDimensions : public symmetric<std::set<std::size_t> > {
 public:
-  using symmetric<std::set<unsigned int> >::argument;
-  using symmetric<std::set<unsigned int> >::output;
+  using symmetric<std::set<std::size_t> >::argument;
+  using symmetric<std::set<std::size_t> >::output;
 
   /**\brief Add render depth to set.
    *
@@ -277,9 +277,9 @@ public:
  * \tparam format Vector coordinate format to work in.
  */
 template <
-    typename Q, template <typename, template <class, unsigned int> class,
-                          unsigned int, unsigned int, typename> class func,
-    template <class, unsigned int> class T, unsigned int d, unsigned int e,
+    typename Q, template <typename, template <class, std::size_t> class,
+                          std::size_t, std::size_t, typename> class func,
+    template <class, std::size_t> class T, std::size_t d, std::size_t e,
     typename format>
 class model {
 public:
@@ -300,7 +300,7 @@ public:
    */
   constexpr static typename func<Q, T, d, e, format>::output
   with(typename func<Q, T, d, e, format>::argument arg,
-       const unsigned int &dims, const unsigned int &rdims, const format &tag) {
+       const std::size_t &dims, const std::size_t &rdims, const format &tag) {
     return d < T<Q, d>::dimensions::modelDimensionMinimum
                ? func<Q, T, d, e, format>::pass(arg)
                : (T<Q, d>::dimensions::modelDimensionMaximum > 0) &&
@@ -357,9 +357,9 @@ public:
  * \tparam format Vector coordinate format to work in.
  */
 template <
-    typename Q, template <typename, template <class, unsigned int> class,
-                          unsigned int, unsigned int, typename> class func,
-    template <class, unsigned int> class T, unsigned int d, typename format>
+    typename Q, template <typename, template <class, std::size_t> class,
+                          std::size_t, std::size_t, typename> class func,
+    template <class, std::size_t> class T, std::size_t d, typename format>
 class model<Q, func, T, d, 1, format> {
 public:
   /**\brief Call func with parameters; e=1 fix point
@@ -374,8 +374,8 @@ public:
    * \returns func::pass(arg).
    */
   constexpr static typename func<Q, T, d, 1, format>::output
-  with(typename func<Q, T, d, 1, format>::argument arg, const unsigned int &,
-       const unsigned int &, const format &) {
+  with(typename func<Q, T, d, 1, format>::argument arg, const std::size_t &,
+       const std::size_t &, const format &) {
     return func<Q, T, d, 1, format>::pass(arg);
   }
 };
@@ -395,9 +395,9 @@ public:
  * \tparam format Vector coordinate format to work in.
  */
 template <
-    typename Q, template <typename, template <class, unsigned int> class,
-                          unsigned int, unsigned int, typename> class func,
-    template <class, unsigned int> class T, unsigned int e, typename format>
+    typename Q, template <typename, template <class, std::size_t> class,
+                          std::size_t, std::size_t, typename> class func,
+    template <class, std::size_t> class T, std::size_t e, typename format>
 class model<Q, func, T, 0, e, format> {
 public:
   /**\brief Call func with parameters; d=1 fix point
@@ -412,8 +412,8 @@ public:
    * \returns func::pass(arg).
    */
   constexpr static typename func<Q, T, 0, e, format>::output
-  with(typename func<Q, T, 0, e, format>::argument arg, const unsigned int &,
-       const unsigned int &, const format &) {
+  with(typename func<Q, T, 0, e, format>::argument arg, const std::size_t &,
+       const std::size_t &, const format &) {
     return func<Q, T, 0, e, format>::pass(arg);
   }
 };
@@ -439,12 +439,12 @@ public:
  * \returns Whatever func::pass or func::with returns.
  */
 template <
-    typename Q, template <typename, template <class, unsigned int> class,
-                          unsigned int, unsigned int, typename> class func,
-    unsigned int d, template <class, unsigned int> class T, typename format>
+    typename Q, template <typename, template <class, std::size_t> class,
+                          std::size_t, std::size_t, typename> class func,
+    std::size_t d, template <class, std::size_t> class T, typename format>
 static inline typename func<Q, T, d, d, format>::output
 with(typename func<Q, T, d, d, format>::argument arg, const std::string &type,
-     const unsigned int &dims, const unsigned int &rdims, const format &tag) {
+     const std::size_t &dims, const std::size_t &rdims, const format &tag) {
   return ((type == "*") || (type == T<Q, d>::id()))
              ? model<Q, func, T, d, d, format>::with(arg, dims, rdims, tag)
              : func<Q, T, d, d, format>::pass(arg);
@@ -457,9 +457,9 @@ with(typename func<Q, T, d, d, format>::argument arg, const std::string &type,
  *
  * \tparam T      Parametric formula template, e.g. formula::plane
  */
-template <template <class, unsigned int> class T> class parametricFactory {
+template <template <class, std::size_t> class T> class parametricFactory {
 public:
-  template <typename Qm, unsigned int odm>
+  template <typename Qm, std::size_t odm>
   using modelType = parametric<Qm, odm, T>;
 
   /**\brief Call template function with parametric formula
@@ -483,13 +483,13 @@ public:
    * \returns Whatever func::pass or func::with returns.
    */
   template <typename Q,
-            template <typename, template <class, unsigned int> class,
-                      unsigned int, unsigned int, typename> class func,
-            unsigned int d, typename format>
+            template <typename, template <class, std::size_t> class,
+                      std::size_t, std::size_t, typename> class func,
+            std::size_t d, typename format>
   static inline typename func<Q, cube, d, d, format>::output
   with(typename func<Q, cube, d, d, format>::argument arg,
-       const std::string &type, const unsigned int &dims,
-       const unsigned int &rdims, const format &tag) {
+       const std::string &type, const std::size_t &dims,
+       const std::size_t &rdims, const format &tag) {
     return geometry::with<Q, func, d, modelType, format>(arg, type, dims, rdims,
                                                          tag);
   }
@@ -516,13 +516,13 @@ public:
  * \returns Whatever func::pass returns.
  */
 template <typename Q,
-          template <typename, template <class, unsigned int> class,
-                    unsigned int, unsigned int, typename> class func,
-          unsigned int d, typename format = math::format::cartesian>
+          template <typename, template <class, std::size_t> class,
+                    std::size_t, std::size_t, typename> class func,
+          std::size_t d, typename format = math::format::cartesian>
 static inline typename func<Q, cube, d, d, format>::output
 with(typename func<Q, cube, d, d, format>::argument arg,
-     const std::string &type, const unsigned int &dims,
-     const unsigned int &rdims, const format &tag = format()) {
+     const std::string &type, const std::size_t &dims,
+     const std::size_t &rdims, const format &tag = format()) {
   with<Q, func, d, plane, format>(arg, type, dims, rdims, tag);
   with<Q, func, d, cube, format>(arg, type, dims, rdims, tag);
   parametricFactory<formula::sphere>::with<Q, func, d, format>(arg, type, dims,
@@ -568,14 +568,14 @@ with(typename func<Q, cube, d, d, format>::argument arg,
  * \returns Whatever func::pass returns.
  */
 template <typename Q,
-          template <typename, template <class, unsigned int> class,
-                    unsigned int, unsigned int, typename> class func,
-          unsigned int d>
+          template <typename, template <class, std::size_t> class,
+                    std::size_t, std::size_t, typename> class func,
+          std::size_t d>
 constexpr static inline typename func<Q, cube, d, d,
                                       math::format::cartesian>::output
 with(typename func<Q, cube, d, d, math::format::cartesian>::argument arg,
      const std::string &format, const std::string &type,
-     const unsigned int &dims, const unsigned int &rdims) {
+     const std::size_t &dims, const std::size_t &rdims) {
   return (format == "*" || format == "cartesian")
              ? with<Q, func, d, math::format::cartesian>(
                    arg, type, dims, rdims, math::format::cartesian())

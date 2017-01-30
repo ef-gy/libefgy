@@ -70,7 +70,7 @@ static inline void name(const std::string &name, shader::vector<d> &pVector) {
   }
 }
 
-template <unsigned int d>
+template <std::size_t d>
 static inline void name(const std::string &name,
                         shader::matrix<d, d> &pMatrix) {
   unsigned int k = 0;
@@ -416,18 +416,18 @@ public:
    * \return True if the uniforms were uploaded successfully,
    *         false otherwise.
    */
-  template <unsigned int e>
+  template <std::size_t e>
   bool matrices(const geometry::transformation::affine<Q, e> &combined,
                 const math::matrix<Q, e, e> &normalMatrix) {
     const std::string mvp = "mvp" + std::to_string(e);
-    return programme.uniform(mvp.c_str(), combined.transformationMatrix) &&
+    return programme.uniform(mvp.c_str(), combined.matrix) &&
            programme.uniform("normalMatrix", normalMatrix);
   }
 
-  template <unsigned int e>
+  template <std::size_t e>
   bool matrices(const geometry::transformation::affine<Q, e> &combined) {
     const std::string mvp = "mvp" + std::to_string(e);
-    return programme.uniform(mvp.c_str(), combined.transformationMatrix);
+    return programme.uniform(mvp.c_str(), combined.matrix);
   }
 
   /**\brief Render to current OpenGL context
@@ -578,20 +578,20 @@ public:
    * \return True if the uniforms were uploaded successfully,
    *         false otherwise.
    */
-  template <unsigned int e>
+  template <std::size_t e>
   bool matrices(const geometry::transformation::affine<Q, e> &combined) {
     std::string mvp = "mvp" + std::to_string(e);
     initialise();
 
     if (floatTextures) {
-      return colouringFloat.uniform(mvp.c_str(), combined.transformationMatrix);
+      return colouringFloat.uniform(mvp.c_str(), combined.matrix);
     } else {
-      return histogram.uniform(mvp.c_str(), combined.transformationMatrix) &&
-             colouring.uniform(mvp.c_str(), combined.transformationMatrix);
+      return histogram.uniform(mvp.c_str(), combined.matrix) &&
+             colouring.uniform(mvp.c_str(), combined.matrix);
     }
   }
 
-  template <unsigned int e>
+  template <std::size_t e>
   bool matrices(const geometry::transformation::affine<Q, e> &combined,
                 const math::matrix<Q, e, e> &) {
     return matrices(combined);
@@ -1416,7 +1416,7 @@ public:
         transformation * projection;
     const math::matrix<Q, 3, 3> normalMatrix =
         math::transpose(math::invert(math::transpose(
-            math::matrix<Q, 3, 3>(transformation.transformationMatrix))));
+            math::matrix<Q, 3, 3>(transformation.matrix))));
 
     programme.matrices(combined, normalMatrix);
 
@@ -1531,7 +1531,7 @@ public:
   template <typename P> void uploadMatrices(P &programme) {
     geometry::transformation::affine<Q, 2> scale =
         geometry::transformation::identity<Q, 2>();
-    scale.transformationMatrix[1][1] = Q(context.width) / Q(context.height);
+    scale.matrix[1][1] = Q(context.width) / Q(context.height);
 
     const geometry::transformation::affine<Q, 2> combined =
         transformation * scale;

@@ -16,6 +16,7 @@
 #define EF_GY_OPENGL_H
 
 #include <ef.gy/glsl.h>
+#include <algorithm>
 #include <vector>
 #include <set>
 #include <sstream>
@@ -251,18 +252,11 @@ public:
    *         matrix has been handed off to OpenGL, false
    *         otherwise.
    */
-  template <unsigned int n>
+  template <std::size_t n>
   bool uniform(const GLint ID, const math::matrix<Q, n, n> &matrix) {
     if (use()) {
       GLfloat mat[(n * n)];
-      unsigned int k = 0;
-      for (unsigned int i = 0; i < n; i++) {
-        for (unsigned int j = 0; j < n; j++) {
-          mat[k] = GLfloat(matrix[i][j]);
-          k++;
-        }
-      }
-
+      std::copy(matrix.begin(), matrix.end(), std::begin(mat));
       glUniform1fv(ID, (n * n), mat);
       return true;
     }
@@ -326,18 +320,11 @@ public:
    *         matrix has been handed off to OpenGL, false
    *         otherwise.
    */
-  template <unsigned int n>
+  template <std::size_t n>
   bool uniform(const GLint ID, const math::matrix<Q, n, n> &matrix) const {
     if (use()) {
       GLfloat mat[(n * n)];
-      unsigned int k = 0;
-      for (unsigned int i = 0; i < n; i++) {
-        for (unsigned int j = 0; j < n; j++) {
-          mat[k] = GLfloat(matrix[i][j]);
-          k++;
-        }
-      }
-
+      std::copy(matrix.begin(), matrix.end(), std::begin(mat));
       glUniform1fv(ID, (n * n), mat);
       return true;
     }
@@ -424,7 +411,7 @@ public:
    *         matrix has been handed off to OpenGL, false
    *         otherwise.
    */
-  template <unsigned int n>
+  template <std::size_t n>
   bool uniform(const char *name, const math::matrix<Q, n, n> &matrix) {
     return uniform(uniform(name), matrix);
   }
@@ -463,7 +450,7 @@ public:
    *         matrix has been handed off to OpenGL, false
    *         otherwise.
    */
-  template <unsigned int n>
+  template <std::size_t n>
   bool uniform(const char *name, const math::matrix<Q, n, n> &matrix) const {
     return uniform(uniform(name), matrix);
   }

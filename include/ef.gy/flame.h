@@ -34,11 +34,11 @@ namespace transformation {
  *
  * \see http://flam3.com/flame_draves.pdf for the original paper.
  */
-template <typename Q, unsigned int d> class flame : public affine<Q, d> {
+template <typename Q, std::size_t d> class flame : public affine<Q, d> {
 public:
-  flame(unsigned int pDepth = d) : depth(pDepth) {}
+  flame(std::size_t pDepth = d) : depth(pDepth) {}
 
-  using affine<Q, d>::transformationMatrix;
+  using affine<Q, d>::matrix;
 
   math::vector<Q, d> operator*(const math::vector<Q, d> &pV) const {
     const math::vector<Q, d> V = affine<Q, d>(*this) * pV;
@@ -51,11 +51,11 @@ public:
     return rv;
   }
 
-  static const unsigned int coefficients = 19;
+  static const std::size_t coefficients = 19;
   Q coefficient[coefficients];
 
 protected:
-  math::vector<Q, d> apply(unsigned int f, const math::vector<Q, d> &V) const {
+  math::vector<Q, d> apply(std::size_t f, const math::vector<Q, d> &V) const {
     math::vector<Q, d> rv;
 
     if (coefficient[f] <= Q(0)) {
@@ -79,7 +79,7 @@ protected:
       rv = V;
       break;
     case 1: // "sinusoidal"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         rv[i] = sin(V[i]);
       break;
     case 2: // "spherical"
@@ -91,7 +91,7 @@ protected:
       const Q cosrsq = cos(r2);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wtautological-compare"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         if ((i % 2 == 0) && (i < (d - 1)))
           rv[i] = V[i] * sinrsq - V[(i + 1)] * cosrsq;
         else
@@ -110,7 +110,7 @@ protected:
       rv[1] = sqrt(math::lengthSquared(V)) - Q(1);
       break;
     case 6: // "handkerchief"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         switch (i % 4) {
         case 0:
           rv[i] = sin(theta + r);
@@ -124,7 +124,7 @@ protected:
       rv = rv * r;
       break;
     case 7: // "heart"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         switch (i % 4) {
         case 0:
           rv[i] = sin(theta * r);
@@ -142,7 +142,7 @@ protected:
       rv = rv * r;
       break;
     case 8: // "disc"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         switch (i % 2) {
         case 0:
           rv[i] = sin(Q(M_PI) * r);
@@ -154,7 +154,7 @@ protected:
       rv = rv * theta / Q(M_PI);
       break;
     case 9: // "spiral"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         switch (i % 4) {
         case 0:
           rv[i] = cos(theta) + sin(r);
@@ -172,7 +172,7 @@ protected:
       rv = rv / r;
       break;
     case 10: // "hyperbolic"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         switch (i % 4) {
         case 0:
           rv[i] = sin(theta) / r;
@@ -189,7 +189,7 @@ protected:
         }
       break;
     case 11: // "diamond"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         switch (i % 2) {
         case 0:
           rv[i] = sin(theta) * cos(r);
@@ -203,7 +203,7 @@ protected:
     {
       const Q p0 = sin(theta + r), p1 = cos(theta - r), p2 = sin(theta - r),
               p3 = cos(theta + r);
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         switch (i % 4) {
         case 0:
           rv[i] = p0 * p0 * p0 + p1 * p1 * p1;
@@ -223,7 +223,7 @@ protected:
     case 13: // "julia"
     {
       const Q thpo = theta / Q(2) + omega;
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         switch (i % 2) {
         case 0:
           rv[i] = cos(thpo);
@@ -235,7 +235,7 @@ protected:
       rv = rv * Q(sqrt(r));
     } break;
     case 14: // "bent"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         switch ((i % 2) + ((V[0] < Q(0)) << 1) + ((V[1] < Q(0)) << 2)) {
         case 0:
           rv[i] = V[i];
@@ -264,27 +264,27 @@ protected:
         }
       break;
     case 15: // "waves"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         if (i == (d - 1))
-          rv[i] = V[i] * transformationMatrix[i][0] *
-                  sin(V[0] / (transformationMatrix[d][i] *
-                              transformationMatrix[d][i]));
+          rv[i] = V[i] * matrix[i][0] *
+                  sin(V[0] / (matrix[d][i] *
+                              matrix[d][i]));
         else
-          rv[i] = V[i] * transformationMatrix[i][0] *
-                  sin(V[(i + 1)] / (transformationMatrix[d][i] *
-                                    transformationMatrix[d][i]));
+          rv[i] = V[i] * matrix[i][0] *
+                  sin(V[(i + 1)] / (matrix[d][i] *
+                                    matrix[d][i]));
       break;
     case 16: // "fisheye"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         rv[i] = V[(d - i)];
       rv = rv * Q(2) / (r + Q(1));
       break;
     case 17: // "popcorn"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
-        rv[i] = V[i] + transformationMatrix[d][i] * sin(tan(Q(3) * V[i]));
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
+        rv[i] = V[i] + matrix[d][i] * sin(tan(Q(3) * V[i]));
       break;
     case 18: // "exponential"
-      for (unsigned int i : range<unsigned int>(0, depth, depth, false))
+      for (std::size_t i : range<std::size_t>(0, depth, depth, false))
         switch (i % 2) {
         case 0:
           rv[i] = cos(M_PI * V[1]);
@@ -302,26 +302,26 @@ protected:
     return rv * coefficient[f];
   }
 
-  unsigned int depth;
+  std::size_t depth;
 };
 
-template <typename Q, unsigned int d> class randomFlame : public flame<Q, d> {
+template <typename Q, std::size_t d> class randomFlame : public flame<Q, d> {
 public:
   randomFlame(const parameters<Q> &pParameter, const unsigned long long &pSeed)
       : flame<Q, d>(d), seed(pSeed) {
     std::mt19937 PRNG((typename std::mt19937::result_type)pSeed);
 
-    transformationMatrix =
-        randomAffine<Q, d>(pParameter, 0).transformationMatrix;
+    matrix =
+        randomAffine<Q, d>(pParameter, 0).matrix;
 
-    for (unsigned int i = 0; i < coefficients; i++) {
+    for (std::size_t i = 0; i < coefficients; i++) {
       coefficient[i] = Q(PRNG() % 10000) / Q(10000);
     }
 
-    for (unsigned int nonzero = pParameter.flameCoefficients + 1;
+    for (std::size_t nonzero = pParameter.flameCoefficients + 1;
          nonzero > pParameter.flameCoefficients;) {
       nonzero = 0;
-      for (unsigned int i = 0; i < coefficients; i++) {
+      for (std::size_t i = 0; i < coefficients; i++) {
         if (coefficient[i] > Q(0.)) {
           nonzero++;
         } else if (coefficient[i] < Q(0.)) {
@@ -336,16 +336,16 @@ public:
 
     Q coefficientsum = coefficient[0];
 
-    for (unsigned int i = 1; i < coefficients; i++) {
+    for (std::size_t i = 1; i < coefficients; i++) {
       coefficientsum = coefficientsum + coefficient[i];
     }
 
-    for (unsigned int i = 0; i < coefficients; i++) {
+    for (std::size_t i = 0; i < coefficients; i++) {
       coefficient[i] = coefficient[i] / coefficientsum;
     }
   }
 
-  using flame<Q, d>::transformationMatrix;
+  using flame<Q, d>::matrix;
   using flame<Q, d>::coefficient;
   using flame<Q, d>::coefficients;
 
@@ -357,14 +357,14 @@ protected:
 namespace generators {
 static constexpr const char randomFlameIFSLabel[] = "random-flame";
 
-template <typename Q, unsigned int depth, unsigned int renderDepth>
+template <typename Q, std::size_t depth, std::size_t renderDepth>
 using randomFlame =
   random<Q, depth, renderDepth,
          transformation::flame, transformation::randomFlame,
          randomFlameIFSLabel>;
 }
 
-template <typename Q, unsigned int d>
+template <typename Q, std::size_t d>
 using extendedPlane = adapt<Q, d, plane<Q, 2>, typename plane<Q, 2>::format>;
 
 namespace flame {
@@ -385,7 +385,7 @@ namespace flame {
  * \tparam Q  The base data type to use for calculations.
  * \tparam od The depth of the model.
  */
-template <typename Q, unsigned int od>
+template <typename Q, std::size_t od>
 using random = ifs<Q, od, extendedPlane, generators::randomFlame>;
 }
 }

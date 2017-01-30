@@ -29,12 +29,12 @@ namespace geometry {
  * such as the geometry::parametric template.
  */
 namespace formula {
-template <typename Q, unsigned int od> class moebiusStrip {
+template <typename Q, std::size_t od> class moebiusStrip {
 public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
-  static constexpr const unsigned int renderDepth = 3;
+  static constexpr const std::size_t renderDepth = 3;
   static constexpr const char *id(void) { return "moebius-strip"; }
 
   using usedParameters = parameterFlags<true, false, false, true>;
@@ -56,12 +56,12 @@ public:
   }
 };
 
-template <typename Q, unsigned int od> class kleinBagel {
+template <typename Q, std::size_t od> class kleinBagel {
 public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
-  static constexpr const unsigned int renderDepth = 3;
+  static constexpr const std::size_t renderDepth = 3;
   static constexpr const char *id(void) { return "klein-bagel"; }
 
   using usedParameters = parameterFlags<true, false, false, true>;
@@ -85,12 +85,12 @@ public:
   }
 };
 
-template <typename Q, unsigned int od> class kleinBottle {
+template <typename Q, std::size_t od> class kleinBottle {
 public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
-  static constexpr const unsigned int renderDepth = 4;
+  static constexpr const std::size_t renderDepth = 4;
   static constexpr const char *id(void) { return "klein-bottle"; }
 
   using usedParameters = parameterFlags<true, true, true, true>;
@@ -114,12 +114,12 @@ public:
   }
 };
 
-template <typename Q, unsigned int od> class sphere {
+template <typename Q, std::size_t od> class sphere {
 public:
   typedef dimensions<2, 0> dimensions;
   typedef math::format::cartesian format;
 
-  static constexpr const unsigned int renderDepth = od + 1;
+  static constexpr const std::size_t renderDepth = od + 1;
   static constexpr const char *id(void) { return "sphere"; }
 
   using usedParameters = parameterFlags<true, false, false, true>;
@@ -141,12 +141,12 @@ public:
   }
 };
 
-template <typename Q, unsigned int od> class plane {
+template <typename Q, std::size_t od> class plane {
 public:
   typedef dimensions<2, 0> dimensions;
   typedef math::format::cartesian format;
 
-  static constexpr const unsigned int renderDepth = od;
+  static constexpr const std::size_t renderDepth = od;
   static constexpr const char *id(void) { return "plane"; }
 
   using usedParameters = parameterFlags<true, false, false, true>;
@@ -168,12 +168,12 @@ public:
   }
 };
 
-template <typename Q, unsigned int od> class torus {
+template <typename Q, std::size_t od> class torus {
 public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
-  static constexpr const unsigned int renderDepth = 3;
+  static constexpr const std::size_t renderDepth = 3;
   static constexpr const char *id(void) { return "torus"; }
 
   using usedParameters = parameterFlags<true, true, false, true>;
@@ -193,12 +193,12 @@ public:
   }
 };
 
-template <typename Q, unsigned int od> class cliffordTorus {
+template <typename Q, std::size_t od> class cliffordTorus {
 public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
-  static constexpr const unsigned int renderDepth = 4;
+  static constexpr const std::size_t renderDepth = 4;
   static constexpr const char *id(void) { return "clifford-torus"; }
 
   using usedParameters = parameterFlags<false, false, true, true>;
@@ -218,12 +218,12 @@ public:
   }
 };
 
-template <typename Q, unsigned int od> class dinisSurface {
+template <typename Q, std::size_t od> class dinisSurface {
 public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
-  static constexpr const unsigned int renderDepth = 3;
+  static constexpr const std::size_t renderDepth = 3;
   static constexpr const char *id(void) { return "dinis-surface"; }
 
   using usedParameters = parameterFlags<true, true, true, true>;
@@ -247,8 +247,8 @@ public:
 };
 }
 
-template <typename Q, unsigned int od,
-          template <typename, unsigned int> class formula>
+template <typename Q, std::size_t od,
+          template <typename, std::size_t> class formula>
 class parametricIterator : public std::iterator<std::forward_iterator_tag,
   typename object<Q, od, formula<Q, od>::renderDepth, 4,
     typename formula<Q, od>::format>::face>
@@ -264,7 +264,7 @@ protected:
 public:
   parametricIterator(const parameters<Q> &pParameter)
     : parameter(pParameter) {
-    for (unsigned int dim = 0; dim < od; dim++) {
+    for (std::size_t dim = 0; dim < od; dim++) {
       range<Q> qs = source::getRange(parameter, dim);
       positions.push_back(qs.begin());
       starts.push_back(qs.begin());
@@ -277,7 +277,7 @@ public:
   }
 
   parametricIterator &end(void) {
-    for (unsigned int dim = 0; dim < od; dim++) {
+    for (std::size_t dim = 0; dim < od; dim++) {
       positions[dim] = (dim == 0) ? ends[dim] : starts[dim];
     }
     return *this;
@@ -367,7 +367,7 @@ protected:
 
   const vector getPosition(void) const {
     vector r;
-    for (unsigned int dim = 0; dim < od; dim++) {
+    for (std::size_t dim = 0; dim < od; dim++) {
       r[dim] = *(positions[dim]);
     }
     return r;
@@ -393,8 +393,8 @@ protected:
  * \tparam od      Model depth, e.g. '2' for a square or '3' for a cube
  * \tparam formula Formula for the target mesh, e.g. formula::plane
  */
-template <typename Q, unsigned int od,
-          template <typename, unsigned int> class formula>
+template <typename Q, std::size_t od,
+          template <typename, std::size_t> class formula>
 class parametric : public object<Q, od, formula<Q, od>::renderDepth, 4,
                                  typename formula<Q, od>::format>
 {
@@ -444,7 +444,7 @@ public:
  * \tparam Q      Base type for calculations; should be a rational type
  * \tparam od     Model depth, e.g. '2' for a square or '3' for a cube
  */
-template <typename Q, unsigned int od>
+template <typename Q, std::size_t od>
 using plane = parametric<Q, od, formula::plane>;
 }
 }

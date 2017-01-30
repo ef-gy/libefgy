@@ -133,20 +133,20 @@ int testAffineConstruction(std::ostream &log) {
 
   bool allCorrect = true;
 
-  // check if transformationMatrix entries of linear map are in place
+  // check if matrix entries of linear map are in place
   for (int i = 0; i < 3; i++) {
     for (int k = 0; k < 3; k++) {
-      allCorrect &= (psi.transformationMatrix[i][k] == i * k);
+      allCorrect &= (psi.matrix[i][k] == i * k);
     }
   }
 
   // check for zeroes in the last row and column
   for (int i = 0; i < 3; i++) {
-    allCorrect &= (psi.transformationMatrix[i][3] == 0);
-    allCorrect &= (psi.transformationMatrix[3][i] == 0);
+    allCorrect &= (psi.matrix[i][3] == 0);
+    allCorrect &= (psi.matrix[3][i] == 0);
   }
 
-  allCorrect &= (psi.transformationMatrix[3][3] == 1);
+  allCorrect &= (psi.matrix[3][3] == 1);
 
   if (!allCorrect) {
     log << "An error occurred in constructing an affine transformation";

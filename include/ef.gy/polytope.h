@@ -232,7 +232,7 @@ public:
  * \tparam Format Vector coordinate format to work in, e.g.
  *                math::format::cartesian.
  */
-template <typename Q, unsigned int od, unsigned int d, unsigned int f,
+template <typename Q, std::size_t od, std::size_t d, std::size_t f,
           typename Format>
 class object {
 public:
@@ -263,7 +263,7 @@ public:
    * number of vertices that make up an individual 'face' of the
    * resulting mesh.
    */
-  static constexpr const unsigned int faceVertices = f;
+  static constexpr const std::size_t faceVertices = f;
 
   /**\brief Query the model's depth
    *
@@ -290,7 +290,7 @@ public:
    *
    * \returns The model's depth.
    */
-  static constexpr const unsigned int depth = od;
+  static constexpr const std::size_t depth = od;
 
   /**\brief Query the model's render depth
    *
@@ -300,7 +300,7 @@ public:
    *
    * \returns The model's render depth.
    */
-  static constexpr const unsigned int renderDepth = d;
+  static constexpr const std::size_t renderDepth = d;
 
   /**\brief Query model ID
    *
@@ -342,8 +342,8 @@ public:
  * \tparam od  Model depth, e.g. '2' for a square or '3' for a cube.
  * \tparam gen Generator type.
  */
-template <typename Q, unsigned int od,
-          template <typename, unsigned int> class gen>
+template <typename Q, std::size_t od,
+          template <typename, std::size_t> class gen>
 class polytope : public object<Q, od, gen<Q, od>::renderDepth,
                                gen<Q, od>::faceVertices,
                                typename gen<Q, od>::format> {
@@ -392,8 +392,8 @@ public:
   const face operator*(void) const {
     const auto &f = iterator::operator*();
     face cf;
-    for (unsigned int i = 0; i < std::min(f.size(), cf.size()); i++) {
-      for (unsigned int j = 0; j < std::min(f[i].size(), cf[i].size()); j++) {
+    for (std::size_t i = 0; i < std::min(f.size(), cf.size()); i++) {
+      for (std::size_t j = 0; j < std::min(f[i].size(), cf[i].size()); j++) {
         cf[i][j] = f[i][j];
       }
     }
@@ -401,7 +401,7 @@ public:
   }
 };
 
-template <typename Q, unsigned int d, class model, class format>
+template <typename Q, std::size_t d, class model, class format>
 class adapt : public object<Q, model::depth, d, model::faceVertices, format> {
 public:
   using parent = object<Q, model::depth, d, model::faceVertices, format>;
@@ -424,7 +424,7 @@ protected:
   model object;
 };
 
-template <typename Q, unsigned int d, class model, class format>
+template <typename Q, std::size_t d, class model, class format>
 using autoAdapt = typename std::conditional<
     std::is_same<format, typename model::format>::value &&
         (d == model::renderDepth),
@@ -543,11 +543,11 @@ public:
 };
 }
 
-template <typename Q, unsigned int depth> class cube {
+template <typename Q, std::size_t depth> class cube {
 public:
   typedef dimensions<2, 0> dimensions;
-  static constexpr const unsigned int renderDepth = depth;
-  static constexpr const unsigned int faceVertices = 4;
+  static constexpr const std::size_t renderDepth = depth;
+  static constexpr const std::size_t faceVertices = 4;
   static constexpr const char *id(void) { return "cube"; }
   using usedParameters = parameterFlags<true>;
   using format = math::format::cartesian;
@@ -626,7 +626,7 @@ public:
  * \todo Use the parameter::radius field properly; this should
  *       probably be half the diagonal of the resulting model.
  */
-template <typename Q, unsigned int od>
+template <typename Q, std::size_t od>
 using cube = polytope<Q, od, generators::cube>;
 }
 }

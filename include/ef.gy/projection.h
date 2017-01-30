@@ -66,11 +66,11 @@ public:
     for (unsigned int i = 0; i <= d; i++) {
       for (unsigned int j = 0; j <= d; j++) {
         if ((i < d) && (j < d)) {
-          transformationMatrix[i][j] = columns[j][i];
+          matrix[i][j] = columns[j][i];
         } else if (i == j) {
-          transformationMatrix[i][j] = 1;
+          matrix[i][j] = 1;
         } else {
-          transformationMatrix[i][j] = 0;
+          matrix[i][j] = 0;
         }
       }
     }
@@ -78,7 +78,7 @@ public:
 
   std::array<math::vector<Q, d>, d> columns;
 
-  using transformation::affine<Q, d>::transformationMatrix;
+  using transformation::affine<Q, d>::matrix;
 
 protected:
   math::vector<Q, d> from;
@@ -100,25 +100,25 @@ public:
     Q f = Q(1) / tan(eyeAngle / Q(2));
 
     if (d == 3) {
-      transformationMatrix[0][0] = f / aspect;
-      transformationMatrix[1][1] = f;
-      transformationMatrix[2][2] = (far + near) / (near - far);
-      transformationMatrix[3][2] = Q(-2) * far * near / (near - far);
-      transformationMatrix[2][3] = Q(-1);
-      transformationMatrix[3][3] = Q(0);
+      matrix[0][0] = f / aspect;
+      matrix[1][1] = f;
+      matrix[2][2] = (far + near) / (near - far);
+      matrix[3][2] = Q(-2) * far * near / (near - far);
+      matrix[2][3] = Q(-1);
+      matrix[3][3] = Q(0);
     } else
       for (unsigned int i = 0; i <= d; i++) {
         for (unsigned int j = 0; j <= d; j++) {
           if (i == j) {
-            transformationMatrix[i][j] = ((i >= (d - 1)) ? Q(1) : f);
+            matrix[i][j] = ((i >= (d - 1)) ? Q(1) : f);
           } else {
-            transformationMatrix[i][j] = 0;
+            matrix[i][j] = 0;
           }
         }
       }
   }
 
-  using transformation::affine<Q, d>::transformationMatrix;
+  using transformation::affine<Q, d>::matrix;
 
 protected:
   Q near;
@@ -144,10 +144,10 @@ public:
     transformation::translation<Q, d> translationTransformation(from * Q(-1));
     perspective<Q, d> perspectiveTransformation(eyeAngle, aspect);
 
-    this->transformationMatrix =
+    this->matrix =
         (translationTransformation * lookAtTransformation *
          perspectiveTransformation)
-            .transformationMatrix;
+            .matrix;
   }
 
   math::vector<Q, d> from;
@@ -155,9 +155,9 @@ public:
   const Q eyeAngle;
   Q aspect;
 
-  using transformation::affine<Q, d>::transformationMatrix;
+  using transformation::affine<Q, d>::matrix;
 };
-};
-};
+}
+}
 
 #endif

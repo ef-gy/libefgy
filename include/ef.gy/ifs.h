@@ -24,7 +24,7 @@
 namespace efgy {
 namespace geometry {
 namespace transformation {
-template <typename Q, unsigned int d> class randomAffine : public affine<Q, d> {
+template <typename Q, std::size_t d> class randomAffine : public affine<Q, d> {
 public:
   randomAffine(const parameters<Q> &pParameter, const unsigned long long &pSeed)
       : parameter(pParameter), seed(pSeed) {
@@ -67,11 +67,11 @@ public:
       }
     }
 
-    for (unsigned int j = 0; j < d; j++) {
+    for (std::size_t j = 0; j < d; j++) {
       V[j] = Q(PRNG() % 10000) / Q(5000) - Q(1);
     }
 
-    transformationMatrix =
+    matrix =
         (transformation::scale<Q, d>(s) *
          (parameter.preRotate ? transformation::affine<Q, d>(
                                     transformation::rotation<Q, d>(r1, a1, a2))
@@ -80,10 +80,10 @@ public:
          (parameter.postRotate ? transformation::affine<Q, d>(
                                      transformation::rotation<Q, d>(r2, a4, a5))
                                : transformation::affine<Q, d>()))
-            .transformationMatrix;
+            .matrix;
   }
 
-  using affine<Q, d>::transformationMatrix;
+  using affine<Q, d>::matrix;
 
 protected:
   const parameters<Q> &parameter;
@@ -92,7 +92,7 @@ protected:
 }
 
 namespace generators {
-template <typename Q, unsigned int depth, unsigned int renderDepth>
+template <typename Q, std::size_t depth, std::size_t renderDepth>
 class gasket {
 public:
   using translation = transformation::affine<Q, renderDepth>;
@@ -105,17 +105,17 @@ public:
   static std::vector<translation> functions(const parameters<Q> &parameter) {
     std::vector<translation> rv = {};
 
-    const unsigned int nfunctions = (1 << (depth - 1)) + 1;
+    const std::size_t nfunctions = (1 << (depth - 1)) + 1;
     std::array<math::vector<Q, renderDepth>, nfunctions> translations;
 
     translations[0][0] = Q(0.25);
 
-    for (unsigned int i = 1; i < translations.size(); i++) {
+    for (std::size_t i = 1; i < translations.size(); i++) {
       translations[i][0] = Q(-0.25);
-      for (unsigned int j = 1; j < depth; j++) {
-        const unsigned int k = i - 1;
-        const unsigned int l = j - 1;
-        const unsigned int b = 1 << l;
+      for (std::size_t j = 1; j < depth; j++) {
+        const std::size_t k = i - 1;
+        const std::size_t l = j - 1;
+        const std::size_t b = 1 << l;
         const bool s = k & b;
         translations[i][j] = Q(s ? -0.25 : 0.25);
       }
@@ -133,7 +133,7 @@ public:
   }
 };
 
-template <typename Q, unsigned int depth, unsigned int renderDepth>
+template <typename Q, std::size_t depth, std::size_t renderDepth>
 class carpet {
 public:
   using translation = transformation::affine<Q, renderDepth>;
@@ -146,7 +146,7 @@ public:
   static std::vector<translation> functions(const parameters<Q> &parameter) {
     std::vector<translation> rv = {};
 
-    const unsigned int nfunctions = depth == 2 ? 8 : 20;
+    const std::size_t nfunctions = depth == 2 ? 8 : 20;
     std::array<math::vector<Q, renderDepth>, nfunctions> translations;
 
     if (depth > 1) {
@@ -199,9 +199,9 @@ public:
   }
 };
 
-template <typename Q, unsigned int depth, unsigned int renderDepth,
-          template <class, unsigned int> class trans,
-          template <class, unsigned int> class gen,
+template <typename Q, std::size_t depth, std::size_t renderDepth,
+          template <class, std::size_t> class trans,
+          template <class, std::size_t> class gen,
           const char *name>
 class random {
 public:
@@ -214,7 +214,7 @@ public:
 
     std::mt19937 PRNG(parameter.seed);
 
-    for (unsigned int i = 0; i < parameter.functions; i++) {
+    for (std::size_t i = 0; i < parameter.functions; i++) {
       rv.push_back(gen<Q, renderDepth>(parameter, PRNG()));
     }
 
@@ -228,16 +228,16 @@ public:
 
 static constexpr const char randomAffineIFSLabel[] = "random-affine-ifs";
 
-template <typename Q, unsigned int depth, unsigned int renderDepth>
+template <typename Q, std::size_t depth, std::size_t renderDepth>
 using randomAffine =
   random<Q, depth, renderDepth,
          transformation::affine, transformation::randomAffine,
          randomAffineIFSLabel>;
 }
 
-template <typename Q, unsigned int depth,
-          template <class, unsigned int> class primitive,
-          template <class, unsigned int, unsigned int> class gen>
+template <typename Q, std::size_t depth,
+          template <class, std::size_t> class primitive,
+          template <class, std::size_t, std::size_t> class gen>
 class ifs : public object<Q, depth, primitive<Q, depth>::renderDepth,
                           primitive<Q, depth>::faceVertices,
                           typename primitive<Q, depth>::format>
@@ -375,14 +375,14 @@ public:
 };
 
 namespace sierpinski {
-template <typename Q, unsigned int depth>
+template <typename Q, std::size_t depth>
 using gasket = ifs<Q, depth, cube, generators::gasket>;
 
-template <typename Q, unsigned int depth>
+template <typename Q, std::size_t depth>
 using carpet = ifs<Q, depth, cube, generators::carpet>;
 }
 
-template <typename Q, unsigned int depth>
+template <typename Q, std::size_t depth>
 using randomAffineIFS = ifs<Q, depth, cube, generators::randomAffine>;
 }
 }
