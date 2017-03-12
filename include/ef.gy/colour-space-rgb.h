@@ -34,7 +34,7 @@ public:
   /**\copydoc cartesian::id */
   static const char *id(void) { return "RGB"; }
 };
-};
+}
 
 template <typename Q>
 class vector<Q, 3, format::RGB> : public std::array<Q, 3> {
@@ -46,7 +46,7 @@ public:
       : std::array<Q, 3>({pRed, pGreen, pBlue}), red((*this)[0]),
         green((*this)[1]), blue((*this)[2]) {}
   vector(const vector &v)
-      : std::array<Q, 4>({v.red, v.green, v.blue}), red((*this)[0]),
+      : std::array<Q, 3>({v.red, v.green, v.blue}), red((*this)[0]),
         green((*this)[1]), blue((*this)[2]) {}
 
   vector &operator=(const vector &v) {

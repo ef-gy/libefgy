@@ -32,6 +32,7 @@
 #include <iterator>
 #include <cmath>
 #include <set>
+#include <ef.gy/colour-space-rgb.h>
 
 namespace efgy {
 namespace geometry {
@@ -68,7 +69,8 @@ public:
   parameters(void)
       : radius(1), radius2(0.5), constant(0.9), precision(3), iterations(4),
         functions(3), seed(0), preRotate(1), postRotate(0),
-        flameCoefficients(3), vertexLimit(1000000) {}
+        flameCoefficients(3), vertexLimit(1000000),
+        colourMap({{1,0,0},{0,1,0},{0,0,1}}) {}
 
   /**\brief Radius
    *
@@ -155,6 +157,8 @@ public:
    * when creating geometry that would exceed this limit.
    */
   unsigned long long vertexLimit;
+
+  std::vector<math::vector<Q, 3, math::format::RGB>> colourMap;
 };
 
 /**\brief Flags for geometry parameters.
@@ -440,12 +444,15 @@ using face = std::array<vector, 4>;
 
 public:
   static std::set<face> faces(void) {
-    std::set<face> faces{{
+    static std::set<face> faces{{
       vector({false, false}),
       vector({false, true}),
       vector({true, true}),
       vector({true, false})
     }};
+    if (faces.size() == size()) {
+      return faces;
+    }
 
     for (std::size_t i = 2; i < depth; i++) {
       std::set<face> newFaces;

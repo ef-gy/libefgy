@@ -538,7 +538,7 @@ public:
    *
    * \returns 'true' if the context is now initialised.
    */
-  bool initialise(void) {
+  bool initialise() {
     if (!initialised) {
       initialised = true;
 
@@ -696,13 +696,25 @@ public:
    * distinguish between different IFS indices; this creates a
    * random colour map for this purpose.
    */
-  void setColourMap(void) {
+  void setColourMap(
+      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {})
+  {
     std::vector<unsigned char> colours;
 
-    for (unsigned int i = 0; i < 8; i++) {
-      colours.push_back(std::rand() % 255);
-      colours.push_back(std::rand() % 255);
-      colours.push_back(std::rand() % 255);
+    if (cols.size() == 0) {
+      std::cerr << "random colour map.\n";
+      for (unsigned int i = 0; i < 8; i++) {
+        colours.push_back(std::rand() % 255);
+        colours.push_back(std::rand() % 255);
+        colours.push_back(std::rand() % 255);
+      }
+    } else {
+      std::cerr << "loading colour map of size " << cols.size() << ".\n";
+      for (const auto &c : cols) {
+        colours.push_back(c.red * 255);
+        colours.push_back(c.green * 255);
+        colours.push_back(c.blue * 255);
+      }
     }
 
     colourMap.load(GLsizei(colours.size() / 3), 1, &colours[0]);
@@ -812,17 +824,16 @@ protected:
 
   /**\brief Vertex buffer for fullscreen quad
    *
-   * Stores the vertex data for a fullscreen quad, which is used
-   * in the merge pass to emit fragments for each pixel of the
-   * output viewport.
+   * Stores the vertex data for a fullscreen quad, which is used in the merge
+   * pass to emit fragments for each pixel of the output viewport.
    */
   vertexBuffer vertices;
 
   /**\brief Colour map texture
    *
-   * This is the colour map created by setColourMap() and used in
-   * the final merge pass to turn th initial grayscale image into
-   * something much more interesting.
+   * This is the colour map created by setColourMap() and used in the final
+   * merge pass to turn the initial grayscale image into something much more
+   * interesting.
    */
   texture2D colourMap;
 
@@ -1255,7 +1266,11 @@ public:
    * Calling this method will create a random colour map texture
    * for use by the fractal flame colouring code.
    */
-  void setColourMap(void) { lowerRenderer.setColourMap(); }
+  void setColourMap(
+      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {})
+  {
+    lowerRenderer.setColourMap(cols);
+  }
 
   /**\copydoc opengl<Q,2>::context */
   opengl<Q, 0> &context;
@@ -1346,7 +1361,11 @@ public:
     context.add(pV, R, index);
   }
 
-  void setColourMap(void) { fractalFlame.setColourMap(); }
+  void setColourMap(
+      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {})
+  {
+    fractalFlame.setColourMap(cols);
+  }
 
   opengl<Q, 0> &context;
 
@@ -1449,7 +1468,11 @@ public:
    * Calling this method will create a random colour map texture
    * for use by the fractal flame colouring code.
    */
-  void setColourMap(void) { fractalFlame.setColourMap(); }
+  void setColourMap(
+      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {})
+  {
+    fractalFlame.setColourMap(cols);
+  }
 
   /**\copydoc opengl<Q,2>::context */
   opengl<Q, 0> &context;
@@ -1567,7 +1590,11 @@ public:
    * Calling this method will create a random colour map texture
    * for use by the fractal flame colouring code.
    */
-  void setColourMap(void) { fractalFlame.setColourMap(); }
+  void setColourMap(
+      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {})
+  {
+    fractalFlame.setColourMap(cols);
+  }
 
   /**\brief Draw polygon
    *
