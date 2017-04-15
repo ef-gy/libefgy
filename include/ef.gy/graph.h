@@ -12,15 +12,16 @@
 #if !defined(EF_GY_GRAPH_H)
 #define EF_GY_GRAPH_H
 
-#include <vector>
 #include <set>
+#include <vector>
 
 namespace efgy {
 namespace graph {
 
 /// the adjacency matrix of a simple undirected graph
-template <typename T, unsigned int size_increment = 16> class adjacencymatrix {
-public:
+template <typename T, unsigned int size_increment = 16>
+class adjacencymatrix {
+ public:
   adjacencymatrix() : matrix_size(size_increment) {
     adjacency.resize(matrix_size);
     for (int i = 0; i < matrix_size; i++) {
@@ -59,7 +60,7 @@ public:
     }
   }
 
-private:
+ private:
   /// matrix_matrix_size is periodically increased to avoid
   /// reconstructing the adjacency matrix too often.
   unsigned int matrix_size;
@@ -136,8 +137,9 @@ private:
   }
 };
 
-template <typename T> class node {
-public:
+template <typename T>
+class node {
+ public:
   node(T _data) : data(_data), adjacentNodes(std::set());
   node(T _data, std::set<node<T> *> nodes) : data(_data), adjacentNodes(nodes);
   ~node();
@@ -170,7 +172,7 @@ public:
     return found;
   }
 
-private:
+ private:
   T data;
   std::set<node<T> *> adjacentNodes;
 };

@@ -155,14 +155,15 @@ extern "C" int main(int argc, char **argv) {
  *       is defined or not. If it is, then this will set a global variable
  *       as described; if not then this macro is simply discarded.
  */
-#define TEST_BATCH(...)                                                        \
-  namespace efgy {                                                             \
-  namespace test {                                                             \
-  static const testCase testCasesArray[] = {__VA_ARGS__};                      \
-  const std::vector<testCase>                                                  \
-      cases(testCasesArray,                                                    \
-            testCasesArray + sizeof(testCasesArray) / sizeof(testCase));       \
-  }                                                                            \
+#define TEST_BATCH(...)                                          \
+  namespace efgy {                                               \
+  namespace test {                                               \
+  static const testCase testCasesArray[] = {__VA_ARGS__};        \
+  const std::vector<testCase> cases(testCasesArray,              \
+                                    testCasesArray +             \
+                                        sizeof(testCasesArray) / \
+                                            sizeof(testCase));   \
+  }                                                              \
   }
 #else
 /**\brief Define test batch

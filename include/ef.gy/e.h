@@ -30,8 +30,9 @@ namespace algorithm {
  * \tparam Q The data type to use in the calculations, e.g. double.
  * \tparam N Sequence index type.
  */
-template <typename Q, typename N> class powerSeriesE {
-public:
+template <typename Q, typename N>
+class powerSeriesE {
+ public:
   /**\copydoc bailey1997::defaultSeriesIterations */
   static const N defaultSeriesIterations = 10;
 
@@ -48,7 +49,7 @@ public:
     return Q(1) / Q(factorial<integer>(integer(n)));
   }
 
-protected:
+ protected:
   /**\brief The base data type's integer type
    *
    * Used to make sure that type casts work as intended.

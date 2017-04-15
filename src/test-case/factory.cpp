@@ -14,8 +14,8 @@
 
 #include <iostream>
 
-#include <ef.gy/test-case.h>
 #include <ef.gy/factory.h>
+#include <ef.gy/test-case.h>
 
 using namespace efgy::geometry;
 using namespace efgy::math;

@@ -12,20 +12,21 @@
 #if !defined(EF_GY_IFS_H)
 #define EF_GY_IFS_H
 
-#include <ef.gy/polytope.h>
 #include <ef.gy/parametric.h>
+#include <ef.gy/polytope.h>
 #include <ef.gy/projection.h>
+#include <algorithm>
 #include <cmath>
-#include <vector>
 #include <cstdlib>
 #include <random>
-#include <algorithm>
+#include <vector>
 
 namespace efgy {
 namespace geometry {
 namespace transformation {
-template <typename Q, std::size_t d> class randomAffine : public affine<Q, d> {
-public:
+template <typename Q, std::size_t d>
+class randomAffine : public affine<Q, d> {
+ public:
   randomAffine(const parameters<Q> &pParameter, const unsigned long long &pSeed)
       : parameter(pParameter), seed(pSeed) {
     updateMatrix();
@@ -85,7 +86,7 @@ public:
 
   using affine<Q, d>::matrix;
 
-protected:
+ protected:
   const parameters<Q> &parameter;
   const unsigned long long seed;
 };
@@ -94,7 +95,7 @@ protected:
 namespace generators {
 template <typename Q, std::size_t depth, std::size_t renderDepth>
 class gasket {
-public:
+ public:
   using translation = transformation::affine<Q, renderDepth>;
   using dimensions = dimensions<2, 0>;
   static constexpr const char *id(void) { return "sierpinski-gasket"; }
@@ -135,7 +136,7 @@ public:
 
 template <typename Q, std::size_t depth, std::size_t renderDepth>
 class carpet {
-public:
+ public:
   using translation = transformation::affine<Q, renderDepth>;
   using dimensions = dimensions<2, 3>;
   static constexpr const char *id(void) { return "sierpinski-carpet"; }
@@ -201,10 +202,9 @@ public:
 
 template <typename Q, std::size_t depth, std::size_t renderDepth,
           template <class, std::size_t> class trans,
-          template <class, std::size_t> class gen,
-          const char *name>
+          template <class, std::size_t> class gen, const char *name>
 class random {
-public:
+ public:
   using translation = trans<Q, renderDepth>;
   using dimensions = dimensions<2, 0>;
   static constexpr const char *id(void) { return name; }
@@ -229,10 +229,8 @@ public:
 static constexpr const char randomAffineIFSLabel[] = "random-affine-ifs";
 
 template <typename Q, std::size_t depth, std::size_t renderDepth>
-using randomAffine =
-  random<Q, depth, renderDepth,
-         transformation::affine, transformation::randomAffine,
-         randomAffineIFSLabel>;
+using randomAffine = random<Q, depth, renderDepth, transformation::affine,
+                            transformation::randomAffine, randomAffineIFSLabel>;
 }
 
 template <typename Q, std::size_t depth,
@@ -240,15 +238,13 @@ template <typename Q, std::size_t depth,
           template <class, std::size_t, std::size_t> class gen>
 class ifs : public object<Q, depth, primitive<Q, depth>::renderDepth,
                           primitive<Q, depth>::faceVertices,
-                          typename primitive<Q, depth>::format>
-{
-public:
+                          typename primitive<Q, depth>::format> {
+ public:
   using basePrimitive = primitive<Q, depth>;
 
   using format = typename basePrimitive::format;
-  using parent =
-    object<Q, depth,
-           basePrimitive::renderDepth, basePrimitive::faceVertices, format>;
+  using parent = object<Q, depth, basePrimitive::renderDepth,
+                        basePrimitive::faceVertices, format>;
   using parent::renderDepth;
 
   using generator = gen<Q, depth, renderDepth>;
@@ -259,23 +255,23 @@ public:
   using typename parent::face;
 
   class iterator : public std::iterator<std::forward_iterator_tag, face> {
-  public:
+   public:
     iterator(const parameters<Q> &pParameter,
-                const std::vector<translation> &pFunctions)
-      : functions(pFunctions),
-        base(pParameter, format()),
-        basePosition(base.begin()), iterations(0),
-        totalIterations(pParameter.iterations),
-        limit(std::pow<Q>(functions.size(), pParameter.iterations)) {}
+             const std::vector<translation> &pFunctions)
+        : functions(pFunctions),
+          base(pParameter, format()),
+          basePosition(base.begin()),
+          iterations(0),
+          totalIterations(pParameter.iterations),
+          limit(std::pow<Q>(functions.size(), pParameter.iterations)) {}
 
     iterator(const iterator &it)
-      : functions(it.functions),
-        base(it.base),
-        basePosition(base.begin()),
-        iterations(it.iterations),
-        totalIterations(it.totalIterations),
-        limit(it.limit)
-    {
+        : functions(it.functions),
+          base(it.base),
+          basePosition(base.begin()),
+          iterations(it.iterations),
+          totalIterations(it.totalIterations),
+          limit(it.limit) {
       basePosition = base.begin();
     }
 
@@ -284,7 +280,7 @@ public:
       return *this;
     }
 
-    const face operator*(void) const {
+    const face operator*(void)const {
       auto f = *basePosition;
       face g;
       auto o = g.begin();
@@ -317,21 +313,16 @@ public:
       return c;
     }
 
-    bool isEnd(void) const {
-      return iterations >= limit;
-    }
+    bool isEnd(void) const { return iterations >= limit; }
 
-    bool operator!=(const iterator &b) const {
-      return !(*this == b);
-    }
-    
+    bool operator!=(const iterator &b) const { return !(*this == b); }
+
     bool operator==(const iterator &b) const {
-      return (isEnd() && b.isEnd())
-          || ((iterations == b.iterations)
-            && (basePosition == b.basePosition));
+      return (isEnd() && b.isEnd()) ||
+             ((iterations == b.iterations) && (basePosition == b.basePosition));
     }
 
-  protected:
+   protected:
     using baseIterator = typename basePrimitive::iterator;
 
     basePrimitive base;
@@ -355,19 +346,16 @@ public:
   };
 
   iterator begin(void) const {
-    return iterator(parent::parameter,
-                    generator::functions(parent::parameter));
+    return iterator(parent::parameter, generator::functions(parent::parameter));
   }
 
-  iterator end(void) const {
-    return begin().end();
-  }
+  iterator end(void) const { return begin().end(); }
 
   std::size_t size(void) const {
     basePrimitive base(parent::parameter, format());
-    return base.size() * std::pow<std::size_t>(
-        generator::size(parent::parameter),
-        parent::parameter.iterations);
+    return base.size() *
+           std::pow<std::size_t>(generator::size(parent::parameter),
+                                 parent::parameter.iterations);
   }
 
   using dimensions = typename generator::dimensions;

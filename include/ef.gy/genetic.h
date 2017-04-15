@@ -17,12 +17,12 @@
 #if !defined(EF_GY_GENETIC_H)
 #define EF_GY_GENETIC_H
 
-#include <vector>
+#include <array>
 #include <cstdlib>
 #include <ctime>
 #include <map>
-#include <array>
 #include <random>
+#include <vector>
 
 namespace efgy {
 namespace optimise {
@@ -32,7 +32,8 @@ template <typename T, int genomeLength, typename Fitness, typename Mutate,
 class geneticAlgorithm;
 
 /* \brief a Select functor that does nothing */
-template <typename S> class selectNull;
+template <typename S>
+class selectNull;
 
 /*
         A class that handles classic genetic algorithms.
@@ -88,7 +89,7 @@ template <typename T, int genomeLength, typename Fitness, typename Mutate,
           typename hasTerminated, template <typename S> class Select,
           typename Initialise, int populationSize, typename Q>
 class geneticAlgorithm {
-public:
+ public:
   typedef Q base;
 
   typedef Fitness FitnessFunctor;
@@ -106,7 +107,7 @@ public:
 
   std::mt19937 rng;
 
-protected:
+ protected:
   void breedNextGeneration() {
     Select<geneticAlgorithm> sel(*this);
     std::vector<individual> parents = sel(populationSize, population);
@@ -160,7 +161,7 @@ protected:
     return std::pair<individual, individual>(i1, i2);
   }
 
-public:
+ public:
   geneticAlgorithm(Q pMutate_, Q pCrossover_)
       : pMutate(pMutate_), pCrossover(pCrossover_) {
     for (int i = 0; i < populationSize; i++) {
@@ -194,7 +195,7 @@ public:
 
 /** \brief Functor that returns a random float between 0 and 1 */
 class MutateFloat {
-public:
+ public:
   float operator()(float x) {
     std::random_device rd;
     std::mt19937 rng(rd());
@@ -205,12 +206,13 @@ public:
 /** \brief Implements the tournament selection method for genetic algorithms.
 
     */
-template <typename S, int tournamentSize> class SelectTournament {
-public:
+template <typename S, int tournamentSize>
+class SelectTournament {
+ public:
   SelectTournament(S &s_) : GA(s_) {}
 
-  std::vector<typename S::individual>
-  operator()(int targetSize, std::vector<typename S::individual> population) {
+  std::vector<typename S::individual> operator()(
+      int targetSize, std::vector<typename S::individual> population) {
     std::random_device rd;
     std::mt19937 rng(rd());
     std::map<typename S::base, typename S::individual> current;
@@ -254,7 +256,7 @@ public:
     return newPopulation;
   }
 
-private:
+ private:
   S &GA;
 };
 }

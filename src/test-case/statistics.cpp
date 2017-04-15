@@ -12,11 +12,11 @@
  * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
-#include <iostream>
 #include <math.h>
+#include <iostream>
 
-#include <ef.gy/test-case.h>
 #include <ef.gy/statistics.h>
+#include <ef.gy/test-case.h>
 
 using namespace efgy;
 using namespace efgy::statistics;

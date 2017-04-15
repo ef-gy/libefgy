@@ -21,18 +21,18 @@
 #if !defined(EF_GY_POLYTOPE_H)
 #define EF_GY_POLYTOPE_H
 
-#include <ef.gy/euclidian.h>
-#include <ef.gy/polar.h>
-#include <vector>
-#include <array>
-#include <algorithm>
-#include <ef.gy/range.h>
-#include <ef.gy/exponential.h>
-#include <type_traits>
-#include <iterator>
-#include <cmath>
-#include <set>
 #include <ef.gy/colour-space-rgb.h>
+#include <ef.gy/euclidian.h>
+#include <ef.gy/exponential.h>
+#include <ef.gy/polar.h>
+#include <ef.gy/range.h>
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <iterator>
+#include <set>
+#include <type_traits>
+#include <vector>
 
 namespace efgy {
 namespace geometry {
@@ -59,18 +59,27 @@ namespace geometry {
  *
  * \tparam Q Base data type for calculations.
  */
-template <typename Q> class parameters {
-public:
+template <typename Q>
+class parameters {
+ public:
   /**\brief Construct with default parameters
    *
    * Initialises the parameter object with sane defaults for the
    * individual parameters.
    */
   parameters(void)
-      : radius(1), radius2(0.5), constant(0.9), precision(3), iterations(4),
-        functions(3), seed(0), preRotate(1), postRotate(0),
-        flameCoefficients(3), vertexLimit(1000000),
-        colourMap({{1,0,0},{0,1,0},{0,0,1}}) {}
+      : radius(1),
+        radius2(0.5),
+        constant(0.9),
+        precision(3),
+        iterations(4),
+        functions(3),
+        seed(0),
+        preRotate(1),
+        postRotate(0),
+        flameCoefficients(3),
+        vertexLimit(1000000),
+        colourMap({{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}) {}
 
   /**\brief Radius
    *
@@ -167,12 +176,12 @@ public:
  * template parameters, to allow for easier type aliasing and so that there does
  * not need to be any subclassing or instantiating of this class.
  */
-template<bool tRadius = false, bool tRadius2 = false, bool tConstant = false,
-    bool tPrecision = false, bool tIterations = false, bool tFunctions = false,
-    bool tSeed = false, bool tPreRotate = false, bool tPostRotate = false,
-    bool tFlameCoefficients = false>
+template <bool tRadius = false, bool tRadius2 = false, bool tConstant = false,
+          bool tPrecision = false, bool tIterations = false,
+          bool tFunctions = false, bool tSeed = false, bool tPreRotate = false,
+          bool tPostRotate = false, bool tFlameCoefficients = false>
 class parameterFlags {
-public:
+ public:
   static const bool radius = tRadius;
   static const bool radius2 = tRadius2;
   static const bool constant = tConstant;
@@ -206,8 +215,9 @@ public:
  * \tparam modelMin  Minimum number of model dimensions needed.
  * \tparam modelMax  Maximum number of model dimensions supported.
  */
-template <std::size_t modelMin = 2, std::size_t modelMax = 0> class dimensions {
-public:
+template <std::size_t modelMin = 2, std::size_t modelMax = 0>
+class dimensions {
+ public:
   /**\brief Minimum number of model dimensions needed
    *
    * Exports the 'modelMin' parameter, which is the number of
@@ -239,7 +249,7 @@ public:
 template <typename Q, std::size_t od, std::size_t d, std::size_t f,
           typename Format>
 class object {
-public:
+ public:
   /**\brief Vector format type
    *
    * Holds the vector format type that was passed as an argument
@@ -348,15 +358,15 @@ public:
  */
 template <typename Q, std::size_t od,
           template <typename, std::size_t> class gen>
-class polytope : public object<Q, od, gen<Q, od>::renderDepth,
-                               gen<Q, od>::faceVertices,
-                               typename gen<Q, od>::format> {
-protected:
+class polytope
+    : public object<Q, od, gen<Q, od>::renderDepth, gen<Q, od>::faceVertices,
+                    typename gen<Q, od>::format> {
+ protected:
   using generator = gen<Q, od>;
-  using parent = object<Q, od, generator::renderDepth,
-                        generator::faceVertices, typename generator::format>;
+  using parent = object<Q, od, generator::renderDepth, generator::faceVertices,
+                        typename generator::format>;
 
-public:
+ public:
   using parent::parent;
   using typename parent::face;
   using usedParameters = typename generator::usedParameters;
@@ -369,17 +379,13 @@ public:
     return faces.begin();
   }
 
-  iterator end(void) const {
-    return faces.end();
-  }
+  iterator end(void) const { return faces.end(); }
 
-  constexpr std::size_t size(void) const {
-    return generator::size();
-  }
+  constexpr std::size_t size(void) const { return generator::size(); }
 
   static constexpr const char *id(void) { return generator::id(); }
 
-protected:
+ protected:
   /**\brief The actual mesh data
    *
    * Contains all the faces that this polytope's mesh is composed
@@ -390,10 +396,10 @@ protected:
 
 template <class face, class iterator>
 class adaptiveIterator : public iterator {
-public:
+ public:
   adaptiveIterator(const iterator &pIT) : iterator(pIT) {}
 
-  const face operator*(void) const {
+  const face operator*(void)const {
     const auto &f = iterator::operator*();
     face cf;
     for (std::size_t i = 0; i < std::min(f.size(), cf.size()); i++) {
@@ -407,7 +413,7 @@ public:
 
 template <typename Q, std::size_t d, class model, class format>
 class adapt : public object<Q, model::depth, d, model::faceVertices, format> {
-public:
+ public:
   using parent = object<Q, model::depth, d, model::faceVertices, format>;
   using iterator =
       adaptiveIterator<typename parent::face, typename model::iterator>;
@@ -424,7 +430,7 @@ public:
 
   using usedParameters = typename parent::usedParameters;
 
-protected:
+ protected:
   model object;
 };
 
@@ -436,20 +442,16 @@ using autoAdapt = typename std::conditional<
 
 namespace generators {
 namespace mask {
-template<std::size_t depth>
+template <std::size_t depth>
 class cube {
-private:
-using vector = std::array<bool, depth>;
-using face = std::array<vector, 4>;
+ private:
+  using vector = std::array<bool, depth>;
+  using face = std::array<vector, 4>;
 
-public:
+ public:
   static std::set<face> faces(void) {
-    static std::set<face> faces{{
-      vector({false, false}),
-      vector({false, true}),
-      vector({true, true}),
-      vector({true, false})
-    }};
+    static std::set<face> faces{{vector({false, false}), vector({false, true}),
+                                 vector({true, true}), vector({true, false})}};
     if (faces.size() == size()) {
       return faces;
     }
@@ -489,7 +491,8 @@ public:
         std::reverse(x.begin(), x.end());
 
         // this makes sure that the smallest vertex (via min_element) is first.
-        //std::rotate(x.begin(), std::min_element(x.begin(), x.end()), x.end());
+        // std::rotate(x.begin(), std::min_element(x.begin(), x.end()),
+        // x.end());
 
         newFaces.insert(x);
       }
@@ -514,44 +517,37 @@ public:
   }
 };
 
-template<> class cube<2> {
-private:
+template <>
+class cube<2> {
+ private:
   using vector = std::array<bool, 2>;
   using face = std::array<vector, 4>;
 
-public:
-  static constexpr std::array<face,1> faces(void) {
-    return {
-      vector({false, false}),
-      vector({false, true}),
-      vector({true, true}),
-      vector({true, false})
-    };
+ public:
+  static constexpr std::array<face, 1> faces(void) {
+    return {vector({false, false}), vector({false, true}), vector({true, true}),
+            vector({true, false})};
   }
 
-  static constexpr std::size_t size(void) {
-    return 1;
-  }
+  static constexpr std::size_t size(void) { return 1; }
 };
 
-template<> class cube<1> {
-private:
+template <>
+class cube<1> {
+ private:
   using vector = std::array<bool, 1>;
   using face = std::array<vector, 4>;
 
-public:
-  static constexpr std::array<face,0> faces(void) {
-    return {};
-  }
+ public:
+  static constexpr std::array<face, 0> faces(void) { return {}; }
 
-  static constexpr std::size_t size(void) {
-    return 0;
-  }
+  static constexpr std::size_t size(void) { return 0; }
 };
 }
 
-template <typename Q, std::size_t depth> class cube {
-public:
+template <typename Q, std::size_t depth>
+class cube {
+ public:
   typedef dimensions<2, 0> dimensions;
   static constexpr const std::size_t renderDepth = depth;
   static constexpr const std::size_t faceVertices = 4;
@@ -559,12 +555,12 @@ public:
   using usedParameters = parameterFlags<true>;
   using format = math::format::cartesian;
 
-private:
+ private:
   using vector = math::vector<Q, renderDepth, format>;
   using face = std::array<vector, faceVertices>;
   using source = mask::cube<depth>;
 
-public:
+ public:
   static std::vector<face> faces(const parameters<Q> &parameter) {
     std::vector<face> res(source::size(), face());
     const auto pd = parameter.radius * Q(.5);
@@ -593,9 +589,7 @@ public:
    * \note The general, closed formula for this is (n being the depth of the
    *     cube): (2^(n-3))*(n-1)*n
    */
-  static constexpr std::size_t size(void) {
-    return source::size();
-  }
+  static constexpr std::size_t size(void) { return source::size(); }
 };
 }
 

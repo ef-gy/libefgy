@@ -16,8 +16,8 @@
 #include <iostream>
 #include <string>
 
-#include <ef.gy/test-case.h>
 #include <ef.gy/fractions.h>
+#include <ef.gy/test-case.h>
 #include <ef.gy/units.h>
 
 using namespace efgy::unit;

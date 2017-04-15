@@ -18,9 +18,9 @@
 #define EF_GY_SQLITE_H
 
 #include <sqlite3.h>
-#include <string>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 namespace efgy {
 /**\brief Database helpers
@@ -30,7 +30,7 @@ namespace efgy {
  */
 namespace database {
 class sqlite {
-public:
+ public:
   sqlite(const std::string &databaseFile) : database(0) {
     if (sqlite3_open(databaseFile.c_str(), &database) != SQLITE_OK) {
       throw sqlite::exception(std::string("could not open database ") +
@@ -60,7 +60,7 @@ public:
   }
 
   class exception : public std::runtime_error {
-  public:
+   public:
     exception(const std::string &pString) : std::runtime_error(pString) {}
 
     exception(const std::string &pString, const sqlite &pSQL)
@@ -70,7 +70,7 @@ public:
   };
 
   class statement {
-  public:
+   public:
     statement(const std::string &pStatement, sqlite &pSQL)
         : sql(pSQL), row(false) {
       if (sqlite3_prepare_v2(sql.database, pStatement.c_str(), -1, &stmt, 0) !=
@@ -89,21 +89,21 @@ public:
       int cRetries = 0;
     retry:
       switch (sqlite3_step(stmt)) {
-      case SQLITE_ROW:
-        row = true;
-        return true;
-      case SQLITE_OK:
-      case SQLITE_DONE:
-        row = false;
-        return true;
-      case SQLITE_BUSY:
-        if (cRetries < retries) {
-          cRetries++;
-          sleep(1);
-          goto retry;
-        }
-      default:
-        throw sqlite::exception("sqlite3_step", sql);
+        case SQLITE_ROW:
+          row = true;
+          return true;
+        case SQLITE_OK:
+        case SQLITE_DONE:
+          row = false;
+          return true;
+        case SQLITE_BUSY:
+          if (cRetries < retries) {
+            cRetries++;
+            sleep(1);
+            goto retry;
+          }
+        default:
+          throw sqlite::exception("sqlite3_step", sql);
       }
 
       return false;
@@ -138,7 +138,8 @@ public:
 
     bool stepReset(void) { return step() && reset(); }
 
-    template <typename T> bool bind(int i, const T &value) {
+    template <typename T>
+    bool bind(int i, const T &value) {
       if (sqlite3_bind_null(stmt, i) != SQLITE_OK) {
         throw sqlite::exception("sqlite3_bind_null", sql);
         return false;
@@ -147,7 +148,8 @@ public:
       return true;
     }
 
-    template <typename T> bool get(int i, T &value) {
+    template <typename T>
+    bool get(int i, T &value) {
       if (!row) {
         return false;
       }
@@ -161,7 +163,7 @@ public:
 
     bool row;
 
-  protected:
+   protected:
     sqlite &sql;
     sqlite3_stmt *stmt;
     static const int retries = 5;
@@ -187,12 +189,12 @@ public:
       sqlite3_stmt *stmt = 0;
       if (sqlite3_prepare_v2(database, tail, -1, &stmt, &ntail) == SQLITE_OK) {
         switch (sqlite3_step(stmt)) {
-        case SQLITE_ROW:
-        case SQLITE_OK:
-        case SQLITE_DONE:
-          break;
-        default:
-          throw exception("import: sqlite3_step", *this);
+          case SQLITE_ROW:
+          case SQLITE_OK:
+          case SQLITE_DONE:
+            break;
+          default:
+            throw exception("import: sqlite3_step", *this);
         }
         sqlite3_finalize(stmt);
         tail = ntail;
@@ -206,11 +208,12 @@ public:
 
   typedef int id;
 
-protected:
+ protected:
   sqlite3 *database;
 };
 
-template <> bool sqlite::statement::bind(int i, const long long &value) {
+template <>
+bool sqlite::statement::bind(int i, const long long &value) {
   sqlite3_int64 v = value;
 
   if (sqlite3_bind_int64(stmt, i, v) != SQLITE_OK) {
@@ -221,7 +224,8 @@ template <> bool sqlite::statement::bind(int i, const long long &value) {
   return true;
 }
 
-template <> bool sqlite::statement::bind(int i, const int &value) {
+template <>
+bool sqlite::statement::bind(int i, const int &value) {
   if (sqlite3_bind_int(stmt, i, value) != SQLITE_OK) {
     throw sqlite::exception("sqlite3_bind_int", sql);
     return false;
@@ -230,7 +234,8 @@ template <> bool sqlite::statement::bind(int i, const int &value) {
   return true;
 }
 
-template <> bool sqlite::statement::bind(int i, const std::string &value) {
+template <>
+bool sqlite::statement::bind(int i, const std::string &value) {
   if (sqlite3_bind_text(stmt, i, value.data(), value.size(),
                         SQLITE_TRANSIENT) != SQLITE_OK) {
     throw sqlite::exception("sqlite3_bind_text", sql);
@@ -240,7 +245,8 @@ template <> bool sqlite::statement::bind(int i, const std::string &value) {
   return true;
 }
 
-template <> bool sqlite::statement::bind(int i, const double &value) {
+template <>
+bool sqlite::statement::bind(int i, const double &value) {
   if (sqlite3_bind_double(stmt, i, value) != SQLITE_OK) {
     throw sqlite::exception("sqlite3_bind_double", sql);
     return false;
@@ -249,7 +255,8 @@ template <> bool sqlite::statement::bind(int i, const double &value) {
   return true;
 }
 
-template <> bool sqlite::statement::get(int i, long long &value) {
+template <>
+bool sqlite::statement::get(int i, long long &value) {
   if (!row) {
     return false;
   }
@@ -261,7 +268,8 @@ template <> bool sqlite::statement::get(int i, long long &value) {
   return true;
 }
 
-template <> bool sqlite::statement::get(int i, int &value) {
+template <>
+bool sqlite::statement::get(int i, int &value) {
   if (!row) {
     return false;
   }
@@ -271,7 +279,8 @@ template <> bool sqlite::statement::get(int i, int &value) {
   return true;
 }
 
-template <> bool sqlite::statement::get(int i, std::string &value) {
+template <>
+bool sqlite::statement::get(int i, std::string &value) {
   if (!row) {
     return false;
   }
@@ -283,7 +292,8 @@ template <> bool sqlite::statement::get(int i, std::string &value) {
   return v != 0;
 }
 
-template <> bool sqlite::statement::get(int i, double &value) {
+template <>
+bool sqlite::statement::get(int i, double &value) {
   if (!row) {
     return false;
   }

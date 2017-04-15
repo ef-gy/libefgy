@@ -52,8 +52,9 @@ namespace algorithm {
  * \tparam Q The data type to use in the calculations, e.g. double.
  * \tparam N Sequence index type.
  */
-template <typename Q, typename N> class bailey1997 {
-public:
+template <typename Q, typename N>
+class bailey1997 {
+ public:
   /**\brief Default number of iterations
    *
    * This is the number of iterations used when approximating

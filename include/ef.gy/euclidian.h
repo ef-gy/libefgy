@@ -194,8 +194,8 @@ math::vector<Q, d> normal(const std::array<math::vector<Q, d>, d - 1> &pV) {
  * \returns One of the vectors perpendicular to the given input vectors.
  */
 template <typename Q>
-constexpr math::vector<Q, 3>
-normal(const std::array<math::vector<Q, 3>, 2> &pV) {
+constexpr math::vector<Q, 3> normal(
+    const std::array<math::vector<Q, 3>, 2> &pV) {
   return crossProduct(pV[0], pV[1]);
 }
 

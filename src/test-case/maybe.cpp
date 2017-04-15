@@ -12,10 +12,10 @@
  * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
+#include <ef.gy/maybe.h>
+#include <ef.gy/test-case.h>
 #include <iostream>
 #include <sstream>
-#include <ef.gy/test-case.h>
-#include <ef.gy/maybe.h>
 
 using namespace efgy;
 using namespace std;
@@ -86,7 +86,7 @@ int testMaybe(std::ostream &log) {
  * works as intended with a nontrivial class.
  */
 class outputInDestructor {
-public:
+ public:
   /**\brief Initialise with output stream
    *
    * Initialises the class with an output stream, which is used in the
@@ -107,7 +107,7 @@ public:
     log << "outputInDestructor::~outputInDestructor()\n";
   }
 
-protected:
+ protected:
   /**\brief Output stream reference
    *
    * The output stream passed to the constructor; used in the destructor.

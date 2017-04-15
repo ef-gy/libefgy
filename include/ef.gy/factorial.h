@@ -27,8 +27,9 @@ namespace math {
  *
  * The current behaviour for negative numbers is to return 1.
  */
-template <typename Z> class factorial {
-public:
+template <typename Z>
+class factorial {
+ public:
   factorial() : integer(Z(0)) {}
 
   factorial(const Z &pInteger) : integer(pInteger) {}

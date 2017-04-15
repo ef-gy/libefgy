@@ -30,8 +30,9 @@ namespace math {
  *                  or similar.
  * \tparam Tinteger Integer type to use with the base type.
  */
-template <typename Q, typename Tinteger = unsigned long> class primitive {
-public:
+template <typename Q, typename Tinteger = unsigned long>
+class primitive {
+ public:
   /**\brief Integer type
    *
    * This is a typedef to the integer base type that was passed
@@ -70,7 +71,7 @@ public:
    *
    * \return Const reference to the base value.
    */
-  constexpr operator const Q &(void) const { return data; }
+  constexpr operator const Q &(void)const { return data; }
 
   /**\brief Assign base value
    *

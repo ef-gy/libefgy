@@ -16,8 +16,8 @@
 #if !defined(EF_GY_STREAM_SVG_H)
 #define EF_GY_STREAM_SVG_H
 
-#include <string>
 #include <ostream>
+#include <string>
 
 namespace efgy {
 namespace svg {
@@ -28,8 +28,9 @@ namespace svg {
  *
  * \tparam C Character type for the basic_ostream reference.
  */
-template <typename C> class ostream {
-public:
+template <typename C>
+class ostream {
+ public:
   /**\brief Construct with stream reference
    *
    * Initialises a new ostream SVG tag instance.

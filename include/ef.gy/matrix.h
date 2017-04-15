@@ -26,9 +26,9 @@ namespace math {
 namespace iterator {
 template <typename Q, std::size_t m, typename Source>
 class matrix : public std::iterator<std::random_access_iterator_tag, Q> {
-public:
+ public:
   matrix(const Source &pSource, unsigned long pPosition)
-    : source(pSource), position(pPosition) {}
+      : source(pSource), position(pPosition) {}
 
   constexpr bool operator==(const matrix &b) const {
     return (position == b.position) && (&source == &b.source);
@@ -38,7 +38,7 @@ public:
     return (position != b.position) || (&source != &b.source);
   }
 
-  Q operator*(void) const {
+  Q operator*(void)const {
     unsigned long j = position % m;
     unsigned long i = (position - j) / m;
     return source[i][j];
@@ -96,13 +96,14 @@ public:
     return position >= b.position;
   }
 
-protected:
+ protected:
   std::size_t position;
   const Source &source;
 };
 }
 
-template <typename Q, std::size_t n, std::size_t m> class matrix;
+template <typename Q, std::size_t n, std::size_t m>
+class matrix;
 
 template <typename Q, std::size_t n, std::size_t m>
 matrix<Q, n, m> operator+(const matrix<Q, n, m> &a, const matrix<Q, n, m> &b) {
@@ -137,7 +138,7 @@ matrix<Q, n, p> operator*(const matrix<Q, n, m> &a, const matrix<Q, m, p> &b) {
   for (std::size_t i = 0; i < n; i++) {
     for (std::size_t j = 0; j < p; j++) {
       r[i][j] = a[i][0] * b[0][j];
-        
+
       for (std::size_t k = 1; k < m; k++) {
         r[i][j] += a[i][k] * b[k][j];
       }
@@ -162,34 +163,31 @@ matrix<Q, n, m> operator/(const matrix<Q, n, m> &a, const Q &b) {
 
 namespace ghost {
 template <typename Q, std::size_t n, std::size_t m,
-          template<typename, std::size_t, std::size_t> class gen>
+          template <typename, std::size_t, std::size_t> class gen>
 class matrix {
-public:
+ public:
   using iterator = iterator::matrix<Q, m, matrix>;
 
   matrix(void) = default;
 
-  gen<Q,n,m> generator;
+  gen<Q, n, m> generator;
 
-private:
+ private:
   class row {
-  public:
-    row(const matrix &ma, const std::size_t &i)
-      : mat(ma), pos(i) {}
+   public:
+    row(const matrix &ma, const std::size_t &i) : mat(ma), pos(i) {}
 
-    const Q operator[] (const std::size_t &j) const {
+    const Q operator[](const std::size_t &j) const {
       return mat.generator(pos, j);
     }
 
-  private:
+   private:
     const matrix &mat;
     const std::size_t &pos;
   };
 
-public:
-  const row operator[] (const std::size_t &i) const {
-    return row(*this, i);
-  }
+ public:
+  const row operator[](const std::size_t &i) const { return row(*this, i); }
 
   iterator begin(void) const { return iterator(*this, 0); }
   iterator end(void) const { return iterator(*this, n * m); }
@@ -208,7 +206,7 @@ public:
  */
 template <typename Q, std::size_t n, std::size_t m>
 class matrix : public std::array<std::array<Q, m>, n> {
-public:
+ public:
   using iterator = iterator::matrix<Q, m, matrix>;
 
   /**\brief Default constructor
@@ -249,7 +247,7 @@ public:
   }
 
   template <std::size_t rn, std::size_t rm,
-            template<typename, std::size_t, std::size_t> class gen>
+            template <typename, std::size_t, std::size_t> class gen>
   matrix(const ghost::matrix<Q, rn, rm, gen> &b) {
     for (std::size_t i = 0; i < n; i++) {
       for (std::size_t j = 0; j < m; j++) {
@@ -262,7 +260,7 @@ public:
     }
   }
 
-  template<typename it>
+  template <typename it>
   matrix(const it &pBegin, const it &pEnd) {
     it k = pBegin;
     for (std::size_t i = 0; i < n; i++) {
@@ -298,8 +296,8 @@ public:
  * by tabs.
  */
 template <typename Q, std::size_t n, std::size_t m, typename C>
-    std::ostream &operator<<(std::basic_ostream<C> &stream,
-                             const matrix<Q, n, m> &matrix) {
+std::ostream &operator<<(std::basic_ostream<C> &stream,
+                         const matrix<Q, n, m> &matrix) {
   for (int i = 0; i < n; i++) {
     for (int k = 0; k < m; k++) {
       stream << matrix[i][k] << "\t";
@@ -309,7 +307,8 @@ template <typename Q, std::size_t n, std::size_t m, typename C>
   return stream;
 }
 
-template <typename Q, std::size_t d> Q determinant(const matrix<Q, d, d> &pM) {
+template <typename Q, std::size_t d>
+Q determinant(const matrix<Q, d, d> &pM) {
   Q rv;
 
   for (std::size_t i = 0; i < d; i++) {
@@ -339,11 +338,13 @@ template <typename Q, std::size_t d> Q determinant(const matrix<Q, d, d> &pM) {
   return rv;
 }
 
-template <typename Q> Q determinant(const matrix<Q, 2, 2> &pM) {
+template <typename Q>
+Q determinant(const matrix<Q, 2, 2> &pM) {
   return pM[0][0] * pM[1][1] - pM[1][0] * pM[0][1];
 }
 
-template <typename Q> Q determinant(const matrix<Q, 1, 1> &pM) {
+template <typename Q>
+Q determinant(const matrix<Q, 1, 1> &pM) {
   return pM[0][0];
 }
 
@@ -373,7 +374,8 @@ matrix<Q, m, n> transpose(const matrix<Q, n, m> &pM) {
   return rv;
 }
 
-template <typename Q> matrix<Q, 3, 3> invert(const matrix<Q, 3, 3> &pM) {
+template <typename Q>
+matrix<Q, 3, 3> invert(const matrix<Q, 3, 3> &pM) {
   matrix<Q, 3, 3> rv;
 
   const Q &a = pM[0][0];

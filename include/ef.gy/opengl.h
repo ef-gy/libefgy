@@ -17,9 +17,9 @@
 
 #include <ef.gy/glsl.h>
 #include <algorithm>
-#include <vector>
 #include <set>
 #include <sstream>
+#include <vector>
 
 namespace efgy {
 /**\brief OpenGL helpers
@@ -60,7 +60,7 @@ static inline std::vector<GLenum> error(void) {
  *      the parameter GL_EXTENSIONS.
  */
 class extension {
-public:
+ public:
   /**\brief Get all OpenGL extensions
    *
    * This function gets a list of all supported OpenGL extensions
@@ -162,11 +162,7 @@ static inline GLuint roundToPowerOf2(GLuint value) {
  * Contains a list of default vertex attributes passed to vertex
  * shaders.
  */
-enum shaderAttribute {
-  attributePosition,
-  attributeNormal,
-  attributeIndex
-};
+enum shaderAttribute { attributePosition, attributeNormal, attributeIndex };
 
 /**\brief Shader programme
  *
@@ -179,7 +175,7 @@ enum shaderAttribute {
 template <typename Q, enum glsl::version V,
           template <enum glsl::version> class... shaders>
 class programme {
-public:
+ public:
   /**\brief Default constructor
    *
    * Initialises an instance of this class; The shaders are not
@@ -430,7 +426,8 @@ public:
    *         data has been handed off to OpenGL, false
    *         otherwise.
    */
-  template <typename T> bool uniform(const char *name, const T &value) {
+  template <typename T>
+  bool uniform(const char *name, const T &value) {
     return uniform(uniform(name), value);
   }
 
@@ -469,7 +466,8 @@ public:
    *         data has been handed off to OpenGL, false
    *         otherwise.
    */
-  template <typename T> bool uniform(const char *name, const T &value) const {
+  template <typename T>
+  bool uniform(const char *name, const T &value) const {
     return uniform(uniform(name), value);
   }
 
@@ -515,7 +513,7 @@ public:
     return glGetUniformLocation(programmeID, uniform);
   }
 
-protected:
+ protected:
   /**\brief Programme ID
    *
    * The programme ID as returned by OpenGL; set to zero as long
@@ -528,11 +526,10 @@ protected:
     return true;
   }
 
-  template<class shader, class... otherShaders>
+  template <class shader, class... otherShaders>
   bool compileShaders(std::vector<GLuint> &shaderList,
-                      std::set<std::string> &attributes,
-                      const shader &pShader,
-                      const otherShaders & ...pOtherShaders) {
+                      std::set<std::string> &attributes, const shader &pShader,
+                      const otherShaders &... pOtherShaders) {
     if (!compile(shaderList, attributes, pShader)) {
       return false;
     }
@@ -635,10 +632,9 @@ protected:
     return true;
   }
 
-  template<class shader>
+  template <class shader>
   bool compile(std::vector<GLuint> &shaderList,
-               std::set<std::string> &attributes,
-               const shader &pShader) {
+               std::set<std::string> &attributes, const shader &pShader) {
     GLuint compiled;
     std::ostringstream text("");
     text << pShader;
@@ -699,8 +695,9 @@ protected:
  *
  * \tparam Q Base data type for calculations.
  */
-template <typename Q> class framebuffer {
-public:
+template <typename Q>
+class framebuffer {
+ public:
   /**\brief Default constructor
    *
    * Initialises the object; this does not yet create a
@@ -763,7 +760,7 @@ public:
     return true;
   }
 
-protected:
+ protected:
   /**\brief Framebuffer ID
    *
    * The framebuffer ID as returned by OpenGL; set to zero as long
@@ -797,7 +794,7 @@ protected:
 template <GLenum target, GLenum format = GL_RGB, GLenum baseFormat = format,
           GLenum type = GL_UNSIGNED_BYTE>
 class texture {
-public:
+ public:
   /**\brief Default constructor
    *
    * Initialises the object; this does not yet create a
@@ -880,7 +877,7 @@ public:
    */
   GLuint textureID;
 
-protected:
+ protected:
   /**\brief Texture width
    *
    * The width of the texture that was loaded or created with the
@@ -929,8 +926,9 @@ typedef texture<GL_TEXTURE_2D> texture2D;
  * http://www.khronos.org/opengles/sdk/docs/man/xhtml/glRenderbufferStorage.xml
  *      for the possible values of the format and target parameters.
  */
-template <GLenum format, GLenum target = GL_RENDERBUFFER> class renderbuffer {
-public:
+template <GLenum format, GLenum target = GL_RENDERBUFFER>
+class renderbuffer {
+ public:
   /**\brief Default constructor
    *
    * Initialises the object; this does not yet create a
@@ -1007,7 +1005,7 @@ public:
    */
   GLuint renderbufferID;
 
-protected:
+ protected:
   /**\brief Renderbuffer width
    *
    * The width of the buffer that was created with the use()
@@ -1052,7 +1050,7 @@ template <typename Q, GLenum format = GL_RGB, GLenum baseFormat = format,
           GLenum type = GL_UNSIGNED_BYTE, GLenum target = GL_TEXTURE_2D>
 class framebufferTexture : public framebuffer<Q>,
                            public texture<target, format, baseFormat, type> {
-public:
+ public:
   /**\brief Bind framebuffer and texture
    *
    * Binds the framebuffer and texture objects for this instance.
@@ -1106,7 +1104,7 @@ template <typename Q, GLenum format = GL_RGB, GLenum baseFormat = format,
 class framebufferTextureDepth
     : public framebufferTexture<Q, format, baseFormat, type, target>,
       public renderbuffer<depthFormat> {
-public:
+ public:
   /**\brief Bind framebuffer, texture and depth renderbuffer
    *
    * Binds the framebuffer, texture object and depth renderbuffer
@@ -1120,8 +1118,9 @@ public:
    * \return True on success, false otherwise.
    */
   bool use(const GLuint &width, const GLuint &height) {
-    if (framebufferTexture<Q, format, baseFormat, type, target>::load(
-            width, height) && renderbuffer<depthFormat>::load(width, height)) {
+    if (framebufferTexture<Q, format, baseFormat, type, target>::load(width,
+                                                                      height) &&
+        renderbuffer<depthFormat>::load(width, height)) {
       glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                                 GL_RENDERBUFFER,
                                 renderbuffer<depthFormat>::renderbufferID);
@@ -1161,7 +1160,7 @@ template <typename Q, enum glsl::version V,
 class renderToTextureProgramme
     : public programme<Q, V, vertexShader, fragmentShader>,
       public framebufferTexture<Q, format, baseFormat, type, target> {
-public:
+ public:
   /**\brief Default constructor
    *
    * Initialises an instance of this class by using the default
@@ -1222,10 +1221,9 @@ public:
  */
 template <typename Q, enum glsl::version V,
           template <enum glsl::version> class... shaders>
-class renderToFramebufferProgramme
-    : public programme<Q, V, shaders...>,
-      public framebuffer<Q> {
-public:
+class renderToFramebufferProgramme : public programme<Q, V, shaders...>,
+                                     public framebuffer<Q> {
+ public:
   /**\brief Default constructor
    *
    * Initialises an instance of this class by using the default
@@ -1251,8 +1249,7 @@ public:
    * \return True on success, false otherwise.
    */
   bool use(const GLuint &width, const GLuint &height) {
-    if (programme<Q, V, shaders...>::use() &&
-        framebuffer<Q>::use()) {
+    if (programme<Q, V, shaders...>::use() && framebuffer<Q>::use()) {
       glViewport(0, 0, width, height);
 
       return true;
@@ -1275,8 +1272,9 @@ public:
  * \see http://www.opengl.org/sdk/docs/man/xhtml/glBindBuffer.xml for
  *      possible values to use for the target parameter.
  */
-template <GLenum target> class buffer {
-public:
+template <GLenum target>
+class buffer {
+ public:
   /**\brief Default constructor
    *
    * Initialises an empty instance of this class. The OpenGL
@@ -1362,7 +1360,7 @@ public:
     return false;
   }
 
-protected:
+ protected:
   /**\brief OpenGL buffer ID
    *
    * This is the buffer ID as assigned by OpenGL when binding the
@@ -1402,8 +1400,9 @@ typedef buffer<GL_ELEMENT_ARRAY_BUFFER> indexBuffer;
  *
  * \tparam Q Base data type for calculations.
  */
-template <typename Q> class vertexArray {
-public:
+template <typename Q>
+class vertexArray {
+ public:
   /**\brief Default constructor
    *
    * Initialise an empty instance of this class. The actual OpenGL
@@ -1467,7 +1466,7 @@ public:
     return false;
   }
 
-protected:
+ protected:
   /**\brief Vertex array ID
    *
    * This is the vertex array ID as assigned by OpenGL. If the
@@ -1486,7 +1485,7 @@ protected:
  */
 template <typename Q, unsigned int d>
 class vertexArrayMinimal : public vertexArray<Q> {
-public:
+ public:
   /**\brief Use vertex array object
    *
    * Uses the vertexArray<Q>::use() method to bind or create a
@@ -1519,7 +1518,7 @@ public:
     return true;
   }
 
-protected:
+ protected:
   /**\brief Whether the vertexArrayID existed before calling use()
    *
    * The use() method checks whether an ID existed before calling
@@ -1550,7 +1549,7 @@ protected:
  */
 template <typename Q, unsigned int d>
 class vertexArrayExtended : public vertexArray<Q> {
-public:
+ public:
   /**\brief Use vertex array object
    *
    * Uses the vertexArray<Q>::use() method to bind or create a
@@ -1617,7 +1616,7 @@ public:
     return true;
   }
 
-protected:
+ protected:
   /**\brief Whether the vertexArrayID existed before calling use()
    *
    * The use() method checks whether an ID existed before calling

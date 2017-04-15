@@ -15,9 +15,9 @@
 
 #include <iostream>
 
-#include <ef.gy/test-case.h>
 #include <ef.gy/exponential.h>
 #include <ef.gy/fractions.h>
+#include <ef.gy/test-case.h>
 
 using namespace efgy::math;
 

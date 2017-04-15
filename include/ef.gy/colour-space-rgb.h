@@ -30,7 +30,7 @@ namespace format {
  * converted properly.
  */
 class RGB {
-public:
+ public:
   /**\copydoc cartesian::id */
   static const char *id(void) { return "RGB"; }
 };
@@ -38,16 +38,22 @@ public:
 
 template <typename Q>
 class vector<Q, 3, format::RGB> : public std::array<Q, 3> {
-public:
+ public:
   vector(const std::array<Q, 3> &v = {{}}, const format::RGB & = format::RGB())
-      : std::array<Q, 3>(v), red((*this)[0]), green((*this)[1]),
+      : std::array<Q, 3>(v),
+        red((*this)[0]),
+        green((*this)[1]),
         blue((*this)[2]) {}
   vector(const Q &pRed, const Q &pGreen, const Q &pBlue)
-      : std::array<Q, 3>({pRed, pGreen, pBlue}), red((*this)[0]),
-        green((*this)[1]), blue((*this)[2]) {}
+      : std::array<Q, 3>({pRed, pGreen, pBlue}),
+        red((*this)[0]),
+        green((*this)[1]),
+        blue((*this)[2]) {}
   vector(const vector &v)
-      : std::array<Q, 3>({v.red, v.green, v.blue}), red((*this)[0]),
-        green((*this)[1]), blue((*this)[2]) {}
+      : std::array<Q, 3>({v.red, v.green, v.blue}),
+        red((*this)[0]),
+        green((*this)[1]),
+        blue((*this)[2]) {}
 
   vector &operator=(const vector &v) {
     red = v.red;
@@ -63,16 +69,25 @@ public:
 
 template <typename Q>
 class vector<Q, 4, format::RGB> : public std::array<Q, 4> {
-public:
+ public:
   vector(const std::array<Q, 4> &v = {{}}, const format::RGB & = format::RGB())
-      : std::array<Q, 4>(v), red((*this)[0]), green((*this)[1]),
-        blue((*this)[2]), alpha((*this)[3]) {}
+      : std::array<Q, 4>(v),
+        red((*this)[0]),
+        green((*this)[1]),
+        blue((*this)[2]),
+        alpha((*this)[3]) {}
   vector(const Q &pRed, const Q &pGreen, const Q &pBlue, const Q &pAlpha = Q(1))
-      : std::array<Q, 4>({pRed, pGreen, pBlue, pAlpha}), red((*this)[0]),
-        green((*this)[1]), blue((*this)[2]), alpha((*this)[3]) {}
+      : std::array<Q, 4>({pRed, pGreen, pBlue, pAlpha}),
+        red((*this)[0]),
+        green((*this)[1]),
+        blue((*this)[2]),
+        alpha((*this)[3]) {}
   vector(const vector &v)
-      : std::array<Q, 4>({v.red, v.green, v.blue, v.alpha}), red((*this)[0]),
-        green((*this)[1]), blue((*this)[2]), alpha((*this)[3]) {}
+      : std::array<Q, 4>({v.red, v.green, v.blue, v.alpha}),
+        red((*this)[0]),
+        green((*this)[1]),
+        blue((*this)[2]),
+        alpha((*this)[3]) {}
 
   vector &operator=(const vector &v) {
     red = v.red;

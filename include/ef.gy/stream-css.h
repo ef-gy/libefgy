@@ -17,8 +17,8 @@
 #define EF_GY_STREAM_CSS_H
 
 #include <ef.gy/css.h>
-#include <string>
 #include <ostream>
+#include <string>
 
 namespace efgy {
 namespace css {
@@ -29,8 +29,9 @@ namespace css {
  *
  * \tparam C Character type for the basic_ostream reference.
  */
-template <typename C> class ostream {
-public:
+template <typename C>
+class ostream {
+ public:
   /**\brief Construct with stream reference
    *
    * Initialises a new ostream CSS tag instance.

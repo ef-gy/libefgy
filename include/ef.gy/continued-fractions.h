@@ -13,14 +13,15 @@
 #define EF_GY_CONTINUED_FRACTIONS_H
 
 #include <ef.gy/fractions.h>
-#include <vector>
 #include <ostream>
+#include <vector>
 
 namespace efgy {
 namespace math {
 namespace numeric {
-template <typename N> class continuedFractional : public numeric {
-public:
+template <typename N>
+class continuedFractional : public numeric {
+ public:
   typedef N integer;
 
   continuedFractional() : coefficient(), negative(false) {}
@@ -140,7 +141,7 @@ public:
            (coefficient[N(0)] == N(1));
   }
 
-  continuedFractional operator, (const N &pB) const {
+  continuedFractional operator,(const N &pB) const {
     continuedFractional rv = *this;
     N b = pB;
     if (b < zero()) {
@@ -173,11 +174,17 @@ public:
   std::vector<N> coefficient;
   bool negative;
 
-protected:
+ protected:
   class binaryOperator {
-  public:
+   public:
     binaryOperator(void)
-        : a(N(0)), b(N(0)), c(N(0)), d(N(0)), e(N(0)), f(N(0)), g(N(0)),
+        : a(N(0)),
+          b(N(0)),
+          c(N(0)),
+          d(N(0)),
+          e(N(0)),
+          f(N(0)),
+          g(N(0)),
           h(N(0)) {}
 
     binaryOperator(N pA, N pB, N pC, N pD, N pE, N pF, N pG, N pH)
@@ -321,7 +328,7 @@ protected:
       return binaryOperator(0, 1, 0, 0, 0, 0, 1, 0);
     }
 
-  protected:
+   protected:
     N a, b, c, d, e, f, g, h;
   };
 };

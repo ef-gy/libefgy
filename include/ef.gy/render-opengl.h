@@ -23,16 +23,16 @@
 #define DUMP_SHADERS
 #endif
 
-#include <ef.gy/euclidian.h>
-#include <ef.gy/projection.h>
-#include <ef.gy/opengl.h>
 #include <ef.gy/colour-space-rgb.h>
+#include <ef.gy/euclidian.h>
+#include <ef.gy/opengl.h>
 #include <ef.gy/polytope.h>
+#include <ef.gy/projection.h>
 #include <ef.gy/tracer.h>
-#include <map>
-#include <functional>
 #include <algorithm>
 #include <array>
+#include <functional>
+#include <map>
 #include <ostream>
 
 namespace efgy {
@@ -52,7 +52,8 @@ using uniform = opengl::glsl::variable<opengl::glsl::gv_uniform>;
 using attribute = opengl::glsl::variable<opengl::glsl::gv_attribute>;
 using varying = opengl::glsl::variable<opengl::glsl::gv_varying>;
 
-template <unsigned int d> using vector = math::vector<shader::number, d>;
+template <unsigned int d>
+using vector = math::vector<shader::number, d>;
 template <unsigned int d, unsigned int e>
 using matrix = math::matrix<shader::number, d, e>;
 
@@ -136,17 +137,17 @@ void linearUpscaledUniformTransformFragment(
 }
 
 template <>
-inline
-void transform(std::vector<shader::uniform> &uniform,
-               shader::vector<4> &gl_Position, shader::vector<3> &position) {
+inline void transform(std::vector<shader::uniform> &uniform,
+                      shader::vector<4> &gl_Position,
+                      shader::vector<3> &position) {
   linearUpscaledUniformTransformFragment<3, 4, 1>(uniform, gl_Position,
                                                   position, "mvp3");
 }
 
 template <>
-inline
-void transform(std::vector<shader::uniform> &uniform,
-               shader::vector<4> &gl_Position, shader::vector<2> &position) {
+inline void transform(std::vector<shader::uniform> &uniform,
+                      shader::vector<4> &gl_Position,
+                      shader::vector<2> &position) {
   linearUpscaledUniformTransformFragment<2, 4, 1>(uniform, gl_Position,
                                                   position, "mvp2");
 }
@@ -215,18 +216,15 @@ using glsl = opengl::glsl::shader<GL_VERTEX_SHADER, V>;
  */
 template <unsigned int d, enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class fractalFlame : public glsl<V> {
-public:
+ public:
   using glsl<V>::main;
   using glsl<V>::uniform;
 
   fractalFlame(void)
-      : glsl<V>("indexVarying = index;\n", {
-    shader::attribute("position", "vec4"),
-        shader::attribute("index", "float", "highp")
-  },
-                {
-    shader::varying("indexVarying", "float", "lowp")
-  }) {
+      : glsl<V>("indexVarying = index;\n",
+                {shader::attribute("position", "vec4"),
+                 shader::attribute("index", "float", "highp")},
+                {shader::varying("indexVarying", "float", "lowp")}) {
     main += mvpTransformFragment<d>(uniform, "position");
   }
 };
@@ -237,26 +235,22 @@ public:
  */
 template <unsigned int d, enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class regular : public glsl<V> {
-public:
+ public:
   using glsl<V>::main;
   using glsl<V>::uniform;
 
   regular(void)
-      : glsl<V>("vec3 lightPosition = vec3(0.0, 1.0, 1.0);\n"
-                "float aDotVP = dot(eyeNormal, normalize(lightPosition));\n"
-                "aDotVP = sign(aDotVP) * min(1.0, abs(aDotVP));\n"
-                "colorVarying = vec4((colour * aDotVP).xyz, colour.w);\n"
-                //"colorVarying = colour;\n"
-                ,
-                {
-    shader::attribute("position", "vec4"), shader::attribute("normal", "vec3")
-  },
-                {
-    shader::varying("colorVarying", "vec4")
-  },
-                {
-    shader::uniform("colour", "vec4")
-  }) {
+      : glsl<V>(
+            "vec3 lightPosition = vec3(0.0, 1.0, 1.0);\n"
+            "float aDotVP = dot(eyeNormal, normalize(lightPosition));\n"
+            "aDotVP = sign(aDotVP) * min(1.0, abs(aDotVP));\n"
+            "colorVarying = vec4((colour * aDotVP).xyz, colour.w);\n"
+            //"colorVarying = colour;\n"
+            ,
+            {shader::attribute("position", "vec4"),
+             shader::attribute("normal", "vec3")},
+            {shader::varying("colorVarying", "vec4")},
+            {shader::uniform("colour", "vec4")}) {
     shader::vector<3> eyeNormal;
     shader::vector<3> normal;
     name("normal", normal);
@@ -275,16 +269,13 @@ public:
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class postProcess : public glsl<V> {
-public:
+ public:
   postProcess(void)
-      : glsl<V>("gl_Position = position;\n"
-                "UV = (position.xy+vec2(1.0,1.0))/2.0;\n",
-                {
-    shader::attribute("position", "vec4")
-  },
-                {
-    shader::varying("UV", "vec2", "lowp")
-  }) {}
+      : glsl<V>(
+            "gl_Position = position;\n"
+            "UV = (position.xy+vec2(1.0,1.0))/2.0;\n",
+            {shader::attribute("position", "vec4")},
+            {shader::varying("UV", "vec2", "lowp")}) {}
 };
 }
 
@@ -302,11 +293,10 @@ using glsl = opengl::glsl::shader<GL_FRAGMENT_SHADER, V>;
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class fractalFlame : public glsl<V> {
-public:
+ public:
   fractalFlame(void)
-      : glsl<V>("gl_FragColor = vec4(indexVarying,1.0,1.0,0.5);\n", {
-    shader::varying("indexVarying", "float", "lowp")
-  }) {}
+      : glsl<V>("gl_FragColor = vec4(indexVarying,1.0,1.0,0.5);\n",
+                {shader::varying("indexVarying", "float", "lowp")}) {}
 };
 
 /*
@@ -315,7 +305,7 @@ public:
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class histogram : public glsl<V> {
-public:
+ public:
   histogram(void) : glsl<V>("gl_FragColor = vec4(0.995,0.995,1.0,0.995);\n") {}
 };
 
@@ -325,11 +315,10 @@ public:
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class regular : public glsl<V> {
-public:
+ public:
   regular(void)
-      : glsl<V>("gl_FragColor = colorVarying;\n", {
-    shader::varying("colorVarying", "vec4", "lowp")
-  }) {}
+      : glsl<V>("gl_FragColor = colorVarying;\n",
+                {shader::varying("colorVarying", "vec4", "lowp")}) {}
 };
 
 /*
@@ -338,7 +327,7 @@ public:
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class postProcessFloat : public glsl<V> {
-public:
+ public:
   postProcessFloat(void)
       : glsl<V>(
             "highp vec2 fb = texture2D(screenFramebuffer, UV).xy;\n"
@@ -346,14 +335,10 @@ public:
             "highp float index     = fb.x;\n"
             "gl_FragColor = texture2D(colourMap, vec2(index/intensity,0.0)) * "
             "(1.0-(max(0.0,1.0/log2(intensity+2.0))));\n",
-            {
-    shader::varying("UV", "vec2", "lowp")
-  },
-            {
-    shader::uniform("screenFramebuffer", "sampler2D"),
-        shader::uniform("screenHistogram", "sampler2D"),
-        shader::uniform("colourMap", "sampler2D")
-  }) {}
+            {shader::varying("UV", "vec2", "lowp")},
+            {shader::uniform("screenFramebuffer", "sampler2D"),
+             shader::uniform("screenHistogram", "sampler2D"),
+             shader::uniform("colourMap", "sampler2D")}) {}
 };
 
 /*
@@ -362,21 +347,17 @@ public:
  */
 template <enum opengl::glsl::version V = opengl::glsl::ver_auto>
 class postProcess : public glsl<V> {
-public:
+ public:
   postProcess(void)
       : glsl<V>(
             "highp float intensity = 1.0 - texture2D(screenHistogram, UV).x;\n"
             "highp float index     = texture2D(screenFramebuffer, UV).x;\n"
             "gl_FragColor = texture2D(colourMap, vec2(index,0.0)) * "
             "intensity;\n",
-            {
-    shader::varying("UV", "vec2", "lowp")
-  },
-            {
-    shader::uniform("screenFramebuffer", "sampler2D"),
-        shader::uniform("screenHistogram", "sampler2D"),
-        shader::uniform("colourMap", "sampler2D")
-  }) {}
+            {shader::varying("UV", "vec2", "lowp")},
+            {shader::uniform("screenFramebuffer", "sampler2D"),
+             shader::uniform("screenHistogram", "sampler2D"),
+             shader::uniform("colourMap", "sampler2D")}) {}
 };
 }
 }
@@ -393,14 +374,15 @@ namespace opengl {
  */
 template <typename Q, unsigned int d, enum glsl::version V = glsl::ver_auto>
 class renderProgramme {
-public:
+ public:
   /**\brief Default constructor
    *
    * Initialises, but does not compile, the render programme
    * with the correct shaders.
    */
   renderProgramme(void)
-      : initialised(false), programme(),
+      : initialised(false),
+        programme(),
         clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) {}
 
   /**\brief Load matrix uniforms
@@ -496,7 +478,7 @@ public:
   renderToFramebufferProgramme<Q, V, vertex, render::glsl::fragment::regular>
       programme;
 
-protected:
+ protected:
   /**\brief Has the object been initialised?
    *
    * The actual initialisation of the object is deferred until
@@ -521,7 +503,7 @@ protected:
  */
 template <typename Q, unsigned int d, enum glsl::version V = glsl::ver_auto>
 class fractalFlameRenderProgramme {
-public:
+ public:
   /**\brief Default constructor
    *
    * Initialises, but does not compile, the render programmes
@@ -545,10 +527,9 @@ public:
       postProcess.copy();
       postProcessFloat.copy();
 
-      static const GLfloat fullscreenQuadBufferData[] = { -1.0f, -1.0f, 1.0f,
-                                                          -1.0f, -1.0f, 1.0f,
-                                                          -1.0f, 1.0f, 1.0f,
-                                                          -1.0f, 1.0f, 1.0f };
+      static const GLfloat fullscreenQuadBufferData[] = {
+          -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
+          -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f};
 
       vertexArray.use();
       vertices.load(sizeof(fullscreenQuadBufferData), fullscreenQuadBufferData);
@@ -697,8 +678,7 @@ public:
    * random colour map for this purpose.
    */
   void setColourMap(
-      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {})
-  {
+      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {}) {
     std::vector<unsigned char> colours;
 
     if (cols.size() == 0) {
@@ -723,7 +703,7 @@ public:
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   }
 
-protected:
+ protected:
   /**\brief Has the object been initialised?
    *
    * The actual initialisation of the object is deferred until
@@ -766,22 +746,28 @@ protected:
  */
 #if defined(GL_RG16F)
   renderToTextureProgramme<Q, V, vertex, render::glsl::fragment::fractalFlame,
-                           GL_RG16F, GL_RG, GL_FLOAT> colouringFloat;
+                           GL_RG16F, GL_RG, GL_FLOAT>
+      colouringFloat;
 #elif defined(GL_RGB16F)
   renderToTextureProgramme<Q, V, vertex, render::glsl::fragment::fractalFlame,
-                           GL_RGB16F, GL_RGB, GL_FLOAT> colouringFloat;
+                           GL_RGB16F, GL_RGB, GL_FLOAT>
+      colouringFloat;
 #elif defined(GL_RGB32F)
   renderToTextureProgramme<Q, V, vertex, render::glsl::fragment::fractalFlame,
-                           GL_RGB32F, GL_RGB, GL_FLOAT> colouringFloat;
+                           GL_RGB32F, GL_RGB, GL_FLOAT>
+      colouringFloat;
 #elif defined(GL_HALF_FLOAT_OES)
   renderToTextureProgramme<Q, V, vertex, render::glsl::fragment::fractalFlame,
-                           GL_RGB, GL_RGB, GL_HALF_FLOAT_OES> colouringFloat;
+                           GL_RGB, GL_RGB, GL_HALF_FLOAT_OES>
+      colouringFloat;
 #elif defined(GL_HALF_FLOAT)
   renderToTextureProgramme<Q, V, vertex, render::glsl::fragment::fractalFlame,
-                           GL_RGB, GL_RGB, GL_HALF_FLOAT> colouringFloat;
+                           GL_RGB, GL_RGB, GL_HALF_FLOAT>
+      colouringFloat;
 #else
   renderToTextureProgramme<Q, V, vertex, render::glsl::fragment::fractalFlame,
-                           GL_RGB, GL_RGB, GL_FLOAT> colouringFloat;
+                           GL_RGB, GL_RGB, GL_FLOAT>
+      colouringFloat;
 #endif
 
   /**\brief Histogram render pass programme
@@ -800,7 +786,8 @@ protected:
    * output framebuffer.
    */
   renderToFramebufferProgramme<Q, V, render::glsl::vertex::postProcess,
-                               render::glsl::fragment::postProcess> postProcess;
+                               render::glsl::fragment::postProcess>
+      postProcess;
 
   /**\brief Merge pass programme
    *
@@ -847,7 +834,8 @@ protected:
 }
 
 namespace render {
-template <typename Q, unsigned int d> class opengl;
+template <typename Q, unsigned int d>
+class opengl;
 
 /**\brief Common OpenGL context data
  *
@@ -857,8 +845,9 @@ template <typename Q, unsigned int d> class opengl;
  *
  * \tparam Q The base numeric type you intend to use.
  */
-template <typename Q> class opengl<Q, 0> {
-public:
+template <typename Q>
+class opengl<Q, 0> {
+ public:
   /**\brief Default constructor
    *
    * Initialise an object with sane defaults.
@@ -1011,7 +1000,7 @@ public:
 
     if (indices == 0 || insertedIndex == 0) {
       vertices.insert(vertices.end(), newVertex.begin(), newVertex.end());
-      
+
       insertedIndex = indices;
       indices++;
     }
@@ -1036,8 +1025,7 @@ public:
   template <unsigned int e, std::size_t q>
   void add(const std::array<math::vector<Q, e>, q> &pV,
            const math::vector<Q, e> &R, const Q &index) {
-    if (prepared)
-      return;
+    if (prepared) return;
 
     triindices.push_back(add(pV[0], R, index));
     unsigned int nstartf = triindices.back();
@@ -1072,7 +1060,8 @@ public:
    *
    * \param[in] vertexArrayModel Vertex array model to use for the upload.
    */
-  template <typename T> void upload(T &vertexArrayModel) {
+  template <typename T>
+  void upload(T &vertexArrayModel) {
     if (!prepared) {
       prepared = true;
 
@@ -1087,9 +1076,9 @@ public:
       tindices = GLsizei(triindices.size());
       lindices = GLsizei(lineindices.size());
 
-      std::cerr << "vertex buffer size: " << indices << " ("
-                << vertices.size() << ","
-                << triindices.size() << "," << lineindices.size() << ")\n";
+      std::cerr << "vertex buffer size: " << indices << " (" << vertices.size()
+                << "," << triindices.size() << "," << lineindices.size()
+                << ")\n";
 
       vertexLookupCache.clear();
       vertices.clear();
@@ -1113,7 +1102,8 @@ public:
    * \param[in] vertexArrayModel Vertex array model to use for the
    *                             upload.
    */
-  template <typename T> void pushLines(T &vertexArrayModel) const {
+  template <typename T>
+  void pushLines(T &vertexArrayModel) const {
     if (prepared && (wireframeColour[3] > 0.f) && !fractalFlameColouring) {
       glDepthMask((wireframeColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
 
@@ -1137,7 +1127,8 @@ public:
    * \param[in] vertexArrayModel Vertex array model to use for the
    *                             upload.
    */
-  template <typename T> void pushFaces(T &vertexArrayModel) const {
+  template <typename T>
+  void pushFaces(T &vertexArrayModel) const {
     if (prepared && ((surfaceColour[3] > 0.f) || fractalFlameColouring)) {
       glDepthMask((surfaceColour[3] >= 1.f) ? GL_TRUE : GL_FALSE);
 
@@ -1150,7 +1141,8 @@ public:
     }
   }
 
-  template <unsigned int e> void render(opengl<Q, e> &context) {
+  template <unsigned int e>
+  void render(opengl<Q, e> &context) {
     if (fractalFlameColouring) {
       context.fractalFlame(width, height, [this, &context]() {
         pushFaces(context.vertexArrayModel);
@@ -1176,8 +1168,9 @@ public:
  * \tparam Q The base numeric type you intend to use.
  * \tparam d The number of dimensions for vectors.
  */
-template <typename Q, unsigned int d> class opengl {
-public:
+template <typename Q, unsigned int d>
+class opengl {
+ public:
   /**\brief Construct with matrices
    *
    * Constructs an OpenGL renderer with references to a
@@ -1199,8 +1192,10 @@ public:
       const geometry::transformation::affine<Q, d> &pTransformation,
       const geometry::projection<Q, d> &pProjection,
       opengl<Q, d - 1> &pLowerRenderer)
-      : transformation(pTransformation), projection(pProjection),
-        lowerRenderer(pLowerRenderer), context(pLowerRenderer.context) {}
+      : transformation(pTransformation),
+        projection(pProjection),
+        lowerRenderer(pLowerRenderer),
+        context(pLowerRenderer.context) {}
 
   /**\brief Start new frame
    *
@@ -1248,15 +1243,14 @@ public:
   template <std::size_t q>
   void draw(const std::array<math::vector<Q, d>, q> &pV,
             const Q &index = 0.5) const {
-    if (context.prepared)
-      return;
+    if (context.prepared) return;
 
     std::array<math::vector<Q, d - 1>, q> V;
 
     std::transform(pV.begin(), pV.end(), V.begin(),
-                   [&](const math::vector<Q, d> & s)->math::vector<Q, d - 1> {
-      return combined * s;
-    });
+                   [&](const math::vector<Q, d> &s) -> math::vector<Q, d - 1> {
+                     return combined * s;
+                   });
 
     lowerRenderer.draw(V, index);
   }
@@ -1267,15 +1261,14 @@ public:
    * for use by the fractal flame colouring code.
    */
   void setColourMap(
-      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {})
-  {
+      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {}) {
     lowerRenderer.setColourMap(cols);
   }
 
   /**\copydoc opengl<Q,2>::context */
   opengl<Q, 0> &context;
 
-protected:
+ protected:
   /**\copydoc opengl<Q,2>::render */
   efgy::opengl::renderProgramme<Q, d> render;
 
@@ -1315,14 +1308,17 @@ protected:
 };
 
 #if defined(TRANSFORM_4D_IN_PIXEL_SHADER)
-template <typename Q> class opengl<Q, 4> {
-public:
+template <typename Q>
+class opengl<Q, 4> {
+ public:
   constexpr opengl(
       const geometry::transformation::affine<Q, 4> &pTransformation,
       const geometry::projection<Q, 4> &pProjection,
       opengl<Q, 3> &pLowerRenderer)
-      : transformation(pTransformation), projection(pProjection),
-        context(pLowerRenderer.context), lowerRenderer(pLowerRenderer) {}
+      : transformation(pTransformation),
+        projection(pProjection),
+        context(pLowerRenderer.context),
+        lowerRenderer(pLowerRenderer) {}
 
   void frameStart(void) {
     if (context.fractalFlameColouring) {
@@ -1332,7 +1328,8 @@ public:
     }
   }
 
-  template <typename P> void uploadMatrices(P &programme) {
+  template <typename P>
+  void uploadMatrices(P &programme) {
     const geometry::transformation::projective<Q, 4> combined =
         transformation * projection;
 
@@ -1350,20 +1347,17 @@ public:
 
   template <std::size_t q>
   void draw(const std::array<math::vector<Q, 4>, q> &pV, const Q &index = 0.5) {
-    if (context.prepared)
-      return;
+    if (context.prepared) return;
 
     math::vector<Q, 4> R =
-        math::normalise(math::normal(std::array<math::vector<Q, 4>, 3>({
-      pV[1] - pV[0], pV[2] - pV[0], pV[3] - pV[0]
-    })));
+        math::normalise(math::normal(std::array<math::vector<Q, 4>, 3>(
+            {pV[1] - pV[0], pV[2] - pV[0], pV[3] - pV[0]})));
 
     context.add(pV, R, index);
   }
 
   void setColourMap(
-      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {})
-  {
+      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {}) {
     fractalFlame.setColourMap(cols);
   }
 
@@ -1371,7 +1365,7 @@ public:
 
   efgy::opengl::vertexArrayExtended<Q, 4> vertexArrayModel;
 
-protected:
+ protected:
   const geometry::transformation::affine<Q, 4> &transformation;
 
   const geometry::projection<Q, 4> &projection;
@@ -1395,8 +1389,9 @@ protected:
  *
  * \tparam Q The data type to use for calculations.
  */
-template <typename Q> class opengl<Q, 3> {
-public:
+template <typename Q>
+class opengl<Q, 3> {
+ public:
   /**\brief Construct with matrices
    *
    * Constructs an OpenGL renderer with references to a
@@ -1418,8 +1413,10 @@ public:
       const geometry::transformation::affine<Q, 3> &pTransformation,
       const geometry::projection<Q, 3> &pProjection,
       opengl<Q, 2> &pLowerRenderer)
-      : transformation(pTransformation), projection(pProjection),
-        context(pLowerRenderer.context), lowerRenderer(pLowerRenderer) {}
+      : transformation(pTransformation),
+        projection(pProjection),
+        context(pLowerRenderer.context),
+        lowerRenderer(pLowerRenderer) {}
 
   /**\copydoc opengl<Q,2>::frameStart */
   void frameStart(void) {
@@ -1430,16 +1427,16 @@ public:
     }
   }
 
-  template <typename P> void uploadMatrices(P &programme) {
+  template <typename P>
+  void uploadMatrices(P &programme) {
     const geometry::transformation::projective<Q, 3> combined =
         transformation * projection;
-    const math::matrix<Q, 3, 3> normalMatrix =
-        math::transpose(math::invert(math::transpose(
-            math::matrix<Q, 3, 3>(transformation.matrix))));
+    const math::matrix<Q, 3, 3> normalMatrix = math::transpose(math::invert(
+        math::transpose(math::matrix<Q, 3, 3>(transformation.matrix))));
 
     programme.matrices(combined, normalMatrix);
 
-    //lowerRenderer.uploadMatrices(programme);
+    // lowerRenderer.uploadMatrices(programme);
   }
 
   /**\copydoc opengl<Q,2>::frameEnd */
@@ -1454,8 +1451,7 @@ public:
   /**\copydoc opengl<Q,2>::draw */
   template <std::size_t q>
   void draw(const std::array<math::vector<Q, 3>, q> &pV, const Q &index = 0.5) {
-    if (context.prepared)
-      return;
+    if (context.prepared) return;
 
     math::vector<Q, 3> R =
         math::normalise(crossProduct(pV[1] - pV[0], pV[2] - pV[0]));
@@ -1469,8 +1465,7 @@ public:
    * for use by the fractal flame colouring code.
    */
   void setColourMap(
-      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {})
-  {
+      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {}) {
     fractalFlame.setColourMap(cols);
   }
 
@@ -1480,7 +1475,7 @@ public:
   /**\copydoc opengl<Q,2>::vertexArrayModel */
   efgy::opengl::vertexArrayExtended<Q, 3> vertexArrayModel;
 
-protected:
+ protected:
   /**\brief 3D affine transformation
    *
    * Contains the affine transformation matrix that vertices are
@@ -1524,8 +1519,9 @@ protected:
  *
  * \tparam Q The data type to use for calculations.
  */
-template <typename Q> class opengl<Q, 2> {
-public:
+template <typename Q>
+class opengl<Q, 2> {
+ public:
   /**\brief Construct with affine transformation
    *
    * Initialise an object instance with an affine transformation
@@ -1551,7 +1547,8 @@ public:
     }
   }
 
-  template <typename P> void uploadMatrices(P &programme) {
+  template <typename P>
+  void uploadMatrices(P &programme) {
     geometry::transformation::affine<Q, 2> scale =
         geometry::transformation::identity<Q, 2>();
     scale.matrix[1][1] = Q(context.width) / Q(context.height);
@@ -1591,8 +1588,7 @@ public:
    * for use by the fractal flame colouring code.
    */
   void setColourMap(
-      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {})
-  {
+      const std::vector<math::vector<Q, 3, math::format::RGB>> &cols = {}) {
     fractalFlame.setColourMap(cols);
   }
 
@@ -1610,13 +1606,9 @@ public:
    */
   template <std::size_t q>
   void draw(const std::array<math::vector<Q, 2>, q> &pV, const Q &index = 0.5) {
-    if (context.prepared)
-      return;
+    if (context.prepared) return;
 
-    math::vector<Q, 2> R {
-      { Q(1), Q(0) }
-    }
-    ;
+    math::vector<Q, 2> R{{Q(1), Q(0)}};
 
     context.add(pV, R, index);
   }
@@ -1630,7 +1622,7 @@ public:
 
   opengl<Q, 0> context;
 
-protected:
+ protected:
   /**\brief 2D affine transformation
    *
    * Contains the affine transformation matrix that vertices are
@@ -1656,8 +1648,8 @@ protected:
   friend class opengl<Q, 0>;
 };
 
-template <typename Q> class opengl<Q, 1> {
-};
+template <typename Q>
+class opengl<Q, 1> {};
 
 /**\brief std::ostream OpenGL tag
  *
@@ -1669,8 +1661,9 @@ template <typename Q> class opengl<Q, 1> {
  * \tparam Q The base numeric type you intend to use.
  * \tparam d The number of dimensions for vectors.
  */
-template <typename C, typename Q, unsigned int d> class oglstream {
-public:
+template <typename C, typename Q, unsigned int d>
+class oglstream {
+ public:
   /**\brief Construct with stream reference
    *
    * Initialises a new ostream OpenGL tag instance.
@@ -1712,9 +1705,8 @@ public:
  * \returns A new osvgstream with the given parameters.
  */
 template <typename C, typename Q, unsigned int d>
-    constexpr inline oglstream<C, Q,
-                               d> operator<<(std::basic_ostream<C> &stream,
-                                             opengl<Q, d> &render) {
+constexpr inline oglstream<C, Q, d> operator<<(std::basic_ostream<C> &stream,
+                                               opengl<Q, d> &render) {
   return oglstream<C, Q, d>(stream, render);
 }
 
@@ -1733,8 +1725,8 @@ template <typename C, typename Q, unsigned int d>
  * \returns A new copy of the stream that was passed in.
  */
 template <typename C, typename Q, unsigned int d, typename model>
-    static inline oglstream<C, Q, d> operator<<(oglstream<C, Q, d> stream,
-                                                model &poly) {
+static inline oglstream<C, Q, d> operator<<(oglstream<C, Q, d> stream,
+                                            model &poly) {
   auto s = poly.size();
   decltype(s) c = 0;
   for (const auto &p : poly) {
@@ -1745,11 +1737,12 @@ template <typename C, typename Q, unsigned int d, typename model>
     }
 
     c++;
-    stream.render.draw(q, Q(c)/Q(s));
+    stream.render.draw(q, Q(c) / Q(s));
   }
 
   return stream;
-}}
+}
+}
 }
 
 #endif

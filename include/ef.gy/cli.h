@@ -13,8 +13,8 @@
 #define EF_GY_CLI_H
 
 #include <functional>
-#include <regex>
 #include <iostream>
+#include <regex>
 #include <set>
 #include <string>
 
@@ -23,8 +23,9 @@ namespace cli {
 class option;
 class hint;
 
-template <class option = option, class hint = hint> class options {
-public:
+template <class option = option, class hint = hint>
+class options {
+ public:
   static options &common(void) {
     static options opt;
     return opt;
@@ -123,18 +124,21 @@ public:
 
   std::vector<std::string> remainder;
 
-protected:
+ protected:
   std::set<option *> opts;
   std::set<hint *> hints;
 };
 
 class option {
-public:
+ public:
   option(const std::string &pMatch, std::function<bool(std::smatch &)> pHandler,
          const std::string &pDescription = "Please document me.",
          options<option> &pOpts = options<option, hint>::common())
-      : regex(pMatch), match(pMatch), handler(pHandler),
-        description(pDescription), opts(pOpts) {
+      : regex(pMatch),
+        match(pMatch),
+        handler(pHandler),
+        description(pDescription),
+        opts(pOpts) {
     opts.add(*this);
   }
 
@@ -145,44 +149,52 @@ public:
   const std::regex match;
   const std::function<bool(std::smatch &)> handler;
 
-protected:
+ protected:
   options<option, hint> &opts;
 };
 
-template <typename type = bool> class flag : public option {
-public:
+template <typename type = bool>
+class flag : public option {
+ public:
   flag(const std::string &pName,
        const std::string &pDescription = "Please document me.",
        options<option> &pOpts = options<option, hint>::common())
-      : option("-{0,2}((no)-?)?" + pName, [this](std::smatch &m) -> bool {
-          value = m[2] != "no";
-          return true;
-        }, "[Boolean] " + pDescription, pOpts), value(false) {}
+      : option("-{0,2}((no)-?)?" + pName,
+               [this](std::smatch &m) -> bool {
+                 value = m[2] != "no";
+                 return true;
+               },
+               "[Boolean] " + pDescription, pOpts),
+        value(false) {}
 
   operator const bool(void) const { return value; }
 
-protected:
+ protected:
   bool value;
 };
 
-template <> class flag<std::string> : public option {
-public:
+template <>
+class flag<std::string> : public option {
+ public:
   flag(const std::string &pName,
        const std::string &pDescription = "Please document me.",
        options<option> &pOpts = options<option, hint>::common())
-      : option("-{0,2}" + pName + "[:=](.*)", [this](std::smatch &m) -> bool {
-          value = m[1];
-          return true;
-        }, "[String] " + pDescription, pOpts), value("") {}
+      : option("-{0,2}" + pName + "[:=](.*)",
+               [this](std::smatch &m) -> bool {
+                 value = m[1];
+                 return true;
+               },
+               "[String] " + pDescription, pOpts),
+        value("") {}
 
   operator const std::string(void) const { return value; }
 
-protected:
+ protected:
   std::string value;
 };
 
 class hint {
-public:
+ public:
   hint(const std::string &pTitle, std::function<std::string(void)> pUsage,
        options<option> &pOpts = options<option, hint>::common())
       : title(pTitle), usage(pUsage), opts(pOpts) {
@@ -194,13 +206,15 @@ public:
   const std::string title;
   std::function<std::string(void)> usage;
 
-protected:
+ protected:
   options<option, hint> &opts;
 };
 
-static option help("-{0,2}help", [](std::smatch &m) -> bool {
-  return options<>::common().usage() == 0;
-}, "Print this help screen.");
+static option help("-{0,2}help",
+                   [](std::smatch &m) -> bool {
+                     return options<>::common().usage() == 0;
+                   },
+                   "Print this help screen.");
 }
 }
 

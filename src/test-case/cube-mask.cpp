@@ -17,8 +17,8 @@
 #include <iostream>
 #include <string>
 
-#include <ef.gy/test-case.h>
 #include <ef.gy/polytope.h>
+#include <ef.gy/test-case.h>
 #include <algorithm>
 
 using namespace efgy;
@@ -31,13 +31,13 @@ using namespace efgy;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-template<class C>
+template <class C>
 int analyseCubeMaskProperties(std::ostream &log) {
   auto faces = C::faces();
 
   long c = 0;
 
-  for(auto &f : faces) {
+  for (auto &f : faces) {
     std::cerr << "\n[";
     for (auto v : f) {
       log << "  (";
@@ -61,10 +61,8 @@ int analyseCubeMaskProperties(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(
-    analyseCubeMaskProperties<geometry::generators::mask::cube<1>>,
-    analyseCubeMaskProperties<geometry::generators::mask::cube<2>>,
-    analyseCubeMaskProperties<geometry::generators::mask::cube<3>>,
-    analyseCubeMaskProperties<geometry::generators::mask::cube<4>>,
-    analyseCubeMaskProperties<geometry::generators::mask::cube<5>>,
-    )
+TEST_BATCH(analyseCubeMaskProperties<geometry::generators::mask::cube<1>>,
+           analyseCubeMaskProperties<geometry::generators::mask::cube<2>>,
+           analyseCubeMaskProperties<geometry::generators::mask::cube<3>>,
+           analyseCubeMaskProperties<geometry::generators::mask::cube<4>>,
+           analyseCubeMaskProperties<geometry::generators::mask::cube<5>>, )

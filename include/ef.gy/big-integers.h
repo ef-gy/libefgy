@@ -18,15 +18,17 @@
 
 #include <ef.gy/numeric.h>
 #include <ef.gy/traits.h>
-#include <vector>
 #include <ostream>
+#include <vector>
 
 namespace efgy {
 namespace math {
 namespace numeric {
-template <typename N> class fractional;
+template <typename N>
+class fractional;
 
-template <typename N> class factorial;
+template <typename N>
+class factorial;
 
 /**\brief Big integers
  *
@@ -44,7 +46,7 @@ template <typename N> class factorial;
 template <typename Ts = signed long long, typename Tu = unsigned long long,
           typename cellType = unsigned int, unsigned int cellBitCount = 32>
 class bigIntegers : public numeric {
-public:
+ public:
   bigIntegers() : cell(0), negative(false) {}
   bigIntegers(Ts pInteger) : negative(pInteger < Ts(0)), cell(0) {
     if (pInteger == Ts(0)) {
@@ -581,7 +583,7 @@ public:
    */
   std::vector<cellType> cell;
 
-protected:
+ protected:
   static const Tu overflowMask = (1L << cellBitCount);
   static const Tu lowMask = (1L << cellBitCount) - 1;
   static const Tu highMask = ((1L << cellBitCount) - 1) << cellBitCount;
@@ -660,7 +662,7 @@ protected:
       overflow = overflow || ((cell[i] < av) || (cell[i] < bv));
     }
 
-    if (overflow) // overflow in the most significant cell, add extra cell
+    if (overflow)  // overflow in the most significant cell, add extra cell
     {
       cell.push_back(cellType(1));
     }
@@ -921,7 +923,7 @@ protected:
 template <typename Ts, typename Tu, typename cellType,
           unsigned int cellBitCount>
 class traits<bigIntegers<Ts, Tu, cellType, cellBitCount>> {
-public:
+ public:
   typedef bigIntegers<Ts, Tu, cellType, cellBitCount> integral;
   typedef fractional<bigIntegers<Ts, Tu, cellType, cellBitCount>> rational;
   typedef bigIntegers<Ts, Tu, cellType, cellBitCount> self;
@@ -932,9 +934,9 @@ public:
 
 template <typename C, typename Ts, typename Tu, typename cellType,
           unsigned int cellBitCount>
-std::basic_ostream<C> &
-operator<<(std::basic_ostream<C> &out,
-           const bigIntegers<Ts, Tu, cellType, cellBitCount> &pNumber) {
+std::basic_ostream<C> &operator<<(
+    std::basic_ostream<C> &out,
+    const bigIntegers<Ts, Tu, cellType, cellBitCount> &pNumber) {
   const unsigned int pBase = 10;
   bool negative = pNumber < zero();
   bool didOutput = false;

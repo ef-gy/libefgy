@@ -16,9 +16,9 @@
 #include <iostream>
 #include <string>
 
+#include <ef.gy/matrix.h>
 #include <ef.gy/test-case.h>
 #include <ef.gy/tracer.h>
-#include <ef.gy/matrix.h>
 #include <algorithm>
 
 using namespace efgy::math::tracer;

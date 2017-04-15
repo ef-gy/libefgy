@@ -16,8 +16,8 @@
 
 #include <iostream>
 
-#include <ef.gy/test-case.h>
 #include <ef.gy/markov.h>
+#include <ef.gy/test-case.h>
 
 using namespace efgy;
 
@@ -31,7 +31,8 @@ using namespace efgy;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-template <unsigned int order> int testMarkovChain(std::ostream &log) {
+template <unsigned int order>
+int testMarkovChain(std::ostream &log) {
   typename markov::chain<char, order>::random PRNG(1);
   markov::chain<char, order> mc(PRNG);
 

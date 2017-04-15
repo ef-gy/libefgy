@@ -14,8 +14,9 @@
 
 namespace efgy {
 namespace math {
-template <typename Q, unsigned int degree> class polynomial {
-public:
+template <typename Q, unsigned int degree>
+class polynomial {
+ public:
   typedef typename Q::integer integer;
 
   polynomial() {}
@@ -117,7 +118,8 @@ public:
 
   polynomial operator/(const integer &b) const { return (*this) / Q(b); }
 
-  template <unsigned int f> operator polynomial<Q, f>(void) const {
+  template <unsigned int f>
+  operator polynomial<Q, f>(void) const {
     polynomial<Q, f> r;
 
     for (unsigned int i = 0; (i < f); i++) {

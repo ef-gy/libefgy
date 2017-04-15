@@ -29,12 +29,13 @@ namespace optimise {
             \tparam N is the number of generations after which the GA should
     terminate.
         */
-template <int N> class terminateGenerations {
-public:
+template <int N>
+class terminateGenerations {
+ public:
   terminateGenerations() : current(0){};
   bool operator()(void) { return (++current > N); }
 
-private:
+ private:
   int current;
 };
 
@@ -43,7 +44,7 @@ private:
 
         */
 class initialiseFloatsRandomly {
-public:
+ public:
   initialiseFloatsRandomly(){};
 
   void operator()(float *array, int length) {
@@ -58,7 +59,7 @@ public:
 
 /** \brief Functor that initialises an array of booleans randomly..*/
 class initialiseBooleansRandomly {
-public:
+ public:
   initialiseBooleansRandomly(){};
 
   void operator()(bool *array, int length) {

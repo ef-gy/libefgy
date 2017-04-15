@@ -12,7 +12,7 @@ NAME:=
 BASE=$(NAME)
 VERSION:=1
 
-STYLE:=llvm
+STYLE:=Google
 
 # standard programmes (may or may not be used)
 CC:=$(shell which clang false | head -n 1)

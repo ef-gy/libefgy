@@ -19,8 +19,9 @@
 
 namespace efgy {
 namespace math {
-template <typename Q> class complex {
-public:
+template <typename Q>
+class complex {
+ public:
   typedef typename numeric::traits<Q>::integral integral;
   typedef Q rational;
 
@@ -112,8 +113,9 @@ public:
 };
 
 namespace numeric {
-template <typename Q> class traits<complex<Q>> {
-public:
+template <typename Q>
+class traits<complex<Q>> {
+ public:
   typedef typename traits<Q>::integral integral;
   typedef typename traits<Q>::rational rational;
   typedef complex<Q> self;

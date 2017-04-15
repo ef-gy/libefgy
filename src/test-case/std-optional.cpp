@@ -18,10 +18,10 @@
  * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
-#include <iostream>
-#include <sstream>
 #include <ef.gy/test-case.h>
+#include <iostream>
 #include <optional>
+#include <sstream>
 
 using namespace std;
 using efgy::test::next_integer;
@@ -77,8 +77,7 @@ int testOptional(std::ostream &log) {
   }
 
   if (*somethingElse != 42) {
-    log << "value should have been '42', but is '" << *somethingElse
-        << "'\n";
+    log << "value should have been '42', but is '" << *somethingElse << "'\n";
     return 7;
   }
 
@@ -87,11 +86,12 @@ int testOptional(std::ostream &log) {
 
 /**\brief Nontrivial example class
  *
- * Used in testOptionalNontrivial to test whether the (constexpr) optional template
+ * Used in testOptionalNontrivial to test whether the (constexpr) optional
+ * template
  * works as intended with a nontrivial class.
  */
 class outputInDestructor {
-public:
+ public:
   /**\brief Initialise with output stream
    *
    * Initialises the class with an output stream, which is used in the
@@ -112,7 +112,7 @@ public:
     log << "outputInDestructor::~outputInDestructor()\n";
   }
 
-protected:
+ protected:
   /**\brief Output stream reference
    *
    * The output stream passed to the constructor; used in the destructor.

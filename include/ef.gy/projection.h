@@ -20,7 +20,7 @@ namespace efgy {
 namespace geometry {
 template <typename Q, unsigned int d>
 class lookAt : public transformation::affine<Q, d> {
-public:
+ public:
   lookAt(math::vector<Q, d> pFrom, math::vector<Q, d> pTo)
       : from(pFrom), to(pTo) {
 #pragma clang diagnostic push
@@ -80,7 +80,7 @@ public:
 
   using transformation::affine<Q, d>::matrix;
 
-protected:
+ protected:
   math::vector<Q, d> from;
   math::vector<Q, d> to;
 
@@ -89,7 +89,7 @@ protected:
 
 template <typename Q, unsigned int d>
 class perspective : public transformation::affine<Q, d> {
-public:
+ public:
   perspective(Q pEyeAngle = M_PI_4, const Q &pAspect = 1.8,
               const Q &pNear = -0.1, const Q &pFar = -100)
       : eyeAngle(pEyeAngle), aspect(pAspect), near(pNear), far(pFar) {
@@ -120,7 +120,7 @@ public:
 
   using transformation::affine<Q, d>::matrix;
 
-protected:
+ protected:
   Q near;
   Q far;
   Q aspect;
@@ -129,7 +129,7 @@ protected:
 
 template <typename Q, unsigned int d>
 class projection : public transformation::projective<Q, d> {
-public:
+ public:
   projection(math::vector<Q, d> pFrom, math::vector<Q, d> pTo,
              const Q &pEyeAngle = M_PI_4, const Q &pAspect = 1.8,
              const bool &initialiseMatrix = true)
@@ -144,10 +144,9 @@ public:
     transformation::translation<Q, d> translationTransformation(from * Q(-1));
     perspective<Q, d> perspectiveTransformation(eyeAngle, aspect);
 
-    this->matrix =
-        (translationTransformation * lookAtTransformation *
-         perspectiveTransformation)
-            .matrix;
+    this->matrix = (translationTransformation * lookAtTransformation *
+                    perspectiveTransformation)
+                       .matrix;
   }
 
   math::vector<Q, d> from;

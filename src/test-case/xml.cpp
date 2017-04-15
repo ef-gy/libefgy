@@ -14,8 +14,8 @@
 
 #include <iostream>
 
-#include <ef.gy/test-case.h>
 #include <ef.gy/render-xml.h>
+#include <ef.gy/test-case.h>
 
 using namespace efgy::render;
 using namespace efgy;

@@ -14,9 +14,9 @@
 
 #include <iostream>
 
+#include <ef.gy/polar.h>
 #include <ef.gy/test-case.h>
 #include <ef.gy/vector.h>
-#include <ef.gy/polar.h>
 
 using namespace efgy::math;
 
@@ -38,7 +38,8 @@ int testRealVectors(std::ostream &log) {
 
   if (r != vector<int, 3>({3, 5, 7})) {
     log << "unexpected result after vector addition; expected ([real] 3, 5, 7) "
-           "but have " << r << "\n";
+           "but have "
+        << r << "\n";
     return 1;
   }
 
@@ -53,7 +54,8 @@ int testRealVectors(std::ostream &log) {
 
   if (rp != vector<double, 3, format::polar>({3, 1, 4})) {
     log << "unexpected result after vector addition; expected ([polar:10] 3, "
-           "1, 4) but have " << rp << "\n";
+           "1, 4) but have "
+        << rp << "\n";
     return 2;
   }
 

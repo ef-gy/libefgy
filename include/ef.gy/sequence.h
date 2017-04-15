@@ -30,7 +30,7 @@ namespace math {
 template <typename Q, template <typename, typename> class algorithm,
           typename N = unsigned long long>
 class sequence : public algorithm<Q, N> {
-public:
+ public:
   /**\brief Get n'th sequence member
    *
    * Uses the algorithm template to calculate the n'th member of
@@ -42,7 +42,7 @@ public:
    */
   constexpr static Q at(const N &n) { return sequenceAlgorithm::at(n); }
 
-protected:
+ protected:
   /**\brief Sequence algorithm
    *
    * This is a convenient typedef that allows easy access to the

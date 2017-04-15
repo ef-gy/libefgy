@@ -15,10 +15,10 @@
 
 #include <iostream>
 
-#include <ef.gy/test-case.h>
-#include <ef.gy/trigonometric.h>
 #include <ef.gy/fractions.h>
 #include <ef.gy/range.h>
+#include <ef.gy/test-case.h>
+#include <ef.gy/trigonometric.h>
 
 using namespace efgy::math;
 using efgy::range;

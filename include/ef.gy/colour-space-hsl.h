@@ -31,7 +31,7 @@ namespace format {
  * converted properly.
  */
 class HSL {
-public:
+ public:
   /**\copydoc cartesian::id */
   static const char *id(void) { return "HSL"; }
 };
@@ -39,20 +39,26 @@ public:
 
 template <typename Q>
 class vector<Q, 3, format::HSL> : public std::array<Q, 3> {
-public:
+ public:
   vector(const std::array<Q, 3> &v = {{}}, const format::HSL & = format::HSL())
-      : std::array<Q, 3>(v), hue((*this)[0]), saturation((*this)[1]),
+      : std::array<Q, 3>(v),
+        hue((*this)[0]),
+        saturation((*this)[1]),
         lightness((*this)[2]) {}
   vector(const Q &pHue, const Q &pSaturation, const Q &pLightness)
-      : std::array<Q, 3>({pHue, pSaturation, pLightness}), hue((*this)[0]),
-        saturation((*this)[1]), lightness((*this)[2]) {}
+      : std::array<Q, 3>({pHue, pSaturation, pLightness}),
+        hue((*this)[0]),
+        saturation((*this)[1]),
+        lightness((*this)[2]) {}
 
   Q &hue;
   Q &saturation;
   Q &lightness;
 
   vector(const vector<Q, 3, format::RGB> &v)
-      : std::array<Q, 3>(), hue((*this)[0]), saturation((*this)[1]),
+      : std::array<Q, 3>(),
+        hue((*this)[0]),
+        saturation((*this)[1]),
         lightness((*this)[2]) {
     Q min = v.red;
     Q max = v.red;
@@ -141,14 +147,19 @@ public:
 
 template <typename Q>
 class vector<Q, 4, format::HSL> : public std::array<Q, 4> {
-public:
+ public:
   vector(const std::array<Q, 4> &v = {{}}, const format::HSL & = format::HSL())
-      : std::array<Q, 4>(v), hue((*this)[0]), saturation((*this)[1]),
-        lightness((*this)[2]), alpha((*this)[3]) {}
+      : std::array<Q, 4>(v),
+        hue((*this)[0]),
+        saturation((*this)[1]),
+        lightness((*this)[2]),
+        alpha((*this)[3]) {}
   vector(const Q &pHue, const Q &pSaturation, const Q &pLightness,
          const Q &pAlpha = Q(1))
       : std::array<Q, 4>({pHue, pSaturation, pLightness, pAlpha}),
-        hue((*this)[0]), saturation((*this)[1]), lightness((*this)[2]),
+        hue((*this)[0]),
+        saturation((*this)[1]),
+        lightness((*this)[2]),
         alpha((*this)[3]) {}
 
   Q &hue;
@@ -157,8 +168,11 @@ public:
   Q &alpha;
 
   vector(const vector<Q, 4, format::RGB> &v)
-      : std::array<Q, 4>(), hue((*this)[0]), saturation((*this)[1]),
-        lightness((*this)[2]), alpha((*this)[3]) {
+      : std::array<Q, 4>(),
+        hue((*this)[0]),
+        saturation((*this)[1]),
+        lightness((*this)[2]),
+        alpha((*this)[3]) {
     vector<Q, 3, format::HSL> hv({v[0], v[1], v[2]});
     hue = hv.hue;
     saturation = hv.saturation;

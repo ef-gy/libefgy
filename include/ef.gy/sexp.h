@@ -25,7 +25,7 @@ namespace efgy {
 *  the concrete derived  classes, efgy::cons and efgy::atom.
 */
 class sexp {
-public:
+ public:
 };
 
 /** \brief A cons expression
@@ -42,8 +42,9 @@ public:
     * \sa \ref maybe
     */
 
-template <typename T1, typename T2> class cons : public sexp {
-public:
+template <typename T1, typename T2>
+class cons : public sexp {
+ public:
   /*\brief Constructor for a cons with two elements
 
             Constructs a cons of the form (x.y) where x and y
@@ -91,8 +92,9 @@ std::ostream &operator<<(std::ostream &str, cons<T1, T2> &s) {
 *
 * \tparam T type of atomic expression
 */
-template <typename T> class atom : public sexp {
-public:
+template <typename T>
+class atom : public sexp {
+ public:
   /* \brief Constructs an atomic S-expression.
   *
   * Constructs an atomic S-expression.
@@ -110,19 +112,20 @@ public:
          *
          * Displays the atomic value, as defined in the
          * stream insertion operator of type T.*/
-template <typename T> std::ostream &operator<<(std::ostream &str, atom<T> a) {
+template <typename T>
+std::ostream &operator<<(std::ostream &str, atom<T> a) {
   str << a.data;
   return str;
 }
 
 class parser {
-public:
+ public:
   // does nothing for now
   friend std::istream &operator>>(std::istream &is, parser const &p) {
     return is;
   }
 
-private:
+ private:
   int openParenCount;
   int closeParenCount;
 };

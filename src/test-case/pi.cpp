@@ -15,10 +15,10 @@
 
 #include <iostream>
 
-#include <ef.gy/test-case.h>
-#include <ef.gy/primitive.h>
 #include <ef.gy/fractions.h>
 #include <ef.gy/pi.h>
+#include <ef.gy/primitive.h>
+#include <ef.gy/test-case.h>
 
 using namespace efgy::math;
 using efgy::test::next_integer;

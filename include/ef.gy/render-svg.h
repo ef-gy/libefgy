@@ -17,9 +17,9 @@
 #define EF_GY_RENDER_SVG_H
 
 #include <ef.gy/euclidian.h>
+#include <ef.gy/polytope.h>
 #include <ef.gy/projection.h>
 #include <ef.gy/stream-svg.h>
-#include <ef.gy/polytope.h>
 #include <sstream>
 
 namespace efgy {
@@ -32,8 +32,9 @@ namespace render {
  * \tparam Q The base numeric type you intend to use.
  * \tparam d The number of dimensions for vectors.
  */
-template <typename Q, unsigned int d> class svg {
-public:
+template <typename Q, unsigned int d>
+class svg {
+ public:
   /**\brief Construct with matrices
    *
    * Constructs an svg converter with references to a
@@ -54,7 +55,8 @@ public:
   svg(const geometry::transformation::affine<Q, d> &pTransformation,
       const geometry::projection<Q, d> &pProjection,
       svg<Q, d - 1> &pLowerRenderer)
-      : transformation(pTransformation), projection(pProjection),
+      : transformation(pTransformation),
+        projection(pProjection),
         lowerRenderer(pLowerRenderer) {}
 
   /**\brief Begin drawing a new frame
@@ -97,7 +99,7 @@ public:
     lowerRenderer.draw(output, V);
   }
 
-protected:
+ protected:
   /**\brief Affine transformation matrix
    *
    * This is a reference to the affine transformation matrix that
@@ -140,8 +142,9 @@ protected:
  *
  * \tparam Q The base numeric type you intend to use.
  */
-template <typename Q> class svg<Q, 2> {
-public:
+template <typename Q>
+class svg<Q, 2> {
+ public:
   /**\brief Construct with transformation matrix
    *
    * Unlike the higher-dimensional version of this class, the 2D
@@ -227,7 +230,7 @@ public:
     output << "Z'/>";
   }
 
-protected:
+ protected:
   /**\brief Affine transformation matrix
    *
    * This is a reference to the affine transformation matrix that
@@ -236,7 +239,8 @@ protected:
   const geometry::transformation::affine<Q, 2> &transformation;
 };
 
-template <typename Q> class svg<Q, 1> {};
+template <typename Q>
+class svg<Q, 1> {};
 
 /**\brief std::ostream SVG tag
  *
@@ -247,8 +251,9 @@ template <typename Q> class svg<Q, 1> {};
  * \tparam Q The base numeric type you intend to use.
  * \tparam d The number of dimensions for vectors.
  */
-template <typename C, typename Q, unsigned int d> class osvgstream {
-public:
+template <typename C, typename Q, unsigned int d>
+class osvgstream {
+ public:
   /**\brief Construct with stream reference
    *
    * Initialises a new ostream SVG tag instance.
@@ -312,8 +317,8 @@ constexpr inline osvgstream<C, Q, d> operator<<(std::basic_ostream<C> &stream,
  * \returns A new copy of the stream that was passed in.
  */
 template <typename C, typename Q, unsigned int d, typename model>
-static inline osvgstream<C, Q, d>
-operator<<(osvgstream<C, Q, d> stream, model &poly) {
+static inline osvgstream<C, Q, d> operator<<(osvgstream<C, Q, d> stream,
+                                             model &poly) {
   for (const auto &p : poly) {
     std::array<math::vector<Q, d>, model::faceVertices> q;
 

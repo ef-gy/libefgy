@@ -28,7 +28,7 @@ namespace format {
  * coordinates as opposed to regular cartesian coordinates.
  */
 class polar {
-public:
+ public:
   /**\brief Construct with precision
    *
    * Constructs a coordinate format tag with an optional
@@ -70,8 +70,8 @@ public:
  + \returns The parameter 'stream' after writing to it.
  */
 template <typename C>
-constexpr inline std::basic_ostream<C> &
-operator<<(std::basic_ostream<C> &stream, const polar &format) {
+constexpr inline std::basic_ostream<C> &operator<<(
+    std::basic_ostream<C> &stream, const polar &format) {
   return stream << "[polar:" << format.precision << "]";
 }
 }
@@ -87,7 +87,7 @@ operator<<(std::basic_ostream<C> &stream, const polar &format) {
  */
 template <typename F, unsigned int n>
 class vector<F, n, format::polar> : public std::array<F, n> {
-public:
+ public:
   /**\copydoc vector::vector
    * \param[in] s An instance of the format tag; may be used to
    *              specify a precision for conversion operations.
@@ -167,7 +167,7 @@ public:
   /**\copydoc vector::tag */
   constexpr const format::polar &tag(void) const { return spaceTag; }
 
-protected:
+ protected:
   /**\brief Space tag instance
    *
    * Polar coordinates need to keep track of the precision to

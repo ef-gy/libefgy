@@ -30,22 +30,22 @@ namespace geometry {
  */
 namespace transformation {
 namespace generator {
-template<typename Q, std::size_t, std::size_t>
+template <typename Q, std::size_t, std::size_t>
 class identity {
-public:
-  const Q operator() (const std::size_t &i, const std::size_t &j) const {
+ public:
+  const Q operator()(const std::size_t &i, const std::size_t &j) const {
     return (i == j) ? Q(1) : Q(0);
   }
 };
 
-template<typename Q, std::size_t d, std::size_t>
+template <typename Q, std::size_t d, std::size_t>
 class scale {
-public:
+ public:
   scale(void) : targetScale(Q(1)) {}
 
-  const Q operator() (const std::size_t &i, const std::size_t &j) const {
+  const Q operator()(const std::size_t &i, const std::size_t &j) const {
     if (i == j) {
-      return i != (d-1) ? targetScale : Q(1);
+      return i != (d - 1) ? targetScale : Q(1);
     } else {
       return Q(0);
     }
@@ -54,12 +54,12 @@ public:
   Q targetScale;
 };
 
-template<typename Q, std::size_t d, std::size_t>
+template <typename Q, std::size_t d, std::size_t>
 class rotate {
-public:
+ public:
   rotate(void) : angle(Q(0)), axis1(0), axis2(1) {}
 
-  const Q operator() (const std::size_t &i, const std::size_t &j) const {
+  const Q operator()(const std::size_t &i, const std::size_t &j) const {
     bool transpose = (axis1 + axis2 + d) % 2 == 1;
 
     if ((i == axis1) && (j == axis1)) {
@@ -76,17 +76,17 @@ public:
       return Q(0);
     }
   }
-  
+
   Q angle;
   std::size_t axis1;
   std::size_t axis2;
 };
 
-template<typename Q, std::size_t d, std::size_t>
+template <typename Q, std::size_t d, std::size_t>
 class translate {
-public:
-  const Q operator() (const std::size_t &i, const std::size_t &j) const {
-    if ((i == (d-1)) && (j < (d-1))) {
+ public:
+  const Q operator()(const std::size_t &i, const std::size_t &j) const {
+    if ((i == (d - 1)) && (j < (d - 1))) {
       return from[j];
     } else if (i == j) {
       return Q(1);
@@ -95,7 +95,7 @@ public:
     }
   }
 
-  math::vector<Q, d-1> from;
+  math::vector<Q, d - 1> from;
 };
 }
 
@@ -110,14 +110,14 @@ public:
  *
  * \tparam d The dimension of the vector space.
  */
-template <typename Q, std::size_t d> class linear {
-public:
+template <typename Q, std::size_t d>
+class linear {
+ public:
   /**\brief Constructor for the identity map
    *
    * Constructs a transformation whose matrix is the identity matrix.
    */
-  linear(void) :
-    matrix(math::ghost::matrix<Q, d, d, generator::identity>()) {}
+  linear(void) : matrix(math::ghost::matrix<Q, d, d, generator::identity>()) {}
 
   /**\brief Constructor to copy a matrix
    *
@@ -174,14 +174,15 @@ public:
  *
  * \tparam d The dimension of the corresponding vector space
  */
-template <typename Q, std::size_t d> class affine {
-public:
+template <typename Q, std::size_t d>
+class affine {
+ public:
   /* \brief Constructor for the identity transformation
    *
    * Constructor for the identity transformation
    */
   affine(void)
-    : matrix(math::ghost::matrix<Q, d+1, d+1, generator::identity>()) {}
+      : matrix(math::ghost::matrix<Q, d + 1, d + 1, generator::identity>()) {}
 
   affine(const math::matrix<Q, d + 1, d + 1> &m) : matrix(m) {}
 
@@ -259,8 +260,9 @@ public:
   math::matrix<Q, d + 1, d + 1> matrix;
 };
 
-template <typename Q, std::size_t d> class projective : public affine<Q, d> {
-public:
+template <typename Q, std::size_t d>
+class projective : public affine<Q, d> {
+ public:
   using affine<Q, d>::affine;
 
   template <typename format>
@@ -305,8 +307,8 @@ public:
  *    transformations.
  */
 template <typename Q, std::size_t d>
-linear<Q,d> operator*(const linear<Q,d> &a, const linear<Q,d> &b) {
-  return linear<Q,d>(a.matrix * b.matrix);
+linear<Q, d> operator*(const linear<Q, d> &a, const linear<Q, d> &b) {
+  return linear<Q, d>(a.matrix * b.matrix);
 }
 
 /*\brief Composes a linear and a projective map.
@@ -319,7 +321,7 @@ linear<Q,d> operator*(const linear<Q,d> &a, const linear<Q,d> &b) {
  * \returns A projective transformation that is the composition of a and b.
  */
 template <typename Q, std::size_t d>
-projective<Q, d> operator*(const linear<Q,d> &a, const projective<Q, d> &b) {
+projective<Q, d> operator*(const linear<Q, d> &a, const projective<Q, d> &b) {
   return b * a;
 }
 
@@ -335,8 +337,8 @@ projective<Q, d> operator*(const linear<Q,d> &a, const projective<Q, d> &b) {
  *    transformations.
  */
 template <typename Q, std::size_t d>
-affine<Q,d> operator*(const affine<Q, d> &a, const affine<Q, d> &b) {
-  return affine<Q,d>(a.matrix * b.matrix);
+affine<Q, d> operator*(const affine<Q, d> &a, const affine<Q, d> &b) {
+  return affine<Q, d>(a.matrix * b.matrix);
 }
 
 /* \brief Composes an affine and a projective transformation.
@@ -351,19 +353,19 @@ affine<Q,d> operator*(const affine<Q, d> &a, const affine<Q, d> &b) {
  *    transformations.
  */
 template <typename Q, std::size_t d>
-projective<Q,d> operator*(const affine<Q, d> &a, const projective<Q, d> &b) {
-  return projective<Q,d>(a.matrix * b.matrix);
+projective<Q, d> operator*(const affine<Q, d> &a, const projective<Q, d> &b) {
+  return projective<Q, d>(a.matrix * b.matrix);
 }
 
 template <typename Q, std::size_t d>
-projective<Q,d> operator*(const projective<Q, d> &a, const projective<Q, d> &b)
-{
-  return projective<Q,d>(a.matrix * b.matrix);
+projective<Q, d> operator*(const projective<Q, d> &a,
+                           const projective<Q, d> &b) {
+  return projective<Q, d>(a.matrix * b.matrix);
 }
 
 template <typename Q, std::size_t d>
-projective<Q,d> operator*(const projective<Q, d> &a, const affine<Q, d> &b) {
-  return projective<Q,d>(a.matrix * b.matrix);
+projective<Q, d> operator*(const projective<Q, d> &a, const affine<Q, d> &b) {
+  return projective<Q, d>(a.matrix * b.matrix);
 }
 
 /* \brief The identity map on Q^d.
@@ -377,24 +379,27 @@ projective<Q,d> operator*(const projective<Q, d> &a, const affine<Q, d> &b) {
  *     possible, so an object to this class can have a non-identity
  *     transformation matrix (and thus not behave like an identity map).
  */
-template <typename Q, std::size_t d> class identity : public linear<Q, d> {
-public:
+template <typename Q, std::size_t d>
+class identity : public linear<Q, d> {
+ public:
   identity() : linear<Q, d>() {}
 };
 
-template <typename Q, std::size_t d> class scale : public affine<Q, d> {
-public:
+template <typename Q, std::size_t d>
+class scale : public affine<Q, d> {
+ public:
   scale(const Q &pScale) {
     ghost.generator.targetScale = pScale;
     affine<Q, d>::matrix = ghost;
   }
 
-protected:
-  math::ghost::matrix<Q,d+1,d+1,generator::scale> ghost;
+ protected:
+  math::ghost::matrix<Q, d + 1, d + 1, generator::scale> ghost;
 };
 
-template <typename Q, std::size_t d> class rotation : public affine<Q, d> {
-public:
+template <typename Q, std::size_t d>
+class rotation : public affine<Q, d> {
+ public:
   rotation(const Q &pAngle, const std::size_t &pAxis1,
            const std::size_t &pAxis2) {
     ghost.generator.angle = pAngle;
@@ -403,19 +408,20 @@ public:
     affine<Q, d>::matrix = ghost;
   }
 
-protected:
-  math::ghost::matrix<Q,d+1,d+1,generator::rotate> ghost;
+ protected:
+  math::ghost::matrix<Q, d + 1, d + 1, generator::rotate> ghost;
 };
 
-template <typename Q, std::size_t d> class translation : public affine<Q, d> {
-public:
+template <typename Q, std::size_t d>
+class translation : public affine<Q, d> {
+ public:
   translation(const math::vector<Q, d> &pFrom) : from(ghost.generator.from) {
     from = pFrom;
     affine<Q, d>::matrix = ghost;
   }
 
-protected:
-  math::ghost::matrix<Q,d+1,d+1,generator::translate> ghost;
+ protected:
+  math::ghost::matrix<Q, d + 1, d + 1, generator::translate> ghost;
   math::vector<Q, d> &from;
 };
 }

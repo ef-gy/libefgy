@@ -13,8 +13,8 @@
 #include <iostream>
 #include <sstream>
 
-#include <ef.gy/test-case.h>
 #include <ef.gy/sexp.h>
+#include <ef.gy/test-case.h>
 
 using namespace efgy::test;
 using efgy::atom;

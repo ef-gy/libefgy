@@ -29,8 +29,9 @@ namespace geometry {
  * such as the geometry::parametric template.
  */
 namespace formula {
-template <typename Q, std::size_t od> class moebiusStrip {
-public:
+template <typename Q, std::size_t od>
+class moebiusStrip {
+ public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
@@ -46,9 +47,8 @@ public:
                              parameter.precision, false);
   }
 
-  constexpr static math::vector<Q, renderDepth>
-  getCoordinates(const parameters<Q> &parameter,
-                 const math::vector<Q, od> &ve) {
+  constexpr static math::vector<Q, renderDepth> getCoordinates(
+      const parameters<Q> &parameter, const math::vector<Q, od> &ve) {
     return {
         {Q((parameter.radius + ve[1] / Q(2) * cos(ve[0] / Q(2))) * cos(ve[0])),
          Q((parameter.radius + ve[1] / Q(2) * cos(ve[0] / Q(2))) * sin(ve[0])),
@@ -56,8 +56,9 @@ public:
   }
 };
 
-template <typename Q, std::size_t od> class kleinBagel {
-public:
+template <typename Q, std::size_t od>
+class kleinBagel {
+ public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
@@ -71,9 +72,8 @@ public:
     return range<Q>(0, M_PI * Q(2), parameter.precision * Q(2), false);
   }
 
-  constexpr static math::vector<Q, renderDepth>
-  getCoordinates(const parameters<Q> &parameter,
-                 const math::vector<Q, od> &ve) {
+  constexpr static math::vector<Q, renderDepth> getCoordinates(
+      const parameters<Q> &parameter, const math::vector<Q, od> &ve) {
     return {{Q((parameter.radius + cos(ve[0] / Q(2)) * sin(ve[1]) -
                 sin(ve[0] / Q(2)) * sin(Q(2) * ve[1])) *
                cos(ve[0])),
@@ -85,8 +85,9 @@ public:
   }
 };
 
-template <typename Q, std::size_t od> class kleinBottle {
-public:
+template <typename Q, std::size_t od>
+class kleinBottle {
+ public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
@@ -100,9 +101,8 @@ public:
     return range<Q>(0, M_PI * Q(2), parameter.precision * Q(2), false);
   }
 
-  constexpr static math::vector<Q, renderDepth>
-  getCoordinates(const parameters<Q> &parameter,
-                 const math::vector<Q, od> &ve) {
+  constexpr static math::vector<Q, renderDepth> getCoordinates(
+      const parameters<Q> &parameter, const math::vector<Q, od> &ve) {
     return {{Q(parameter.radius * (cos(ve[0] / Q(2)) * cos(ve[1]) -
                                    sin(ve[0] / Q(2)) * sin(Q(2) * ve[1]))),
              Q(parameter.radius * (sin(ve[0] / Q(2)) * cos(ve[1]) +
@@ -114,8 +114,9 @@ public:
   }
 };
 
-template <typename Q, std::size_t od> class sphere {
-public:
+template <typename Q, std::size_t od>
+class sphere {
+ public:
   typedef dimensions<2, 0> dimensions;
   typedef math::format::cartesian format;
 
@@ -130,9 +131,8 @@ public:
                   : range<Q>(0, M_PI, parameter.precision, false);
   }
 
-  static math::vector<Q, renderDepth>
-  getCoordinates(const parameters<Q> &parameter,
-                 const math::vector<Q, od> &ve) {
+  static math::vector<Q, renderDepth> getCoordinates(
+      const parameters<Q> &parameter, const math::vector<Q, od> &ve) {
     math::vector<Q, renderDepth, math::format::polar> vp{{parameter.radius}};
     for (std::size_t i = 0; i < od; i++) {
       vp[(i + 1)] = ve[i];
@@ -141,8 +141,9 @@ public:
   }
 };
 
-template <typename Q, std::size_t od> class plane {
-public:
+template <typename Q, std::size_t od>
+class plane {
+ public:
   typedef dimensions<2, 0> dimensions;
   typedef math::format::cartesian format;
 
@@ -157,9 +158,8 @@ public:
                     parameter.precision, false);
   }
 
-  static math::vector<Q, renderDepth>
-  getCoordinates(const parameters<Q> &parameter,
-                 const math::vector<Q, od> &ve) {
+  static math::vector<Q, renderDepth> getCoordinates(
+      const parameters<Q> &parameter, const math::vector<Q, od> &ve) {
     math::vector<Q, renderDepth> vp{{ve[0]}};
     for (std::size_t i = 0; i < od; i++) {
       vp[i] = ve[i];
@@ -168,8 +168,9 @@ public:
   }
 };
 
-template <typename Q, std::size_t od> class torus {
-public:
+template <typename Q, std::size_t od>
+class torus {
+ public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
@@ -183,9 +184,8 @@ public:
     return range<Q>(0, M_PI * Q(2), parameter.precision * Q(2), false);
   }
 
-  constexpr static math::vector<Q, renderDepth>
-  getCoordinates(const parameters<Q> &parameter,
-                 const math::vector<Q, od> &ve) {
+  constexpr static math::vector<Q, renderDepth> getCoordinates(
+      const parameters<Q> &parameter, const math::vector<Q, od> &ve) {
     return {
         {Q((parameter.radius + parameter.radius2 * cos(ve[1])) * cos(ve[0])),
          Q((parameter.radius + parameter.radius2 * cos(ve[1])) * sin(ve[0])),
@@ -193,8 +193,9 @@ public:
   }
 };
 
-template <typename Q, std::size_t od> class cliffordTorus {
-public:
+template <typename Q, std::size_t od>
+class cliffordTorus {
+ public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
@@ -208,9 +209,8 @@ public:
     return range<Q>(0, M_PI * Q(2), parameter.precision * Q(2), false);
   }
 
-  constexpr static math::vector<Q, renderDepth>
-  getCoordinates(const parameters<Q> &parameter,
-                 const math::vector<Q, od> &ve) {
+  constexpr static math::vector<Q, renderDepth> getCoordinates(
+      const parameters<Q> &parameter, const math::vector<Q, od> &ve) {
     return {{Q(cos(parameter.constant) * cos(ve[0])),
              Q(cos(parameter.constant) * sin(ve[0])),
              Q(sin(parameter.constant) * cos(ve[1])),
@@ -218,8 +218,9 @@ public:
   }
 };
 
-template <typename Q, std::size_t od> class dinisSurface {
-public:
+template <typename Q, std::size_t od>
+class dinisSurface {
+ public:
   typedef dimensions<2, 2> dimensions;
   typedef math::format::cartesian format;
 
@@ -230,15 +231,14 @@ public:
 
   constexpr static range<Q> getRange(const parameters<Q> &parameter,
                                      std::size_t i) {
-    return range<Q>(0, M_PI * Q(4) * (std::abs(parameter.constant) + 1.0),
-                    parameter.precision * Q(8) *
-                        (std::abs(parameter.constant) + 1.0),
-                    false);
+    return range<Q>(
+        0, M_PI * Q(4) * (std::abs(parameter.constant) + 1.0),
+        parameter.precision * Q(8) * (std::abs(parameter.constant) + 1.0),
+        false);
   }
 
-  constexpr static math::vector<Q, renderDepth>
-  getCoordinates(const parameters<Q> &parameter,
-                 const math::vector<Q, od> &ve) {
+  constexpr static math::vector<Q, renderDepth> getCoordinates(
+      const parameters<Q> &parameter, const math::vector<Q, od> &ve) {
     return {{Q(parameter.radius * cos(ve[0]) * sin(ve[1])),
              Q(parameter.radius * sin(ve[0]) * sin(ve[1])),
              Q(parameter.radius * (cos(ve[1]) + log(tan(ve[1] / 2.0))) +
@@ -249,11 +249,12 @@ public:
 
 template <typename Q, std::size_t od,
           template <typename, std::size_t> class formula>
-class parametricIterator : public std::iterator<std::forward_iterator_tag,
-  typename object<Q, od, formula<Q, od>::renderDepth, 4,
-    typename formula<Q, od>::format>::face>
-{
-protected:
+class parametricIterator
+    : public std::iterator<
+          std::forward_iterator_tag,
+          typename object<Q, od, formula<Q, od>::renderDepth, 4,
+                          typename formula<Q, od>::format>::face> {
+ protected:
   using source = formula<Q, od>;
   using parent = object<Q, od, source::renderDepth, 4, typename source::format>;
   using face = typename parent::face;
@@ -261,9 +262,8 @@ protected:
   using faces = std::vector<typename baseObject::face>;
   using vector = math::vector<Q, od>;
 
-public:
-  parametricIterator(const parameters<Q> &pParameter)
-    : parameter(pParameter) {
+ public:
+  parametricIterator(const parameters<Q> &pParameter) : parameter(pParameter) {
     for (std::size_t dim = 0; dim < od; dim++) {
       range<Q> qs = source::getRange(parameter, dim);
       positions.push_back(qs.begin());
@@ -283,7 +283,7 @@ public:
     return *this;
   }
 
-  const face operator*(void) const {
+  const face operator*(void)const {
     auto f = base[basePosition];
     face g;
     auto o = g.begin();
@@ -304,7 +304,7 @@ public:
       basePosition = 0;
     }
 
-    for (int dim = (od-1); dim >= 0; dim--) {
+    for (int dim = (od - 1); dim >= 0; dim--) {
       if (positions[dim] < ends[dim]) {
         positions[dim]++;
       }
@@ -329,12 +329,11 @@ public:
   }
 
   constexpr bool operator==(const parametricIterator &b) const {
-    return (getPosition() == b.getPosition())
-        && (strides == b.strides)
-        && (basePosition == b.basePosition);
+    return (getPosition() == b.getPosition()) && (strides == b.strides) &&
+           (basePosition == b.basePosition);
   }
 
-protected:
+ protected:
   std::vector<typename range<Q>::iterator> positions;
   std::vector<typename range<Q>::iterator> starts;
   std::vector<typename range<Q>::iterator> ends;
@@ -373,7 +372,7 @@ protected:
     return r;
   }
 };
-  
+
 /**\brief Parametric formula wrapper
  *
  * This class is used to instantiate parametric formulae so they can
@@ -396,15 +395,14 @@ protected:
 template <typename Q, std::size_t od,
           template <typename, std::size_t> class formula>
 class parametric : public object<Q, od, formula<Q, od>::renderDepth, 4,
-                                 typename formula<Q, od>::format>
-{
-protected:
+                                 typename formula<Q, od>::format> {
+ protected:
   using source = formula<Q, od>;
 
-private:
+ private:
   using parent = object<Q, od, source::renderDepth, 4, typename source::format>;
 
-public:
+ public:
   using dimensions = typename source::dimensions;
 
   using parent::parent;
@@ -427,7 +425,7 @@ public:
 #else
     // TODO: this is really bad, but the closed form currently eludes me.
     return std::count_if(begin(), end(),
-                         [](const typename parent::face&){return true;});
+                         [](const typename parent::face &) { return true; });
 #endif
   }
 };

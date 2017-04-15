@@ -641,8 +641,9 @@ static inline double arctangent2(const double &pY, const double &pX,
  * \returns The arc tangent of pY/pX.
  */
 template <typename N = unsigned long long>
-static inline long double
-arctangent2(const long double &pY, const long double &pX, const N & = N(10)) {
+static inline long double arctangent2(const long double &pY,
+                                      const long double &pX,
+                                      const N & = N(10)) {
   return std::atan2(pY, pX);
 }
 

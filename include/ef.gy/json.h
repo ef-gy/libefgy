@@ -16,9 +16,9 @@
 #define EF_GY_JSON_H
 
 #include <map>
-#include <vector>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace efgy {
 /**\brief JSON helpers
@@ -35,8 +35,9 @@ namespace json {
  *
  * \see http://www.json.org/
  */
-template <typename tNumeric = long double> class value {
-public:
+template <typename tNumeric = long double>
+class value {
+ public:
   typedef tNumeric numeric;
 
   value(void) : type(null), payload(0) {}
@@ -66,28 +67,28 @@ public:
   value &operator=(const value &b) {
     clear();
     switch (b.type) {
-    case object:
-      toObject() = b.asObject();
-      break;
-    case array:
-      toArray() = b.asArray();
-      break;
-    case string:
-      toString() = b.asString();
-      break;
-    case number:
-      toNumber() = b.asNumber();
-      break;
-    case yes:
-    case no:
-    case null:
-    case comma:
-    case colon:
-    case error:
-    case endObject:
-    case endArray:
-      type = b.type;
-      break;
+      case object:
+        toObject() = b.asObject();
+        break;
+      case array:
+        toArray() = b.asArray();
+        break;
+      case string:
+        toString() = b.asString();
+        break;
+      case number:
+        toNumber() = b.asNumber();
+        break;
+      case yes:
+      case no:
+      case null:
+      case comma:
+      case colon:
+      case error:
+      case endObject:
+      case endArray:
+        type = b.type;
+        break;
     }
     return *this;
   }
@@ -205,31 +206,31 @@ public:
     return *((numeric *)payload);
   }
 
-protected:
+ protected:
   void clear(void) {
     if (payload) {
       switch (type) {
-      case object:
-        delete ((std::map<std::string, value<numeric>> *)payload);
-        break;
-      case array:
-        delete ((std::vector<value<numeric>> *)payload);
-        break;
-      case string:
-        delete ((std::string *)payload);
-        break;
-      case number:
-        delete ((numeric *)payload);
-        break;
-      case yes:
-      case no:
-      case null:
-      case comma:
-      case colon:
-      case error:
-      case endObject:
-      case endArray:
-        break;
+        case object:
+          delete ((std::map<std::string, value<numeric>> *)payload);
+          break;
+        case array:
+          delete ((std::vector<value<numeric>> *)payload);
+          break;
+        case string:
+          delete ((std::string *)payload);
+          break;
+        case number:
+          delete ((numeric *)payload);
+          break;
+        case yes:
+        case no:
+        case null:
+        case comma:
+        case colon:
+        case error:
+        case endObject:
+        case endArray:
+          break;
       }
       payload = 0;
     }

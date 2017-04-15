@@ -14,8 +14,8 @@
 
 #include <iostream>
 
-#include <ef.gy/test-case.h>
 #include <ef.gy/render-json.h>
+#include <ef.gy/test-case.h>
 #include <sstream>
 
 using namespace efgy::render;
@@ -45,9 +45,10 @@ int testJSONOutput(std::ostream &log) {
   s << json::tag() << false << 1 << "foo" << 2 << "bar \"baz\"" << 42.23
     << std::array<double, 2>({23, 42}) << m << mx << true;
 
-  if (s.str() != "false1\"foo\"2\"bar \\\"baz\\\"\"42.23[23,42]"
-                 "{\"a\":42,\"b\":23,\"c\":1}"
-                 "{\"d\":{\"a\":42,\"b\":23,\"c\":1}}true") {
+  if (s.str() !=
+      "false1\"foo\"2\"bar \\\"baz\\\"\"42.23[23,42]"
+      "{\"a\":42,\"b\":23,\"c\":1}"
+      "{\"d\":{\"a\":42,\"b\":23,\"c\":1}}true") {
     log << "unexpected JSON output: " << s.str();
     return 1;
   }

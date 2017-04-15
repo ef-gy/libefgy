@@ -17,15 +17,15 @@
 #define EF_GY_MARKOV_H
 
 #include <ef.gy/maybe.h>
-#include <random>
-#include <vector>
+#include <algorithm>
 #include <array>
 #include <map>
 #include <numeric>
-#include <algorithm>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <vector>
 
 namespace efgy {
 /**\brief Namespace for markov models
@@ -55,7 +55,7 @@ namespace markov {
 template <typename T, unsigned int order, typename rng = std::mt19937,
           typename counter = unsigned long>
 class chain {
-public:
+ public:
   /**\brief Data type for the model
    *
    * This is a convenient alias for the T template parameter.
@@ -137,8 +137,7 @@ public:
    * \param[in] pData The data to train the model with.
    */
   template <typename Array>
-  chain(const random &pRNG, const Array &pData)
-      : RNG(pRNG) {
+  chain(const random &pRNG, const Array &pData) : RNG(pRNG) {
     for (const auto &data : pData) {
       (*this) << data;
     }

@@ -14,9 +14,9 @@
 #include <iostream>
 #include <sstream>
 
-#include <ef.gy/test-case.h>
 #include <ef.gy/matrix.h>
 #include <ef.gy/range.h>
+#include <ef.gy/test-case.h>
 
 using namespace efgy::math;
 using efgy::test::next_integer;

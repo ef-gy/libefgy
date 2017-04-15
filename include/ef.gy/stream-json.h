@@ -35,8 +35,9 @@ namespace json {
  *
  * \tparam C Character type for the basic_ostream reference.
  */
-template <typename C> class ostream {
-public:
+template <typename C>
+class ostream {
+ public:
   /**\brief Construct with stream reference
    *
    * Initialises a new ostream JSON tag instance.
@@ -225,15 +226,15 @@ static inline ostream<C> operator<<(ostream<C> stream,
 
   for (const C &c : pValue) {
     switch (c) {
-    case '\\':
-    case '"': {
-      const char a[] = {'\\', c, 0};
-      out.append(a, 2);
-    } break;
+      case '\\':
+      case '"': {
+        const char a[] = {'\\', c, 0};
+        out.append(a, 2);
+      } break;
 
-    default:
-      out.append(1, c);
-      break;
+      default:
+        out.append(1, c);
+        break;
     }
   }
 
@@ -261,15 +262,15 @@ static inline ostream<C> operator<<(ostream<C> stream, const char *pValue) {
   for (; *pValue != 0; pValue++) {
     const C &c = *pValue;
     switch (c) {
-    case '\\':
-    case '"': {
-      const char a[] = {'\\', c, 0};
-      out.append(a, 2);
-    } break;
+      case '\\':
+      case '"': {
+        const char a[] = {'\\', c, 0};
+        out.append(a, 2);
+      } break;
 
-    default:
-      out.append(1, c);
-      break;
+      default:
+        out.append(1, c);
+        break;
     }
   }
 
@@ -427,33 +428,33 @@ template <typename C, typename Q>
 static inline ostream<C> operator<<(ostream<C> stream,
                                     const json::value<Q> &pValue) {
   switch (pValue.type) {
-  case json::value<Q>::object:
-    stream << pValue.asObject();
-    break;
-  case json::value<Q>::array:
-    stream << pValue.asArray();
-    break;
-  case json::value<Q>::string:
-    stream << pValue.asString();
-    break;
-  case json::value<Q>::number:
-    stream << (Q)pValue;
-    break;
-  case json::value<Q>::yes:
-    stream << true;
-    break;
-  case json::value<Q>::no:
-    stream << false;
-    break;
-  case json::value<Q>::null:
-    stream.stream << "null";
-    break;
-  case json::value<Q>::comma:
-  case json::value<Q>::colon:
-  case json::value<Q>::error:
-  case json::value<Q>::endObject:
-  case json::value<Q>::endArray:
-    break;
+    case json::value<Q>::object:
+      stream << pValue.asObject();
+      break;
+    case json::value<Q>::array:
+      stream << pValue.asArray();
+      break;
+    case json::value<Q>::string:
+      stream << pValue.asString();
+      break;
+    case json::value<Q>::number:
+      stream << (Q)pValue;
+      break;
+    case json::value<Q>::yes:
+      stream << true;
+      break;
+    case json::value<Q>::no:
+      stream << false;
+      break;
+    case json::value<Q>::null:
+      stream.stream << "null";
+      break;
+    case json::value<Q>::comma:
+    case json::value<Q>::colon:
+    case json::value<Q>::error:
+    case json::value<Q>::endObject:
+    case json::value<Q>::endArray:
+      break;
   }
 
   return stream;
@@ -504,292 +505,292 @@ static inline std::string operator>>(std::string stream,
   for (std::ptrdiff_t i = 0; i < stream.size(); i++) {
     const auto c = stream[i];
     switch (state) {
-    case scan:
-      switch (c) {
-      case '{':
-        state = read_object;
-        pValue.toObject();
+      case scan:
+        switch (c) {
+          case '{':
+            state = read_object;
+            pValue.toObject();
+            break;
+          case '[':
+            state = read_array;
+            pValue.toArray();
+            break;
+          case '"':
+            state = read_string;
+            pValue.toString();
+            break;
+          case '0':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+          case '+':
+          case '-':
+            state = read_number;
+            pValue.toNumber();
+            ss.str("");
+            ss << c;
+            break;
+          case 't':
+            state = read_t;
+            break;
+          case 'f':
+            state = read_f;
+            break;
+          case 'n':
+            state = read_n;
+            break;
+          case ',':
+            pValue.type = json::value<Q>::comma;
+            return stream.substr(i + 1);
+          case ':':
+            pValue.type = json::value<Q>::colon;
+            return stream.substr(i + 1);
+          case ']':
+            pValue.type = json::value<Q>::endArray;
+            return stream.substr(i + 1);
+          case '}':
+            pValue.type = json::value<Q>::endObject;
+            return stream.substr(i + 1);
+          case ' ':
+          case '\t':
+          case '\v':
+          case '\n':
+          case 0:
+            break;
+        }
         break;
-      case '[':
-        state = read_array;
-        pValue.toArray();
-        break;
-      case '"':
-        state = read_string;
-        pValue.toString();
-        break;
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-      case '+':
-      case '-':
-        state = read_number;
-        pValue.toNumber();
-        ss.str("");
-        ss << c;
-        break;
-      case 't':
-        state = read_t;
-        break;
-      case 'f':
-        state = read_f;
-        break;
-      case 'n':
-        state = read_n;
-        break;
-      case ',':
-        pValue.type = json::value<Q>::comma;
-        return stream.substr(i + 1);
-      case ':':
-        pValue.type = json::value<Q>::colon;
-        return stream.substr(i + 1);
-      case ']':
-        pValue.type = json::value<Q>::endArray;
-        return stream.substr(i + 1);
-      case '}':
-        pValue.type = json::value<Q>::endObject;
-        return stream.substr(i + 1);
-      case ' ':
-      case '\t':
-      case '\v':
-      case '\n':
-      case 0:
-        break;
-      }
-      break;
-    case read_object: {
-      json::value<Q> v;
-      std::string nstream = stream.substr(i) >> v;
-      switch (v.type) {
-      case json::value<Q>::endObject:
-        return nstream;
-      case json::value<Q>::string:
-        key = v.asString();
-        state = read_object_colon;
-        break;
-      default:
-        break;
-      }
-      stream = nstream;
-    }
-      i = -1;
-      break;
-    case read_object_colon: {
-      json::value<Q> v;
-      std::string nstream = stream.substr(i) >> v;
-      switch (v.type) {
-      case json::value<Q>::endObject:
-        return nstream;
-      case json::value<Q>::colon:
-        state = read_object_value;
-        break;
-      default:
-        break;
-      }
-      stream = nstream;
-    }
-      i = -1;
-      break;
-    case read_object_value: {
-      json::value<Q> v;
-      std::string nstream = stream.substr(i) >> v;
-      switch (v.type) {
-      case json::value<Q>::endObject:
-        return nstream;
-      default:
-        pValue.toObject()[key] = v;
-        state = read_object_comma;
-        break;
-      }
-      stream = nstream;
-    }
-      i = -1;
-      break;
-    case read_object_comma: {
-      json::value<Q> v;
-      std::string nstream = stream.substr(i) >> v;
-      switch (v.type) {
-      case json::value<Q>::comma:
-        state = read_object;
-        break;
-      case json::value<Q>::endObject:
-        return nstream;
-      default:
-        break;
-      }
-      stream = nstream;
-    }
-      i = -1;
-      break;
-    case read_array:
-      state = read_array_comma;
-      {
+      case read_object: {
         json::value<Q> v;
         std::string nstream = stream.substr(i) >> v;
-        if (v.type == json::value<Q>::endArray) {
-          return nstream;
+        switch (v.type) {
+          case json::value<Q>::endObject:
+            return nstream;
+          case json::value<Q>::string:
+            key = v.asString();
+            state = read_object_colon;
+            break;
+          default:
+            break;
         }
         stream = nstream;
-        pValue.toArray().push_back(v);
       }
-      i = -1;
-      break;
-    case read_array_comma: {
-      json::value<Q> v;
-      std::string nstream = stream.substr(i) >> v;
-      switch (v.type) {
-      case json::value<Q>::comma:
-        state = read_array;
+        i = -1;
         break;
-      case json::value<Q>::endArray:
-        return nstream;
-      default:
-        break;
+      case read_object_colon: {
+        json::value<Q> v;
+        std::string nstream = stream.substr(i) >> v;
+        switch (v.type) {
+          case json::value<Q>::endObject:
+            return nstream;
+          case json::value<Q>::colon:
+            state = read_object_value;
+            break;
+          default:
+            break;
+        }
+        stream = nstream;
       }
-      stream = nstream;
-    }
-      i = -1;
-      break;
-    case read_number:
-      switch (c) {
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-      case 'e':
-      case 'E':
-      case '.':
-      case '+':
-      case '-':
-        ss << c;
+        i = -1;
         break;
-      default:
-        ss >> pValue.toNumber();
-        return stream.substr(i);
+      case read_object_value: {
+        json::value<Q> v;
+        std::string nstream = stream.substr(i) >> v;
+        switch (v.type) {
+          case json::value<Q>::endObject:
+            return nstream;
+          default:
+            pValue.toObject()[key] = v;
+            state = read_object_comma;
+            break;
+        }
+        stream = nstream;
       }
-      break;
-    case read_string_escape:
-      switch (c) {
-      case 't':
-        pValue.toString().append(1, '\t');
+        i = -1;
         break;
-      case 'v':
-        pValue.toString().append(1, '\v');
-        break;
-      case 'n':
-        pValue.toString().append(1, '\n');
-        break;
-      default:
-        pValue.toString().append(1, c);
-        break;
+      case read_object_comma: {
+        json::value<Q> v;
+        std::string nstream = stream.substr(i) >> v;
+        switch (v.type) {
+          case json::value<Q>::comma:
+            state = read_object;
+            break;
+          case json::value<Q>::endObject:
+            return nstream;
+          default:
+            break;
+        }
+        stream = nstream;
       }
-      state = read_string;
-      break;
-    case read_string:
-      switch (c) {
-      case '"':
-        return stream.substr(i + 1);
+        i = -1;
         break;
-      case '\\':
-        state = read_string_escape;
+      case read_array:
+        state = read_array_comma;
+        {
+          json::value<Q> v;
+          std::string nstream = stream.substr(i) >> v;
+          if (v.type == json::value<Q>::endArray) {
+            return nstream;
+          }
+          stream = nstream;
+          pValue.toArray().push_back(v);
+        }
+        i = -1;
         break;
-      default:
-        pValue.toString().append(1, c);
+      case read_array_comma: {
+        json::value<Q> v;
+        std::string nstream = stream.substr(i) >> v;
+        switch (v.type) {
+          case json::value<Q>::comma:
+            state = read_array;
+            break;
+          case json::value<Q>::endArray:
+            return nstream;
+          default:
+            break;
+        }
+        stream = nstream;
+      }
+        i = -1;
         break;
-      }
-      break;
-    case read_t:
-      if (c == 'r') {
-        state = read_tr;
+      case read_number:
+        switch (c) {
+          case '0':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+          case 'e':
+          case 'E':
+          case '.':
+          case '+':
+          case '-':
+            ss << c;
+            break;
+          default:
+            ss >> pValue.toNumber();
+            return stream.substr(i);
+        }
         break;
-      } else {
-        return "";
-      }
-    case read_tr:
-      if (c == 'u') {
-        state = read_tru;
+      case read_string_escape:
+        switch (c) {
+          case 't':
+            pValue.toString().append(1, '\t');
+            break;
+          case 'v':
+            pValue.toString().append(1, '\v');
+            break;
+          case 'n':
+            pValue.toString().append(1, '\n');
+            break;
+          default:
+            pValue.toString().append(1, c);
+            break;
+        }
+        state = read_string;
         break;
-      } else {
-        return "";
-      }
-    case read_tru:
-      if (c == 'e') {
-        pValue.type = json::value<Q>::yes;
-        return stream.substr(i + 1);
-      } else {
-        return "";
-      }
-    case read_f:
-      if (c == 'a') {
-        state = read_fa;
+      case read_string:
+        switch (c) {
+          case '"':
+            return stream.substr(i + 1);
+            break;
+          case '\\':
+            state = read_string_escape;
+            break;
+          default:
+            pValue.toString().append(1, c);
+            break;
+        }
         break;
-      } else {
-        return "";
-      }
-    case read_fa:
-      if (c == 'l') {
-        state = read_fal;
-        break;
-      } else {
-        return "";
-      }
-    case read_fal:
-      if (c == 's') {
-        state = read_fals;
-        break;
-      } else {
-        return "";
-      }
-    case read_fals:
-      if (c == 'e') {
-        pValue.type = json::value<Q>::no;
-        return stream.substr(i + 1);
-      } else {
-        return "";
-      }
-    case read_n:
-      if (c == 'u') {
-        state = read_nu;
-        break;
-      } else {
-        return "";
-      }
-    case read_nu:
-      if (c == 'l') {
-        state = read_nul;
-        break;
-      } else {
-        return "";
-      }
-    case read_nul:
-      if (c == 'l') {
-        pValue.type = json::value<Q>::null;
-        return stream.substr(i + 1);
-      } else {
-        return "";
-      }
+      case read_t:
+        if (c == 'r') {
+          state = read_tr;
+          break;
+        } else {
+          return "";
+        }
+      case read_tr:
+        if (c == 'u') {
+          state = read_tru;
+          break;
+        } else {
+          return "";
+        }
+      case read_tru:
+        if (c == 'e') {
+          pValue.type = json::value<Q>::yes;
+          return stream.substr(i + 1);
+        } else {
+          return "";
+        }
+      case read_f:
+        if (c == 'a') {
+          state = read_fa;
+          break;
+        } else {
+          return "";
+        }
+      case read_fa:
+        if (c == 'l') {
+          state = read_fal;
+          break;
+        } else {
+          return "";
+        }
+      case read_fal:
+        if (c == 's') {
+          state = read_fals;
+          break;
+        } else {
+          return "";
+        }
+      case read_fals:
+        if (c == 'e') {
+          pValue.type = json::value<Q>::no;
+          return stream.substr(i + 1);
+        } else {
+          return "";
+        }
+      case read_n:
+        if (c == 'u') {
+          state = read_nu;
+          break;
+        } else {
+          return "";
+        }
+      case read_nu:
+        if (c == 'l') {
+          state = read_nul;
+          break;
+        } else {
+          return "";
+        }
+      case read_nul:
+        if (c == 'l') {
+          pValue.type = json::value<Q>::null;
+          return stream.substr(i + 1);
+        } else {
+          return "";
+        }
     }
   }
 
   switch (state) {
-  case read_number:
-    ss >> pValue.toNumber();
-    break;
-  default:
-    break;
+    case read_number:
+      ss >> pValue.toNumber();
+      break;
+    default:
+      break;
   }
 
   return "";

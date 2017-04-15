@@ -43,8 +43,9 @@ namespace exponentiate {
  *                  '0' is substituted, which provides an additional
  *                  plain constexpr variant of the algorithm.
  */
-template <typename Q, long exponent = 0> class integral {
-public:
+template <typename Q, long exponent = 0>
+class integral {
+ public:
   /**\brief Raise base to power
    *
    * Calculates base^exponent, i.e. calculates the
@@ -75,8 +76,9 @@ public:
  *
  * \tparam Q        Basic arithmetic type for calculations.
  */
-template <typename Q> class integral<Q, 1> {
-public:
+template <typename Q>
+class integral<Q, 1> {
+ public:
   /**\brief Return value unmodified
    *
    * Calculates base^1 = base, i.e. the return value is
@@ -98,8 +100,9 @@ public:
  *
  * \tparam Q        Basic arithmetic type for calculations.
  */
-template <typename Q> class integral<Q, -1> {
-public:
+template <typename Q>
+class integral<Q, -1> {
+ public:
   /**\brief Return reciprocal of value
    *
    * Calculates base^(-1) = 1/base, i.e. the return value is
@@ -124,8 +127,9 @@ public:
  *
  * \tparam Q        Basic arithmetic type for calculations.
  */
-template <typename Q> class integral<Q, 0> {
-public:
+template <typename Q>
+class integral<Q, 0> {
+ public:
   /**\brief Raise to the zeroth power
    *
    * Discards its argument and returns one, as one is the
@@ -147,8 +151,8 @@ public:
    *
    * \return base raised to the exponent'th power.
    */
-  constexpr static Q
-  raise(const Q &base, const typename numeric::traits<Q>::integral &exponent) {
+  constexpr static Q raise(
+      const Q &base, const typename numeric::traits<Q>::integral &exponent) {
     return exponent == typename numeric::traits<Q>::integral(0)
                ? Q(1)
                : exponent == typename numeric::traits<Q>::integral(-1)

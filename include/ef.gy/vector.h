@@ -35,7 +35,7 @@ namespace format {
  * the coordinates are cartesian coordinates.
  */
 class cartesian {
-public:
+ public:
   /**\brief Query coordinate format ID
    *
    * This is the ID that corresponds to the coordinate format;
@@ -58,8 +58,8 @@ public:
  + \returns The parameter 'stream' after writing to it.
  */
 template <typename C>
-constexpr inline std::basic_ostream<C> &
-operator<<(std::basic_ostream<C> &stream, const cartesian &) {
+constexpr inline std::basic_ostream<C> &operator<<(
+    std::basic_ostream<C> &stream, const cartesian &) {
   return stream << "[cartesian]";
 }
 }
@@ -77,7 +77,7 @@ operator<<(std::basic_ostream<C> &stream, const cartesian &) {
  */
 template <typename F, unsigned int n, typename format = format::cartesian>
 class vector : public std::array<F, n> {
-public:
+ public:
   /**\brief Construct with array
    *
    * Construct an instance of the vector with the elements

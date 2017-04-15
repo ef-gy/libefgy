@@ -17,8 +17,8 @@
 
 //#include <ef.gy/tracer.h>
 #include <map>
-#include <string>
 #include <regex>
+#include <string>
 
 namespace efgy {
 namespace opengl {
@@ -62,8 +62,9 @@ enum version {
  * Contains all the data related to a GLSL variable so that it can
  * be written to a stream and used in a shader programme.
  */
-template <enum type T> class variable {
-public:
+template <enum type T>
+class variable {
+ public:
   /**\brief Construct with data
    *
    * Initialises a new variable specification with the name,
@@ -81,7 +82,10 @@ public:
   constexpr variable(const GLuint pLocation, const std::string &pName,
                      const char *pType = "float", const char *pPrecision = "",
                      unsigned int pElements = 1)
-      : location(pLocation), name(pName), type(pType), precision(pPrecision),
+      : location(pLocation),
+        name(pName),
+        type(pType),
+        precision(pPrecision),
         elements(pElements) {}
 
   /**\brief Variable name
@@ -122,8 +126,9 @@ public:
  *
  * \tparam V GLSL shader version to produce.
  */
-template <GLenum shaderType, enum version V = ver_auto> class shader {
-public:
+template <GLenum shaderType, enum version V = ver_auto>
+class shader {
+ public:
   /**\brief Construct with shader data
    *
    * Initialises a new GLSL shader with all the details that
@@ -135,13 +140,12 @@ public:
    * \param[in] pUniform   List of input uniforms.
    */
   shader(const std::string &pMain = "",
-         const std::vector<variable<gv_attribute> > &pAttribute = {
-  },
-         const std::vector<variable<gv_varying> > &pVarying = {
-  },
-         const std::vector<variable<gv_uniform> > &pUniform = {
-  })
-      : main(pMain), attribute(pAttribute), varying(pVarying),
+         const std::vector<variable<gv_attribute> > &pAttribute = {},
+         const std::vector<variable<gv_varying> > &pVarying = {},
+         const std::vector<variable<gv_uniform> > &pUniform = {})
+      : main(pMain),
+        attribute(pAttribute),
+        varying(pVarying),
         uniform(pUniform) {}
 
   /**\brief Construct without vertex attributes
@@ -157,8 +161,7 @@ public:
    */
   shader(const std::string &pMain,
          const std::vector<variable<gv_varying> > &pVarying,
-         const std::vector<variable<gv_uniform> > &pUniform = {
-  })
+         const std::vector<variable<gv_uniform> > &pUniform = {})
       : main(pMain), attribute(), varying(pVarying), uniform(pUniform) {}
 
   /**\brief Template copy constructor
@@ -172,7 +175,9 @@ public:
    */
   template <enum version R>
   shader(const shader<shaderType, R> &s)
-      : attribute(s.attribute), varying(s.varying), uniform(s.uniform),
+      : attribute(s.attribute),
+        varying(s.varying),
+        uniform(s.uniform),
         main(s.main) {}
 
   /**\brief Shader vertex attributes
@@ -216,8 +221,8 @@ public:
  * \returns The 'out' stream after writing to it.
  */
 template <typename C, GLenum type>
-    std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
-                                      const shader<type, ver_auto> &s) {
+std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
+                                  const shader<type, ver_auto> &s) {
 #if defined(GL_NUM_SHADING_LANGUAGE_VERSIONS) && 0
   GLint versions;
   glGetIntegerv(GL_NUM_SHADING_LANGUAGE_VERSIONS, &versions);
@@ -255,8 +260,8 @@ template <typename C, GLenum type>
  * \returns The 'out' stream after writing to it.
  */
 template <typename C, GLenum type>
-    std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
-                                      const shader<type, ver_100> &s) {
+std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
+                                  const shader<type, ver_100> &s) {
   out << "#version 100\n";
 
   for (const variable<gv_attribute> &v : s.attribute) {

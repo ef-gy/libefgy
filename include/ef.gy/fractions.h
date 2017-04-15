@@ -20,8 +20,9 @@
 namespace efgy {
 namespace math {
 namespace numeric {
-template <typename N> class fractional : public numeric {
-public:
+template <typename N>
+class fractional : public numeric {
+ public:
   typedef N integer;
 
   fractional() : numerator(N(0)), denominator(N(1)) {}
@@ -222,7 +223,7 @@ public:
   N numerator;
   N denominator;
 
-protected:
+ protected:
 #undef normalise
   void normalise(void) {
     if (denominator < zero()) {
@@ -250,7 +251,8 @@ std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
   return out << f.numerator << "/" << f.denominator;
 }
 
-template <typename N> fractional<N> reciprocal(const fractional<N> &f) {
+template <typename N>
+fractional<N> reciprocal(const fractional<N> &f) {
   if ((f.numerator == zero()) || (f.denominator == zero())) {
     return fractional<N>(N(0));
   }
@@ -258,8 +260,9 @@ template <typename N> fractional<N> reciprocal(const fractional<N> &f) {
   return fractional<N>(f.denominator, f.numerator);
 }
 
-template <typename N> class traits<fractional<N>> {
-public:
+template <typename N>
+class traits<fractional<N>> {
+ public:
   typedef typename fractional<N>::integer integral;
   typedef fractional<N> rational;
   typedef fractional<N> self;

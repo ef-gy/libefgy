@@ -44,8 +44,9 @@ namespace efgy {
  *
  * \tparam T The type of a proper value.
  */
-template <typename T> class maybe {
-public:
+template <typename T>
+class maybe {
+ public:
   /**\brief Default constructor
    *
    * Construct a 'maybe' that contains 'nothing'. This constructor
@@ -91,8 +92,7 @@ public:
    * \param[in] b The 'maybe' to copy.
    */
   template <typename U>
-  constexpr maybe(const maybe<U> &b)
-      : nothing(b.nothing), just(T(b.just)) {}
+  constexpr maybe(const maybe<U> &b) : nothing(b.nothing), just(T(b.just)) {}
 
   /**\brief Assignment operator template
    *
@@ -110,7 +110,8 @@ public:
    *
    * \return    A reference to the 'maybe' that was assigned to.
    */
-  template <typename U> maybe &operator=(const maybe<U> &b) {
+  template <typename U>
+  maybe &operator=(const maybe<U> &b) {
     nothing = b.nothing;
     just = T(b.just);
     return *this;
@@ -147,7 +148,7 @@ public:
    *
    * \return The value contained in this 'maybe'.
    */
-  constexpr operator const T &(void) const { return just; }
+  constexpr operator const T &(void)const { return just; }
 
   /**\brief Less-than comparison operator
    *

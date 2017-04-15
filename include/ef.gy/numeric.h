@@ -15,7 +15,8 @@
 namespace efgy {
 namespace math {
 namespace numeric {
-template <typename T> class factorial;
+template <typename T>
+class factorial;
 
 class numeric;
 class zero;
@@ -23,12 +24,15 @@ class one;
 class negativeOne;
 
 class numeric {
-public:
+ public:
 };
 
 class zero : public numeric {
-public:
-  template <typename T> operator T(void) const { return T(0); }
+ public:
+  template <typename T>
+  operator T(void) const {
+    return T(0);
+  }
 
   bool operator==(const zero &b) const { return true; }
   bool operator==(const one &b) const { return false; }
@@ -52,8 +56,11 @@ public:
 };
 
 class one : public numeric {
-public:
-  template <typename T> operator T(void) const { return T(1); }
+ public:
+  template <typename T>
+  operator T(void) const {
+    return T(1);
+  }
 
   bool operator==(const zero &b) const { return false; }
   bool operator==(const one &b) const { return true; }
@@ -77,8 +84,11 @@ public:
 };
 
 class negativeOne : public numeric {
-public:
-  template <typename T> operator T(void) const { return T(-1); }
+ public:
+  template <typename T>
+  operator T(void) const {
+    return T(-1);
+  }
 
   bool operator==(const zero &b) const { return false; }
   bool operator==(const one &b) const { return false; }
@@ -103,108 +113,141 @@ public:
 
 /* generic comparison operators against one */
 
-template <typename T> bool operator==(const T &a, const zero &b) {
+template <typename T>
+bool operator==(const T &a, const zero &b) {
   return (a == T(0));
 }
 
-template <typename T> bool operator==(const zero &a, const T &b) {
+template <typename T>
+bool operator==(const zero &a, const T &b) {
   return (b == T(0));
 }
 
-template <typename T> bool operator>(const T &a, const zero &b) {
+template <typename T>
+bool operator>(const T &a, const zero &b) {
   return (a > T(0));
 }
 
-template <typename T> bool operator>(const zero &a, const T &b) {
+template <typename T>
+bool operator>(const zero &a, const T &b) {
   return (T(0) > b);
 }
 
 /* generic comparison operators against one */
 
-template <typename T> bool operator==(const T &a, const one &b) {
+template <typename T>
+bool operator==(const T &a, const one &b) {
   return (a == T(1));
 }
 
-template <typename T> bool operator==(const one &a, const T &b) {
+template <typename T>
+bool operator==(const one &a, const T &b) {
   return (b == T(1));
 }
 
-template <typename T> bool operator>(const T &a, const one &b) {
+template <typename T>
+bool operator>(const T &a, const one &b) {
   return (a > T(1));
 }
 
-template <typename T> bool operator>(const one &a, const T &b) {
+template <typename T>
+bool operator>(const one &a, const T &b) {
   return (T(1) > b);
 }
 
 /* generic comparison operators against negativeOne */
 
-template <typename T> bool operator==(const T &a, const negativeOne &b) {
+template <typename T>
+bool operator==(const T &a, const negativeOne &b) {
   return (a == T(-1));
 }
 
-template <typename T> bool operator==(const negativeOne &a, const T &b) {
+template <typename T>
+bool operator==(const negativeOne &a, const T &b) {
   return (b == T(-1));
 }
 
-template <typename T> bool operator>(const T &a, const negativeOne &b) {
+template <typename T>
+bool operator>(const T &a, const negativeOne &b) {
   return (a > T(-1));
 }
 
-template <typename T> bool operator>(const negativeOne &a, const T &b) {
+template <typename T>
+bool operator>(const negativeOne &a, const T &b) {
   return (T(-1) > b);
 }
 
 /* generic comparison operators */
 
-template <typename T, typename U> bool operator!=(const T &a, const U &b) {
+template <typename T, typename U>
+bool operator!=(const T &a, const U &b) {
   return !(a == b);
 }
 
-template <typename T, typename U> bool operator>=(const T &a, const U &b) {
+template <typename T, typename U>
+bool operator>=(const T &a, const U &b) {
   return (a == b) || (a > b);
 }
 
-template <typename T, typename U> bool operator<(const T &a, const U &b) {
+template <typename T, typename U>
+bool operator<(const T &a, const U &b) {
   return b > a;
 }
 
-template <typename T, typename U> bool operator<=(const T &a, const U &b) {
+template <typename T, typename U>
+bool operator<=(const T &a, const U &b) {
   return b >= a;
 }
 
 /* miscellaneous operators */
 
-template <typename T> T operator-(const T &a) { return a * T(-1); }
+template <typename T>
+T operator-(const T &a) {
+  return a * T(-1);
+}
 
-template <typename T> T operator*(const T &a, const negativeOne &b) {
+template <typename T>
+T operator*(const T &a, const negativeOne &b) {
   return -a;
 }
 
-template <typename T> T operator*(const negativeOne &a, const T &b) {
+template <typename T>
+T operator*(const negativeOne &a, const T &b) {
   return -b;
 }
 
-template <typename T> T operator*(const T &a, const one &b) { return a; }
+template <typename T>
+T operator*(const T &a, const one &b) {
+  return a;
+}
 
-template <typename T> T operator*(const one &a, const T &b) { return b; }
+template <typename T>
+T operator*(const one &a, const T &b) {
+  return b;
+}
 
-template <typename T> zero operator*(const T &a, const zero &b) {
+template <typename T>
+zero operator*(const T &a, const zero &b) {
   return zero();
 }
 
-template <typename T> zero operator*(const zero &a, const T &b) {
+template <typename T>
+zero operator*(const zero &a, const T &b) {
   return zero();
 }
 
 /**
  * Generic power2 template.
  */
-template <typename T> T pow2(const T &a) { return a * a; }
+template <typename T>
+T pow2(const T &a) {
+  return a * a;
+}
 
 /* generic factorial operator */
 
-template <typename T> factorial<T> operator!(const T &a) {
+template <typename T>
+factorial<T> operator!(const T &a) {
   return factorial<T>(a);
 }
 
@@ -234,7 +277,8 @@ T &operator^=(T &a, const Z &b) {
 
 /* generic functions */
 
-template <typename T> T gcd(const T &rA, const T &rB) {
+template <typename T>
+T gcd(const T &rA, const T &rB) {
   T t;
   T a = (rA < zero()) ? -rA : rA;
   T b = (rB < zero()) ? -rB : rB;
@@ -248,7 +292,8 @@ template <typename T> T gcd(const T &rA, const T &rB) {
   return a;
 }
 
-template <typename T> T gcdP(const T &rA, const T &rB) {
+template <typename T>
+T gcdP(const T &rA, const T &rB) {
   T t;
   T a = rA;
   T b = rB;

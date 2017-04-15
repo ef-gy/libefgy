@@ -14,11 +14,13 @@
 
 namespace efgy {
 namespace math {
-template <typename Q, typename I> class primitive;
+template <typename Q, typename I>
+class primitive;
 
 namespace numeric {
-template <typename T> class traits {
-public:
+template <typename T>
+class traits {
+ public:
   typedef T integral;
   typedef T rational;
   typedef T self;
@@ -27,8 +29,9 @@ public:
   static const bool stable = false;
 };
 
-template <> class traits<float> {
-public:
+template <>
+class traits<float> {
+ public:
   typedef long integral;
   typedef float rational;
   typedef float self;
@@ -37,8 +40,9 @@ public:
   static const bool stable = false;
 };
 
-template <> class traits<double> {
-public:
+template <>
+class traits<double> {
+ public:
   typedef long integral;
   typedef double rational;
   typedef double self;
@@ -47,8 +51,9 @@ public:
   static const bool stable = false;
 };
 
-template <> class traits<long double> {
-public:
+template <>
+class traits<long double> {
+ public:
   typedef long long integral;
   typedef long double rational;
   typedef long double self;
@@ -57,8 +62,9 @@ public:
   static const bool stable = false;
 };
 
-template <typename Q, typename I> class traits<primitive<Q, I>> {
-public:
+template <typename Q, typename I>
+class traits<primitive<Q, I>> {
+ public:
   typedef I integral;
   typedef Q rational;
   typedef primitive<Q, I> self;

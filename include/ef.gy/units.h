@@ -51,7 +51,7 @@ namespace unit {
  */
 template <typename Q, const char unitSymbol, int unitExponent>
 class unitValue : public math::numeric::traits<Q>::derivable {
-public:
+ public:
   /**\brief Original base datatype
    *
    * Alias for Q, the base datatype in use. This is not quite the
@@ -128,7 +128,7 @@ public:
  */
 template <typename U, typename I, I factor, I divisor>
 class scaledUnitValue : public U::base {
-public:
+ public:
   /**\brief Base value type
    *
    * This is the base value type of the unitValue template; the
@@ -202,8 +202,9 @@ public:
  * \tparam unitExponent The exponent for the unit value, e.g. '2' for
  *                      square metres, '3' for cubic metres and so on.
  */
-template <typename Q, int exponent, int unitExponent> class metricMultiplier {
-public:
+template <typename Q, int exponent, int unitExponent>
+class metricMultiplier {
+ public:
   /**\brief Calculate scale factor
    *
    * This calculates the scale value and returns it. The scale is
@@ -228,8 +229,9 @@ public:
  * \tparam unitExponent The exponent for the unit value, e.g. '2' for
  *                      square metres, '3' for cubic metres and so on.
  */
-template <typename Q, int exponent, int unitExponent> class binaryMultiplier {
-public:
+template <typename Q, int exponent, int unitExponent>
+class binaryMultiplier {
+ public:
   /**\brief Calculate scale factor
    *
    * This calculates the scale value and returns it. The scale is
@@ -255,7 +257,7 @@ public:
 template <typename U, int exponent,
           template <typename, int, int> class multiplier>
 class exponentialScaledUnitValue : public U::base {
-public:
+ public:
   /**\brief Base value type
    *
    * This is the base value type of the unitValue template; the
@@ -377,8 +379,9 @@ public:
  * \tparam unitExponent Exponent for the unit type, e.g. '2' for square
  *                      metres, or '3' for cubic metres.
  */
-template <typename Q, const char unitSymbol, int unitExponent> class metric {
-public:
+template <typename Q, const char unitSymbol, int unitExponent>
+class metric {
+ public:
   /**\brief Unit type
    *
    * This is the generated unit type, based on the given template
@@ -551,7 +554,7 @@ public:
  */
 template <typename Q, const char unitSymbol, int unitExponent>
 class binary : public metric<Q, unitSymbol, unitExponent> {
-public:
+ public:
   /**\brief Unit type
    *
    * This is the generated unit type, based on the given template

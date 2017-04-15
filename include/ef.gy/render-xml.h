@@ -17,11 +17,11 @@
 #if !defined(EF_GY_RENDER_XML_H)
 #define EF_GY_RENDER_XML_H
 
-#include <ef.gy/render.h>
-#include <ef.gy/vector.h>
-#include <ef.gy/stream-xml.h>
 #include <ef.gy/colour-space-hsl.h>
 #include <ef.gy/continued-fractions.h>
+#include <ef.gy/render.h>
+#include <ef.gy/stream-xml.h>
+#include <ef.gy/vector.h>
 #include <sstream>
 
 namespace efgy {
@@ -38,9 +38,9 @@ namespace render {
  * \returns A new copy of the input stream.
  */
 template <typename C>
-static inline xml::ostream<C>
-operator<<(xml::ostream<C> stream,
-           const math::vector<math::fraction, 3, math::format::HSL> &pValue) {
+static inline xml::ostream<C> operator<<(
+    xml::ostream<C> stream,
+    const math::vector<math::fraction, 3, math::format::HSL> &pValue) {
   math::vector<math::fraction, 3, math::format::HSL> value = pValue;
   value.hue = math::numeric::round(value.hue, stream.precision);
   value.saturation = math::numeric::round(value.saturation, stream.precision);
@@ -81,9 +81,9 @@ operator<<(xml::ostream<C> stream,
  * \returns A new copy of the input stream.
  */
 template <typename C>
-static inline xml::ostream<C>
-operator<<(xml::ostream<C> stream,
-           const math::vector<math::fraction, 3, math::format::RGB> &pValue) {
+static inline xml::ostream<C> operator<<(
+    xml::ostream<C> stream,
+    const math::vector<math::fraction, 3, math::format::RGB> &pValue) {
   math::vector<math::fraction, 3, math::format::RGB> value = pValue;
   value.red = math::numeric::round(value.red, stream.precision);
   value.green = math::numeric::round(value.green, stream.precision);
@@ -122,8 +122,8 @@ operator<<(xml::ostream<C> stream,
  * \returns A new copy of the input stream.
  */
 template <typename C, class Q, typename format>
-static inline xml::ostream<C>
-operator|=(xml::ostream<C> stream, const math::vector<Q, 3, format> &value) {
+static inline xml::ostream<C> operator|=(
+    xml::ostream<C> stream, const math::vector<Q, 3, format> &value) {
   stream.stream << "<picker xmlns='http://colouri.se/2012'>";
   math::vector<Q, 3, format> v = value;
   if (v[0].denominator == math::numeric::zero()) {

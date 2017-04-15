@@ -16,10 +16,10 @@
 #include <iostream>
 #include <string>
 
-#include <ef.gy/test-case.h>
-#include <ef.gy/polytope.h>
-#include <ef.gy/parametric.h>
 #include <ef.gy/ifs.h>
+#include <ef.gy/parametric.h>
+#include <ef.gy/polytope.h>
+#include <ef.gy/test-case.h>
 #include <algorithm>
 #include <sstream>
 
@@ -35,7 +35,7 @@ using namespace efgy;
  *
  * \return Zero when everything went as expected, nonzero otherwise.
  */
-template<class C, long lim = 10000, long min = 1>
+template <class C, long lim = 10000, long min = 1>
 int testPolytopeIteratorNotInfinite(std::ostream &log) {
   auto params = geometry::parameters<float>();
   std::ostringstream os("");
@@ -45,11 +45,11 @@ int testPolytopeIteratorNotInfinite(std::ostream &log) {
 
   log << "iterating through '" << p.id() << "': ";
 
-  for(auto &f : p) {
+  for (auto &f : p) {
     auto t = f;
     if (c > lim) {
-      log << "suspect infinite loop while iterating through a '"
-          << p.id() << "': more than '" << lim << "' iterations.\n";
+      log << "suspect infinite loop while iterating through a '" << p.id()
+          << "': more than '" << lim << "' iterations.\n";
       return -1;
     }
     os << "vector: [";
@@ -61,15 +61,14 @@ int testPolytopeIteratorNotInfinite(std::ostream &log) {
   }
 
   if (c < min) {
-    log << "not enough iterations while going through a '"
-        << p.id() << "': want at least '" << min << "', but did: '" << c
-        << "'\n";
+    log << "not enough iterations while going through a '" << p.id()
+        << "': want at least '" << min << "', but did: '" << c << "'\n";
     return -2;
   }
 
   if (c != p.size()) {
-    log << "wrong size() result for object type '"
-        << p.id() << "'; object said it would have " << p.size()
+    log << "wrong size() result for object type '" << p.id()
+        << "'; object said it would have " << p.size()
         << " elements, but iterator gave us " << c << " elements.\n";
     return -3;
   }
@@ -78,35 +77,30 @@ int testPolytopeIteratorNotInfinite(std::ostream &log) {
 }
 
 TEST_BATCH(
-    testPolytopeIteratorNotInfinite<geometry::cube<float,2>, 1, 1>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float,3>, 6, 6>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float,4>, 24, 24>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float,5>, 80, 80>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float,6>, 240, 240>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float,7>, 672, 672>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float,8>, 1792, 1792>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float,9>, 4608, 4608>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 2>, 1, 1>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 3>, 6, 6>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 4>, 24, 24>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 5>, 80, 80>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 6>, 240, 240>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 7>, 672, 672>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 8>, 1792, 1792>,
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 9>, 4608, 4608>,
 
-    testPolytopeIteratorNotInfinite<geometry::plane<float,2>>,
-    testPolytopeIteratorNotInfinite<geometry::plane<float,3>>,
-    testPolytopeIteratorNotInfinite<geometry::plane<float,4>>,
+    testPolytopeIteratorNotInfinite<geometry::plane<float, 2>>,
+    testPolytopeIteratorNotInfinite<geometry::plane<float, 3>>,
+    testPolytopeIteratorNotInfinite<geometry::plane<float, 4>>,
 
-    testPolytopeIteratorNotInfinite<
-        geometry::sierpinski::gasket<float,2>>,
+    testPolytopeIteratorNotInfinite<geometry::sierpinski::gasket<float, 2>>,
 
-    testPolytopeIteratorNotInfinite<
-        geometry::sierpinski::gasket<float,3>>,
+    testPolytopeIteratorNotInfinite<geometry::sierpinski::gasket<float, 3>>,
 
-    testPolytopeIteratorNotInfinite<
-        geometry::sierpinski::gasket<float,4>, 1000000>,
+    testPolytopeIteratorNotInfinite<geometry::sierpinski::gasket<float, 4>,
+                                    1000000>,
 
     testPolytopeIteratorNotInfinite<
-        geometry::adapt<float, 3,
-            geometry::sierpinski::gasket<float,2>,
-            math::format::cartesian>>,
+        geometry::adapt<float, 3, geometry::sierpinski::gasket<float, 2>,
+                        math::format::cartesian>>,
 
     testPolytopeIteratorNotInfinite<
-        geometry::adapt<float, 5,
-            geometry::sierpinski::gasket<float,3>,
-            math::format::cartesian>>,
-    )
+        geometry::adapt<float, 5, geometry::sierpinski::gasket<float, 3>,
+                        math::format::cartesian>>, )

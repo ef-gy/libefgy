@@ -17,8 +17,8 @@
 #define EF_GY_STREAM_XML_H
 
 #include <ef.gy/xml.h>
-#include <string>
 #include <ostream>
+#include <string>
 
 namespace efgy {
 namespace xml {
@@ -29,8 +29,9 @@ namespace xml {
  *
  * \tparam C Character type for the basic_ostream reference.
  */
-template <typename C> class ostream {
-public:
+template <typename C>
+class ostream {
+ public:
   /**\brief Construct with stream reference
    *
    * Initialises a new ostream XML tag instance.
@@ -95,7 +96,7 @@ constexpr inline ostream<C> operator<<(std::basic_ostream<C> &stream,
  * \encode
  */
 class precision {
-public:
+ public:
   /**\brief Construct with precision
    *
    * Initialises the instance with a precision value.
@@ -136,7 +137,7 @@ constexpr inline ostream<C> operator<<(ostream<C> stream, const precision &p) {
  * \encode
  */
 class resolution {
-public:
+ public:
   /**\brief Construct with resolution
    *
    * Initialises the instance with a resolution value.

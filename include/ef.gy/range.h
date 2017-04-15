@@ -38,7 +38,7 @@ namespace efgy {
  */
 template <typename T>
 class rangeIterator : public std::iterator<std::random_access_iterator_tag, T> {
-public:
+ public:
   constexpr rangeIterator(const T &pStart, const T &pStep,
                           std::size_t pPosition)
       : start(pStart), stride(pStep), position(pPosition) {}
@@ -53,7 +53,7 @@ public:
            (position != b.position);
   }
 
-  constexpr T operator*(void) const { return start + stride * T(position); }
+  constexpr T operator*(void)const { return start + stride * T(position); }
 
   rangeIterator &operator++(void) {
     ++position;
@@ -119,7 +119,7 @@ public:
     return position >= b.position;
   }
 
-protected:
+ protected:
   T start;
   T stride;
   std::size_t position;
@@ -139,8 +139,9 @@ constexpr rangeIterator<T> operator+(const std::ptrdiff_t &a,
  * \tparam T The data type for the range elements.
  * \tparam n The amount of elements in the range.
  */
-template <typename T, std::size_t n = 0> class range {
-public:
+template <typename T, std::size_t n = 0>
+class range {
+ public:
   constexpr range(const T &pStart) : start(pStart), stride(T(1)) {}
 
   constexpr range(const T &pStart, const T &pEnd, const bool inclusive = true)
@@ -189,10 +190,12 @@ public:
  * This is the instance of the class that is used when no length is
  * explicitly specified.
  */
-template <typename T> class range<T, 0> {
-public:
+template <typename T>
+class range<T, 0> {
+ public:
   constexpr range(const T &pEnd, const bool inclusive)
-      : start(0), stride((pEnd) / T((pEnd) - (inclusive ? 1 : 0))),
+      : start(0),
+        stride((pEnd) / T((pEnd) - (inclusive ? 1 : 0))),
         steps(pEnd) {}
 
   constexpr range(const T &pStart, const T &pEnd, const bool inclusive)

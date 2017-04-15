@@ -16,9 +16,9 @@
 #if !defined(EF_GY_STATISTICS_H)
 #define EF_GY_STATISTICS_H
 
-#include <array>
 #include <ef.gy/maybe.h>
 #include <ef.gy/numeric.h>
+#include <array>
 #include <numeric>
 
 namespace efgy {
@@ -39,7 +39,8 @@ namespace statistics {
  *
  * \returns The average of the values in the input vector.
  */
-template <typename Q> static maybe<Q> average(const std::vector<Q> &input) {
+template <typename Q>
+static maybe<Q> average(const std::vector<Q> &input) {
   if (input.size() == 0) {
     return maybe<Q>();
   }
@@ -96,7 +97,8 @@ static maybe<T> variance(_InputIterator begin, const _InputIterator &end) {
  *
  * \returns The resulting variance.
  */
-template <typename T> static maybe<T> variance(const std::vector<T> &input) {
+template <typename T>
+static maybe<T> variance(const std::vector<T> &input) {
   return variance<T>(input.begin(), input.end());
 }
 

@@ -15,8 +15,8 @@
 #if !defined(EF_GY_SERIES_H)
 #define EF_GY_SERIES_H
 
-#include <ef.gy/sequence.h>
 #include <ef.gy/exponential.h>
+#include <ef.gy/sequence.h>
 
 namespace efgy {
 namespace math {
@@ -41,7 +41,7 @@ namespace series {
 template <typename Q, template <typename, typename> class algorithm,
           typename N = unsigned long long>
 class series : public sequence<Q, algorithm, N> {
-public:
+ public:
   using typename sequence<Q, algorithm, N>::sequenceAlgorithm;
 
   /**\brief Construct with factor and iterations
@@ -71,8 +71,8 @@ public:
    *
    * \returns The sum of the 0th to the nth sequence member.
    */
-  constexpr static Q
-  get(const N &n = sequenceAlgorithm::defaultSeriesIterations,
+  constexpr static Q get(
+      const N &n = sequenceAlgorithm::defaultSeriesIterations,
       const Q &f = Q(1)) {
     return sumTo(n, f, Q(0));
   }
@@ -88,7 +88,7 @@ public:
    */
   constexpr operator Q(void) const { return get(iterations, factor); }
 
-protected:
+ protected:
   /**\brief Base sequence
    *
    * The sequence that is used as the basis for the series.
@@ -150,7 +150,7 @@ class power : public series<Q, algorithm, N> {
   using series<Q, algorithm, N>::iterations;
   using series<Q, algorithm, N>::factor;
 
-public:
+ public:
   /**\brief Construct with factors and iterations
    *
    * Initialises a new series instance with the given factors
@@ -171,7 +171,8 @@ public:
         const Q pCentre = Q(0),
         const N &pIterations = sequenceAlgorithm::defaultSeriesIterations)
       : series<Q, algorithm, N>(pFactor, pIterations),
-        powerFactor(pPowerFactor), centre(pCentre) {}
+        powerFactor(pPowerFactor),
+        centre(pCentre) {}
 
   /**\copydoc series::get
    *
@@ -182,8 +183,8 @@ public:
    * \param[in] x The power factor.
    * \param[in] c The centre of the power series.
    */
-  constexpr static Q
-  get(const N &n = sequenceAlgorithm::defaultSeriesIterations,
+  constexpr static Q get(
+      const N &n = sequenceAlgorithm::defaultSeriesIterations,
       const Q &f = Q(1), const Q &x = Q(1), const Q &c = Q(0)) {
     return sumTo(n, f, x, c, Q(0));
   }
@@ -201,7 +202,7 @@ public:
     return get(iterations, factor, powerFactor, centre);
   }
 
-protected:
+ protected:
   /**\copydoc series::sumTo
    *
    * This varaint of the summation function has two additional
