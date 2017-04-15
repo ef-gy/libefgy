@@ -16,13 +16,15 @@
 #if !defined(EF_GY_STREAM_JSON_H)
 #define EF_GY_STREAM_JSON_H
 
-#include <ef.gy/json.h>
-#include <string>
+#include <array>
+#include <limits>
+#include <map>
 #include <ostream>
 #include <sstream>
-#include <array>
+#include <string>
 #include <vector>
-#include <map>
+
+#include <ef.gy/json.h>
 
 namespace efgy {
 namespace json {
@@ -106,7 +108,8 @@ static inline ostream<C> operator<<(ostream<C> stream, const float &pValue) {
  */
 template <typename C>
 static inline ostream<C> operator<<(ostream<C> stream, const double &pValue) {
-  stream.stream << pValue;
+  stream.stream << std::setprecision(std::numeric_limits<double>::digits10)
+                << pValue;
 
   return stream;
 }
@@ -125,7 +128,8 @@ static inline ostream<C> operator<<(ostream<C> stream, const double &pValue) {
 template <typename C>
 static inline ostream<C> operator<<(ostream<C> stream,
                                     const long double &pValue) {
-  stream.stream << pValue;
+  stream.stream << std::setprecision(std::numeric_limits<long double>::digits10)
+                << pValue;
 
   return stream;
 }
