@@ -14,11 +14,10 @@
 
 #include <iostream>
 
-#include <ef.gy/render-json.h>
+#include <ef.gy/stream-json.h>
 #include <ef.gy/test-case.h>
 #include <sstream>
 
-using namespace efgy::render;
 using namespace efgy;
 
 /**\brief JSON output tests

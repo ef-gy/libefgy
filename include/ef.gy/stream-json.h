@@ -17,6 +17,7 @@
 #define EF_GY_STREAM_JSON_H
 
 #include <array>
+#include <iomanip>
 #include <limits>
 #include <map>
 #include <ostream>
