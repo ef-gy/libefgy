@@ -20,6 +20,7 @@
 #include <ef.gy/numeric.h>
 #include <array>
 #include <numeric>
+#include <vector>
 
 namespace efgy {
 /**\brief Statistical functions
