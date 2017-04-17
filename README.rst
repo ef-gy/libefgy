@@ -1,5 +1,7 @@
 libefgy-8: README
 =================
+.. image:: https://travis-ci.org/ef-gy/libefgy.svg?branch=master
+    :target: https://travis-ci.org/ef-gy/libefgy
 
 libefgy is a header-only C++ template library with lots of templates
 dealing with maths in all its glory. And a few random other things not
