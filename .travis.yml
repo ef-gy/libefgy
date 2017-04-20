@@ -14,6 +14,12 @@ env:
   - CXX_STDLIB=-stdlib=libstdc++
   - CXX_STDLIB=-stdlib=libc++
 
+addons:
+  apt:
+    packages:
+      - libc++1
+      - libc++-dev
+
 matrix:
    allow_failures:
      - os: linux
@@ -21,7 +27,7 @@ matrix:
 install:
 
 script:
-  - make test CFLAGS="-O0 -coverage" DEBUG=true
+  - make test CFLAGS="-O0 -coverage" CXX_STDLIB=${CXX_STDLIB} DEBUG=true
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
