@@ -3,6 +3,9 @@ compiler:
   - clang
   - gcc
 
+dist: trusty
+sudo: false
+
 os:
   - osx
   - linux
@@ -14,7 +17,6 @@ env:
 matrix:
    allow_failures:
      - os: linux
-       env: CXX_STDLIB=-stdlib=libc++
 
 install:
 
