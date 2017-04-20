@@ -33,7 +33,7 @@ JSFUNCTIONS:=
 
 DEBUG:=false
 
-CXX_STANDARD:=c++1z
+CXX_STANDARD:=c++14
 CXX_STDLIB:=-stdlib=libc++
 PCCFLAGS=$(shell $(PKGCONFIG) --cflags $(LIBRARIES) 2>/dev/null)
 PCLDFLAGS=$(shell $(PKGCONFIG) --libs $(LIBRARIES) 2>/dev/null)
