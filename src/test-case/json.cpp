@@ -29,36 +29,117 @@ using namespace efgy;
  * \return Zero when everything went as expected, nonzero otherwise.
  */
 int testJSONOutput(std::ostream &log) {
-  std::map<const char *, int> m;
+  struct sampleDataBool {
+    bool in;
+    std::string out;
+  };
 
-  m["a"] = 42;
-  m["b"] = 23;
-  m["c"] = 1;
+  struct sampleDataInt {
+    int in;
+    std::string out;
+  };
 
-  std::map<const char *, std::map<const char *, int>> mx;
+  struct sampleDataDouble {
+    double in;
+    std::string out;
+  };
 
-  mx["d"] = m;
+  struct sampleDataString {
+    const char *in;
+    std::string out;
+  };
 
-  std::ostringstream s("");
+  std::vector<sampleDataBool> testsBool{
+      {false, "false"}, {true, "true"},
+  };
 
-  s << json::tag() << false << 1 << "foo" << 2 << "bar \"baz\"" << 42.23
-    << std::array<double, 2>({23, 42}) << m << mx << true;
+  std::vector<sampleDataInt> testsInt{
+      {1, "1"}, {2, "2"},
+  };
 
-  if (s.str() !=
-      "false1\"foo\"2\"bar \\\"baz\\\"\"42.23[23,42]"
-      "{\"a\":42,\"b\":23,\"c\":1}"
-      "{\"d\":{\"a\":42,\"b\":23,\"c\":1}}true") {
-    log << "unexpected JSON output: " << s.str();
-    return 1;
+  std::vector<sampleDataDouble> testsDouble{
+      {1.23, "1.23"}, {42.23, "42.23"},
+  };
+
+  std::vector<sampleDataString> testsString{
+      {"foo", "\"foo\""}, {"bar \"baz\"", "\"bar \\\"baz\\\"\""},
+  };
+
+  for (const auto &tt : testsBool) {
+    std::ostringstream s("");
+    s << json::tag() << tt.in;
+
+    if (s.str() != tt.out) {
+      log << "bad JSON output: got '" << s.str() << "', expected '" << tt.out
+          << "'\n";
+      return 1;
+    }
   }
 
-  json::value<> v;
+  for (const auto &tt : testsInt) {
+    std::ostringstream s("");
+    s << json::tag() << tt.in;
+
+    if (s.str() != tt.out) {
+      log << "bad JSON output: got '" << s.str() << "', expected '" << tt.out
+          << "'\n";
+      return 2;
+    }
+  }
+
+  for (const auto &tt : testsDouble) {
+    std::ostringstream s("");
+    s << json::tag() << tt.in;
+
+    if (s.str() != tt.out) {
+      log << "bad JSON output: got '" << s.str() << "', expected '" << tt.out
+          << "'\n";
+      return 3;
+    }
+  }
+
+  for (const auto &tt : testsString) {
+    std::ostringstream s("");
+    s << json::tag() << tt.in;
+
+    if (s.str() != tt.out) {
+      log << "bad JSON output: got '" << s.str() << "', expected '" << tt.out
+          << "'\n";
+      return 4;
+    }
+  }
+
+  std::map<const char *, int> m{
+      {"a", 42}, {"b", 23}, {"c", 1},
+  };
+
+  std::map<const char *, std::map<const char *, int>> mx{
+      {"d", m},
+  };
+
+  std::ostringstream s("");
+  s << json::tag() << std::array<double, 2>({23, 42});
+
+  if (s.str() != "[23,42]") {
+    log << "unexpected JSON output: " << s.str();
+    return 5;
+  }
 
   s.str("");
+  s << json::tag() << m;
 
-  s << json::tag() << v;
+  if (s.str() != "{\"a\":42,\"b\":23,\"c\":1}") {
+    log << "unexpected JSON output: " << s.str();
+    return 6;
+  }
 
-  log << s.str();
+  s.str("");
+  s << json::tag() << mx;
+
+  if (s.str() != "{\"d\":{\"a\":42,\"b\":23,\"c\":1}}") {
+    log << "unexpected JSON output: " << s.str();
+    return 7;
+  }
 
   return 0;
 }

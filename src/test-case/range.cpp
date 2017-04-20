@@ -31,19 +31,21 @@ using namespace efgy;
  * \return Zero when everything went as expected, nonzero otherwise.
  */
 int testRange(std::ostream &log) {
-  if (range<int, 5>::get() != std::array<int, 5>({{0, 1, 2, 3, 4}})) {
+  std::array<int, 5> a5{0, 1, 2, 3, 4};
+  std::array<int, 5> b5{1000, 1001, 1002, 1003, 1004};
+  std::array<int, 8> a8n{49, 48, 47, 46, 45, 44, 43, 42};
+
+  if (range<int, 5>::get() != a5) {
     log << "5-element sequence does not have the expected value.\n";
     return -1;
   }
 
-  if (range<int, 5>::get(1000) !=
-      std::array<int, 5>({{1000, 1001, 1002, 1003, 1004}})) {
+  if (range<int, 5>::get(1000) != b5) {
     log << "5-element sequence does not have the expected value.\n";
     return -2;
   }
 
-  const auto res3 = std::array<int, 8>({{49, 48, 47, 46, 45, 44, 43, 42}});
-  if (range<int, 8>::get(49, -1) != res3) {
+  if (range<int, 8>::get(49, -1) != a8n) {
     log << "8-element sequence does not have the expected value.\n";
     return -3;
   }
@@ -79,16 +81,6 @@ int testRange(std::ostream &log) {
   if (!std::equal(a2.begin(), a2.end(), range<int>(49, 42, 8, true).begin())) {
     log << "range iterator did not produce the expected results.\n";
     return -7;
-  }
-
-  if (!std::equal(a1.begin(), a1.end(), range<int>(42, 49, true).begin())) {
-    log << "range iterator did not produce the expected results.\n";
-    return -8;
-  }
-
-  if (!std::equal(a1.begin(), a1.end(), range<int>(42, 50, false).begin())) {
-    log << "range iterator did not produce the expected results.\n";
-    return -9;
   }
 
   if (range<int, 0>::get() != std::array<int, 0>({{}})) {
