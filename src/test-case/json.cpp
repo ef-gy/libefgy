@@ -109,11 +109,11 @@ int testJSONOutput(std::ostream &log) {
     }
   }
 
-  std::map<const char *, int> m{
+  std::map<std::string, int> m{
       {"a", 42}, {"b", 23}, {"c", 1},
   };
 
-  std::map<const char *, std::map<const char *, int>> mx{
+  std::map<std::string, std::map<std::string, int>> mx{
       {"d", m},
   };
 
