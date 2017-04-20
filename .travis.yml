@@ -12,8 +12,8 @@ addons:
     packages:
       - clang
       - llvm-dev
-      - libc++1
-      - libc++-dev
+      - g++
+      - ^libc\+\+.*$
     sources: &sources
       - llvm-toolchain-precise
       - ubuntu-toolchain-r-test
