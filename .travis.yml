@@ -7,16 +7,14 @@ os:
   - osx
   - linux
 
-addons:
-  apt:
-    packages:
-      - clang
-      - llvm-dev
-      - g++
-      - ^libc\\+\\+.*$
-    sources: &sources
-      - llvm-toolchain-precise
-      - ubuntu-toolchain-r-test
+env:
+  - CXX_STDLIB=-stdlib=libstdc++
+  - CXX_STDLIB=-stdlib=libc++
+
+matrix:
+   allow_failures:
+     - os: linux
+       env: CXX_STDLIB=-stdlib=libc++
 
 install:
 
