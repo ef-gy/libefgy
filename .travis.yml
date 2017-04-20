@@ -1,7 +1,6 @@
 language: cpp
 compiler:
   - clang
-  - gcc
 
 dist: trusty
 sudo: false
@@ -23,6 +22,8 @@ addons:
 matrix:
    allow_failures:
      - os: linux
+     - os: osx
+       env: CXX_STDLIB=-stdlib=libstdc++
 
 install:
 
