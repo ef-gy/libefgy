@@ -82,7 +82,7 @@ archive: ../$(NAME)-$(VERSION).tar.gz
 
 # meta rules for documentation
 cldoc:
-	$(CLDOC) generate -std=$(CXX_STANDARD) -Iinclude/ $(CXXFLAGS) -- --report --output documentation/html $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(filter-out $(wildcard include/ef.gy/*opengl* include/ef.gy/*glsl*),$(wildcard include/$(BASE)/*.h))
+	$(CLDOC) generate -std=$(CXX_STANDARD) -Iinclude/ $(CXXFLAGS) -- --report --merge documentation --output documentation/html $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(filter-out $(wildcard include/ef.gy/*opengl* include/ef.gy/*glsl*),$(wildcard include/$(BASE)/*.h))
 
 # meta rules to reformat sources
 format:
