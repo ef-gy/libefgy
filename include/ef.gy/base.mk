@@ -17,6 +17,7 @@ STYLE:=Google
 # standard programmes (may or may not be used)
 CC:=$(shell which clang false | head -n 1)
 CLANG_FORMAT:=$(shell which clang-format clang-format-3.5 clang-format-3.4 false | head -n 1) -style=$(STYLE)
+CLDOC:=$(shell which cldoc false | head -n 1)
 CSSMIN:=$(shell which cssmin false | head -n 1)
 CURL:=$(shell which curl false | head -n 1) -s
 CXX:=$(shell which clang++ false | head -n 1)
@@ -80,11 +81,8 @@ archive: ../$(NAME)-$(VERSION).tar.gz
 	$(GIT) archive --format=tar --prefix=$(NAME)-$(VERSION)/ HEAD | gzip -9 >$@
 
 # meta rules for documentation
-documentation documentation/xml/combine.xslt documentation/xml/index.xml: doxyfile $(wildcard include/*/* xslt/doxy*)
-	doxygen $<
-
-documentation.xml: documentation/xml/combine.xslt documentation/xml/index.xml xslt/doxygen*
-	xsltproc documentation/xml/combine.xslt documentation/xml/index.xml | xsltproc xslt/doxygen-post-process.xslt - > $@
+cldoc:
+	$(CLDOC) generate -std=$(CXX_STANDARD) -Iinclude/ $(CXXFLAGS) -- --report --output documentation/html $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(filter-out $(wildcard include/ef.gy/*opengl* include/ef.gy/*glsl*),$(wildcard include/$(BASE)/*.h))
 
 # meta rules to reformat sources
 format:
@@ -134,37 +132,6 @@ dependencies.mk: $(BINARIES_SRC) include/*/*.h $(DATAHEADERS) include/ef.gy/base
 $(DOWNLOADS)/.volatile:
 	mkdir -p $(DOWNLOADS) || true
 	touch $@
-
-doxyfile: makefile
-	echo 'DOXYFILE_ENCODING = UTF-8' > $@
-	echo 'PROJECT_NAME = "$(NAME)"' >> $@
-	echo 'PROJECT_NUMBER = "$(VERSION)"' >> $@
-	echo 'OUTPUT_DIRECTORY = documentation' >> $@
-	echo 'ALLOW_UNICODE_NAMES = YES' >> $@
-	echo 'INLINE_INHERITED_MEMB = YES' >> $@
-	echo 'STRIP_FROM_PATH = .' >> $@
-	echo 'STRIP_FROM_INC_PATH = include/' >> $@
-	echo 'TAB_SIZE = 2' >> $@
-	echo 'BUILTIN_STL_SUPPORT = YES' >> $@
-	echo 'EXTRACT_STATIC = YES' >> $@
-	echo 'QUIET = YES' >> $@
-	echo 'INPUT = README.md include/$(BASE) src src/test-case' >> $@
-	echo 'IMAGE_PATH = documentation/' >> $@
-	echo 'SOURCE_BROWSER = YES' >> $@
-	echo 'COLS_IN_ALPHA_INDEX = 3' >> $@
-	echo 'HTML_FILE_EXTENSION = .xhtml' >> $@
-	echo 'SEARCHENGINE = NO' >> $@
-	echo 'GENERATE_XML = YES' >> $@
-	echo 'GENERATE_LATEX = NO' >> $@
-	echo 'GENERATE_TAGFILE = $(NAME).tag' >> $@
-	echo 'DOT_IMAGE_FORMAT = svg' >> $@
-	echo 'INTERACTIVE_SVG = YES' >> $@
-	[ -e "documentation/doxygen-layout.xml" ] && echo 'LAYOUT_FILE = documentation/doxygen-layout.xml' >> $@ || true
-	[ -e "documentation/extra.css" ] && echo 'HTML_EXTRA_STYLESHEET  = documentation/extra.css' >> $@ || true
-	[ -e "doxyfile-extra" ] && echo '@INCLUDE = doxyfile-extra' >> $@ || true
-
-doxygen:: doxyfile
-	doxygen $<
 
 # just in case we want to compress something
 %.gz: %

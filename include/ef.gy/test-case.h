@@ -131,8 +131,6 @@ extern const std::vector<testCase> cases;
 extern "C" int main(int argc, char **argv) {
   return efgy::test::run(argc, argv, cases);
 }
-}
-}
 
 /**\brief Define test batch
  *
@@ -189,4 +187,6 @@ extern "C" int main(int argc, char **argv) {
  */
 #define TEST_BATCH(...)
 
+}
+}
 #endif
