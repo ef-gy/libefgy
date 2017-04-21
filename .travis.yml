@@ -29,4 +29,4 @@ script:
   - make test CFLAGS="-O2 -coverage" CXX_STDLIB=${CXX_STDLIB}
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - test $TRAVIS_OS_NAME = 'linux' && bash <(curl -s https://codecov.io/bash)
