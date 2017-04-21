@@ -19,7 +19,6 @@
 
 using namespace efgy;
 using namespace std;
-using efgy::test::next_integer;
 
 /**\brief 'Maybe' assignment and initialisation tests
  * \test Initialises several instances of the 'maybe' template of different
@@ -161,7 +160,7 @@ int testMaybeStreamOutput(std::ostream &log) {
     log << expected.str();
     log << "\n\nActual:\n";
     log << test.str();
-    return next_integer();
+    return 1;
   }
   return 0;
 }

@@ -24,7 +24,6 @@
 #include <sstream>
 
 using namespace std;
-using efgy::test::next_integer;
 
 /**\brief 'Optional' assignment and initialisation tests
  * \test Initialises several instances of the 'optional' template of different

@@ -19,7 +19,6 @@
 #include <ef.gy/test-case.h>
 
 using namespace efgy::math;
-using efgy::test::next_integer;
 using efgy::range;
 
 /**\brief Tests matrix construction.
@@ -51,7 +50,7 @@ int testConstruction(std::ostream &log) {
   if (!allCorrect) {
     log << "Actual and expected value in result of copy constructor are "
            "different";
-    return next_integer();
+    return 1;
   }
   return 0;
 }
@@ -84,7 +83,7 @@ int testAssignment(std::ostream &log) {
 
   if (!allCorrect) {
     log << "Values were not copied correctly during assignment.";
-    return next_integer();
+    return 1;
   }
 
   return 0;
@@ -148,7 +147,7 @@ int testAddition(std::ostream &log) {
     }
 
     log << "Unexpected result of left addition of neutral element to matrix.";
-    return next_integer();
+    return 1;
   }
   if (!allCorrectRight) {
     log << "m + n, where n is the neutral element: ";
@@ -168,7 +167,7 @@ int testAddition(std::ostream &log) {
       log << "\n";
     }
     log << "Unexpected result of right addition of neutral element to matrix.";
-    return next_integer();
+    return 1;
   }
 
   // another test for addition of two non-neutral elements
@@ -191,7 +190,7 @@ int testAddition(std::ostream &log) {
 
   if (!allCorrectSum) {
     log << "Unexpected result adding two matrices.";
-    return next_integer();
+    return 1;
   }
 
   return 0;
@@ -230,7 +229,7 @@ int testStream(std::ostream &log) {
     log << "\nExpected:\n";
     log << expected.str();
 
-    return next_integer();
+    return 1;
   }
   return 0;
 }
@@ -266,7 +265,7 @@ int testIterator(std::ostream &log) {
       log << "\t" << i;
     }
     log << "\n";
-    return next_integer();
+    return 1;
   }
 
   return 0;

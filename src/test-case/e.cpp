@@ -21,7 +21,6 @@
 #include <ef.gy/test-case.h>
 
 using namespace efgy::math;
-using efgy::test::next_integer;
 using std::string;
 
 typedef primitive<long double, unsigned long long> longDouble;

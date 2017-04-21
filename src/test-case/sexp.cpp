@@ -33,17 +33,17 @@ int testConstruction(std::ostream &log) {
 
   if (a.data != 23) {
     log << "Expected data value: 23. Actual value: " << a.data;
-    return next_integer();
+    return 1;
   }
 
   cons<int, int> c(23, 42);
   if (c.car != 23) {
     log << "Expected value of car(cons(23, 42)): 23. Actual value: " << c.car;
-    return next_integer();
+    return 1;
   }
   if (c.cdr.just != 42) {
     log << "Expected value of cdr(cons(23, 42)): 42. Actual value: " << c.cdr;
-    return next_integer();
+    return 1;
   }
 
   return 0;
@@ -70,7 +70,7 @@ int testStreamOutput(std::ostream &log) {
   if (test.str() != expected) {
     log << "Detected error in stream output. Expected: " << expected;
     log << "\nActual: " << test.str();
-    return next_integer();
+    return 1;
   } else {
     return 0;
   }

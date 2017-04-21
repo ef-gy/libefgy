@@ -46,103 +46,145 @@ namespace efgy {
  * tests easier.
  */
 namespace test {
-/* Test case function pointer
+/* Test batch.
+ * @test test function wrapper.
  *
- * All test cases in a batch are added to a vector to run, so it's important to
- * get their function prototypes right. This typedef reflects the expected
- * function prototype: return an int and take an ostream.
+ * Represents a set of test functions, which are represented by the F class. The
+ * class allows for adding functions automagically, merely by having them
+ * defined. This is accomplished with the help of a static 'common' instance,
+ * which is global and can be added to at will.
  */
-typedef int (*testCase)(std::ostream &log);
-
-class function;
-
-template <class F = function>
-class functions {
+template <class test>
+class batch {
  public:
-  static functions &common(void) {
-    static functions f;
+  /* Get single global instance.
+   *
+   * This is a little hack that establishes a single, global master instance of
+   * test batches. Due to how templates work, there will be one master instance
+   * per test function type, as there will be one separate function for each of
+   * these and the global instance is instantiated by having a 'static' batch
+   * in this function.
+   */
+  static batch &common(void) {
+    static batch f;
     return f;
   }
 
-  void add(F &o) { funcs.insert(&o); }
+  /* Add test case.
+   * @o A test case that will be added.
+   *
+   * Adds 'o' to the 'funcs' set. 'o' must not go out of scope after it has
+   * been added, which means that since this is usually used with the common()
+   * instance, it should have global or static scope.
+   */
+  void add(test &o) { tests.insert(&o); }
 
-  void remove(F &o) { funcs.erase(&o); }
+  /* Remove test case.
+   * @o A test case that will be removed.
+   *
+   * Removes 'o' from the 'funcs' set. The default function handler from below
+   * will automatically call this in the destructor, which makes sure things
+   * don't blow up if the test function wrapper does go out of scope.
+   */
+  void remove(test &o) { tests.erase(&o); }
 
   /* Run test case batch
-   * @testCases The test cases to run.
    *
-   * Runs all test cases specified in the testCases vector. This produces
-   * output on stderr about the progress of running these test cases, and
-   * the individual test cases are instructed to output any log messages
-   * to stderr as well.
+   * Runs all test cases in the batch. This produces output on stderr about the
+   * progress of running these test cases, and the individual test cases are
+   * instructed to output any log messages to stderr as well.
    *
-   * The test cases are run in the sequence specified by the testCases
-   * vector until either all of the test cases ran successfully, or until
-   * one of them fails, in which case execution stops and the function
-   * returns whatever that failed test case returned.
+   * The test cases are run in an unspecified but consistent sequence, until
+   * either all of the test cases ran successfully, or until one of them fails,
+   * in which case execution stops and the function returns whatever that failed
+   * test case returned.
    *
-   * @returns 0 if all test cases ran successfully, the return value of the
-   *     first test that failed otherwise.
+   * @return 'true' if all the test cases ran successfully, 'false' otherwise.
    */
-  int run(void) {
+  bool run(void) {
     int i = 0;
-    for (const auto &f : funcs) {
+    for (const auto &f : tests) {
       i++;
-      std::cerr << "running test case " << i << " in batch of " << funcs.size()
+      std::cerr << "running test case " << i << " in batch of " << tests.size()
                 << ": ";
-      int res = f->run(std::cerr);
-      if (res != 0) {
-        std::cerr << "failed; code: " << res << "\n";
-        return res;
+      if (!f->run(std::cerr)) {
+        std::cerr << "FAIL\n";
+        return false;
       }
       std::cerr << "OK\n";
     }
 
-    return 0;
+    return true;
   }
 
  protected:
-  std::set<F *> funcs;
+  /* The set of test functions.
+   *
+   * Set with 'add', removed with 'remove' and used in 'run'.
+   */
+  std::set<test *> tests;
 };
 
+/* Test function wrapper.
+ *
+ * Automatically adds a test function to a given (or the global) test function
+ * batch. Also automatically removes the handler if it goes out of scope.
+ */
 class function {
  public:
+  /* Construct with function and batch.
+   * @pFunction The function to add.
+   * @pBatch The test batch. Defaults to the common global instance.
+   *
+   * Adds the function to the test batch.
+   */
   function(std::function<int(std::ostream &)> pFunction,
-           functions<function> &pFunctions = functions<function>::common())
-      : func(pFunction) {
-    pFunctions.add(*this);
+           batch<function> &pBatch = batch<function>::common())
+      : func(pFunction), root(pBatch) {
+    root.add(*this);
   }
 
-  const std::function<int(std::ostream &)> func;
+  /* Destructor.
+   *
+   * Removes the reference to this object from the test batch. This is to make
+   * things work if the object goes out of scope.
+   */
+  ~function(void) { root.remove(*this); }
 
-  int run(std::ostream &log) {
+  /* Run test function.
+   * @log Where to write log output to.
+   *
+   * Basically just wraps around the 'func' function, but does so in a try/catch
+   * block to prevent exceptions during the test from affecting everything else.
+   *
+   * @return 'true' if the test succeeded, 'false' otherwise.
+   */
+  bool run(std::ostream &log) {
     try {
-      return func(log);
+      return func(log) == 0;
     } catch (std::exception &e) {
       std::cerr << "Exception: " << e.what() << "\n";
-      return -1;
     } catch (...) {
       std::cerr << "Unknown Exception\n";
-      return -1;
     }
+    return false;
   }
-};
 
-/* Get next return value
- *
- * This function returns a non-zero integer to return after a test case
- * was unsuccessful. This is useful if one wants to add test cases to an
- * existing test later and avoid returning any one value more than once.
- */
-static inline int next_integer(void) {
-  static int counter = 1;
-  ++counter;
-  if (counter == 0) {
-    return ++counter;
-  } else {
-    return counter;
-  }
-}
+ protected:
+  /* Test function reference.
+   *
+   * Called by 'run'.
+   */
+  const std::function<int(std::ostream &)> func;
+
+  /* The test batch this function is associated with.
+   *
+   * Each instance of this class has to be associated with a test batch. Since
+   * it also needs to get rid of itself, this member variable keeps track of
+   * what it's been added to.
+   */
+  batch<function> &root;
+};
 
 #if defined(RUN_TEST_CASES)
 /* Test case runner main stub
@@ -150,9 +192,13 @@ static inline int next_integer(void) {
  * This is a very simple main function that will simply run the test cases
  * defined in the programme including this header. Needless to say you should
  * not define your own main function in test case files.
+ *
+ * Command line arguments are currently ignored.
+ *
+ * @return '0' on success, '-1' otherwise.
  */
-extern "C" int main(int argc, char **argv) {
-  return functions<function>::common().run();
+extern "C" int main(int, char **) {
+  return batch<function>::common().run() ? 0 : -1;
 }
 #endif
 }
