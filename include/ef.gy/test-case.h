@@ -131,7 +131,8 @@ extern const std::vector<testCase> cases;
 extern "C" int main(int argc, char **argv) {
   return efgy::test::run(argc, argv, cases);
 }
-
+}
+}
 /**\brief Define test batch
  *
  * This macro defines a set of test cases to run. You should use this in your
@@ -164,6 +165,8 @@ extern "C" int main(int argc, char **argv) {
   }                                                              \
   }
 #else
+}
+}
 /**\brief Define test batch
  *
  * This macro defines a set of test cases to run. You should use this in your
@@ -186,7 +189,4 @@ extern "C" int main(int argc, char **argv) {
  *       as described; if not then this macro is simply discarded.
  */
 #define TEST_BATCH(...)
-
-}
-}
 #endif
