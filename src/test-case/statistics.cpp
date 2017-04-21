@@ -107,4 +107,8 @@ int testStatistics(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testStatistics)
+namespace test {
+using efgy::test::function;
+
+static function statistics(testStatistics);
+}

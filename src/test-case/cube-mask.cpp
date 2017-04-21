@@ -61,8 +61,17 @@ int analyseCubeMaskProperties(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(analyseCubeMaskProperties<geometry::generators::mask::cube<1>>,
-           analyseCubeMaskProperties<geometry::generators::mask::cube<2>>,
-           analyseCubeMaskProperties<geometry::generators::mask::cube<3>>,
-           analyseCubeMaskProperties<geometry::generators::mask::cube<4>>,
-           analyseCubeMaskProperties<geometry::generators::mask::cube<5>>, )
+namespace test {
+using efgy::test::function;
+
+static function cube1(
+    analyseCubeMaskProperties<geometry::generators::mask::cube<1>>);
+static function cube2(
+    analyseCubeMaskProperties<geometry::generators::mask::cube<2>>);
+static function cube3(
+    analyseCubeMaskProperties<geometry::generators::mask::cube<3>>);
+static function cube4(
+    analyseCubeMaskProperties<geometry::generators::mask::cube<4>>);
+static function cube5(
+    analyseCubeMaskProperties<geometry::generators::mask::cube<5>>);
+}

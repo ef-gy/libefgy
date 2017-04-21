@@ -81,4 +81,8 @@ int testContinuedFractionArithmetic(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testContinuedFractionArithmetic)
+namespace test {
+using efgy::test::function;
+
+static function continuedFractionArithmetic(testContinuedFractionArithmetic);
+}

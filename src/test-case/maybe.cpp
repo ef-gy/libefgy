@@ -166,4 +166,10 @@ int testMaybeStreamOutput(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testMaybe, testMaybeNontrivial, testMaybeStreamOutput)
+namespace test {
+using efgy::test::function;
+
+static function maybe(testMaybe);
+static function maybeNontrivial(testMaybeNontrivial);
+static function maybeStreamOutput(testMaybeStreamOutput);
+}

@@ -250,5 +250,11 @@ int testUnitBinary(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testUnitMetric, testMetricMultipliers, testUnitEMetric,
-           testUnitBinary)
+namespace test {
+using efgy::test::function;
+
+static function unitMetric(testUnitMetric);
+static function metricMultipliers(testMetricMultipliers);
+static function unitEMetric(testUnitEMetric);
+static function unitBinary(testUnitBinary);
+}

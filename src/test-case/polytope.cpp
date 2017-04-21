@@ -76,31 +76,46 @@ int testPolytopeIteratorNotInfinite(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(
-    testPolytopeIteratorNotInfinite<geometry::cube<float, 2>, 1, 1>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float, 3>, 6, 6>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float, 4>, 24, 24>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float, 5>, 80, 80>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float, 6>, 240, 240>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float, 7>, 672, 672>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float, 8>, 1792, 1792>,
-    testPolytopeIteratorNotInfinite<geometry::cube<float, 9>, 4608, 4608>,
+namespace test {
+using efgy::test::function;
 
-    testPolytopeIteratorNotInfinite<geometry::plane<float, 2>>,
-    testPolytopeIteratorNotInfinite<geometry::plane<float, 3>>,
-    testPolytopeIteratorNotInfinite<geometry::plane<float, 4>>,
+static function t1(
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 2>, 1, 1>);
+static function t2(
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 3>, 6, 6>);
+static function t3(
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 4>, 24, 24>);
+static function t4(
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 5>, 80, 80>);
+static function t5(
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 6>, 240, 240>);
+static function t6(
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 7>, 672, 672>);
+static function t7(
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 8>, 1792, 1792>);
+static function t8(
+    testPolytopeIteratorNotInfinite<geometry::cube<float, 9>, 4608, 4608>);
 
-    testPolytopeIteratorNotInfinite<geometry::sierpinski::gasket<float, 2>>,
+static function t9(testPolytopeIteratorNotInfinite<geometry::plane<float, 2>>);
+static function t10(testPolytopeIteratorNotInfinite<geometry::plane<float, 3>>);
+static function t11(testPolytopeIteratorNotInfinite<geometry::plane<float, 4>>);
 
-    testPolytopeIteratorNotInfinite<geometry::sierpinski::gasket<float, 3>>,
+static function t12(
+    testPolytopeIteratorNotInfinite<geometry::sierpinski::gasket<float, 2>>);
 
-    testPolytopeIteratorNotInfinite<geometry::sierpinski::gasket<float, 4>,
-                                    1000000>,
+static function t13(
+    testPolytopeIteratorNotInfinite<geometry::sierpinski::gasket<float, 3>>);
 
+static function t14(testPolytopeIteratorNotInfinite<
+                    geometry::sierpinski::gasket<float, 4>, 1000000>);
+
+static function t15(
     testPolytopeIteratorNotInfinite<
         geometry::adapt<float, 3, geometry::sierpinski::gasket<float, 2>,
-                        math::format::cartesian>>,
+                        math::format::cartesian>>);
 
+static function t16(
     testPolytopeIteratorNotInfinite<
         geometry::adapt<float, 5, geometry::sierpinski::gasket<float, 3>,
-                        math::format::cartesian>>, )
+                        math::format::cartesian>>);
+}

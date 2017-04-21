@@ -188,4 +188,9 @@ int testJSONInput(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testJSONOutput, testJSONInput)
+namespace test {
+using efgy::test::function;
+
+static function JSONOutput(testJSONOutput);
+static function JSONInput(testJSONInput);
+}

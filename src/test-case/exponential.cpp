@@ -200,4 +200,10 @@ int testFunctionalIntegralExponents(std::ostream &log) {
 
   return 0;
 }
-TEST_BATCH(testIntegralExponents, testFunctionalIntegralExponents)
+
+namespace test {
+using efgy::test::function;
+
+static function integralExponents(testIntegralExponents);
+static function functionalIntegralExponents(testFunctionalIntegralExponents);
+}

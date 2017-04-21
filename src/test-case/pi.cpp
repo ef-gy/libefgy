@@ -129,4 +129,8 @@ int testPi(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testPi)
+namespace test {
+using efgy::test::function;
+
+static function pi(testPi);
+}

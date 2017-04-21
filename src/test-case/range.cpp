@@ -100,4 +100,8 @@ int testRange(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testRange)
+namespace test {
+using efgy::test::function;
+
+static function range(testRange);
+}

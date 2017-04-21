@@ -50,4 +50,8 @@ int testFactorial(ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testFactorial)
+namespace test {
+using efgy::test::function;
+
+static function factorial(testFactorial);
+}

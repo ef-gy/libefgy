@@ -51,4 +51,8 @@ int testGeometryFactory(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testGeometryFactory)
+namespace test {
+using efgy::test::function;
+
+static function geometryFactory(testGeometryFactory);
+}

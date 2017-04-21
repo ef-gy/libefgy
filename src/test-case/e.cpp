@@ -69,4 +69,8 @@ int testE(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testE)
+namespace test {
+using efgy::test::function;
+
+static function e(testE);
+}

@@ -158,4 +158,9 @@ int testAffineConstruction(std::ostream &log) {
   }
 }
 
-TEST_BATCH(testIdentity, testAffineConstruction)
+namespace test {
+using efgy::test::function;
+
+static function identity(testIdentity);
+static function affineConstruction(testAffineConstruction);
+}

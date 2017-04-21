@@ -272,5 +272,12 @@ int testIterator(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testConstruction, testAssignment, testAddition, testStream,
-           testIterator)
+namespace test {
+using efgy::test::function;
+
+static function construction(testConstruction);
+static function assignment(testAssignment);
+static function addition(testAddition);
+static function stream(testStream);
+static function iterator(testIterator);
+}

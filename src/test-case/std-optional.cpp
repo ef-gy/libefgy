@@ -139,4 +139,9 @@ int testOptionalNontrivial(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testOptional, testOptionalNontrivial)
+namespace test {
+using efgy::test::function;
+
+static function optional(testOptional);
+static function optionalNontrivial(testOptionalNontrivial);
+}

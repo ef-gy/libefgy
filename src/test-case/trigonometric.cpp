@@ -43,4 +43,8 @@ int testSine(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testSine)
+namespace test {
+using efgy::test::function;
+
+static function sine(testSine);
+}

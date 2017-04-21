@@ -34,4 +34,8 @@ int testXMLoutput(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testXMLoutput)
+namespace test {
+using efgy::test::function;
+
+static function XMLOutput(testXMLoutput);
+}

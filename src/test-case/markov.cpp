@@ -66,4 +66,10 @@ int testMarkovChain(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testMarkovChain<1>, testMarkovChain<2>, testMarkovChain<3>)
+namespace test {
+using efgy::test::function;
+
+static function markovChain1(testMarkovChain<1>);
+static function markovChain2(testMarkovChain<2>);
+static function markovChain3(testMarkovChain<3>);
+}

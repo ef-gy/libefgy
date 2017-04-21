@@ -85,4 +85,9 @@ int testTracerMatrix(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testTracer, testTracerMatrix)
+namespace test {
+using efgy::test::function;
+
+static function tracer(testTracer);
+static function tracerMatrix(testTracerMatrix);
+}

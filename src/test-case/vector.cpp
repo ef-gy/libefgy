@@ -70,4 +70,8 @@ int testRealVectors(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testRealVectors)
+namespace test {
+using efgy::test::function;
+
+static function realVectors(testRealVectors);
+}

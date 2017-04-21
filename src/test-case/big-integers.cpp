@@ -425,4 +425,8 @@ int testBigIntegerBitShifts(std::ostream &log) {
   return 0;
 }
 
-TEST_BATCH(testBigIntegerBitShifts)
+namespace test {
+using efgy::test::function;
+
+static function bigIntegerBitShifts(testBigIntegerBitShifts);
+}

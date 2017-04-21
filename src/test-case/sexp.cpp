@@ -76,4 +76,9 @@ int testStreamOutput(std::ostream &log) {
   }
 }
 
-TEST_BATCH(testConstruction, testStreamOutput)
+namespace test {
+using efgy::test::function;
+
+static function construction(testConstruction);
+static function streamOutput(testStreamOutput);
+}
