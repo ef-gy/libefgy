@@ -16,7 +16,6 @@
 #if !defined(EF_GY_STREAM_CSS_H)
 #define EF_GY_STREAM_CSS_H
 
-#include <ef.gy/css.h>
 #include <ostream>
 #include <string>
 

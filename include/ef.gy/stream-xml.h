@@ -16,7 +16,6 @@
 #if !defined(EF_GY_STREAM_XML_H)
 #define EF_GY_STREAM_XML_H
 
-#include <ef.gy/xml.h>
 #include <ostream>
 #include <string>
 
