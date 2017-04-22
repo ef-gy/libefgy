@@ -152,12 +152,9 @@ bool testJSONOutput(std::ostream &log) {
  * @return 'true' on success, 'false' otherwise.
  */
 bool testJSONInput(std::ostream &log) {
-  json::value<> v;
-  std::string pr = "{ true }";
+  json::json v;
 
-  //    pr >> v;
-
-  v.type = json::value<>::yes;
+  v.type = json::yes;
 
   log << json::tag() << v;
 
@@ -188,9 +185,41 @@ bool testJSONInput(std::ostream &log) {
   return true;
 }
 
+/* Test json::json::size().
+ * @log Where to write log messages to.
+ *
+ * json::size() returns the size of a JSON value; this exercises the function to
+ * make sure it works correctly.
+ *
+ * @return 'true' on success, 'false' otherwise.
+ */
+bool testSize(std::ostream &log) {
+  struct sampleData {
+    json::json in;
+    std::size_t res;
+  };
+
+  std::vector<sampleData> tests{
+      {2.l, 1},
+      {"foo", 1},
+      {json::json::objectType{{"foo", "bar"}, {"baz", 2.l}}, 2},
+      {json::json::arrayType{"foo", "bar", "baz"}, 3},
+  };
+
+  for (const auto &tt : tests) {
+    const auto s = tt.in.size();
+    if (s != tt.res) {
+      log << "size()=" << s << ", but expected " << tt.res << "\n";
+      return false;
+    }
+  }
+  return true;
+}
+
 namespace test {
 using efgy::test::function;
 
 static function JSONOutput(testJSONOutput);
 static function JSONInput(testJSONInput);
+static function size(testSize);
 }

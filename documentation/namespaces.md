@@ -29,6 +29,16 @@ Command line argument handling.
 
 libefgy provides facilities for command line parsing using regular expressions.
 
+#<cldoc:efgy::json>
+
+JSON values and ways to work with them.
+
+As it turns out, a lot of things these days rely on processing JSON data, so
+this namespace provides an implementation of JSON values, a parser for them and
+a serialiser to generate your own data in JSON.
+
+See http://www.json.org/ for more details on the format.
+
 #<cldoc:efgy::test>
 
 Functions and types related to test cases.
