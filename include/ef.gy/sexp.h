@@ -20,14 +20,6 @@
 #include <string>
 
 namespace efgy {
-/* Abstract base class for s-expressions
- *
- * Abstract base class for s-expressions
- * In this implementation, you should instantiate
- * the concrete derived  classes, efgy::cons and efgy::atom.
- */
-class sexp {};
-
 /* A cons expression
  * @T1 type of first element
  * @T2 type of second element
@@ -38,7 +30,7 @@ class sexp {};
  * the 'nothing' value of the 'optional' class here.
  */
 template <typename T1, typename T2>
-class cons : public sexp {
+class cons {
  public:
   /* Constructor for a cons with two elements
    *
@@ -89,7 +81,7 @@ std::ostream &operator<<(std::ostream &str, cons<T1, T2> &s) {
  *
  */
 template <typename T>
-class atom : public sexp {
+class atom {
  public:
   /* Constructs an atomic S-expression.
    *
