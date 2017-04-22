@@ -21,109 +21,43 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-/* Library test cases
- *
- * Library test cases all go in the src/test-case/ directory. The makefile will
- * automatically build them, and you can run them in a batch by using the
- * make target 'test', like so:
- *
- *     $ make test
- *
- * If any of the test cases fail to run then the make command will fail with an
- * error. You could use this to run the test cases automatically after a
- * checkout, for example.
- */
-namespace test {}
-
 #include <iostream>
 #include <set>
 #include <vector>
 
+#include <ef.gy/cli.h>
+
 namespace efgy {
-/* Functions and types related to test cases
- *
- * This namespace contains functions and types that make defining automatic unit
- * tests easier.
- */
 namespace test {
-/* Test batch.
- * @test test function wrapper.
+/* Run test case batch
+ * @test Type of the tests to run. Should be similar to efgy::test::function.
+ * @tests Which tests to run.
  *
- * Represents a set of test functions, which are represented by the 'test'
- * class. The class allows for adding functions automagically, merely by having
- * them defined. This is accomplished with the help of a static 'common'
- * instance, which is global and can be added to at will.
+ * Runs all test cases in the batch. This produces output on stdout about the
+ * progress of running these test cases, and the individual test cases are
+ * instructed to output any log messages to stderr.
+ *
+ * The test cases are run in an unspecified but consistent sequence, until
+ * either all of the test cases ran successfully, or until one of them fails.
+ *
+ * @return 'true' if all the test cases ran successfully, 'false' otherwise.
  */
 template <class test>
-class batch {
- public:
-  /* Get single global instance.
-   *
-   * This is a little hack that establishes a single, global master instance of
-   * test batches. Due to how templates work, there will be one master instance
-   * per test function type, as there will be one separate function for each of
-   * these and the global instance is instantiated by having a 'static' batch
-   * in this function.
-   */
-  static batch &common(void) {
-    static batch f;
-    return f;
-  }
-
-  /* Add test case.
-   * @o A test case that will be added.
-   *
-   * Adds 'o' to the 'funcs' set. 'o' must not go out of scope after it has
-   * been added, which means that since this is usually used with the common()
-   * instance, it should have global or static scope.
-   */
-  void add(test &o) { tests.insert(&o); }
-
-  /* Remove test case.
-   * @o A test case that will be removed.
-   *
-   * Removes 'o' from the 'funcs' set. The default function handler from below
-   * will automatically call this in the destructor, which makes sure things
-   * don't blow up if the test function wrapper does go out of scope.
-   */
-  void remove(test &o) { tests.erase(&o); }
-
-  /* Run test case batch
-   *
-   * Runs all test cases in the batch. This produces output on stderr about the
-   * progress of running these test cases, and the individual test cases are
-   * instructed to output any log messages to stderr as well.
-   *
-   * The test cases are run in an unspecified but consistent sequence, until
-   * either all of the test cases ran successfully, or until one of them fails,
-   * in which case execution stops and the function returns whatever that failed
-   * test case returned.
-   *
-   * @return 'true' if all the test cases ran successfully, 'false' otherwise.
-   */
-  bool run(void) {
-    int i = 0;
-    for (const auto &f : tests) {
-      i++;
-      std::cerr << "running test case " << i << " in batch of " << tests.size()
-                << ": ";
-      if (!f->run(std::cerr)) {
-        std::cerr << "FAIL\n";
-        return false;
-      }
-      std::cerr << "OK\n";
+bool run(registered<test> &tests = registered<test>::common()) {
+  int i = 0;
+  for (const auto &f : tests) {
+    i++;
+    std::cout << "running test case " << i << " in batch of " << tests.size()
+              << ": ";
+    if (!f->run(std::cerr)) {
+      std::cout << "FAIL\n";
+      return false;
     }
-
-    return true;
+    std::cout << "OK\n";
   }
 
- protected:
-  /* The set of test functions.
-   *
-   * Set with 'add', removed with 'remove' and used in 'run'.
-   */
-  std::set<test *> tests;
-};
+  return true;
+}
 
 /* Test function wrapper.
  *
@@ -132,6 +66,14 @@ class batch {
  */
 class function {
  public:
+  /* A batch of test cases.
+   *
+   * Test cases are globally registered items, so we use the registered<>
+   * template
+   * to keep track of them.
+   */
+  using batch = registered<function>;
+
   /* Construct with function and batch.
    * @pFunction The function to add.
    * @pBatch The test batch. Defaults to the common global instance.
@@ -139,7 +81,7 @@ class function {
    * Adds the function to the test batch.
    */
   function(std::function<bool(std::ostream &)> pFunction,
-           batch<function> &pBatch = batch<function>::common())
+           batch &pBatch = batch::common())
       : func(pFunction), root(pBatch) {
     root.add(*this);
   }
@@ -183,11 +125,13 @@ class function {
    * it also needs to get rid of itself, this member variable keeps track of
    * what it's been added to.
    */
-  batch<function> &root;
+  batch &root;
 };
 
 #if defined(RUN_TEST_CASES)
 /* Test case runner main stub
+ * @argc Argument count.
+ * @argv Argument vector.
  *
  * This is a very simple main function that will simply run the test cases
  * defined in the programme including this header. Needless to say you should
@@ -197,9 +141,26 @@ class function {
  *
  * @return '0' on success, '-1' otherwise.
  */
-extern "C" int main(int, char **) {
-  return batch<function>::common().run() ? 0 : -1;
+extern "C" int main(int argc, char **argv) {
+  if (cli::options(argc, argv, false).matches == 0) {
+    return run<function>() ? 0 : -1;
+  } else {
+    return 0;
+  }
 }
+#else
+/* Run built-in test cases.
+ *
+ * When we haven't compiled withe the main stub, we add a CLI option to run the
+ * test cases anyway.
+ */
+static cli::option runTest("-{0,2}run-tests",
+                           [](std::smatch &) -> bool {
+                             run<function>();
+                             return true;
+                           },
+                           "run test cases");
+
 #endif
 }
 }

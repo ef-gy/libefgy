@@ -16,6 +16,8 @@
 #define EF_GY_SEXP_H
 
 #include <optional>
+#include <ostream>
+#include <string>
 
 namespace efgy {
 /* Abstract base class for s-expressions
