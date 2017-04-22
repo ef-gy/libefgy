@@ -1,16 +1,16 @@
-/**\file
- * \brief Test cases for the 'e' template
+/* Test cases for the 'e' template
  *
  * Test cases for the 'e' template to make sure instances of that class comele
  * properly and generate reasonable approximations of 'e'.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <iostream>
@@ -25,16 +25,16 @@ using std::string;
 
 typedef primitive<long double, unsigned long long> longDouble;
 
-/**\brief 'E' initialisation and type cast tests
- * \test Initialises several instances of the 'e' template with different base
- *       types and precisions. The instances are then cast to different types
- *       and written to the log to verify that the template comeles cleanly.
+/* 'e' initialisation and type cast tests
+ * @log Where to write log messages to.
  *
- * \param[out] log A stream for test cases to log messages to.
+ * Initialises several instances of the 'e' template with different base types
+ * and precisions. The instances are then cast to different types and written to
+ * the log to verify that the template comeles cleanly.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testE(std::ostream &log) {
+bool testE(std::ostream &log) {
   e<longDouble> eD1(1, 1, 0, 1);
   e<longDouble> eD2(1, 1, 0, 4);
   e<longDouble> eD3(1, 1, 0, 8);
@@ -65,7 +65,7 @@ int testE(std::ostream &log) {
   log << "e<fraction,8> = " << fraction(eQ3) << "\n";
   log << "e<fraction,12> = " << fraction(eQ4) << "\n";
 
-  return 0;
+  return true;
 }
 
 namespace test {

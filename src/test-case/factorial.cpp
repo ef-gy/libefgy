@@ -1,16 +1,16 @@
-/**\file
- * \brief Test cases for the factorial class template
+/* Test cases for the factorial class template
  *
  * This file contains test cases for the math::factorial template, which is
  * used to calculate the factorial of a number.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <iostream>
@@ -22,32 +22,31 @@ using namespace efgy;
 using namespace efgy::math;
 using namespace std;
 
-/**\brief Factorial tests
+/* Factorial tests
+ * @log Where to write log messages to.
  *
- * \test Calculates the factorial of a few numbers and compares those to the
- *       values that the template ought to return.
+ * Calculates the factorial of a few numbers and compares those to the
+ * values that the template ought to return.
  *
- * \param[out] log A stream for test cases to log messages to.
- *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testFactorial(ostream &log) {
+bool testFactorial(ostream &log) {
   if (factorial<int>(0) != 1) {
     log << "Factorial of 0 should be 1.";
-    return 1;
+    return false;
   }
 
   if (factorial<int>(1) != 1) {
     log << "Factorial of 1 should be 1.";
-    return 2;
+    return false;
   }
 
   if (factorial<int>(5) != 120) {
     log << "Factorial of 5 should be 120.";
-    return 3;
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
 namespace test {

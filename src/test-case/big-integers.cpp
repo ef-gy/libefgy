@@ -1,17 +1,17 @@
-/**\file
- * \brief Test cases for the BigIntegers template
+/* Test cases for the BigIntegers template
  *
  * This file contains test cases to verify that the bigIntegers template
  * compiles and works as expected. These test cases could probably also be used
  * in benchmarking, but we'd better not get ahead of ourselves.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <ef.gy/test-case.h>
@@ -26,18 +26,17 @@ using namespace efgy::math;
 using std::string;
 using std::vector;
 
-/**\brief Big integer bit shift tests
- * \test Test big integer bit shifts by shifting a big integer '1' a fixed
- *       number of times to the left and then comparing the result with
- *       reference data. After that the big integer is shifted to the right
- *       the same number of times and the results are again compared to the
- *       reference data.
+/* Big integer bit shift tests
+ * @log Where to write log messages to.
  *
- * \param[out] log A stream for test cases to log messages to.
+ * Test big integer bit shifts by shifting a big integer '1' a fixed number of
+ * times to the left and then comparing the result with reference data. After
+ * that the big integer is shifted to the right the same number of times and the
+ * results are again compared to the reference data.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testBigIntegerBitShifts(std::ostream &log) {
+bool testBigIntegerBitShifts(std::ostream &log) {
   Z z = Z(1);
 
   vector<string> reference;
@@ -407,7 +406,7 @@ int testBigIntegerBitShifts(std::ostream &log) {
     if (reference[i] != s.str()) {
       log << "big integer string conversion mismatch: #" << i << " was '" << z
           << "'; should have been '" << reference[i] << "'\n";
-      return -1;
+      return false;
     }
   }
 
@@ -417,12 +416,12 @@ int testBigIntegerBitShifts(std::ostream &log) {
     if (reference[i] != s.str()) {
       log << "big integer string conversion mismatch: #" << i << " was '" << z
           << "'; should have been '" << reference[i] << "'\n";
-      return -2;
+      return false;
     }
     z >>= 1;
   }
 
-  return 0;
+  return true;
 }
 
 namespace test {

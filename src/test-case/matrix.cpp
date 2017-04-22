@@ -1,13 +1,13 @@
-/**\file
- * \brief Test cases for matrices
+/*  Test cases for matrices
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <algorithm>
@@ -21,16 +21,15 @@
 using namespace efgy::math;
 using efgy::range;
 
-/**\brief Tests matrix construction.
+/* Tests matrix construction.
+ * @log A stream to copy log messages to.
  *
- * \test Constructs a 3x4 matrix from scratch, then copies it to another matrix
- *     object.
+ * Constructs a 3x4 matrix from scratch, then copies it to another matrix
+ * object.
  *
- * \param [out] log A stream to copy log messages to.
- *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testConstruction(std::ostream &log) {
+bool testConstruction(std::ostream &log) {
   matrix<int, 3, 4> m;
   for (int i = 0; i < 3; i++) {
     for (int k = 0; k < 4; k++) {
@@ -50,21 +49,20 @@ int testConstruction(std::ostream &log) {
   if (!allCorrect) {
     log << "Actual and expected value in result of copy constructor are "
            "different";
-    return 1;
+    return false;
   }
-  return 0;
+  return true;
 }
 
-/**\brief Test matrix assignment.
+/* Test matrix assignment.
+ * @log A stream to copy log messages to.
  *
- * \test Constructs a 3x4 matrix and assigns it to another matrix object, then
- *     checks if values were copied correctly.
+ * Constructs a 3x4 matrix and assigns it to another matrix object, then checks
+ * if values were copied correctly.
  *
- * \param [out] log A stream to copy log messages to.
- *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testAssignment(std::ostream &log) {
+bool testAssignment(std::ostream &log) {
   matrix<int, 3, 4> m;
   for (int i = 0; i < 3; i++) {
     for (int k = 0; k < 4; k++) {
@@ -83,23 +81,22 @@ int testAssignment(std::ostream &log) {
 
   if (!allCorrect) {
     log << "Values were not copied correctly during assignment.";
-    return 1;
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
-/**\brief Test matrix addition.
+/* Test matrix addition.
+ * @log A stream to copy log messages to.
  *
- * \test Constructs a matrix from scratch; checks whether adding the zero matrix
- *     from the left and the right yields the expected result, then adds two
- *     nontrivial matrices and checks the result.
+ * Constructs a matrix from scratch; checks whether adding the zero matrix
+ * from the left and the right yields the expected result, then adds two
+ * nontrivial matrices and checks the result.
  *
- * \param [out] log A stream to copy log messages to.
- *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testAddition(std::ostream &log) {
+bool testAddition(std::ostream &log) {
   matrix<int, 3, 4> m;
   for (int i = 0; i < 3; i++) {
     for (int k = 0; k < 4; k++) {
@@ -147,7 +144,7 @@ int testAddition(std::ostream &log) {
     }
 
     log << "Unexpected result of left addition of neutral element to matrix.";
-    return 1;
+    return false;
   }
   if (!allCorrectRight) {
     log << "m + n, where n is the neutral element: ";
@@ -167,7 +164,7 @@ int testAddition(std::ostream &log) {
       log << "\n";
     }
     log << "Unexpected result of right addition of neutral element to matrix.";
-    return 1;
+    return false;
   }
 
   // another test for addition of two non-neutral elements
@@ -190,21 +187,20 @@ int testAddition(std::ostream &log) {
 
   if (!allCorrectSum) {
     log << "Unexpected result adding two matrices.";
-    return 1;
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
-/**\brief Tests stream output.
+/* Tests stream output.
+ * @log A stream to copy log messages to.
  *
- * \test Constructs a matrix and inserts it into a std::ostringstream.
+ * Constructs a matrix and inserts it into a std::ostringstream.
  *
- * \param[out] log A stream to copy log messages to.
- *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testStream(std::ostream &log) {
+bool testStream(std::ostream &log) {
   std::ostringstream stream;
 
   matrix<int, 3, 4> m;
@@ -229,21 +225,20 @@ int testStream(std::ostream &log) {
     log << "\nExpected:\n";
     log << expected.str();
 
-    return 1;
+    return false;
   }
-  return 0;
+  return true;
 }
 
-/**\brief Test matrix iterator.
+/* Test matrix iterator.
+ * @log A stream to copy log messages to.
  *
- * \test Constructs a matrix and then uses the matrix::iterator to compare the
- *     contents with a range that should be the same.
+ * Constructs a matrix and then uses the matrix::iterator to compare the
+ * contents with a range that should be the same.
  *
- * \param[out] log A stream to copy log messages to.
- *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testIterator(std::ostream &log) {
+bool testIterator(std::ostream &log) {
   matrix<int, 3, 4> m;
   int j = 0;
   for (int i = 0; i < 3; i++) {
@@ -265,10 +260,10 @@ int testIterator(std::ostream &log) {
       log << "\t" << i;
     }
     log << "\n";
-    return 1;
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
 namespace test {

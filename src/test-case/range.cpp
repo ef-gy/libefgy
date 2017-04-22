@@ -1,16 +1,16 @@
-/**\file
- * \brief Test cases for the static range sequencer
+/* Test cases for the static range sequencer
  *
  * Test cases in this file verify that the code in the range.h header work
  * correctly.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <iostream>
@@ -22,32 +22,32 @@
 
 using namespace efgy;
 
-/**\brief Test case for the static ranged sequence generator
- * \test Creates a series of ranged sequences and verifies they're correct by
- *       comparing the results to reference data.
+/* Test case for the static ranged sequence generator
+ * @log Where to write log messages to.
  *
- * \param[out] log A stream for test cases to log messages to.
+ * Creates a series of ranged sequences and verifies they're correct by
+ * comparing the results to reference data.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testRange(std::ostream &log) {
+bool testRange(std::ostream &log) {
   std::array<int, 5> a5{0, 1, 2, 3, 4};
   std::array<int, 5> b5{1000, 1001, 1002, 1003, 1004};
   std::array<int, 8> a8n{49, 48, 47, 46, 45, 44, 43, 42};
 
   if (range<int, 5>::get() != a5) {
     log << "5-element sequence does not have the expected value.\n";
-    return -1;
+    return false;
   }
 
   if (range<int, 5>::get(1000) != b5) {
     log << "5-element sequence does not have the expected value.\n";
-    return -2;
+    return false;
   }
 
   if (range<int, 8>::get(49, -1) != a8n) {
     log << "8-element sequence does not have the expected value.\n";
-    return -3;
+    return false;
   }
 
   for (int i : range<int>(0, 4)) {
@@ -60,7 +60,7 @@ int testRange(std::ostream &log) {
   for (int i : range<int, 8>(42)) {
     if (i != a1[p]) {
       log << "range iterator did not produce the expected results.\n";
-      return -4;
+      return false;
     }
 
     p++;
@@ -68,36 +68,36 @@ int testRange(std::ostream &log) {
 
   if (!std::equal(a1.begin(), a1.end(), range<int, 8>(42).begin())) {
     log << "range iterator did not produce the expected results.\n";
-    return -5;
+    return false;
   }
 
   std::array<int, 8> a2 = range<int, 8>::get(49, -1);
 
   if (!std::equal(a2.begin(), a2.end(), range<int, 8>(49, 42).begin())) {
     log << "range iterator did not produce the expected results.\n";
-    return -6;
+    return false;
   }
 
   if (!std::equal(a2.begin(), a2.end(), range<int>(49, 42, 8, true).begin())) {
     log << "range iterator did not produce the expected results.\n";
-    return -7;
+    return false;
   }
 
   if (range<int, 0>::get() != std::array<int, 0>({{}})) {
     log << "empty range was not an empty array.\n";
-    return -10;
+    return false;
   }
 
   if (range<int, 0>::get(1, 1) != std::array<int, 0>({{}})) {
     log << "an empty range with a non-default start was not empty.\n";
-    return -11;
+    return false;
   }
 
   if (range<int, 3>::get(3, -1) != std::array<int, 3>({{3, 2, 1}})) {
     log << "a range with negative stepsize worked as expected.\n";
-    return -12;
+    return false;
   }
-  return 0;
+  return true;
 }
 
 namespace test {

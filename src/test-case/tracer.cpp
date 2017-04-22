@@ -1,16 +1,16 @@
-/**\file
- * \brief Test cases for the numeric tracer
+/* Test cases for the numeric tracer
  *
  * Test cases in this file verify that the code in the tracer.h header works
  * properly.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <iostream>
@@ -24,15 +24,15 @@
 using namespace efgy::math::tracer;
 using efgy::math::matrix;
 
-/**\brief Test case for the numeric tracer
- * \test Uses the numeric tracer to create a parse tree, then compares that to
- *       sample strings.
+/* Test case for the numeric tracer
+ * @log Where to write log messages to.
  *
- * \param[out] log A stream for test cases to log messages to.
+ * Uses the numeric tracer to create a parse tree, then compares that to
+ * sample strings.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testTracer(std::ostream &log) {
+bool testTracer(std::ostream &log) {
   std::shared_ptr<tracer<int, void, 0>> frobrt(tracer<int, void, 0>(1));
   runtime frobrt2(new tracer<int, void, 0>(1));
   runtime frobrt3(frobrt);
@@ -45,19 +45,19 @@ int testTracer(std::ostream &log) {
   log << frobd << "\n";
   log << frobde << "\n";
 
-  return 0;
+  return true;
 }
 
-/**\brief Test case for the numeric tracer with matrix operations
- * \test Uses the numeric tracer to create a parse tree, then compare that to
- *       sample strings, much like testTracer(). Uses matrix manipulations to
- *       see if the calculations work with slightly more complex functions.
+/* Test case for the numeric tracer with matrix operations
+ * @log Where to write log messages to.
  *
- * \param[out] log A stream for test cases to log messages to.
+ * Uses the numeric tracer to create a parse tree, then compare that to
+ * sample strings, much like testTracer(). Uses matrix manipulations to
+ * see if the calculations work with slightly more complex functions.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testTracerMatrix(std::ostream &log) {
+bool testTracerMatrix(std::ostream &log) {
   matrix<runtime, 3, 3> m1;
   matrix<runtime, 3, 3> m2;
 
@@ -82,7 +82,7 @@ int testTracerMatrix(std::ostream &log) {
     }
   }
 
-  return 0;
+  return true;
 }
 
 namespace test {

@@ -1,79 +1,74 @@
-/**\file
- * \brief Contains the basic statistics tools
+/* Contains the basic statistics tools
  *
  * Contains the efgy::statistics namespace and some basic tools that come in
  * handy with test cases.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #if !defined(EF_GY_STATISTICS_H)
 #define EF_GY_STATISTICS_H
 
-#include <ef.gy/maybe.h>
 #include <ef.gy/numeric.h>
 #include <array>
 #include <numeric>
+#include <optional>
 #include <vector>
 
 namespace efgy {
-/**\brief Statistical functions
+/* Statistical functions
  *
  * Contains functions related to the field of statistics, which among other
  * uses tends to come in handy when writing test cases over random input.
  */
 namespace statistics {
-/**\brief Calculate the average of a vector
+/* Calculate the average of a vector
+ * @Q The data type of the vector elements.
+ * @input The vector over which to calculate the average.
  *
  * Calculates the average of all values in a vector by adding all of the
  * items and then dividing by the number of items in the vector.
  *
- * \tparam Q The data type of the vector elements.
- *
- * \param[in] input The vector over which to calculate the average.
- *
- * \returns The average of the values in the input vector.
+ * @return The average of the values in the input vector.
  */
 template <typename Q>
-static maybe<Q> average(const std::vector<Q> &input) {
+static std::optional<Q> average(const std::vector<Q> &input) {
   if (input.size() == 0) {
-    return maybe<Q>();
+    return std::optional<Q>();
   }
 
   Q s = 0;
   for (const Q &i : input) {
     s += i;
   }
-  return maybe<Q>(s / Q(input.size()));
+  return std::optional<Q>(s / Q(input.size()));
 }
 
-/**\brief Calculates the variance of a range.
+/* Calculates the variance of a range.
+ * @T The type of the actual values.
+ * @_InputIterator The type of iterators for begin and end.
+ * @begin The start of the range.
+ * @end The end of the range.
  *
  * Calculates the variance of a range given by a two iterators.
  *
- * \tparam T The type of the actual values.
- * \tparam _InputIterator The type of iterators for begin and end.
+ *     vector<double> list = {1.0, 2.0, 1.0};
+ *     double var = variance<double>(list.begin(), list.end());
  *
- * \param[in] begin The start of the range.
- * \param[in] end The end of the range.
- *
- * \code
- * vector<double> list = {1.0, 2.0, 1.0};
- * double var = variance<double>(list.begin(), list.end());
- * \endcode
- *
- * \returns The resulting variance.
+ * @return The resulting variance.
  */
 template <typename T, typename _InputIterator>
-static maybe<T> variance(_InputIterator begin, const _InputIterator &end) {
+static std::optional<T> variance(_InputIterator begin,
+                                 const _InputIterator &end) {
   if (begin == end) {
-    return maybe<T>();
+    return std::optional<T>();
   }
 
   T sum = std::accumulate(begin, end, 0.0);
@@ -84,36 +79,31 @@ static maybe<T> variance(_InputIterator begin, const _InputIterator &end) {
 
   T var = (sum_square - sum * sum / count_elements) / count_elements;
 
-  return maybe<T>(var);
+  return std::optional<T>(var);
 }
 
-/**\brief Calculate the variance of a vector
+/* Calculate the variance of a vector
+ * @T The type of the actual values.
+ * @input The input vector to process.
  *
- * Same as variance() over a range, but over a vector instead of two
- * iterators.
+ * Same as variance() over a range, but over a vector instead of two iterators.
  *
- * \tparam T The type of the actual values.
- *
- * \param[in] input The input vector to process.
- *
- * \returns The resulting variance.
+ * @return The resulting variance.
  */
 template <typename T>
-static maybe<T> variance(const std::vector<T> &input) {
+static std::optional<T> variance(const std::vector<T> &input) {
   return variance<T>(input.begin(), input.end());
 }
 
-/**
- * Calculates chi^2 for statistics.
- */
+/* Calculates chi^2 for statistics. */
 template <typename T, typename _InputIterator>
-static maybe<T> chi_square(_InputIterator begin, _InputIterator end,
-                           _InputIterator measurement_begin,
-                           _InputIterator measurement_end) {
-  T var = variance<double>(measurement_begin, measurement_end);
+static std::optional<T> chi_square(_InputIterator begin, _InputIterator end,
+                                   _InputIterator measurement_begin,
+                                   _InputIterator measurement_end) {
+  T var = *variance<double>(measurement_begin, measurement_end);
   // TODO Check for 0 variances.
   if (begin == end) {
-    return maybe<T>();
+    return std::optional<T>();
   }
 
   unsigned int count_elements = end - begin;
@@ -128,12 +118,12 @@ static maybe<T> chi_square(_InputIterator begin, _InputIterator end,
 }
 
 template <typename T>
-static maybe<T> chi_square(const std::vector<T> values,
-                           const std::vector<T> measurements) {
+static std::optional<T> chi_square(const std::vector<T> values,
+                                   const std::vector<T> measurements) {
   return chi_square<T>(values.begin(), values.end(), measurements.begin(),
                        measurements.end());
 }
-};
-};
+}
+}
 
 #endif

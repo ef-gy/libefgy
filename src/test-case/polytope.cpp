@@ -1,16 +1,16 @@
-/**\file
- * \brief Test cases for the polytope iterators
+/* Test cases for the polytope iterators
  *
  * Test cases in this file test polytope iterator properties for basic and IFS
  * polytopes.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <iostream>
@@ -25,18 +25,19 @@
 
 using namespace efgy;
 
-/**\brief Test case for the polytope iterators.
- * \test This is a plain compile-and-iterate test, to make sure it doesn't
- *       explode and that there's no infinite loops.
+/* Test case for the polytope iterators.
+ * @C The geometric primitive.
+ * @lim Maximum number of iterations.
+ * @min Minimum number of iterations.
+ * @log A stream for test cases to log messages to.
  *
- * \tparam     C   The geometric primitive.
- * \tparam     lim Maximum number of iterations.
- * \param[out] log A stream for test cases to log messages to.
+ * This is a plain compile-and-iterate test, to make sure it doesn't
+ * explode and that there's no infinite loops.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
 template <class C, long lim = 10000, long min = 1>
-int testPolytopeIteratorNotInfinite(std::ostream &log) {
+bool testPolytopeIteratorNotInfinite(std::ostream &log) {
   auto params = geometry::parameters<float>();
   std::ostringstream os("");
 
@@ -50,7 +51,7 @@ int testPolytopeIteratorNotInfinite(std::ostream &log) {
     if (c > lim) {
       log << "suspect infinite loop while iterating through a '" << p.id()
           << "': more than '" << lim << "' iterations.\n";
-      return -1;
+      return false;
     }
     os << "vector: [";
     for (auto &n : t) {
@@ -63,17 +64,17 @@ int testPolytopeIteratorNotInfinite(std::ostream &log) {
   if (c < min) {
     log << "not enough iterations while going through a '" << p.id()
         << "': want at least '" << min << "', but did: '" << c << "'\n";
-    return -2;
+    return false;
   }
 
   if (c != p.size()) {
     log << "wrong size() result for object type '" << p.id()
         << "'; object said it would have " << p.size()
         << " elements, but iterator gave us " << c << " elements.\n";
-    return -3;
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
 namespace test {

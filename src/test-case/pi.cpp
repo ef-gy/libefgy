@@ -1,16 +1,16 @@
-/**\file
- * \brief Test cases for the 'pi' template
+/* Test cases for the 'pi' template
  *
  * Test cases for the 'pi' template to make sure instances of that class compile
  * properly and generate reasonable approximations of 'pi'.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <iostream>
@@ -25,16 +25,16 @@ using std::string;
 
 typedef primitive<long double, unsigned long long> longDouble;
 
-/**\brief 'Pi' initialisation and type cast tests
- * \test Initialises several instances of the 'pi' template with different base
- *       types and precisions. The instances are then cast to different types
- *       and written to the log to verify that the template compiles cleanly.
+/* 'Pi' initialisation and type cast tests
+ * @log Where to write log messages to.
  *
- * \param[out] log A stream for test cases to log messages to.
+ * Initialises several instances of the 'pi' template with different base
+ * types and precisions. The instances are then cast to different types
+ * and written to the log to verify that the template compiles cleanly.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testPi(std::ostream &log) {
+bool testPi(std::ostream &log) {
   pi<longDouble> piD1(1, 1);
   pi<longDouble> piD2(1, 2);
   pi<longDouble> piD3(1, 3);
@@ -47,22 +47,22 @@ int testPi(std::ostream &log) {
 
   if (longDouble(piD1) != pi<longDouble>::get(1)) {
     log << "constexpr method returned unexpected result\n";
-    return 1;
+    return false;
   }
 
   if (longDouble(piD2) != pi<longDouble>::get(2)) {
     log << "constexpr method returned unexpected result\n";
-    return 2;
+    return false;
   }
 
   if (longDouble(piD3) != pi<longDouble>::get(3)) {
     log << "constexpr method returned unexpected result\n";
-    return 3;
+    return false;
   }
 
   if (longDouble(piD4) != pi<longDouble>::get(4)) {
     log << "constexpr method returned unexpected result\n";
-    return 4;
+    return false;
   }
 
   pi<long double> piDL1(1, 1);
@@ -72,22 +72,22 @@ int testPi(std::ostream &log) {
 
   if ((long double)(piDL1) != pi<long double>::get(1)) {
     log << "constexpr method returned unexpected result\n";
-    return 11;
+    return false;
   }
 
   if ((long double)(piDL2) != pi<long double>::get(2)) {
     log << "constexpr method returned unexpected result\n";
-    return 12;
+    return false;
   }
 
   if ((long double)(piDL3) != pi<long double>::get(3)) {
     log << "constexpr method returned unexpected result\n";
-    return 13;
+    return false;
   }
 
   if ((long double)(piDL4) != pi<long double>::get(4)) {
     log << "constexpr method returned unexpected result\n";
-    return 14;
+    return false;
   }
 
   log << "pi<long double,1> = " << (long double)piDL1 << "\n";
@@ -107,25 +107,25 @@ int testPi(std::ostream &log) {
 
   if (fraction(piQ1) != pi<fraction>::get(1)) {
     log << "constexpr method returned unexpected result\n";
-    return 21;
+    return false;
   }
 
   if (fraction(piQ2) != pi<fraction>::get(2)) {
     log << "constexpr method returned unexpected result\n";
-    return 22;
+    return false;
   }
 
   if (fraction(piQ3) != pi<fraction>::get(3)) {
     log << "constexpr method returned unexpected result\n";
-    return 23;
+    return false;
   }
 
   if (fraction(piQ4) != pi<fraction>::get(4)) {
     log << "constexpr method returned unexpected result\n";
-    return 24;
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
 namespace test {

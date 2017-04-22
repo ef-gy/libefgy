@@ -1,15 +1,15 @@
-/**\file
- * \brief Test cases for the JSON render output
+/* Test cases for the JSON render output
  *
  * The test cases in this file test the functionality of JSON renderer.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <iostream>
@@ -20,15 +20,15 @@
 
 using namespace efgy;
 
-/**\brief JSON output tests
- * \test Writes some JSON to a stringstream to see if it compiles and works as
- *       intended.
+/* JSON output tests
+ * @log Where to write log messages to.
  *
- * \param[out] log A stream for test cases to log messages to.
+ * Writes some JSON to a stringstream to see if it compiles and works as
+ * intended.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testJSONOutput(std::ostream &log) {
+bool testJSONOutput(std::ostream &log) {
   struct sampleDataBool {
     bool in;
     std::string out;
@@ -72,7 +72,7 @@ int testJSONOutput(std::ostream &log) {
     if (s.str() != tt.out) {
       log << "bad JSON output: got '" << s.str() << "', expected '" << tt.out
           << "'\n";
-      return 1;
+      return false;
     }
   }
 
@@ -83,7 +83,7 @@ int testJSONOutput(std::ostream &log) {
     if (s.str() != tt.out) {
       log << "bad JSON output: got '" << s.str() << "', expected '" << tt.out
           << "'\n";
-      return 2;
+      return false;
     }
   }
 
@@ -94,7 +94,7 @@ int testJSONOutput(std::ostream &log) {
     if (s.str() != tt.out) {
       log << "bad JSON output: got '" << s.str() << "', expected '" << tt.out
           << "'\n";
-      return 3;
+      return false;
     }
   }
 
@@ -105,7 +105,7 @@ int testJSONOutput(std::ostream &log) {
     if (s.str() != tt.out) {
       log << "bad JSON output: got '" << s.str() << "', expected '" << tt.out
           << "'\n";
-      return 4;
+      return false;
     }
   }
 
@@ -122,7 +122,7 @@ int testJSONOutput(std::ostream &log) {
 
   if (s.str() != "[23,42]") {
     log << "unexpected JSON output: " << s.str();
-    return 5;
+    return false;
   }
 
   s.str("");
@@ -130,7 +130,7 @@ int testJSONOutput(std::ostream &log) {
 
   if (s.str() != "{\"a\":42,\"b\":23,\"c\":1}") {
     log << "unexpected JSON output: " << s.str();
-    return 6;
+    return false;
   }
 
   s.str("");
@@ -138,20 +138,20 @@ int testJSONOutput(std::ostream &log) {
 
   if (s.str() != "{\"d\":{\"a\":42,\"b\":23,\"c\":1}}") {
     log << "unexpected JSON output: " << s.str();
-    return 7;
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
-/**\brief JSON input tests
- * \test Tries to parse some JSON with the JSON string parser.
+/* JSON input tests
+ * @log Where to write log messages to.
  *
- * \param[out] log A stream for test cases to log messages to.
+ * Tries to parse some JSON with the JSON string parser.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testJSONInput(std::ostream &log) {
+bool testJSONInput(std::ostream &log) {
   json::value<> v;
   std::string pr = "{ true }";
 
@@ -185,7 +185,7 @@ int testJSONInput(std::ostream &log) {
 
   log << json::tag() << tmp << v;
 
-  return 0;
+  return true;
 }
 
 namespace test {

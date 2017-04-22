@@ -1,16 +1,16 @@
-/**\file
- * \brief Test cases for trigonometric
+/* Test cases for trigonometric functions.
  *
  * Contains test cases that test libefgy's trigonometric.h and the functions
  * therein.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <iostream>
@@ -23,15 +23,15 @@
 using namespace efgy::math;
 using efgy::range;
 
-/**\brief Tests sines
- * \test Calculates sines using libefgy's sine() function and compares the
- *       results with reference data.
+/* Tests sines
+ * @log Where to write log messages to.
  *
- * \param[out] log A stream for test cases to log messages to.
+ * Calculates sines using libefgy's sine() function and compares the
+ * results with reference data.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testSine(std::ostream &log) {
+bool testSine(std::ostream &log) {
   double s, c;
 
   for (double x : range<double>(0, 3.14, 30, true)) {
@@ -40,7 +40,7 @@ int testSine(std::ostream &log) {
     log << "sine(" << x << ") = " << s << ":" << c << "\n";
   }
 
-  return 0;
+  return true;
 }
 
 namespace test {

@@ -1,16 +1,16 @@
-/**\file
- * \brief Test cases for transformation
+/* Test cases for transformation
  *
  * Contains test cases that test libefgy's transformation.h and the functions
  * therein.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <iostream>
@@ -21,19 +21,17 @@
 using namespace efgy::geometry::transformation;
 using namespace efgy::test;
 
-/*\brief Tests correct evaluation of identity map.
+/* Tests correct evaluation of identity map.
+ * @log Where to write log messages to.
  *
- * \test Initialises an identity map using the identity class,
- * and a non-trivial linear map.
- * Computes both products of the identity and the non-trivial map;
+ * Initialises an identity map using the identity class, and a non-trivial
+ * linear map. Computes both products of the identity and the non-trivial map;
  * if the identity transformation behaves correctly, the result should
  * be equal to the original non-trivial map in both cases.
  *
- * \param log A stream for message output.
- *
- * \returns Zero if the test was successful, a nonzero integer otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testIdentity(std::ostream &log) {
+bool testIdentity(std::ostream &log) {
   identity<double, 3> id;
 
   linear<double, 3> phi;
@@ -65,7 +63,7 @@ int testIdentity(std::ostream &log) {
     log << "\n Actual: \n";
     log << leftProduct.matrix;
 
-    return 1;
+    return false;
   }
   if (!rightProductOK) {
     log << "Incorrect product of non-trivial transformation with identity "
@@ -75,21 +73,20 @@ int testIdentity(std::ostream &log) {
     log << "\n Actual: \n";
     log << rightProduct.matrix;
 
-    return 1;
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
-/* \brief Tests construction of affine transformations.
+/* Tests construction of affine transformations.
+ * @log Where to write log messages to.
  *
- * \param log Stream for output messages
+ * Constructs an affine transformation from a linear map.
  *
- * \test Constructs an affine transformation from a linear map.
- *
- * \returns Zero if the test is successful, a nonzero integer otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testAffineConstruction(std::ostream &log) {
+bool testAffineConstruction(std::ostream &log) {
   linear<double, 3> phi;
 
   for (int i = 0; i < 3; i++) {
@@ -121,9 +118,9 @@ int testAffineConstruction(std::ostream &log) {
     log << "An error occurred in constructing an affine transformation";
     log << " from a linear map.\n";
 
-    return 1;
+    return false;
   } else {
-    return 0;
+    return true;
   }
 }
 

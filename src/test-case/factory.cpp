@@ -1,15 +1,15 @@
-/**\file
- * \brief Test cases the geometry factory
+/* Test cases the geometry factory
  *
  * The test cases in this file test the functionality of the geometry factory.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <iostream>
@@ -20,15 +20,15 @@
 using namespace efgy::geometry;
 using namespace efgy::math;
 
-/**\brief Geometry factory tests
- * \test Uses some functions of the geometry factory to verify that it compiles
- *       and works as intended.
+/* Geometry factory tests
+ * @log Where to write log messages to.
  *
- * \param[out] log A stream for test cases to log messages to.
+ * Uses some functions of the geometry factory to verify that it compiles and
+ * works as intended.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testGeometryFactory(std::ostream &log) {
+bool testGeometryFactory(std::ostream &log) {
   std::cerr << "\n";
   model<float, functor::echo, cube, 7, 7, format::cartesian>::with(
       log, 5, 0, format::cartesian());
@@ -45,10 +45,10 @@ int testGeometryFactory(std::ostream &log) {
 
   if (!haveCube) {
     log << "no cube model\n";
-    return 1;
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
 namespace test {

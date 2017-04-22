@@ -49,10 +49,10 @@ namespace test {
 /* Test batch.
  * @test test function wrapper.
  *
- * Represents a set of test functions, which are represented by the F class. The
- * class allows for adding functions automagically, merely by having them
- * defined. This is accomplished with the help of a static 'common' instance,
- * which is global and can be added to at will.
+ * Represents a set of test functions, which are represented by the 'test'
+ * class. The class allows for adding functions automagically, merely by having
+ * them defined. This is accomplished with the help of a static 'common'
+ * instance, which is global and can be added to at will.
  */
 template <class test>
 class batch {
@@ -138,7 +138,7 @@ class function {
    *
    * Adds the function to the test batch.
    */
-  function(std::function<int(std::ostream &)> pFunction,
+  function(std::function<bool(std::ostream &)> pFunction,
            batch<function> &pBatch = batch<function>::common())
       : func(pFunction), root(pBatch) {
     root.add(*this);
@@ -161,7 +161,7 @@ class function {
    */
   bool run(std::ostream &log) {
     try {
-      return func(log) == 0;
+      return func(log);
     } catch (std::exception &e) {
       std::cerr << "Exception: " << e.what() << "\n";
     } catch (...) {
@@ -175,7 +175,7 @@ class function {
    *
    * Called by 'run'.
    */
-  const std::function<int(std::ostream &)> func;
+  const std::function<bool(std::ostream &)> func;
 
   /* The test batch this function is associated with.
    *

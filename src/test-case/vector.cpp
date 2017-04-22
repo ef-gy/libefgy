@@ -1,15 +1,15 @@
-/**\file
- * \brief Test cases for vectors
+/* Test cases for vectors
  *
  * Contains test cases that test libefgy's generic vectors.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #include <iostream>
@@ -20,14 +20,14 @@
 
 using namespace efgy::math;
 
-/**\brief Tests real vectors
- * \test Performs some basic arithmetic on vectors.
+/* Tests real vectors
+ * @log Where to write log messages to.
  *
- * \param[out] log A stream for test cases to log messages to.
+ * Performs some basic arithmetic on vectors.
  *
- * \return Zero when everything went as expected, nonzero otherwise.
+ * @return 'true' on success, 'false' otherwise.
  */
-int testRealVectors(std::ostream &log) {
+bool testRealVectors(std::ostream &log) {
   vector<int, 3> v1 = {{1, 2, 3}};
   vector<int, 3> v2 = {{2, 3, 4}};
   vector<int, 3> r = v1 + v2;
@@ -40,7 +40,7 @@ int testRealVectors(std::ostream &log) {
     log << "unexpected result after vector addition; expected ([real] 3, 5, 7) "
            "but have "
         << r << "\n";
-    return 1;
+    return false;
   }
 
   vector<double, 3, format::polar> vp1 = {{1, 2, 3}};
@@ -56,7 +56,7 @@ int testRealVectors(std::ostream &log) {
     log << "unexpected result after vector addition; expected ([polar:10] 3, "
            "1, 4) but have "
         << rp << "\n";
-    return 2;
+    return false;
   }
 
   vector<double, 3> rpc = rp;
@@ -67,7 +67,7 @@ int testRealVectors(std::ostream &log) {
 
   log << rpc << " = " << rpcr << "\n";
 
-  return 0;
+  return true;
 }
 
 namespace test {
