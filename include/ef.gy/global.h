@@ -28,10 +28,10 @@ namespace efgy {
  *
  * @return A global default version of the type you used.
  */
-template<class type>
-static type &global (void) {
-static type obj;
-return obj;
+template <class type>
+static type &global(void) {
+  static type obj;
+  return obj;
 }
 }
 

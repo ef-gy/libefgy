@@ -62,8 +62,8 @@ class processor {
    * Initialises everything to default values, i.e. no matches and no remainder.
    * Arguments are not applied.
    */
-  processor(std::set<option*> &pOpts = global<std::set<option*>>(),
-            std::set<hint*> &pHints = global<std::set<hint*>>())
+  processor(std::set<option *> &pOpts = global<std::set<option *>>(),
+            std::set<hint *> &pHints = global<std::set<hint *>>())
       : showUsage(false),
         matches(0),
         remainder({}),
@@ -80,8 +80,8 @@ class processor {
    * popualtes the 'matches' and 'remainder' fields.
    */
   processor(const std::vector<std::string> &args, bool pShowUsage = true,
-            std::set<option*> &pOpts = global<std::set<option*>>(),
-            std::set<hint*> &pHints = global<std::set<hint*>>())
+            std::set<option *> &pOpts = global<std::set<option *>>(),
+            std::set<hint *> &pHints = global<std::set<hint *>>())
       : showUsage(pShowUsage),
         matches(0),
         remainder({}),
@@ -104,8 +104,8 @@ class processor {
    * programme's main() function.
    */
   processor(int argc, char *argv[], bool pShowUsage = true,
-            std::set<option*> &pOpts = global<std::set<option*>>(),
-            std::set<hint*> &pHints = global<std::set<hint*>>())
+            std::set<option *> &pOpts = global<std::set<option *>>(),
+            std::set<hint *> &pHints = global<std::set<hint *>>())
       : showUsage(pShowUsage),
         matches(0),
         remainder({}),
@@ -211,10 +211,10 @@ class processor {
   const bool showUsage;
 
   /* Command line option specifications to use. */
-  std::set<option*> &opts;
+  std::set<option *> &opts;
 
   /* Command line usage hints to print after the summary. */
-  std::set<hint*> &hints;
+  std::set<hint *> &hints;
 };
 
 /* Command line option.
@@ -239,7 +239,7 @@ class option {
    */
   option(const std::string &pMatch, std::function<bool(std::smatch &)> pHandler,
          const std::string &pDescription = "please document me",
-         std::set<option*> &pOpts = global<std::set<option*>>())
+         std::set<option *> &pOpts = global<std::set<option *>>())
       : regex(pMatch),
         match(pMatch),
         handler(pHandler),
@@ -296,7 +296,7 @@ class option {
    * Where the option was registered. Only used in the destructor, to clean up
    * by unregistering from there.
    */
-  std::set<option*> &root;
+  std::set<option *> &root;
 };
 
 /* A boolean CLI flag.
@@ -322,7 +322,7 @@ class flag : public option {
    */
   flag(const std::string &pName,
        const std::string &pDescription = "please document me",
-       std::set<option*> &pOpts = global<std::set<option*>>())
+       std::set<option *> &pOpts = global<std::set<option *>>())
       : option("-{0,2}((no)-?)?" + pName,
                [this](std::smatch &m) -> bool {
                  value = m[2] != "no";
@@ -372,7 +372,7 @@ class flag<std::string> : public option {
    */
   flag(const std::string &pName,
        const std::string &pDescription = "please document me",
-       std::set<option*> &pOpts = global<std::set<option*>>())
+       std::set<option *> &pOpts = global<std::set<option *>>())
       : option("-{0,2}" + pName + "[:=](.*)",
                [this](std::smatch &m) -> bool {
                  value = m[1];
@@ -421,7 +421,7 @@ class hint {
    * binary.
    */
   hint(const std::string &pTitle, std::function<std::string(void)> pUsage,
-       std::set<hint*> &pItems = global<std::set<hint*>>())
+       std::set<hint *> &pItems = global<std::set<hint *>>())
       : title(pTitle), usage(pUsage), root(pItems) {
     root.insert(this);
   }
@@ -450,7 +450,7 @@ class hint {
    * Where the hint was registered. Only used in the destructor, to clean up by
    * unregistering from there.
    */
-  std::set<hint*> &root;
+  std::set<hint *> &root;
 };
 
 /* Default CLI argument processor class.
