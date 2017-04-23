@@ -43,7 +43,7 @@ namespace test {
  * @return 'true' if all the test cases ran successfully, 'false' otherwise.
  */
 template <class test>
-bool run(registered<test> &tests = registered<test>::common()) {
+bool run(std::set<test*> &tests = global<std::set<test*>>()) {
   int i = 0;
   for (const auto &f : tests) {
     i++;
@@ -72,7 +72,7 @@ class function {
    * template
    * to keep track of them.
    */
-  using batch = registered<function>;
+  using batch = std::set<function*>;
 
   /* Construct with function and batch.
    * @pFunction The function to add.
@@ -81,9 +81,9 @@ class function {
    * Adds the function to the test batch.
    */
   function(std::function<bool(std::ostream &)> pFunction,
-           batch &pBatch = batch::common())
+           batch &pBatch = global<batch>())
       : func(pFunction), root(pBatch) {
-    root.add(*this);
+    root.insert(this);
   }
 
   /* Destructor.
@@ -91,7 +91,7 @@ class function {
    * Removes the reference to this object from the test batch. This is to make
    * things work if the object goes out of scope.
    */
-  ~function(void) { root.remove(*this); }
+  ~function(void) { root.erase(this); }
 
   /* Run test function.
    * @log Where to write log output to.

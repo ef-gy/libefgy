@@ -33,9 +33,10 @@
 #include <functional>
 #include <iostream>
 #include <regex>
+#include <set>
 #include <string>
 
-#include <ef.gy/registered.h>
+#include <ef.gy/global.h>
 
 namespace efgy {
 namespace cli {
@@ -61,8 +62,8 @@ class processor {
    * Initialises everything to default values, i.e. no matches and no remainder.
    * Arguments are not applied.
    */
-  processor(registered<option> &pOpts = registered<option>::common(),
-            registered<hint> &pHints = registered<hint>::common())
+  processor(std::set<option*> &pOpts = global<std::set<option*>>(),
+            std::set<hint*> &pHints = global<std::set<hint*>>())
       : showUsage(false),
         matches(0),
         remainder({}),
@@ -79,8 +80,8 @@ class processor {
    * popualtes the 'matches' and 'remainder' fields.
    */
   processor(const std::vector<std::string> &args, bool pShowUsage = true,
-            registered<option> &pOpts = registered<option>::common(),
-            registered<hint> &pHints = registered<hint>::common())
+            std::set<option*> &pOpts = global<std::set<option*>>(),
+            std::set<hint*> &pHints = global<std::set<hint*>>())
       : showUsage(pShowUsage),
         matches(0),
         remainder({}),
@@ -103,8 +104,8 @@ class processor {
    * programme's main() function.
    */
   processor(int argc, char *argv[], bool pShowUsage = true,
-            registered<option> &pOpts = registered<option>::common(),
-            registered<hint> &pHints = registered<hint>::common())
+            std::set<option*> &pOpts = global<std::set<option*>>(),
+            std::set<hint*> &pHints = global<std::set<hint*>>())
       : showUsage(pShowUsage),
         matches(0),
         remainder({}),
@@ -210,10 +211,10 @@ class processor {
   const bool showUsage;
 
   /* Command line option specifications to use. */
-  registered<option> &opts;
+  std::set<option*> &opts;
 
   /* Command line usage hints to print after the summary. */
-  registered<hint> &hints;
+  std::set<hint*> &hints;
 };
 
 /* Command line option.
@@ -238,13 +239,13 @@ class option {
    */
   option(const std::string &pMatch, std::function<bool(std::smatch &)> pHandler,
          const std::string &pDescription = "please document me",
-         registered<option> &pOpts = registered<option>::common())
+         std::set<option*> &pOpts = global<std::set<option*>>())
       : regex(pMatch),
         match(pMatch),
         handler(pHandler),
         description(pDescription),
         root(pOpts) {
-    root.add(*this);
+    root.insert(this);
   }
 
   /* Destructor.
@@ -253,7 +254,7 @@ class option {
    * implies you can have options defined in a function, and when they go out of
    * scope they will clean up after themselves.
    */
-  ~option(void) { root.remove(*this); }
+  ~option(void) { root.erase(this); }
 
   /* Original regex string.
    *
@@ -295,7 +296,7 @@ class option {
    * Where the option was registered. Only used in the destructor, to clean up
    * by unregistering from there.
    */
-  registered<option> &root;
+  std::set<option*> &root;
 };
 
 /* A boolean CLI flag.
@@ -321,7 +322,7 @@ class flag : public option {
    */
   flag(const std::string &pName,
        const std::string &pDescription = "please document me",
-       registered<option> &pOpts = registered<option>::common())
+       std::set<option*> &pOpts = global<std::set<option*>>())
       : option("-{0,2}((no)-?)?" + pName,
                [this](std::smatch &m) -> bool {
                  value = m[2] != "no";
@@ -371,7 +372,7 @@ class flag<std::string> : public option {
    */
   flag(const std::string &pName,
        const std::string &pDescription = "please document me",
-       registered<option> &pOpts = registered<option>::common())
+       std::set<option*> &pOpts = global<std::set<option*>>())
       : option("-{0,2}" + pName + "[:=](.*)",
                [this](std::smatch &m) -> bool {
                  value = m[1];
@@ -420,16 +421,16 @@ class hint {
    * binary.
    */
   hint(const std::string &pTitle, std::function<std::string(void)> pUsage,
-       registered<hint> &pItems = registered<hint>::common())
+       std::set<hint*> &pItems = global<std::set<hint*>>())
       : title(pTitle), usage(pUsage), root(pItems) {
-    root.add(*this);
+    root.insert(this);
   }
 
   /* Destructor.
    *
    * Unregisters from the registry that was used.
    */
-  ~hint(void) { root.remove(*this); }
+  ~hint(void) { root.erase(this); }
 
   /* Title of the hint.
    *
@@ -449,7 +450,7 @@ class hint {
    * Where the hint was registered. Only used in the destructor, to clean up by
    * unregistering from there.
    */
-  registered<hint> &root;
+  std::set<hint*> &root;
 };
 
 /* Default CLI argument processor class.
