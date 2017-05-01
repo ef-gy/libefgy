@@ -1,15 +1,15 @@
-/**\file
- * \brief Series
+/* Series
  *
  * Contains supporting types for (potentially infinite) series.
  *
- * \copyright
+ * See also:
+ * * Project Documentation: https://ef.gy/documentation/libefgy
+ * * Project Source Code: https://github.com/ef-gy/libefgy
+ * * Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
+ *
+ * @copyright
  * This file is part of the libefgy project, which is released as open source
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
- *
- * \see Project Documentation: https://ef.gy/documentation/libefgy
- * \see Project Source Code: https://github.com/ef-gy/libefgy
- * \see Licence Terms: https://github.com/ef-gy/libefgy/blob/master/COPYING
  */
 
 #if !defined(EF_GY_SERIES_H)
@@ -20,56 +20,55 @@
 
 namespace efgy {
 namespace math {
-/**\brief Mathematical series templates
+/* Mathematical series templates
  *
  * This namespace contains templates for the different types of series
  * that aries in mathematics, starting with the series::series template
  * that describes the most basic form of series.
  */
 namespace series {
-/**\brief Basic series
+/* Basic series
+ * @Q         Base type for calculations.
+ * @algorithm The algorithm to calculate the sequence members.
+ * @N         Base integral type; used for indices into the sequence.
  *
  * Represents a (potentially infinite) series. Infinite series will
  * be truncated in the process of casting this to the base type.
- *
- * \tparam Q         Base type for calculations.
- * \tparam algorithm The algorithm to calculate the sequence
- *                   members.
- * \tparam N         Base integral type; used for indices into the
- *                   sequence.
  */
 template <typename Q, template <typename, typename> class algorithm,
           typename N = unsigned long long>
-class series : public sequence<Q, algorithm, N> {
- public:
-  using typename sequence<Q, algorithm, N>::sequenceAlgorithm;
+class series : public math::sequence<Q, algorithm, N> {
+ protected:
+  /* Base sequence
+   *
+   * The sequence that is used as the basis for the series.
+   */
+  using sequence = math::sequence<Q, algorithm, N>;
 
-  /**\brief Construct with factor and iterations
+ public:
+  using typename sequence::sequenceAlgorithm;
+
+  /* Construct with factor and iterations
+   * @pFactor     The factor to apply to the sequence members. Defaults to '1'.
+   * @pIterations The default number of iterations to use when approximating the
+   * series.
    *
    * Initialises a new series instance with the given factor
    * and number of iterations.
-   *
-   * \param[in] pFactor     The factor to apply to the
-   *                        sequence members. Defaults to '1'.
-   * \param[in] pIterations The default number of iterations
-   *                        to use when approximating the
-   *                        series.
    */
   series(const Q pFactor = Q(1),
          const N &pIterations = sequenceAlgorithm::defaultSeriesIterations)
       : factor(pFactor), iterations(pIterations) {}
 
-  /**\brief Get sum of first n+1 items
+  /* Get sum of first n+1 items
+   * @n Up to which sequence member to accumulate.
+   * @f Factor to multiply the sequence members with.
    *
    * Used to sum up the first n+1 sequence members when it
    * becomes necessary to provide an approximation of the
    * sequence.
    *
-   * \param[in] n Up to which sequence member to accumulate.
-   * \param[in] f Factor to multiply the sequence members
-   *              with.
-   *
-   * \returns The sum of the 0th to the nth sequence member.
+   * @return The sum of the 0th to the nth sequence member.
    */
   constexpr static Q get(
       const N &n = sequenceAlgorithm::defaultSeriesIterations,
@@ -77,52 +76,43 @@ class series : public sequence<Q, algorithm, N> {
     return sumTo(n, f, Q(0));
   }
 
-  /**\brief Calculate approximation
+  /* Calculate approximation
    *
    * Cast an actual instance of the series to its base type to
    * get an approximation with the parameters stored in the
    * type.
    *
-   * \return The approximation of the series with the
-   *         parameters in the instance.
+   * @return The approximation of the series with the parameters in the
+   * instance.
    */
   constexpr operator Q(void) const { return get(iterations, factor); }
 
  protected:
-  /**\brief Base sequence
-   *
-   * The sequence that is used as the basis for the series.
-   */
-  typedef sequence<Q, algorithm, N> sequence;
-
-  /**\brief Constant summation function
+  /* Constant summation function
+   * @n Up to which sequence member to accumulate.
+   * @f Factor to multiply the sequence members with.
+   * @acc The initial (or current) value; used for tail recursion.
    *
    * Used to sum up the first n+1 members of the sequence.
    * This method is tail-recursive so it shouldn't make your
    * stack explode. It is also static and constexpr, meaning
    * it should be evaluated at compile time.
    *
-   * \param[in] n   Up to which sequence member to accumulate.
-   * \param[in] f   Factor to multiply the sequence members
-   *                with.
-   * \param[in] acc The initial (or current) value; used for
-   *                tail recursion.
-   *
-   * \returns The sum of the 0th to the nth sequence member.
+   * @return The sum of the 0th to the nth sequence member.
    */
   constexpr static Q sumTo(const N &n, const Q &f, const Q &acc) {
     return n == 0 ? acc + (sequence::at(0) * f)
                   : sumTo(n - 1, f, acc + (sequence::at(n) * f));
   }
 
-  /**\brief Number of iterations
+  /* Number of iterations
    *
    * When approximating the sequence, this determines up to
    * which element the series is summed up to.
    */
   const N iterations;
 
-  /**\brief Series factor
+  /* Series factor
    *
    * This factor is applied to each sequence member when
    * approximating an instance of the series.
@@ -130,17 +120,14 @@ class series : public sequence<Q, algorithm, N> {
   const Q factor;
 };
 
-/**\brief Power series
+/* Power series
+ * @Q Base type for calculations.
+ * @algorithm The algorithm to calculate the sequence members.
+ * @N Base integral type; used for indices into the sequence.
  *
  * Based on the regular series, this represents a power series,
  * which is basically like a regular series but with two additional
  * parameters: a power factor and a centre.
- *
- * \tparam Q         Base type for calculations.
- * \tparam algorithm The algorithm to calculate the sequence
- *                   members.
- * \tparam N         Base integral type; used for indices into the
- *                   sequence.
  */
 template <typename Q, template <typename, typename> class algorithm,
           typename N = unsigned long long>
@@ -151,21 +138,16 @@ class power : public series<Q, algorithm, N> {
   using series<Q, algorithm, N>::factor;
 
  public:
-  /**\brief Construct with factors and iterations
+  /* Construct with factors and iterations
+   * @pFactor The factor to apply to the sequence members.
+   * @pPowerFactor The factor that is raised to the n'th power for each of the
+   * sequence members.
+   * @pCentre The centre that is subtracted from the power factor.
+   * @pIterations The default number of iterations to use when approximating the
+   * series.
    *
    * Initialises a new series instance with the given factors
    * and number of iterations.
-   *
-   * \param[in] pFactor      The factor to apply to the
-   *                         sequence members.
-   * \param[in] pPowerFactor The factor that is raised to the
-   *                         n'th power for each of the
-   *                         sequence members.
-   * \param[in] pCentre      The centre that is subtracted
-   *                         from the power factor.
-   * \param[in] pIterations  The default number of iterations
-   *                         to use when approximating the
-   *                         series.
    */
   power(const Q pFactor = Q(1), const Q pPowerFactor = Q(1),
         const Q pCentre = Q(0),
@@ -175,13 +157,12 @@ class power : public series<Q, algorithm, N> {
         centre(pCentre) {}
 
   /**\copydoc series::get
+   * @x The power factor.
+   * @c The centre of the power series.
    *
    * The power series version of this function has two
    * additional parameters for the power factor and the centre
    * of the power series:
-   *
-   * \param[in] x The power factor.
-   * \param[in] c The centre of the power series.
    */
   constexpr static Q get(
       const N &n = sequenceAlgorithm::defaultSeriesIterations,
@@ -189,14 +170,14 @@ class power : public series<Q, algorithm, N> {
     return sumTo(n, f, x, c, Q(0));
   }
 
-  /**\brief Calculate approximation
+  /* Calculate approximation
    *
    * Cast an actual instance of the series to its base type to
    * get an approximation with the parameters stored in the
    * type.
    *
-   * \return The approximation of the series with the
-   *         parameters in the instance.
+   * @return The approximation of the series with the parameters in the
+   * instance.
    */
   constexpr operator Q(void) const {
     return get(iterations, factor, powerFactor, centre);
@@ -204,13 +185,12 @@ class power : public series<Q, algorithm, N> {
 
  protected:
   /**\copydoc series::sumTo
+   * @x The power factor.
+   * @c The centre of the power series.
    *
    * This varaint of the summation function has two additional
    * parameters for the power factor and the centre of the
    * power series:
-   *
-   * \param[in] x The power factor.
-   * \param[in] c The centre of the power series.
    */
   constexpr static Q sumTo(const N &n, const Q &f, const Q &x, const Q &c,
                            const Q &acc) {
@@ -220,14 +200,14 @@ class power : public series<Q, algorithm, N> {
                                  exponentiate::integral<Q>::raise(x - c, n)));
   }
 
-  /**\brief Centre
+  /* Centre
    *
    * This value is subtracted from the power factor before it
    * is raised and subsequently multiplied.
    */
   const Q centre;
 
-  /**\brief Power factor
+  /* Power factor
    *
    * This factor is applied to each sequence member when
    * approximating an instance of the series. Unlike the
@@ -236,8 +216,8 @@ class power : public series<Q, algorithm, N> {
    */
   const Q powerFactor;
 };
-};
-};
-};
+}
+}
+}
 
 #endif

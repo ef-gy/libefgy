@@ -19,7 +19,7 @@ CLANG_FORMAT:=$(shell which clang-format clang-format-3.5 clang-format-3.4 false
 CLDOC:=$(shell which cldoc false | head -n 1)
 CSSMIN:=$(shell which cssmin false | head -n 1)
 CURL:=$(shell which curl false | head -n 1) -s
-CXX:=$(shell which clang++-3.9 clang++-3.8 clang++-3.7 clang++-3.6 clang++-3.5 clang++ g++ c++ false | head -n 1)
+CXX:=$(shell which clang++-3.9 clang++-3.8 clang++-3.7 clang++-3.6 clang++-3.5 clang++ g++-4.9 g++ c++ false | head -n 1)
 EMXX:=$(shell which em++ false | head -n 1)
 GIT:=$(shell which git false | head -n 1)
 INSTALL:=$(shell which install false | head -n 1)
@@ -34,16 +34,19 @@ JSFUNCTIONS:=
 DEBUG:=false
 
 CXX_STANDARD:=c++14
+ifneq (,$(findstring clang,$(CXX)))
 CXX_STDLIB:=-stdlib=libc++
+else
+CXX_STDLIB:=
+endif
 PCCFLAGS=$(shell $(PKGCONFIG) --cflags $(LIBRARIES) 2>/dev/null)
 PCLDFLAGS=$(shell $(PKGCONFIG) --libs $(LIBRARIES) 2>/dev/null)
 CFLAGS=-O2 $(shell if $(DEBUG); then echo '-g'; fi)
 CXXFLAGS:=$(CXX_STDLIB) $(CFLAGS)
-EMCFLAGS:=-O2 --llvm-lto 3
+EMCFLAGS:=$(CFLAGS) --llvm-lto 3
 EMXXFLAGS=$(EMCFLAGS)
 LDFLAGS=
 
-DATABASE:=
 BINARIES_SRC_TEST:=$(wildcard src/test-case/*.cpp)
 BINARIES_SRC_PROPER:=$(wildcard src/*.cpp)
 BINARIES_SRC:=$(BINARIES_SRC_PROPER) $(BINARIES_SRC_TEST)
@@ -64,9 +67,9 @@ DATAHEADERS=$(wildcard include/data/*.h)
 .PHONY: all clean scrub archive install uninstall
 
 # meta rules
-all: $(DATABASES) $(BINARIES)
+all: $(BINARIES)
 clean:
-	rm -f $(DATABASES) $(BINARIES); true
+	rm -f $(BINARIES); true
 scrub: clean
 	rm -rf dependencies.mk
 
