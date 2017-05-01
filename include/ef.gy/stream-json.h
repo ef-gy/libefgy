@@ -427,7 +427,7 @@ static inline ostream<C> operator<<(ostream<C> stream,
  */
 template <typename C, typename Q>
 static inline ostream<C> operator<<(ostream<C> stream,
-                                    const json::value<Q> &pValue) {
+                                    const efgy::json::value<Q> &pValue) {
   switch (pValue.type) {
     case object:
       stream << pValue.asObject();
@@ -474,8 +474,8 @@ static inline ostream<C> operator<<(ostream<C> stream,
  */
 template <typename Q>
 static inline std::string operator>>(std::string stream,
-                                     json::value<Q> &pValue) {
-  pValue = json::value<Q>();
+                                     efgy::json::value<Q> &pValue) {
+  pValue = efgy::json::value<Q>();
 
   enum {
     scan,
@@ -567,7 +567,7 @@ static inline std::string operator>>(std::string stream,
         }
         break;
       case read_object: {
-        json::value<Q> v;
+        efgy::json::value<Q> v;
         std::string nstream = stream.substr(i) >> v;
         switch (v.type) {
           case endObject:
@@ -584,7 +584,7 @@ static inline std::string operator>>(std::string stream,
         i = -1;
         break;
       case read_object_colon: {
-        json::value<Q> v;
+        efgy::json::value<Q> v;
         std::string nstream = stream.substr(i) >> v;
         switch (v.type) {
           case endObject:
@@ -600,7 +600,7 @@ static inline std::string operator>>(std::string stream,
         i = -1;
         break;
       case read_object_value: {
-        json::value<Q> v;
+        efgy::json::value<Q> v;
         std::string nstream = stream.substr(i) >> v;
         switch (v.type) {
           case endObject:
@@ -615,7 +615,7 @@ static inline std::string operator>>(std::string stream,
         i = -1;
         break;
       case read_object_comma: {
-        json::value<Q> v;
+        efgy::json::value<Q> v;
         std::string nstream = stream.substr(i) >> v;
         switch (v.type) {
           case comma:
@@ -633,7 +633,7 @@ static inline std::string operator>>(std::string stream,
       case read_array:
         state = read_array_comma;
         {
-          json::value<Q> v;
+          efgy::json::value<Q> v;
           std::string nstream = stream.substr(i) >> v;
           if (v.type == endArray) {
             return nstream;
@@ -644,7 +644,7 @@ static inline std::string operator>>(std::string stream,
         i = -1;
         break;
       case read_array_comma: {
-        json::value<Q> v;
+        efgy::json::value<Q> v;
         std::string nstream = stream.substr(i) >> v;
         switch (v.type) {
           case comma:
