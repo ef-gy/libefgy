@@ -13,12 +13,13 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
+#include <algorithm>
+#include <array>
 #include <iostream>
 #include <string>
 
 #include <ef.gy/range.h>
 #include <ef.gy/test-case.h>
-#include <algorithm>
 
 using namespace efgy;
 
@@ -35,31 +36,16 @@ bool testRange(std::ostream &log) {
   std::array<int, 5> b5{1000, 1001, 1002, 1003, 1004};
   std::array<int, 8> a8n{49, 48, 47, 46, 45, 44, 43, 42};
 
-  if (range<int, 5>::get() != a5) {
-    log << "5-element sequence does not have the expected value.\n";
-    return false;
-  }
-
-  if (range<int, 5>::get(1000) != b5) {
-    log << "5-element sequence does not have the expected value.\n";
-    return false;
-  }
-
-  if (range<int, 8>::get(49, -1) != a8n) {
-    log << "8-element sequence does not have the expected value.\n";
-    return false;
-  }
-
   for (int i : range<int>(0, 4)) {
     std::cerr << i << "\n";
   }
 
-  std::array<int, 8> a1 = range<int, 8>::get(42);
+  std::array<int, 8> a1{42, 43, 44, 45, 46, 47, 48, 49};
   std::size_t p = 0;
 
   for (int i : range<int, 8>(42)) {
     if (i != a1[p]) {
-      log << "range iterator did not produce the expected results.\n";
+      log << "range<int, 8>(42) did not produce the expected results.\n";
       return false;
     }
 
@@ -71,7 +57,7 @@ bool testRange(std::ostream &log) {
     return false;
   }
 
-  std::array<int, 8> a2 = range<int, 8>::get(49, -1);
+  std::array<int, 8> a2{49, 48, 47, 46, 45, 44, 43, 42};
 
   if (!std::equal(a2.begin(), a2.end(), range<int, 8>(49, 42).begin())) {
     log << "range iterator did not produce the expected results.\n";
@@ -83,20 +69,6 @@ bool testRange(std::ostream &log) {
     return false;
   }
 
-  if (range<int, 0>::get() != std::array<int, 0>({{}})) {
-    log << "empty range was not an empty array.\n";
-    return false;
-  }
-
-  if (range<int, 0>::get(1, 1) != std::array<int, 0>({{}})) {
-    log << "an empty range with a non-default start was not empty.\n";
-    return false;
-  }
-
-  if (range<int, 3>::get(3, -1) != std::array<int, 3>({{3, 2, 1}})) {
-    log << "a range with negative stepsize worked as expected.\n";
-    return false;
-  }
   return true;
 }
 
