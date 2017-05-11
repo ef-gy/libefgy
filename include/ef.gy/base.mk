@@ -33,7 +33,7 @@ JSFUNCTIONS:=
 
 DEBUG:=false
 
-CXX_STANDARD:=c++14
+CXX_STANDARD:=c++11
 ifneq (,$(findstring clang,$(CXX)))
 CXX_STDLIB:=-stdlib=libc++
 else
