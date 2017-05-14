@@ -21,6 +21,9 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
+#if !defined(EF_GY_TEST_CASE_H)
+#define EF_GY_TEST_CASE_H
+
 #include <iostream>
 #include <set>
 #include <vector>
@@ -164,3 +167,5 @@ static cli::option runTest("-{0,2}run-tests",
 #endif
 }
 }
+
+#endif
