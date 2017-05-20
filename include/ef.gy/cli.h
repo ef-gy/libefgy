@@ -54,6 +54,19 @@ namespace cli {
 template <typename option, typename hint>
 class processor {
  public:
+  /* Number of matched arguments.
+   *
+   * Is nonzero if command line arguments have been matched and thus removed
+   * from <remainder>.
+   */
+  std::size_t matches;
+
+  /* Remaining, i.e. unmatched arguments.
+   *
+   * All the arguments where no CLI handler has produced a match.
+   */
+  std::vector<std::string> remainder;
+
   /* Default constructor
    * @pOpts Options that would be applied to arguments.
    * @pHints Hints for the usage summary.
@@ -63,11 +76,7 @@ class processor {
    */
   processor(beacons<option> &pOpts = global<beacons<option>>(),
             beacons<hint> &pHints = global<beacons<hint>>())
-      : showUsage(false),
-        matches(0),
-        remainder({}),
-        opts(pOpts),
-        hints(pHints) {}
+      : matches(0), showUsage(false), opts(pOpts), hints(pHints) {}
 
   /* Construct with argument vector.
    * @args Argument vector.
@@ -81,11 +90,7 @@ class processor {
   processor(const std::vector<std::string> &args, bool pShowUsage = true,
             beacons<option> &pOpts = global<beacons<option>>(),
             beacons<hint> &pHints = global<beacons<hint>>())
-      : showUsage(pShowUsage),
-        matches(0),
-        remainder({}),
-        opts(pOpts),
-        hints(pHints) {
+      : matches(0), showUsage(pShowUsage), opts(pOpts), hints(pHints) {
     apply(args);
   }
 
@@ -105,19 +110,9 @@ class processor {
   processor(int argc, char *argv[], bool pShowUsage = true,
             beacons<option> &pOpts = global<beacons<option>>(),
             beacons<hint> &pHints = global<beacons<hint>>())
-      : showUsage(pShowUsage),
-        matches(0),
-        remainder({}),
-        opts(pOpts),
-        hints(pHints) {
+      : matches(0), showUsage(pShowUsage), opts(pOpts), hints(pHints) {
     apply(argc, argv);
   }
-
-  /* Number of matched arguments. */
-  std::size_t matches;
-
-  /* Remaining, i.e. unmatched arguments. */
-  std::vector<std::string> remainder;
 
   /* Display usage summary.
    * @out Where to put the usage summary. Should be std:cout.
@@ -149,6 +144,27 @@ class processor {
   }
 
  protected:
+  /* Whether to show usage information if there are no matches.
+   *
+   * You usally want this set to `true`, unless there's something sensible to
+   * do when running your programme and not being told what o do.
+   */
+  const bool showUsage;
+
+  /* Command line option specifications to use.
+   *
+   * Created as a reference in the constructor, so that it may be updated while
+   * the object exists.
+   */
+  beacons<option> &opts;
+
+  /* Command line usage hints to print after the summary.
+   *
+   * Created as a reference in the constructor, so that it may be updated while
+   * the object exists.
+   */
+  beacons<hint> &hints;
+
   /* Apply command line specs to given arguments.
    * @args The incoming command line arguments.
    *
@@ -205,23 +221,6 @@ class processor {
     }
     apply(args);
   }
-
-  /* Whether to show usage information if there are no matches. */
-  const bool showUsage;
-
-  /* Command line option specifications to use.
-   *
-   * Created as a reference in the constructor, so that it may be updated while
-   * the object exists.
-   */
-  beacons<option> &opts;
-
-  /* Command line usage hints to print after the summary.
-   *
-   * Created as a reference in the constructor, so that it may be updated while
-   * the object exists.
-   */
-  beacons<hint> &hints;
 };
 
 /* Command line option.
@@ -248,9 +247,9 @@ class option {
          const std::string &pDescription = "please document me",
          beacons<option> &pOpts = global<beacons<option>>())
       : regex(pMatch),
-        match(pMatch),
         handler(pHandler),
         description(pDescription),
+        match(pMatch),
         root(*this, pOpts) {}
 
   /* Original regex string.
@@ -259,6 +258,18 @@ class option {
    * original so it can be printed elsewhere.
    */
   const std::string regex;
+
+  /* CLI argument handler function.
+   *
+   * Called if the provided regex matches a command line argument. The one
+   * parameter that this handler gets is the regex capture vector, which should
+   * be sufficient to set whatever variables need setting.
+   *
+   * The return value of the function should indicate whether the match was
+   * actually successful; if it's set to false, the argument is processed
+   * further, otherwise it's discarded as 'done'.
+   */
+  const std::function<bool(std::smatch &)> handler;
 
   /* CLI argument description.
    *
@@ -274,18 +285,6 @@ class option {
    * Compiling this regex once provides minor speed advantages.
    */
   const std::regex match;
-
-  /* CLI argument handler function.
-   *
-   * Called if the provided regex matches a command line argument. The one
-   * parameter that this handler gets is the regex capture vector, which should
-   * be sufficient to set whatever variables need setting.
-   *
-   * The return value of the function should indicate whether the match was
-   * actually successful; if it's set to false, the argument is processed
-   * further, otherwise it's discarded as 'done'.
-   */
-  const std::function<bool(std::smatch &)> handler;
 
  protected:
   /* CLI option registration.
