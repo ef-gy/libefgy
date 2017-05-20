@@ -86,19 +86,19 @@ class beacon {
   ~beacon(void) { root.erase(&reference); }
 
  protected:
-  /* Where we register things.
-   *
-   * A reference to the set of things that are being kept track of by other
-   * beacons.
-   */
-  set &root;
-
   /* What we keep track of.
    *
    * This is a reference to the thing we keep track of, as outlined in the
    * constructor and destructor docs.
    */
   type &reference;
+
+  /* Where we keep track of the reference.
+   *
+   * A reference to the set of things that are being kept track of by other
+   * beacons.
+   */
+  set &root;
 };
 
 /* Type alias for registered sets.
