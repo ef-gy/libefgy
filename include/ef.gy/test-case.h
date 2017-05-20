@@ -25,7 +25,6 @@
 #define EF_GY_TEST_CASE_H
 
 #include <iostream>
-#include <set>
 #include <vector>
 
 #include <ef.gy/cli.h>
@@ -46,7 +45,7 @@ namespace test {
  * @return 'true' if all the test cases ran successfully, 'false' otherwise.
  */
 template <class test>
-bool run(std::set<test *> &tests = global<std::set<test *>>()) {
+bool run(beacons<test> &tests = global<beacons<test>>()) {
   int i = 0;
   for (const auto &f : tests) {
     i++;
@@ -75,7 +74,7 @@ class function {
    * template
    * to keep track of them.
    */
-  using batch = std::set<function *>;
+  using batch = beacons<function>;
 
   /* Construct with function and batch.
    * @pFunction The function to add.

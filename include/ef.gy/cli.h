@@ -33,7 +33,6 @@
 #include <functional>
 #include <iostream>
 #include <regex>
-#include <set>
 #include <string>
 
 #include <ef.gy/global.h>
@@ -62,8 +61,8 @@ class processor {
    * Initialises everything to default values, i.e. no matches and no remainder.
    * Arguments are not applied.
    */
-  processor(std::set<option *> &pOpts = global<std::set<option *>>(),
-            std::set<hint *> &pHints = global<std::set<hint *>>())
+  processor(beacons<option> &pOpts = global<beacons<option>>(),
+            beacons<hint> &pHints = global<beacons<hint>>())
       : showUsage(false),
         matches(0),
         remainder({}),
@@ -80,8 +79,8 @@ class processor {
    * popualtes the 'matches' and 'remainder' fields.
    */
   processor(const std::vector<std::string> &args, bool pShowUsage = true,
-            std::set<option *> &pOpts = global<std::set<option *>>(),
-            std::set<hint *> &pHints = global<std::set<hint *>>())
+            beacons<option> &pOpts = global<beacons<option>>(),
+            beacons<hint> &pHints = global<beacons<hint>>())
       : showUsage(pShowUsage),
         matches(0),
         remainder({}),
@@ -104,8 +103,8 @@ class processor {
    * programme's main() function.
    */
   processor(int argc, char *argv[], bool pShowUsage = true,
-            std::set<option *> &pOpts = global<std::set<option *>>(),
-            std::set<hint *> &pHints = global<std::set<hint *>>())
+            beacons<option> &pOpts = global<beacons<option>>(),
+            beacons<hint> &pHints = global<beacons<hint>>())
       : showUsage(pShowUsage),
         matches(0),
         remainder({}),
@@ -210,11 +209,19 @@ class processor {
   /* Whether to show usage information if there are no matches. */
   const bool showUsage;
 
-  /* Command line option specifications to use. */
-  std::set<option *> &opts;
+  /* Command line option specifications to use.
+   *
+   * Created as a reference in the constructor, so that it may be updated while
+   * the object exists.
+   */
+  beacons<option> &opts;
 
-  /* Command line usage hints to print after the summary. */
-  std::set<hint *> &hints;
+  /* Command line usage hints to print after the summary.
+   *
+   * Created as a reference in the constructor, so that it may be updated while
+   * the object exists.
+   */
+  beacons<hint> &hints;
 };
 
 /* Command line option.
@@ -239,22 +246,12 @@ class option {
    */
   option(const std::string &pMatch, std::function<bool(std::smatch &)> pHandler,
          const std::string &pDescription = "please document me",
-         std::set<option *> &pOpts = global<std::set<option *>>())
+         beacons<option> &pOpts = global<beacons<option>>())
       : regex(pMatch),
         match(pMatch),
         handler(pHandler),
         description(pDescription),
-        root(pOpts) {
-    root.insert(this);
-  }
-
-  /* Destructor.
-   *
-   * Removes the option from the registry it's been registered with. This
-   * implies you can have options defined in a function, and when they go out of
-   * scope they will clean up after themselves.
-   */
-  ~option(void) { root.erase(this); }
+        root(*this, pOpts) {}
 
   /* Original regex string.
    *
@@ -291,12 +288,11 @@ class option {
   const std::function<bool(std::smatch &)> handler;
 
  protected:
-  /* CLI option registry.
+  /* CLI option registration.
    *
-   * Where the option was registered. Only used in the destructor, to clean up
-   * by unregistering from there.
+   * The beacon we set up, so that we can find this CLI option in the future.
    */
-  std::set<option *> &root;
+  beacon<option> root;
 };
 
 /* A boolean CLI flag.
@@ -322,7 +318,7 @@ class flag : public option {
    */
   flag(const std::string &pName,
        const std::string &pDescription = "please document me",
-       std::set<option *> &pOpts = global<std::set<option *>>())
+       beacons<option> &pOpts = global<beacons<option>>())
       : option("-{0,2}((no)-?)?" + pName,
                [this](std::smatch &m) -> bool {
                  value = m[2] != "no";
@@ -372,7 +368,7 @@ class flag<std::string> : public option {
    */
   flag(const std::string &pName,
        const std::string &pDescription = "please document me",
-       std::set<option *> &pOpts = global<std::set<option *>>())
+       beacons<option> &pOpts = global<beacons<option>>())
       : option("-{0,2}" + pName + "[:=](.*)",
                [this](std::smatch &m) -> bool {
                  value = m[1];
@@ -421,16 +417,8 @@ class hint {
    * binary.
    */
   hint(const std::string &pTitle, std::function<std::string(void)> pUsage,
-       std::set<hint *> &pItems = global<std::set<hint *>>())
-      : title(pTitle), usage(pUsage), root(pItems) {
-    root.insert(this);
-  }
-
-  /* Destructor.
-   *
-   * Unregisters from the registry that was used.
-   */
-  ~hint(void) { root.erase(this); }
+       beacons<hint> &pItems = global<beacons<hint>>())
+      : title(pTitle), usage(pUsage), root(*this, pItems) {}
 
   /* Title of the hint.
    *
@@ -447,10 +435,10 @@ class hint {
  protected:
   /* CLI hint registry.
    *
-   * Where the hint was registered. Only used in the destructor, to clean up by
-   * unregistering from there.
+   * This is the beacon we set up, which helps finding this hint from elsewhere,
+   * later.
    */
-  std::set<hint *> &root;
+  beacon<hint> root;
 };
 
 /* Default CLI argument processor class.
