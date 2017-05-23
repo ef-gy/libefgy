@@ -575,6 +575,94 @@ static inline std::string operator>>(std::string stream,
 
   return "";
 }
+
+/* Stringify a JSON value.
+ * @Q Numeric type for the JSON value.
+ * @stream Where to write to.
+ * @v The value to write.
+ *
+ * Turns a JSON value into a JSON string.
+ *
+ * @return The stream parameter. For chaining multiple writes.
+ */
+template <typename Q>
+static inline std::string &operator<<(std::string &stream, const value<Q> &v) {
+  switch (v.type) {
+    case object: {
+      bool notFirst = false;
+      stream.push_back('{');
+
+      for (const auto &e : v.asObject()) {
+        if (notFirst) {
+          stream.push_back(',');
+        } else {
+          notFirst = true;
+        }
+        json name = e.first;
+        stream << name;
+        stream.push_back(':');
+        stream << e.second;
+      }
+
+      stream.push_back('}');
+    } break;
+    case array: {
+      bool notFirst = false;
+      stream.push_back('[');
+
+      for (const auto &e : v.asArray()) {
+        if (notFirst) {
+          stream.push_back(',');
+        } else {
+          notFirst = true;
+        }
+        stream << e;
+      }
+
+      stream.push_back(']');
+    } break;
+    case string:
+      stream.push_back('"');
+      for (const auto &c : v.asString()) {
+        switch (c) {
+          case '\\':
+          case '"':
+            stream.push_back('\\');
+            stream.push_back(c);
+            break;
+          default:
+            stream.push_back(c);
+            break;
+        }
+      }
+      stream.push_back('"');
+      break;
+    case number: {
+      std::string n = std::to_string(v.asNumber());
+      while (n[(n.size() - 1)] == '0') {
+        n.pop_back();
+      }
+      if (n[(n.size() - 1)] == '.') {
+        n.pop_back();
+      }
+      stream += n;
+    } break;
+    case yes:
+      stream += "true";
+      break;
+    case no:
+      stream += "false";
+      break;
+    case null:
+      stream += "null";
+      break;
+    default:
+      // don't do anything for other types.
+      break;
+  }
+
+  return stream;
+}
 }
 }
 
