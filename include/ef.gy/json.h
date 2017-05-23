@@ -296,9 +296,9 @@ using json = value<long double>;
  * @return The unprocessed remainder of the JSON string.
  */
 template <typename Q>
-static inline std::string operator>>(std::string stream,
-                                     efgy::json::value<Q> &pValue) {
-  pValue = efgy::json::value<Q>();
+static inline std::string parse(std::string stream,
+                                efgy::json::value<Q> &pValue) {
+  pValue = value<Q>();
 
   enum {
     scan,
@@ -420,7 +420,7 @@ static inline std::string operator>>(std::string stream,
           break;
         case read_object: {
           efgy::json::value<Q> v;
-          std::string nstream = stream.substr(i) >> v;
+          std::string nstream = parse(stream.substr(i), v);
           switch (v.type) {
             case endObject:
               return nstream;
@@ -437,7 +437,7 @@ static inline std::string operator>>(std::string stream,
           break;
         case read_object_colon: {
           efgy::json::value<Q> v;
-          std::string nstream = stream.substr(i) >> v;
+          std::string nstream = parse(stream.substr(i), v);
           switch (v.type) {
             case endObject:
               return nstream;
@@ -453,7 +453,7 @@ static inline std::string operator>>(std::string stream,
           break;
         case read_object_value: {
           efgy::json::value<Q> v;
-          std::string nstream = stream.substr(i) >> v;
+          std::string nstream = parse(stream.substr(i), v);
           switch (v.type) {
             case endObject:
               return nstream;
@@ -468,7 +468,7 @@ static inline std::string operator>>(std::string stream,
           break;
         case read_object_comma: {
           efgy::json::value<Q> v;
-          std::string nstream = stream.substr(i) >> v;
+          std::string nstream = parse(stream.substr(i), v);
           switch (v.type) {
             case comma:
               state = read_object;
@@ -486,7 +486,7 @@ static inline std::string operator>>(std::string stream,
           state = read_array_comma;
           {
             efgy::json::value<Q> v;
-            std::string nstream = stream.substr(i) >> v;
+            std::string nstream = parse(stream.substr(i), v);
             if (v.type == endArray) {
               return nstream;
             }
@@ -497,7 +497,7 @@ static inline std::string operator>>(std::string stream,
           break;
         case read_array_comma: {
           efgy::json::value<Q> v;
-          std::string nstream = stream.substr(i) >> v;
+          std::string nstream = parse(stream.substr(i), v);
           switch (v.type) {
             case comma:
               state = read_array;
@@ -576,67 +576,71 @@ static inline std::string operator>>(std::string stream,
   return "";
 }
 
+/* Parse JSON value.
+ * @input What to parse.
+ *
+ * Parses the given input under the assumption that it's a valid JSON string.
+ * This only works for the default JSON value type, because there's no way to
+ * infer the correct numeric type.
+ *
+ * @return The parsed version of input.
+ */
+static inline json parse(const std::string &input) {
+  json rv;
+  parse(input, rv);
+  return rv;
+}
+
 /* Stringify a JSON value.
  * @Q Numeric type for the JSON value.
- * @stream Where to write to.
- * @v The value to write.
+ * @v The value to stringify.
  *
  * Turns a JSON value into a JSON string.
  *
- * @return The stream parameter. For chaining multiple writes.
+ * @return A string representation of v.
  */
 template <typename Q>
-static inline std::string &operator<<(std::string &stream, const value<Q> &v) {
+static inline std::string to_string(const value<Q> &v) {
   switch (v.type) {
     case object: {
-      bool notFirst = false;
-      stream.push_back('{');
+      bool first = true;
+      std::string rv = "{";
 
       for (const auto &e : v.asObject()) {
-        if (notFirst) {
-          stream.push_back(',');
-        } else {
-          notFirst = true;
-        }
-        json name = e.first;
-        stream << name;
-        stream.push_back(':');
-        stream << e.second;
+        rv += (first ? "" : ",") + to_string(json(e.first)) + ":" +
+              to_string(e.second);
+        first = false;
       }
 
-      stream.push_back('}');
-    } break;
+      return rv + "}";
+    }
     case array: {
-      bool notFirst = false;
-      stream.push_back('[');
+      bool first = true;
+      std::string rv = "[";
 
       for (const auto &e : v.asArray()) {
-        if (notFirst) {
-          stream.push_back(',');
-        } else {
-          notFirst = true;
-        }
-        stream << e;
+        rv += (first ? "" : ",") + to_string(e);
+        first = false;
       }
 
-      stream.push_back(']');
-    } break;
-    case string:
-      stream.push_back('"');
+      return rv + "]";
+    }
+    case string: {
+      std::string rv = "\"";
       for (const auto &c : v.asString()) {
         switch (c) {
           case '\\':
           case '"':
-            stream.push_back('\\');
-            stream.push_back(c);
+            rv.push_back('\\');
+            rv.push_back(c);
             break;
           default:
-            stream.push_back(c);
+            rv.push_back(c);
             break;
         }
       }
-      stream.push_back('"');
-      break;
+      return rv + "\"";
+    }
     case number: {
       std::string n = std::to_string(v.asNumber());
       while (n[(n.size() - 1)] == '0') {
@@ -645,23 +649,18 @@ static inline std::string &operator<<(std::string &stream, const value<Q> &v) {
       if (n[(n.size() - 1)] == '.') {
         n.pop_back();
       }
-      stream += n;
-    } break;
+      return n;
+    }
     case yes:
-      stream += "true";
-      break;
+      return "true";
     case no:
-      stream += "false";
-      break;
+      return "false";
     case null:
-      stream += "null";
-      break;
+      return "null";
     default:
       // don't do anything for other types.
-      break;
+      return "";
   }
-
-  return stream;
 }
 }
 }

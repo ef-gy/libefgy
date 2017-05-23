@@ -47,14 +47,14 @@ bool testJSONInput(std::ostream &log) {
 
   for (const auto &tt : tests) {
     json::json va;
-    const auto r = tt.input >> va;
+    const auto r = json::parse(tt.input, va);
     if (r != tt.remainder) {
       log << "JSON parsing (" << tt.input << ") had bad remainder: " << r
           << "; expected: " << tt.remainder << "\n";
       return false;
     }
-    std::string so;
-    so << va;
+    const auto rv = json::parse(tt.input);
+    const std::string so = json::to_string(va);
     if (so != tt.output) {
       log << "JSON parsing (" << tt.input << ") had bad string output: " << so
           << "; expected: " << tt.output << "\n";
