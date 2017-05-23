@@ -283,6 +283,298 @@ class value {
  * needs.
  */
 using json = value<long double>;
+
+/* Read JSON value from JSON string
+ *
+ * Reads a JSON serialisation from a JSON string.
+ *
+ * @V Value numeric type.
+ *
+ * @stream The JSON string to read from.
+ * @pValue The value to read to.
+ *
+ * @return The unprocessed remainder of the JSON string.
+ */
+template <typename Q>
+static inline std::string operator>>(std::string stream,
+                                     efgy::json::value<Q> &pValue) {
+  pValue = efgy::json::value<Q>();
+
+  enum {
+    scan,
+    read_object,
+    read_object_colon,
+    read_object_value,
+    read_object_comma,
+    read_array,
+    read_array_comma,
+    read_string,
+    read_string_escape,
+    read_number,
+    read_t,
+    read_tr,
+    read_tru,
+    read_f,
+    read_fa,
+    read_fal,
+    read_fals,
+    read_n,
+    read_nu,
+    read_nul
+  } state = scan;
+
+  std::string ss;
+  std::string key;
+
+  for (std::ptrdiff_t i = 0; i < stream.size(); i++) {
+    const auto c = stream[i];
+    if (state >= read_t) {
+      if (state == read_t && c == 'r') {
+        state = read_tr;
+      } else if (state == read_tr && c == 'u') {
+        state = read_tru;
+      } else if (state == read_tru && c == 'e') {
+        pValue.type = yes;
+        return stream.substr(i + 1);
+      } else if (state == read_f && c == 'a') {
+        state = read_fa;
+      } else if (state == read_fa && c == 'l') {
+        state = read_fal;
+      } else if (state == read_fal && c == 's') {
+        state = read_fals;
+      } else if (state == read_fals && c == 'e') {
+        pValue.type = no;
+        return stream.substr(i + 1);
+      } else if (state == read_n && c == 'u') {
+        state = read_nu;
+      } else if (state == read_nu && c == 'l') {
+        state = read_nul;
+      } else if (state == read_nul && c == 'l') {
+        pValue.type = null;
+        return stream.substr(i + 1);
+      } else {
+        // this should raise a parse errorr
+        return "";
+      }
+    } else
+      switch (state) {
+        case scan:
+          switch (c) {
+            case '{':
+              state = read_object;
+              pValue.toObject();
+              break;
+            case '[':
+              state = read_array;
+              pValue.toArray();
+              break;
+            case '"':
+              state = read_string;
+              pValue.toString();
+              break;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+            case '+':
+            case '-':
+              state = read_number;
+              pValue.toNumber();
+              ss.clear();
+              ss.push_back(c);
+              break;
+            case 't':
+              state = read_t;
+              break;
+            case 'f':
+              state = read_f;
+              break;
+            case 'n':
+              state = read_n;
+              break;
+            case ',':
+              pValue.type = comma;
+              return stream.substr(i + 1);
+            case ':':
+              pValue.type = colon;
+              return stream.substr(i + 1);
+            case ']':
+              pValue.type = endArray;
+              return stream.substr(i + 1);
+            case '}':
+              pValue.type = endObject;
+              return stream.substr(i + 1);
+            case ' ':
+            case '\t':
+            case '\v':
+            case '\n':
+            case 0:
+              break;
+          }
+          break;
+        case read_object: {
+          efgy::json::value<Q> v;
+          std::string nstream = stream.substr(i) >> v;
+          switch (v.type) {
+            case endObject:
+              return nstream;
+            case string:
+              key = v.asString();
+              state = read_object_colon;
+              break;
+            default:
+              break;
+          }
+          stream = nstream;
+        }
+          i = -1;
+          break;
+        case read_object_colon: {
+          efgy::json::value<Q> v;
+          std::string nstream = stream.substr(i) >> v;
+          switch (v.type) {
+            case endObject:
+              return nstream;
+            case colon:
+              state = read_object_value;
+              break;
+            default:
+              break;
+          }
+          stream = nstream;
+        }
+          i = -1;
+          break;
+        case read_object_value: {
+          efgy::json::value<Q> v;
+          std::string nstream = stream.substr(i) >> v;
+          switch (v.type) {
+            case endObject:
+              return nstream;
+            default:
+              pValue.toObject()[key] = v;
+              state = read_object_comma;
+              break;
+          }
+          stream = nstream;
+        }
+          i = -1;
+          break;
+        case read_object_comma: {
+          efgy::json::value<Q> v;
+          std::string nstream = stream.substr(i) >> v;
+          switch (v.type) {
+            case comma:
+              state = read_object;
+              break;
+            case endObject:
+              return nstream;
+            default:
+              break;
+          }
+          stream = nstream;
+        }
+          i = -1;
+          break;
+        case read_array:
+          state = read_array_comma;
+          {
+            efgy::json::value<Q> v;
+            std::string nstream = stream.substr(i) >> v;
+            if (v.type == endArray) {
+              return nstream;
+            }
+            stream = nstream;
+            pValue.toArray().push_back(v);
+          }
+          i = -1;
+          break;
+        case read_array_comma: {
+          efgy::json::value<Q> v;
+          std::string nstream = stream.substr(i) >> v;
+          switch (v.type) {
+            case comma:
+              state = read_array;
+              break;
+            case endArray:
+              return nstream;
+            default:
+              break;
+          }
+          stream = nstream;
+        }
+          i = -1;
+          break;
+        case read_number:
+          switch (c) {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+            case 'e':
+            case 'E':
+            case '.':
+            case '+':
+            case '-':
+              ss.push_back(c);
+              break;
+            default:
+              pValue.toNumber() = std::stold(ss);
+              return stream.substr(i);
+          }
+          break;
+        case read_string_escape:
+          switch (c) {
+            case 't':
+              pValue.toString().push_back('\t');
+              break;
+            case 'v':
+              pValue.toString().push_back('\v');
+              break;
+            case 'n':
+              pValue.toString().push_back('\n');
+              break;
+            default:
+              pValue.toString().push_back(c);
+              break;
+          }
+          state = read_string;
+          break;
+        case read_string:
+          switch (c) {
+            case '"':
+              return stream.substr(i + 1);
+              break;
+            case '\\':
+              state = read_string_escape;
+              break;
+            default:
+              pValue.toString().push_back(c);
+              break;
+          }
+        default:
+          break;
+      }
+  }
+
+  if (state == read_number) {
+    pValue.toNumber() = std::stold(ss);
+  }
+
+  return "";
+}
 }
 }
 

@@ -152,35 +152,39 @@ bool testJSONOutput(std::ostream &log) {
  * @return 'true' on success, 'false' otherwise.
  */
 bool testJSONInput(std::ostream &log) {
-  json::json v;
+  struct sampleData {
+    std::string input, remainder, output;
+  };
 
-  v.type = json::yes;
+  std::vector<sampleData> tests{
+      {"true", "", "true"},
+      {"  42.23", "", "42.23"},
+      {"42.00", "", "42"},
+      {"[false, true, null]", "", "[false,true,null]"},
+      {"", "", "null"},
+      {"{ \"a\" : true , \"b\" : false }", "", "{\"a\":true,\"b\":false}"},
+      {"{\"a\":true,\"b\":false,\"q\":[false, true, false],\"c\":null}", "",
+       "{\"a\":true,\"b\":false,\"c\":null,\"q\":[false,true,false]}"},
+      {"{\"a\":true,\"b\":false,\"q\":[1,2 ,3 , 4],\"c\":null}", "",
+       "{\"a\":true,\"b\":false,\"c\":null,\"q\":[1,2,3,4]}"},
+  };
 
-  log << json::tag() << v;
-
-  std::string tmp = ("true" >> v);
-
-  log << json::tag() << tmp << v;
-
-  tmp = ("42.23" >> v);
-
-  log << json::tag() << tmp << v;
-
-  tmp = ("[true,false,null]" >> v);
-
-  log << json::tag() << tmp << v;
-
-  tmp = ("{\"a\":true,\"b\":false}" >> v);
-
-  log << json::tag() << tmp << v;
-
-  tmp = ("{\"a\":true,\"b\":false,\"q\":[false,true,false],\"c\":null}" >> v);
-
-  log << json::tag() << tmp << v;
-
-  tmp = ("{\"a\":true,\"b\":false,\"q\":[1,2,3,4],\"c\":null}" >> v);
-
-  log << json::tag() << tmp << v;
+  for (const auto &tt : tests) {
+    json::json va;
+    const auto r = tt.input >> va;
+    if (r != tt.remainder) {
+      log << "JSON parsing (" << tt.input << ") had bad remainder: " << r
+          << "; expected: " << tt.remainder << "\n";
+      return false;
+    }
+    std::stringstream ss;
+    ss << json::tag() << va;
+    if (ss.str() != tt.output) {
+      log << "JSON parsing (" << tt.input << ") had bad output: " << ss.str()
+          << "; expected: " << tt.output << "\n";
+      return false;
+    }
+  }
 
   return true;
 }
