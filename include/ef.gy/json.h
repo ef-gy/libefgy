@@ -537,14 +537,20 @@ static inline std::string parse(std::string stream,
           break;
         case read_string_escape:
           switch (c) {
-            case 't':
-              pValue.toString().push_back('\t');
+            case 'b':
+              pValue.toString().push_back('\b');
               break;
-            case 'v':
-              pValue.toString().push_back('\v');
+            case 'f':
+              pValue.toString().push_back('\f');
               break;
             case 'n':
               pValue.toString().push_back('\n');
+              break;
+            case 'r':
+              pValue.toString().push_back('\r');
+              break;
+            case 't':
+              pValue.toString().push_back('\t');
               break;
             default:
               pValue.toString().push_back(c);
@@ -633,6 +639,26 @@ static inline std::string to_string(const value<Q> &v) {
           case '"':
             rv.push_back('\\');
             rv.push_back(c);
+            break;
+          case '\b':
+            rv.push_back('\\');
+            rv.push_back('b');
+            break;
+          case '\f':
+            rv.push_back('\\');
+            rv.push_back('f');
+            break;
+          case '\n':
+            rv.push_back('\\');
+            rv.push_back('n');
+            break;
+          case '\r':
+            rv.push_back('\\');
+            rv.push_back('r');
+            break;
+          case '\t':
+            rv.push_back('\\');
+            rv.push_back('t');
             break;
           default:
             rv.push_back(c);
