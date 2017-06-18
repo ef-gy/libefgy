@@ -50,9 +50,14 @@ LDFLAGS=
 BINARIES_SRC_TEST:=$(wildcard src/test-case/*.cpp)
 BINARIES_SRC_PROPER:=$(wildcard src/*.cpp)
 BINARIES_SRC:=$(BINARIES_SRC_PROPER) $(BINARIES_SRC_TEST)
-BINARIES:=$(basename $(notdir $(wildcard src/*.cpp)) $(addprefix test-case-,$(notdir $(wildcard src/test-case/*.cpp))))
+BINARIES:=$(basename $(notdir $(BINARIES_SRC_PROPER)) $(addprefix test-case-,$(notdir $(BINARIES_SRC_TEST))))
 JSBINARIES=$(addsuffix .js,$(BINARIES))
-TESTBINARIES=$(filter test-case-%,$(BINARIES))
+
+SCRIPTS_SRC_TEST:=$(wildcard src/test-case/*.sh)
+SCRIPTS_SRC:=$(SCRIPTS_SRC_TEST)
+SCRIPTS:=$(basename $(addprefix test-case-,$(notdir $(SCRIPTS_SRC_TEST))))
+
+TESTBINARIES=$(filter test-case-%,$(BINARIES) $(SCRIPTS))
 
 IGNOREBINARIES:=server
 IBINARIES:=$(addprefix $(BINDIR)/,$(filter-out $(IGNOREBINARIES) test-case-%,$(BINARIES)))
@@ -69,7 +74,7 @@ DATAHEADERS=$(wildcard include/data/*.h)
 # meta rules
 all: $(BINARIES)
 clean:
-	rm -f $(BINARIES); true
+	rm -f $(BINARIES) $(JSBINARIES) $(SCRIPTS); true
 scrub: clean
 	rm -rf dependencies.mk
 
@@ -121,6 +126,9 @@ $(MANDIR)/man1/%.1: src/%.1
 
 test-case-%: src/test-case/%.cpp
 	$(CXX) -std=$(CXX_STANDARD) -Iinclude/ -DRUN_TEST_CASES $(CXXFLAGS) $(PCCFLAGS) $< $(LDFLAGS) $(PCLDFLAGS) -o $@
+
+test-case-%: src/test-case/%.sh $(BINARIES)
+	ln -sf $< $@
 
 %.js: src/%.cpp include/*/*.h
 	$(EMXX) -std=$(CXX_STANDARD) -Iinclude/ -D NOLIBRARIES $(EMXXFLAGS) -s EXPORTED_FUNCTIONS="$(JSFUNCTIONS)" $< $(LDFLAGS) -o $@
