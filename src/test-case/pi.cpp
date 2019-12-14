@@ -13,12 +13,12 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-
 #include <ef.gy/fractions.h>
 #include <ef.gy/pi.h>
 #include <ef.gy/primitive.h>
 #include <ef.gy/test-case.h>
+
+#include <iostream>
 
 using namespace efgy::math;
 using std::string;
@@ -132,4 +132,4 @@ namespace test {
 using efgy::test::function;
 
 static function pi(testPi);
-}
+}  // namespace test

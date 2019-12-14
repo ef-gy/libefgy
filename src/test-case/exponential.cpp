@@ -13,11 +13,11 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-
 #include <ef.gy/exponential.h>
 #include <ef.gy/fractions.h>
 #include <ef.gy/test-case.h>
+
+#include <iostream>
 
 using namespace efgy::math;
 
@@ -205,4 +205,4 @@ using efgy::test::function;
 
 static function integralExponents(testIntegralExponents);
 static function functionalIntegralExponents(testFunctionalIntegralExponents);
-}
+}  // namespace test

@@ -23,6 +23,6 @@ namespace efgy {
  * projections, mesh creation, polygon operators, etc.
  */
 namespace geometry {};
-};
+};  // namespace efgy
 
 #endif

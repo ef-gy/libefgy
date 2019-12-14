@@ -688,7 +688,7 @@ static inline std::string to_string(const value<Q> &v) {
       return "";
   }
 }
-}
-}
+}  // namespace json
+}  // namespace efgy
 
 #endif

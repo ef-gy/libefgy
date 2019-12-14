@@ -78,7 +78,7 @@ class bailey1997 {
             Q(1) / (Q(8) * Q(n) + Q(5)) - Q(1) / (Q(8) * Q(n) + Q(6)));
   }
 };
-};
+};  // namespace algorithm
 
 /**\brief Calculate 'pi' with arbitrary precision
  *
@@ -145,7 +145,7 @@ class bailey1997 {
  */
 template <typename Q, typename N = unsigned long long>
 using pi = series::series<Q, algorithm::bailey1997, N>;
-};
-};
+};  // namespace math
+};  // namespace efgy
 
 #endif

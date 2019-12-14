@@ -18,6 +18,7 @@
 
 #include <ef.gy/numeric.h>
 #include <ef.gy/traits.h>
+
 #include <ostream>
 #include <vector>
 
@@ -975,10 +976,10 @@ std::basic_ostream<C> &operator<<(
 
   return out;
 }
-};
+};  // namespace numeric
 
 typedef numeric::bigIntegers<> Z;
-};
-};
+};  // namespace math
+};  // namespace efgy
 
 #endif

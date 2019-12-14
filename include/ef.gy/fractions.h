@@ -270,11 +270,11 @@ class traits<fractional<N>> {
 
   static const bool stable = traits<N>::stable;
 };
-};
+};  // namespace numeric
 
 typedef numeric::fractional<long long> fraction;
 typedef numeric::fractional<Z> Q;
-};
-};
+};  // namespace math
+};  // namespace efgy
 
 #endif

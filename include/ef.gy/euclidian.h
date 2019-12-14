@@ -21,6 +21,7 @@
 
 #include <ef.gy/matrix.h>
 #include <ef.gy/vector.h>
+
 #include <array>
 #include <cmath>
 
@@ -235,7 +236,7 @@ constexpr math::vector<Q, 3> perpendicular(const math::vector<Q, 3> &v1,
                                            const math::vector<Q, 3> &v2) {
   return crossProduct(v1, v2);
 }
-};
-};
+};  // namespace math
+};  // namespace efgy
 
 #endif

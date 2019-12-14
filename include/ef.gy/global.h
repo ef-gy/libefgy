@@ -109,6 +109,6 @@ class beacon {
  */
 template <typename type>
 using beacons = typename beacon<type>::set;
-}
+}  // namespace efgy
 
 #endif

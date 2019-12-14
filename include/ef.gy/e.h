@@ -56,7 +56,7 @@ class powerSeriesE {
    */
   typedef typename numeric::traits<Q>::integral integer;
 };
-};
+};  // namespace algorithm
 
 /**\brief Calculate 'e' with arbitrary precision
  *
@@ -88,7 +88,7 @@ class powerSeriesE {
  */
 template <typename Q, typename N = unsigned long long>
 using e = series::power<Q, algorithm::powerSeriesE, N>;
-};
-};
+};  // namespace math
+};  // namespace efgy
 
 #endif

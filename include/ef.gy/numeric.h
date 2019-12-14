@@ -306,8 +306,8 @@ T gcdP(const T &rA, const T &rB) {
 
   return a;
 }
-};
-};
-};
+};  // namespace numeric
+};  // namespace math
+};  // namespace efgy
 
 #endif

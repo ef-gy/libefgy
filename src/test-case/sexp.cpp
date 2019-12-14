@@ -10,11 +10,11 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-#include <sstream>
-
 #include <ef.gy/sexp.h>
 #include <ef.gy/test-case.h>
+
+#include <iostream>
+#include <sstream>
 
 using namespace efgy::test;
 using efgy::atom;
@@ -79,4 +79,4 @@ using efgy::test::function;
 
 static function construction(testConstruction);
 static function streamOutput(testStreamOutput);
-}
+}  // namespace test

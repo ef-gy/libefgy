@@ -30,12 +30,12 @@
 #if !defined(EF_GY_CLI_H)
 #define EF_GY_CLI_H
 
+#include <ef.gy/global.h>
+
 #include <functional>
 #include <iostream>
 #include <regex>
 #include <string>
-
-#include <ef.gy/global.h>
 
 namespace efgy {
 namespace cli {
@@ -318,12 +318,13 @@ class flag : public option {
   flag(const std::string &pName,
        const std::string &pDescription = "please document me",
        beacons<option> &pOpts = global<beacons<option>>())
-      : option("-{0,2}((no)-?)?" + pName,
-               [this](std::smatch &m) -> bool {
-                 value = m[2] != "no";
-                 return true;
-               },
-               "[bool] " + pDescription, pOpts),
+      : option(
+            "-{0,2}((no)-?)?" + pName,
+            [this](std::smatch &m) -> bool {
+              value = m[2] != "no";
+              return true;
+            },
+            "[bool] " + pDescription, pOpts),
         value(false) {}
 
   /* Cast to a boolean.
@@ -368,12 +369,13 @@ class flag<std::string> : public option {
   flag(const std::string &pName,
        const std::string &pDescription = "please document me",
        beacons<option> &pOpts = global<beacons<option>>())
-      : option("-{0,2}" + pName + "[:=](.*)",
-               [this](std::smatch &m) -> bool {
-                 value = m[1];
-                 return true;
-               },
-               "[string] " + pDescription, pOpts),
+      : option(
+            "-{0,2}" + pName + "[:=](.*)",
+            [this](std::smatch &m) -> bool {
+              value = m[1];
+              return true;
+            },
+            "[string] " + pDescription, pOpts),
         value("") {}
 
   /* Cast to a string.
@@ -418,13 +420,14 @@ class flag<long> : public option {
   flag(const std::string &pName,
        const std::string &pDescription = "please document me",
        beacons<option> &pOpts = global<beacons<option>>())
-      : option("-{0,2}" + pName + "[:=]([0-9]+)",
-               [this](std::smatch &m) -> bool {
-                 const std::string v = m[1];
-                 value = std::strtol(v.c_str(), 0, 10);
-                 return true;
-               },
-               "[integer] " + pDescription, pOpts),
+      : option(
+            "-{0,2}" + pName + "[:=]([0-9]+)",
+            [this](std::smatch &m) -> bool {
+              const std::string v = m[1];
+              value = std::strtol(v.c_str(), 0, 10);
+              return true;
+            },
+            "[integer] " + pDescription, pOpts),
         value(0) {}
 
   /* Cast to a string.
@@ -504,13 +507,14 @@ using options = processor<option, hint>;
  * When triggered, this will call the usage() function for the default set of
  * options and write all of that to std::cout.
  */
-static option help("-{0,2}help",
-                   [](std::smatch &m) -> bool {
-                     options().usage(std::cout);
-                     return true;
-                   },
-                   "print this help screen");
-}
-}
+static option help(
+    "-{0,2}help",
+    [](std::smatch &m) -> bool {
+      options().usage(std::cout);
+      return true;
+    },
+    "print this help screen");
+}  // namespace cli
+}  // namespace efgy
 
 #endif

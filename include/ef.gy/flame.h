@@ -351,7 +351,7 @@ class randomFlame : public flame<Q, d> {
  protected:
   const unsigned long long &seed;
 };
-}
+}  // namespace transformation
 
 namespace generators {
 static constexpr const char randomFlameIFSLabel[] = "random-flame";
@@ -359,7 +359,7 @@ static constexpr const char randomFlameIFSLabel[] = "random-flame";
 template <typename Q, std::size_t depth, std::size_t renderDepth>
 using randomFlame = random<Q, depth, renderDepth, transformation::flame,
                            transformation::randomFlame, randomFlameIFSLabel>;
-}
+}  // namespace generators
 
 template <typename Q, std::size_t d>
 using extendedPlane = adapt<Q, d, plane<Q, 2>, typename plane<Q, 2>::format>;
@@ -384,8 +384,8 @@ namespace flame {
  */
 template <typename Q, std::size_t od>
 using random = ifs<Q, od, extendedPlane, generators::randomFlame>;
-}
-}
-}
+}  // namespace flame
+}  // namespace geometry
+}  // namespace efgy
 
 #endif

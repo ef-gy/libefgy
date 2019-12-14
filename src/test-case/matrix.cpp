@@ -10,13 +10,13 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-
 #include <ef.gy/matrix.h>
 #include <ef.gy/range.h>
 #include <ef.gy/test-case.h>
+
+#include <algorithm>
+#include <iostream>
+#include <sstream>
 
 using namespace efgy::math;
 using efgy::range;
@@ -274,4 +274,4 @@ static function assignment(testAssignment);
 static function addition(testAddition);
 static function stream(testStream);
 static function iterator(testIterator);
-}
+}  // namespace test

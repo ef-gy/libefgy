@@ -13,15 +13,15 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-#include <string>
-
 #include <ef.gy/ifs.h>
 #include <ef.gy/parametric.h>
 #include <ef.gy/polytope.h>
 #include <ef.gy/test-case.h>
+
 #include <algorithm>
+#include <iostream>
 #include <sstream>
+#include <string>
 
 using namespace efgy;
 
@@ -119,4 +119,4 @@ static function t16(
     testPolytopeIteratorNotInfinite<
         geometry::adapt<float, 5, geometry::sierpinski::gasket<float, 3>,
                         math::format::cartesian>>);
-}
+}  // namespace test

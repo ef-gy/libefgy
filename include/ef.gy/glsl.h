@@ -288,8 +288,8 @@ std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
 
   return out << "void main() {\n" << s.main << "}\n";
 }
-}
-}
-}
+}  // namespace glsl
+}  // namespace opengl
+}  // namespace efgy
 
 #endif

@@ -14,12 +14,11 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
+#include <ef.gy/big-integers.h>
 #include <ef.gy/test-case.h>
 
 #include <iostream>
 #include <sstream>
-
-#include <ef.gy/big-integers.h>
 #include <vector>
 
 using namespace efgy::math;
@@ -428,4 +427,4 @@ namespace test {
 using efgy::test::function;
 
 static function bigIntegerBitShifts(testBigIntegerBitShifts);
-}
+}  // namespace test

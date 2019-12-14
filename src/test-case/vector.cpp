@@ -12,11 +12,11 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-
 #include <ef.gy/polar.h>
 #include <ef.gy/test-case.h>
 #include <ef.gy/vector.h>
+
+#include <iostream>
 
 using namespace efgy::math;
 
@@ -74,4 +74,4 @@ namespace test {
 using efgy::test::function;
 
 static function realVectors(testRealVectors);
-}
+}  // namespace test

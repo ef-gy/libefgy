@@ -216,8 +216,8 @@ class power : public series<Q, algorithm, N> {
    */
   const Q powerFactor;
 };
-}
-}
-}
+}  // namespace series
+}  // namespace math
+}  // namespace efgy
 
 #endif

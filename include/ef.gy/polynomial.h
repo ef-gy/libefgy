@@ -141,7 +141,7 @@ class polynomial {
 
   Q coefficients[degree];
 };
-};
-};
+};  // namespace math
+};  // namespace efgy
 
 #endif

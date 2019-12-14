@@ -74,7 +74,7 @@ constexpr inline std::basic_ostream<C> &operator<<(
     std::basic_ostream<C> &stream, const polar &format) {
   return stream << "[polar:" << format.precision << "]";
 }
-}
+}  // namespace format
 
 /**\brief Polar coordinate vector
  *
@@ -176,7 +176,7 @@ class vector<F, n, format::polar> : public std::array<F, n> {
    */
   format::polar spaceTag;
 };
-}
-}
+}  // namespace math
+}  // namespace efgy
 
 #endif

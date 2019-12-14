@@ -689,8 +689,8 @@ static inline runtime operator*=(runtime &p1, const runtime &p2) {
 static inline runtime operator/=(runtime &p1, const runtime &p2) {
   return p1 = (p1 / p2);
 }
-}
-}
-}
+}  // namespace tracer
+}  // namespace math
+}  // namespace efgy
 
 #endif

@@ -22,6 +22,7 @@
 #include <ef.gy/render.h>
 #include <ef.gy/stream-xml.h>
 #include <ef.gy/vector.h>
+
 #include <sstream>
 
 namespace efgy {
@@ -164,7 +165,7 @@ static inline xml::ostream<C> operator|=(
 
   return stream;
 }
-};
-};
+};  // namespace render
+};  // namespace efgy
 
 #endif

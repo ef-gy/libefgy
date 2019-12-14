@@ -170,8 +170,8 @@ class integral<Q, 0> {
                                                     1);
   }
 };
-};
-};
-};
+};  // namespace exponentiate
+};  // namespace math
+};  // namespace efgy
 
 #endif

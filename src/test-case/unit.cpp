@@ -13,12 +13,12 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-#include <string>
-
 #include <ef.gy/fractions.h>
 #include <ef.gy/test-case.h>
 #include <ef.gy/units.h>
+
+#include <iostream>
+#include <string>
 
 using namespace efgy::unit;
 using efgy::math::fraction;
@@ -257,4 +257,4 @@ static function unitMetric(testUnitMetric);
 static function metricMultipliers(testMetricMultipliers);
 static function unitEMetric(testUnitEMetric);
 static function unitBinary(testUnitBinary);
-}
+}  // namespace test

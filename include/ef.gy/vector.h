@@ -62,7 +62,7 @@ constexpr inline std::basic_ostream<C> &operator<<(
     std::basic_ostream<C> &stream, const cartesian &) {
   return stream << "[cartesian]";
 }
-}
+}  // namespace format
 
 /**\brief Generic vector
  *
@@ -322,7 +322,7 @@ std::basic_ostream<C> &operator<<(std::basic_ostream<C> &stream,
   }
   return stream << ")";
 }
-}
-}
+}  // namespace math
+}  // namespace efgy
 
 #endif

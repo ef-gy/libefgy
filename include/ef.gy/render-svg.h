@@ -20,6 +20,7 @@
 #include <ef.gy/polytope.h>
 #include <ef.gy/projection.h>
 #include <ef.gy/stream-svg.h>
+
 #include <sstream>
 
 namespace efgy {
@@ -331,7 +332,7 @@ static inline osvgstream<C, Q, d> operator<<(osvgstream<C, Q, d> stream,
 
   return stream;
 }
-}
-}
+}  // namespace render
+}  // namespace efgy
 
 #endif

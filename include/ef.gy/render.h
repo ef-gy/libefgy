@@ -26,6 +26,6 @@ namespace efgy {
  * complex higher dimensional models in OpenGL or WebGL.
  */
 namespace render {};
-};
+};  // namespace efgy
 
 #endif

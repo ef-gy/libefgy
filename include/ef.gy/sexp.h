@@ -106,5 +106,5 @@ std::ostream &operator<<(std::ostream &str, atom<T> a) {
   str << a.data;
   return str;
 }
-}
+}  // namespace efgy
 #endif

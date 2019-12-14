@@ -674,7 +674,7 @@ using byte = binary<Q, 'B', unitExponent>;
  */
 template <typename Q, int unitExponent = 1>
 using bit = binary<Q, 'b', unitExponent>;
-};
-};
+};  // namespace unit
+};  // namespace efgy
 
 #endif

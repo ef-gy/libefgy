@@ -552,7 +552,7 @@ class primitive {
    */
   Q data;
 };
-};
-};
+};  // namespace math
+};  // namespace efgy
 
 #endif

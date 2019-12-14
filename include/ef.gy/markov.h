@@ -301,7 +301,7 @@ class chain {
    */
   std::map<memory, transition> transitions;
 };
-}
-}
+}  // namespace markov
+}  // namespace efgy
 
 #endif

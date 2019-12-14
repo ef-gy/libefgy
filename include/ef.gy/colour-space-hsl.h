@@ -35,7 +35,7 @@ class HSL {
   /**\copydoc cartesian::id */
   static const char *id(void) { return "HSL"; }
 };
-};
+};  // namespace format
 
 template <typename Q>
 class vector<Q, 3, format::HSL> : public std::array<Q, 3> {
@@ -186,7 +186,7 @@ class vector<Q, 4, format::HSL> : public std::array<Q, 4> {
     return {{rg[0], rg[1], rg[2], alpha}};
   }
 };
-};
-};
+};  // namespace math
+};  // namespace efgy
 
 #endif

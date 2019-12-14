@@ -13,6 +13,7 @@
 #define EF_GY_PROJECTION_H
 
 #include <ef.gy/transformation.h>
+
 #include <array>
 #include <cmath>
 
@@ -156,7 +157,7 @@ class projection : public transformation::projective<Q, d> {
 
   using transformation::affine<Q, d>::matrix;
 };
-}
-}
+}  // namespace geometry
+}  // namespace efgy
 
 #endif

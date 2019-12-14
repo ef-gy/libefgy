@@ -17,6 +17,7 @@
 
 #include <ef.gy/complex.h>
 #include <ef.gy/e.h>
+
 #include <cmath>
 
 namespace efgy {
@@ -221,11 +222,10 @@ static inline Q secants(const Q &pTheta, Q &oCosecant,
  */
 template <typename Q, typename N = unsigned long long>
 constexpr static inline Q secant(const Q &pTheta, const N &iterations = N(10)) {
-  return Q(1) /
-         complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
-                                     complex<Q>(Q(0), pTheta),
-                                     complex<Q>(Q(0), Q(0)), iterations))
-             .i;
+  return Q(1) / complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
+                                            complex<Q>(Q(0), pTheta),
+                                            complex<Q>(Q(0), Q(0)), iterations))
+                    .i;
 }
 
 /**\brief Calculate secant
@@ -289,11 +289,10 @@ static inline float secant(const float &pTheta, const N & = N(10)) {
 template <typename Q, typename N = unsigned long long>
 constexpr static inline Q cosecant(const Q &pTheta,
                                    const N &iterations = N(10)) {
-  return Q(1) /
-         complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
-                                     complex<Q>(Q(0), pTheta),
-                                     complex<Q>(Q(0), Q(0)), iterations))
-             .one;
+  return Q(1) / complex<Q>(e<complex<Q>, N>(complex<Q>(Q(1), Q(0)),
+                                            complex<Q>(Q(0), pTheta),
+                                            complex<Q>(Q(0), Q(0)), iterations))
+                    .one;
 }
 
 /**\brief Calculate cosecant
@@ -664,7 +663,7 @@ static inline float arctangent2(const float &pY, const float &pX,
                                 const N & = N(10)) {
   return std::atan2(pY, pX);
 }
-};
-};
+};  // namespace math
+};  // namespace efgy
 
 #endif

@@ -262,7 +262,7 @@ class renderDimensions : public symmetric<std::set<std::size_t> > {
     return out.insert(e), out;
   }
 };
-}
+}  // namespace functor
 
 /**\brief Model factory helper
  *
@@ -277,8 +277,10 @@ class renderDimensions : public symmetric<std::set<std::size_t> > {
  *                tesseract
  * \tparam format Vector coordinate format to work in.
  */
-template <typename Q, template <typename, template <class, std::size_t> class,
-                                std::size_t, std::size_t, typename> class func,
+template <typename Q,
+          template <typename, template <class, std::size_t> class, std::size_t,
+                    std::size_t, typename>
+          class func,
           template <class, std::size_t> class T, std::size_t d, std::size_t e,
           typename format>
 class model {
@@ -368,8 +370,10 @@ class model {
  * \tparam d      Model depth, e.g. 4 for a tesseract
  * \tparam format Vector coordinate format to work in.
  */
-template <typename Q, template <typename, template <class, std::size_t> class,
-                                std::size_t, std::size_t, typename> class func,
+template <typename Q,
+          template <typename, template <class, std::size_t> class, std::size_t,
+                    std::size_t, typename>
+          class func,
           template <class, std::size_t> class T, std::size_t d, typename format>
 class model<Q, func, T, d, 1, format> {
  public:
@@ -405,8 +409,10 @@ class model<Q, func, T, d, 1, format> {
  *                tesseract
  * \tparam format Vector coordinate format to work in.
  */
-template <typename Q, template <typename, template <class, std::size_t> class,
-                                std::size_t, std::size_t, typename> class func,
+template <typename Q,
+          template <typename, template <class, std::size_t> class, std::size_t,
+                    std::size_t, typename>
+          class func,
           template <class, std::size_t> class T, std::size_t e, typename format>
 class model<Q, func, T, 0, e, format> {
  public:
@@ -448,8 +454,10 @@ class model<Q, func, T, 0, e, format> {
  *
  * \returns Whatever func::pass or func::with returns.
  */
-template <typename Q, template <typename, template <class, std::size_t> class,
-                                std::size_t, std::size_t, typename> class func,
+template <typename Q,
+          template <typename, template <class, std::size_t> class, std::size_t,
+                    std::size_t, typename>
+          class func,
           std::size_t d, template <class, std::size_t> class T, typename format>
 static inline typename func<Q, T, d, d, format>::output with(
     typename func<Q, T, d, d, format>::argument arg, const std::string &type,
@@ -494,7 +502,8 @@ class parametricFactory {
    */
   template <typename Q,
             template <typename, template <class, std::size_t> class,
-                      std::size_t, std::size_t, typename> class func,
+                      std::size_t, std::size_t, typename>
+            class func,
             std::size_t d, typename format>
   static inline typename func<Q, cube, d, d, format>::output with(
       typename func<Q, cube, d, d, format>::argument arg,
@@ -525,8 +534,10 @@ class parametricFactory {
  *
  * \returns Whatever func::pass returns.
  */
-template <typename Q, template <typename, template <class, std::size_t> class,
-                                std::size_t, std::size_t, typename> class func,
+template <typename Q,
+          template <typename, template <class, std::size_t> class, std::size_t,
+                    std::size_t, typename>
+          class func,
           std::size_t d, typename format = math::format::cartesian>
 static inline typename func<Q, cube, d, d, format>::output with(
     typename func<Q, cube, d, d, format>::argument arg, const std::string &type,
@@ -576,8 +587,10 @@ static inline typename func<Q, cube, d, d, format>::output with(
  *
  * \returns Whatever func::pass returns.
  */
-template <typename Q, template <typename, template <class, std::size_t> class,
-                                std::size_t, std::size_t, typename> class func,
+template <typename Q,
+          template <typename, template <class, std::size_t> class, std::size_t,
+                    std::size_t, typename>
+          class func,
           std::size_t d>
 constexpr static inline
     typename func<Q, cube, d, d, math::format::cartesian>::output
@@ -593,7 +606,7 @@ constexpr static inline
                                                      math::format::polar())
              : func<Q, cube, d, d, math::format::polar>::pass(arg);
 }
-}
-}
+}  // namespace geometry
+}  // namespace efgy
 
 #endif

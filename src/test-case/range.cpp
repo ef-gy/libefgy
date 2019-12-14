@@ -13,13 +13,13 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
+#include <ef.gy/range.h>
+#include <ef.gy/test-case.h>
+
 #include <algorithm>
 #include <array>
 #include <iostream>
 #include <string>
-
-#include <ef.gy/range.h>
-#include <ef.gy/test-case.h>
 
 using namespace efgy;
 
@@ -76,4 +76,4 @@ namespace test {
 using efgy::test::function;
 
 static function range(testRange);
-}
+}  // namespace test

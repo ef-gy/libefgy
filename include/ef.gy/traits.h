@@ -72,8 +72,8 @@ class traits<primitive<Q, I>> {
 
   static const bool stable = false;
 };
-};
-};
-};
+};  // namespace numeric
+};  // namespace math
+};  // namespace efgy
 
 #endif

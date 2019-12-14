@@ -72,7 +72,7 @@ class initialiseBooleansRandomly {
     }
   }
 };
-}
-}
+}  // namespace optimise
+}  // namespace efgy
 
 #endif

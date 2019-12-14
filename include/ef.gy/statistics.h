@@ -17,6 +17,7 @@
 #define EF_GY_STATISTICS_H
 
 #include <ef.gy/numeric.h>
+
 #include <array>
 #include <numeric>
 #include <optional>
@@ -123,7 +124,7 @@ static std::optional<T> chi_square(const std::vector<T> values,
   return chi_square<T>(values.begin(), values.end(), measurements.begin(),
                        measurements.end());
 }
-}
-}
+}  // namespace statistics
+}  // namespace efgy
 
 #endif

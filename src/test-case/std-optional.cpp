@@ -19,6 +19,7 @@
  */
 
 #include <ef.gy/test-case.h>
+
 #include <iostream>
 #include <optional>
 #include <sstream>
@@ -87,4 +88,4 @@ namespace test {
 using efgy::test::function;
 
 static function optional(testOptional);
-}
+}  // namespace test

@@ -26,6 +26,7 @@
 #include <ef.gy/exponential.h>
 #include <ef.gy/polar.h>
 #include <ef.gy/range.h>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -543,7 +544,7 @@ class cube<1> {
 
   static constexpr std::size_t size(void) { return 0; }
 };
-}
+}  // namespace mask
 
 template <typename Q, std::size_t depth>
 class cube {
@@ -591,7 +592,7 @@ class cube {
    */
   static constexpr std::size_t size(void) { return source::size(); }
 };
-}
+}  // namespace generators
 
 /**\ingroup libefgy-geometric-primitives
  * \brief The hypercube
@@ -629,7 +630,7 @@ class cube {
  */
 template <typename Q, std::size_t od>
 using cube = polytope<Q, od, generators::cube>;
-}
-}
+}  // namespace geometry
+}  // namespace efgy
 
 #endif

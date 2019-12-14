@@ -123,8 +123,8 @@ class traits<complex<Q>> {
 
   static const bool stable = false;
 };
-};
-};
-};
+};  // namespace numeric
+};  // namespace math
+};  // namespace efgy
 
 #endif

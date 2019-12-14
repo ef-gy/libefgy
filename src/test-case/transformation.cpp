@@ -13,10 +13,10 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-
 #include <ef.gy/test-case.h>
 #include <ef.gy/transformation.h>
+
+#include <iostream>
 
 using namespace efgy::geometry::transformation;
 using namespace efgy::test;
@@ -129,4 +129,4 @@ using efgy::test::function;
 
 static function identity(testIdentity);
 static function affineConstruction(testAffineConstruction);
-}
+}  // namespace test

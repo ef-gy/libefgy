@@ -70,7 +70,7 @@ constexpr inline ostream<C> operator<<(std::basic_ostream<C> &stream,
                                        const tag &) {
   return ostream<C>(stream);
 }
-}
-}
+}  // namespace svg
+}  // namespace efgy
 
 #endif

@@ -13,10 +13,10 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-
 #include <ef.gy/factorial.h>
 #include <ef.gy/test-case.h>
+
+#include <iostream>
 
 using namespace efgy;
 using namespace efgy::math;
@@ -53,4 +53,4 @@ namespace test {
 using efgy::test::function;
 
 static function factorial(testFactorial);
-}
+}  // namespace test

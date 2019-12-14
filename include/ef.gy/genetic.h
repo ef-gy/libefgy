@@ -259,7 +259,7 @@ class SelectTournament {
  private:
   S &GA;
 };
-}
-}
+}  // namespace optimise
+}  // namespace efgy
 
 #endif

@@ -12,11 +12,11 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <math.h>
-#include <iostream>
-
 #include <ef.gy/statistics.h>
 #include <ef.gy/test-case.h>
+#include <math.h>
+
+#include <iostream>
 
 using namespace efgy;
 using namespace efgy::statistics;
@@ -102,4 +102,4 @@ namespace test {
 using efgy::test::function;
 
 static function statistics(testStatistics);
-}
+}  // namespace test

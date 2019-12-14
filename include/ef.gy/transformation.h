@@ -97,7 +97,7 @@ class translate {
 
   math::vector<Q, d - 1> from;
 };
-}
+}  // namespace generator
 
 /**\brief Template for linear maps on the vector space Q^d
  *
@@ -424,8 +424,8 @@ class translation : public affine<Q, d> {
   math::ghost::matrix<Q, d + 1, d + 1, generator::translate> ghost;
   math::vector<Q, d> &from;
 };
-}
-}
-}
+}  // namespace transformation
+}  // namespace geometry
+}  // namespace efgy
 
 #endif

@@ -13,6 +13,7 @@
 #define EF_GY_CONTINUED_FRACTIONS_H
 
 #include <ef.gy/fractions.h>
+
 #include <ostream>
 #include <vector>
 
@@ -374,8 +375,8 @@ std::basic_ostream<C> &operator<<(std::basic_ostream<C> &out,
 
   return out << " ]";
 }
-};
-};
-};
+};  // namespace numeric
+};  // namespace math
+};  // namespace efgy
 
 #endif

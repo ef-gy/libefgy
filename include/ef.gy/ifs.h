@@ -15,6 +15,7 @@
 #include <ef.gy/parametric.h>
 #include <ef.gy/polytope.h>
 #include <ef.gy/projection.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -90,7 +91,7 @@ class randomAffine : public affine<Q, d> {
   const parameters<Q> &parameter;
   const unsigned long long seed;
 };
-}
+}  // namespace transformation
 
 namespace generators {
 template <typename Q, std::size_t depth, std::size_t renderDepth>
@@ -231,7 +232,7 @@ static constexpr const char randomAffineIFSLabel[] = "random-affine-ifs";
 template <typename Q, std::size_t depth, std::size_t renderDepth>
 using randomAffine = random<Q, depth, renderDepth, transformation::affine,
                             transformation::randomAffine, randomAffineIFSLabel>;
-}
+}  // namespace generators
 
 template <typename Q, std::size_t depth,
           template <class, std::size_t> class primitive,
@@ -368,11 +369,11 @@ using gasket = ifs<Q, depth, cube, generators::gasket>;
 
 template <typename Q, std::size_t depth>
 using carpet = ifs<Q, depth, cube, generators::carpet>;
-}
+}  // namespace sierpinski
 
 template <typename Q, std::size_t depth>
 using randomAffineIFS = ifs<Q, depth, cube, generators::randomAffine>;
-}
-}
+}  // namespace geometry
+}  // namespace efgy
 
 #endif

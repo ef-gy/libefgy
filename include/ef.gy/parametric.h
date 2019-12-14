@@ -17,6 +17,7 @@
 #define EF_GY_PARAMETRIC_H
 
 #include <ef.gy/polytope.h>
+
 #include <algorithm>
 
 namespace efgy {
@@ -245,7 +246,7 @@ class dinisSurface {
                parameter.radius2 * ve[0])}};
   }
 };
-}
+}  // namespace formula
 
 template <typename Q, std::size_t od,
           template <typename, std::size_t> class formula>
@@ -444,7 +445,7 @@ class parametric : public object<Q, od, formula<Q, od>::renderDepth, 4,
  */
 template <typename Q, std::size_t od>
 using plane = parametric<Q, od, formula::plane>;
-}
-}
+}  // namespace geometry
+}  // namespace efgy
 
 #endif

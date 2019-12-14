@@ -29,6 +29,7 @@
 #include <ef.gy/polytope.h>
 #include <ef.gy/projection.h>
 #include <ef.gy/tracer.h>
+
 #include <algorithm>
 #include <array>
 #include <functional>
@@ -60,7 +61,7 @@ using matrix = math::matrix<shader::number, d, e>;
 static inline shader::sharedAtom verbatim(const std::string v) {
   return shader::sharedAtom(new shader::atom(v));
 }
-}
+}  // namespace shader
 
 template <unsigned int d>
 static inline void name(const std::string &name, shader::vector<d> &pVector) {
@@ -277,7 +278,7 @@ class postProcess : public glsl<V> {
             {shader::attribute("position", "vec4")},
             {shader::varying("UV", "vec2", "lowp")}) {}
 };
-}
+}  // namespace vertex
 
 /**\brief GLSL fragment shaders
  *
@@ -359,9 +360,9 @@ class postProcess : public glsl<V> {
              shader::uniform("screenHistogram", "sampler2D"),
              shader::uniform("colourMap", "sampler2D")}) {}
 };
-}
-}
-}
+}  // namespace fragment
+}  // namespace glsl
+}  // namespace render
 
 namespace opengl {
 /**\brief OpenGL render programme
@@ -831,7 +832,7 @@ class fractalFlameRenderProgramme {
    */
   bool floatTextures;
 };
-}
+}  // namespace opengl
 
 namespace render {
 template <typename Q, unsigned int d>
@@ -1742,7 +1743,7 @@ static inline oglstream<C, Q, d> operator<<(oglstream<C, Q, d> stream,
 
   return stream;
 }
-}
-}
+}  // namespace render
+}  // namespace efgy
 
 #endif

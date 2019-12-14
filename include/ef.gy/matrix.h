@@ -100,7 +100,7 @@ class matrix : public std::iterator<std::random_access_iterator_tag, Q> {
   std::size_t position;
   const Source &source;
 };
-}
+}  // namespace iterator
 
 template <typename Q, std::size_t n, std::size_t m>
 class matrix;
@@ -193,7 +193,7 @@ class matrix {
   iterator end(void) const { return iterator(*this, n * m); }
   constexpr std::size_t size(void) const { return n; }
 };
-}
+}  // namespace ghost
 
 /**\brief Matrix with fixed size.
  *
@@ -400,7 +400,7 @@ matrix<Q, 3, 3> invert(const matrix<Q, 3, 3> &pM) {
 
   return rv / determinant(pM);
 }
-}
-}
+}  // namespace math
+}  // namespace efgy
 
 #endif

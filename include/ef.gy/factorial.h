@@ -46,7 +46,7 @@ class factorial {
 
   Z integer;
 };
-};
-};
+};  // namespace math
+};  // namespace efgy
 
 #endif

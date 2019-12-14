@@ -34,7 +34,7 @@ class RGB {
   /**\copydoc cartesian::id */
   static const char *id(void) { return "RGB"; }
 };
-}
+}  // namespace format
 
 template <typename Q>
 class vector<Q, 3, format::RGB> : public std::array<Q, 3> {
@@ -102,7 +102,7 @@ class vector<Q, 4, format::RGB> : public std::array<Q, 4> {
   Q &blue;
   Q &alpha;
 };
-};
-};
+};  // namespace math
+};  // namespace efgy
 
 #endif

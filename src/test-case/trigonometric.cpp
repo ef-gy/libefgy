@@ -13,12 +13,12 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-
 #include <ef.gy/fractions.h>
 #include <ef.gy/range.h>
 #include <ef.gy/test-case.h>
 #include <ef.gy/trigonometric.h>
+
+#include <iostream>
 
 using namespace efgy::math;
 using efgy::range;
@@ -47,4 +47,4 @@ namespace test {
 using efgy::test::function;
 
 static function sine(testSine);
-}
+}  // namespace test

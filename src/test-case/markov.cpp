@@ -14,10 +14,10 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-
 #include <ef.gy/markov.h>
 #include <ef.gy/test-case.h>
+
+#include <iostream>
 
 using namespace efgy;
 
@@ -62,4 +62,4 @@ using efgy::test::function;
 static function markovChain1(testMarkovChain<1>);
 static function markovChain2(testMarkovChain<2>);
 static function markovChain3(testMarkovChain<3>);
-}
+}  // namespace test

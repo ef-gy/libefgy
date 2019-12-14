@@ -12,10 +12,10 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-
 #include <ef.gy/json.h>
 #include <ef.gy/test-case.h>
+
+#include <iostream>
 #include <sstream>
 
 using namespace efgy;
@@ -101,4 +101,4 @@ using efgy::test::function;
 
 static function JSONInput(testJSONInput);
 static function size(testSize);
-}
+}  // namespace test

@@ -16,6 +16,7 @@
 #define EF_GY_OPENGL_H
 
 #include <ef.gy/glsl.h>
+
 #include <algorithm>
 #include <set>
 #include <sstream>
@@ -1637,7 +1638,7 @@ class vertexArrayExtended : public vertexArray<Q> {
    */
   bool hasBound;
 };
-}
-}
+}  // namespace opengl
+}  // namespace efgy
 
 #endif

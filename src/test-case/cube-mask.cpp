@@ -14,12 +14,12 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-#include <string>
-
 #include <ef.gy/polytope.h>
 #include <ef.gy/test-case.h>
+
 #include <algorithm>
+#include <iostream>
+#include <string>
 
 using namespace efgy;
 
@@ -74,4 +74,4 @@ static function cube4(
     analyseCubeMaskProperties<geometry::generators::mask::cube<4>>);
 static function cube5(
     analyseCubeMaskProperties<geometry::generators::mask::cube<5>>);
-}
+}  // namespace test

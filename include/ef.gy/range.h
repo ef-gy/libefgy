@@ -191,6 +191,6 @@ class range<T, 0> {
   T stride;
   std::size_t steps;
 };
-}
+}  // namespace efgy
 
 #endif

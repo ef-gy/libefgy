@@ -48,7 +48,7 @@ class sequence : public algorithm<Q, N> {
    */
   using sequenceAlgorithm = algorithm<Q, N>;
 };
-}
-}
+}  // namespace math
+}  // namespace efgy
 
 #endif

@@ -13,13 +13,13 @@
  * under the terms of an MIT/X11-style licence, described in the COPYING file.
  */
 
-#include <iostream>
-#include <string>
-
 #include <ef.gy/matrix.h>
 #include <ef.gy/test-case.h>
 #include <ef.gy/tracer.h>
+
 #include <algorithm>
+#include <iostream>
+#include <string>
 
 using namespace efgy::math::tracer;
 using efgy::math::matrix;
@@ -90,4 +90,4 @@ using efgy::test::function;
 
 static function tracer(testTracer);
 static function tracerMatrix(testTracerMatrix);
-}
+}  // namespace test
