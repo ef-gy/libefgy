@@ -32,6 +32,7 @@
 
 #include <ef.gy/global.h>
 
+#include <cstdlib>
 #include <functional>
 #include <iostream>
 #include <regex>
@@ -413,22 +414,23 @@ class flag<long> : public option {
   /* Construct with name.
    * @pName The name for the integer CLI flag.
    * @pDescription A textual description of what the flag does.
+   * @pDefault Default value.
    * @pOpts The option registry to register with.
    *
    * The name you give the flag is used as part of a regex, so keep it simple.
    */
-  flag(const std::string &pName,
+  flag(const std::string &pName, const long pDefault = 0,
        const std::string &pDescription = "please document me",
        beacons<option> &pOpts = global<beacons<option>>())
       : option(
-            "-{0,2}" + pName + "[:=]([0-9]+)",
+            "-{0,2}" + pName + "[:=](-?[0-9]+)",
             [this](std::smatch &m) -> bool {
               const std::string v = m[1];
               value = std::strtol(v.c_str(), 0, 10);
               return true;
             },
             "[integer] " + pDescription, pOpts),
-        value(0) {}
+        value(pDefault) {}
 
   /* Cast to a string.
    *
