@@ -393,6 +393,57 @@ class flag<std::string> : public option {
   std::string value;
 };
 
+/* A long integer CLI flag.
+ *
+ * Exactly what it says on the tin. The regex that this resolves to allows for
+ * the following syntax variants:
+ *
+ *     --name=123
+ *     --name:456
+ *
+ * Dashes are optional, and you can either use -name or --name. It's not
+ * possible to split this into two arguments, however, e.g. "--name 123" is not
+ * a valid way to set the flag.
+ */
+template <>
+class flag<long> : public option {
+ public:
+  /* Construct with name.
+   * @pName The name for the integer CLI flag.
+   * @pDescription A textual description of what the flag does.
+   * @pOpts The option registry to register with.
+   *
+   * The name you give the flag is used as part of a regex, so keep it simple.
+   */
+  flag(const std::string &pName,
+       const std::string &pDescription = "please document me",
+       beacons<option> &pOpts = global<beacons<option>>())
+      : option("-{0,2}" + pName + "[:=]([0-9]+)",
+               [this](std::smatch &m) -> bool {
+                 const std::string v = m[1];
+                 value = std::strtol(v.c_str(), 0, 10);
+                 return true;
+               },
+               "[integer] " + pDescription, pOpts),
+        value(0) {}
+
+  /* Cast to a string.
+   *
+   * This allows accessing the value of this option. The default is 0,
+   * unless it's been set at the command line.
+   *
+   * @return 'value', but forced to be const.
+   */
+  operator const long(void) const { return value; }
+
+ protected:
+  /* Raw value.
+   *
+   * Don't use this. Use the provided type cast operator instead.
+   */
+  long value;
+};
+
 /* Additional CLI usage hints.
  *
  * This class provides additional usage hints to users of your programme. A
