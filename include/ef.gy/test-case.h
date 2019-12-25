@@ -156,13 +156,12 @@ extern "C" int main(int argc, char **argv) {
  * When we haven't compiled withe the main stub, we add a CLI option to run the
  * test cases anyway.
  */
-static cli::option runTest(
-    "-{0,2}run-tests",
-    [](std::smatch &) -> bool {
-      run<function>();
-      return true;
-    },
-    "run test cases");
+static cli::option runTest("-{0,2}run-tests",
+                           [](std::smatch &) -> bool {
+                             run<function>();
+                             return true;
+                           },
+                           "run test cases");
 
 #endif
 }  // namespace test

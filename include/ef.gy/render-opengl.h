@@ -1248,10 +1248,11 @@ class opengl {
 
     std::array<math::vector<Q, d - 1>, q> V;
 
-    std::transform(pV.begin(), pV.end(), V.begin(),
-                   [&](const math::vector<Q, d> &s) -> math::vector<Q, d - 1> {
-                     return combined * s;
-                   });
+    std::transform(
+        pV.begin(), pV.end(),
+        V.begin(), [&](const math::vector<Q, d> &s) -> math::vector<Q, d - 1> {
+          return combined * s;
+        });
 
     lowerRenderer.draw(V, index);
   }
