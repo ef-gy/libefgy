@@ -8,4 +8,7 @@ documentation/xml
 *.dSYM
 .DS_*
 dependencies.mk
-include/optional
+
+# coverage files
+*.gcda
+*.gcno
