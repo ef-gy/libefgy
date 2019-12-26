@@ -147,11 +147,4 @@ $(DOWNLOADS)/.volatile:
 %.gz: %
 	gzip -kf9n $<
 
-# provide a wrapper for experimental/optional to plain optional
-optional: include/optional
-
-include/optional:
-	echo '#include <experimental/optional>' > $@
-	echo 'namespace std { using experimental::optional; }' >> $@
-
 include dependencies.mk
