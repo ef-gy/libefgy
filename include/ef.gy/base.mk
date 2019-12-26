@@ -152,6 +152,8 @@ $(DOWNLOADS)/.volatile:
 # dummy rule for std::optional
 # provide a wrapper for experimental/optional to plain optional
 optional: include/optional
+
+include/optional:
 	echo '#include <experimental/optional>' > $@
 	echo 'namespace std { using experimental::optional; }' >> $@
 
