@@ -57,6 +57,8 @@ SCRIPTS_SRC_TEST:=$(wildcard src/test-case/*.sh)
 SCRIPTS_SRC:=$(SCRIPTS_SRC_TEST)
 SCRIPTS:=$(basename $(addprefix test-case-,$(notdir $(SCRIPTS_SRC_TEST))))
 
+COVERAGE_OUTPUT:=$(wildcard *.gcno *.gcda)
+
 TESTBINARIES=$(filter test-case-%,$(BINARIES) $(SCRIPTS))
 
 IGNOREBINARIES:=server
@@ -74,7 +76,7 @@ DATAHEADERS=$(wildcard include/data/*.h)
 # meta rules
 all: $(BINARIES)
 clean:
-	rm -f $(BINARIES) $(JSBINARIES) $(SCRIPTS); true
+	rm -f $(BINARIES) $(JSBINARIES) $(SCRIPTS) $(COVERAGE_OUTPUT); true
 scrub: clean
 	rm -rf dependencies.mk
 
@@ -146,5 +148,9 @@ $(DOWNLOADS)/.volatile:
 # just in case we want to compress something
 %.gz: %
 	gzip -kf9n $<
+
+# dummy rule for std::optional
+# dependency generation seems oddly broken for this
+optional:
 
 include dependencies.mk
