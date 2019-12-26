@@ -150,7 +150,9 @@ $(DOWNLOADS)/.volatile:
 	gzip -kf9n $<
 
 # dummy rule for std::optional
-# dependency generation seems oddly broken for this
-optional:
+# provide a wrapper for experimental/optional to plain optional
+optional: include/optional
+	echo '#include <experimental/optional>' > $@
+	echo 'namespace std { using experimental::optional; }' >> $@
 
 include dependencies.mk
